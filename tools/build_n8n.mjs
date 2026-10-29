@@ -177,18 +177,30 @@ return [{ json: sheetRow(b, { meet: ev.hangoutLink || '', eventLink: ev.htmlLink
   {
     id: '7d0b9c1e-0018-4a51-9d1a-6f1c00000018', name: 'Log to Google Sheet', type: 'n8n-nodes-base.googleSheets', typeVersion: 4.5, position: [2160, 380],
     // The visitor already has their answer by now; a logging problem must not undo or block the booking.
-    onError: 'continueRegularOutput',
+    // On an error, email Jeff the reason (successful runs aren't saved, so it would otherwise go unseen).
+    onError: 'continueErrorOutput',
     parameters: {
       operation: 'append',
       // The bookings sheet, kept here so a re-import doesn't clear it. Sheet ID 0 is the first tab.
       documentId: { __rl: true, value: BOOKINGS_SHEET_ID, mode: 'id' },
-      sheetName: { __rl: true, value: 0, mode: 'id' },
+      sheetName: { __rl: true, value: '0', mode: 'id' },
       columns: { mappingMode: 'autoMapInputData', value: {}, matchingColumns: [], schema: [] },
       options: {},
     },
   },
 
   // ---------- Reminders: wait inside this run, re-check the event, then email the visitor
+  {
+    id: '7d0b9c1e-0043-4a51-9d1a-6f1c00000043', name: 'Email Jeff: sheet problem', type: 'n8n-nodes-base.gmail', typeVersion: 2.1, position: [2400, 600],
+    onError: 'continueRegularOutput',
+    parameters: {
+      sendTo: OWNER_EMAIL,
+      subject: "={{ 'Booking not logged to the sheet: ' + $('Check the request').first().json.booking.name }}",
+      emailType: 'text',
+      message: "={{ 'The booking went through (calendar invite sent), but adding the row to the bookings sheet failed.\\n\\nReason from Google Sheets:\\n' + ($json.error?.message || $json.error || JSON.stringify($json)) + '\\n\\nCheck the Log to Google Sheet node: credential, Document, Sheet, and that row 1 holds the headers.' }}",
+      options: { appendAttribution: false },
+    },
+  },
   {
     id: '7d0b9c1e-0019-4a51-9d1a-6f1c00000019', name: 'Plan reminders', type: 'n8n-nodes-base.code', typeVersion: 2, position: [2400, 380],
     parameters: {
@@ -290,7 +302,8 @@ const connections = {
   'Confirm booking': { main: [[link('Email Jeff')]] },
   'Email Jeff': { main: [[link('Sheet row')]] },
   'Sheet row': { main: [[link('Log to Google Sheet')]] },
-  'Log to Google Sheet': { main: [[link('Plan reminders')]] },
+  'Log to Google Sheet': { main: [[link('Plan reminders')], [link('Email Jeff: sheet problem')]] },
+  'Email Jeff: sheet problem': { main: [[link('Plan reminders')]] },
   'Plan reminders': { main: [[link('Day-before reminder due?')]] },
   'Day-before reminder due?': { main: [[link('Wait until 1 day before')], [link('Wait until 1 hour before')]] },
   'Wait until 1 day before': { main: [[link('Google: still on? (1 day)')]] },

@@ -359,7 +359,7 @@
         2160,
         380
       ],
-      "onError": "continueRegularOutput",
+      "onError": "continueErrorOutput",
       "parameters": {
         "operation": "append",
         "documentId": {
@@ -369,7 +369,7 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": 0,
+          "value": "0",
           "mode": "id"
         },
         "columns": {
@@ -379,6 +379,26 @@
           "schema": []
         },
         "options": {}
+      }
+    },
+    {
+      "id": "7d0b9c1e-0043-4a51-9d1a-6f1c00000043",
+      "name": "Email Jeff: sheet problem",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2400,
+        600
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "sendTo": "jeffhersonvida@gmail.com",
+        "subject": "={{ 'Booking not logged to the sheet: ' + $('Check the request').first().json.booking.name }}",
+        "emailType": "text",
+        "message": "={{ 'The booking went through (calendar invite sent), but adding the row to the bookings sheet failed.\\n\\nReason from Google Sheets:\\n' + ($json.error?.message || $json.error || JSON.stringify($json)) + '\\n\\nCheck the Log to Google Sheet node: credential, Document, Sheet, and that row 1 holds the headers.' }}",
+        "options": {
+          "appendAttribution": false
+        }
       }
     },
     {
@@ -836,6 +856,24 @@
       ]
     },
     "Log to Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Plan reminders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Jeff: sheet problem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Jeff: sheet problem": {
       "main": [
         [
           {

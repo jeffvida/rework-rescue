@@ -1,14 +1,17 @@
 // ============================================================================
 //  SITE SETTINGS: the one file to edit for names, contact details, wording and options.
 //
-//  How to edit: change the text between the quote marks, save, then run `npm run build`
-//  (or `npm start` to preview). Keep the commas, quotes and brackets exactly as they are.
+//  How to edit: change the text between the quote marks and commit the file to GitHub.
+//  There is no build step: Vercel redeploys the site automatically after each commit.
+//  Make changes on a separate branch first to get a preview link before they go live.
+//  Keep the commas, quotes and brackets exactly as they are.
 //  An apostrophe inside text wrapped in 'single quotes' needs a backslash (it\'s) or
 //  wrap that text in "double quotes" instead.
 //
 //  Not in this file: colours and layout (assets/styles.css, see the :root block at the top),
-//  the assessment questions and rules (src/assessment, src/engine: approved and tested),
-//  and the example data (src/sample, src/bills; regenerate with tools/generate_*.py).
+//  the assessment questions and rules (src/finder: approved and tested),
+//  the example data (src/sample, src/bills; regenerate with tools/generate_*.py),
+//  and each page's title, description and share-preview tags (the <head> of each index.html).
 //
 //  Nothing here is a secret. Values marked PROVISIONAL must be confirmed before launch.
 //  Nothing here may invent testimonials, client names, statistics, certifications or
@@ -45,7 +48,8 @@ export const SITE = {
   // Booking: the homepage pop-up (src/ui/booking.js) shows example times and ends in an email draft.
   // Replace it with the Cal.com pop-up once a booking link exists.
   bookingUrl: '',
-  // Inquiry delivery. Leave empty until a server-side endpoint exists (see README).
+  // Inquiry delivery. Leave empty until a server-side endpoint exists (for example an n8n webhook URL).
+  // This repository is public, so the URL is visible to anyone: the endpoint must filter spam itself.
   // The browser never holds an email-provider key; the endpoint must be your own server or a
   // form-handling service that keeps credentials server-side.
   submitEndpoint: '',

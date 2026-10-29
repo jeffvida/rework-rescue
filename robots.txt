@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /brand/
+
+Sitemap: https://rework-rescue.vercel.app/sitemap.xml

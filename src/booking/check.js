@@ -109,3 +109,46 @@ export function sheetRow(booking, { meet = '', eventLink = '', nowMs = Date.now(
   ];
   return Object.fromEntries(SHEET_COLUMNS.map((c, i) => [c, i < 3 ? values[i] : safe(values[i])]));
 }
+
+// ---------------------------------------------------------------- Reminder emails to the visitor
+// Sent by the workflow 1 day and 1 hour before the review, in the visitor's own time zone.
+const SITE_EXAMPLES = 'https://rework-rescue.vercel.app/#samples';
+
+function visitorTime(ms, tz) {
+  const opts = { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+  try { return new Intl.DateTimeFormat('en-US', { ...opts, timeZone: tz || 'Asia/Manila' }).format(new Date(ms)); }
+  catch { return new Intl.DateTimeFormat('en-US', { ...opts, timeZone: 'Asia/Manila' }).format(new Date(ms)); }
+}
+
+/**
+ * When to send each reminder, and what it says.
+ * The 1-day reminder is skipped when the booking is made less than a day (plus 5 minutes) ahead.
+ */
+export function planReminders(booking, { meet = '', nowMs = Date.now() } = {}) {
+  const startMs = Date.parse(booking.start);
+  const when = visitorTime(startMs, booking.tz);
+  const first = String(booking.name || '').split(' ')[0] || 'there';
+  const join = meet ? `Join with Google Meet: ${meet}` : 'The Google Meet link is in your calendar invite.';
+  const sign = ['Jeff Herson Vida', 'Rework Rescue · Less rework. More real work.'];
+  return {
+    start: booking.start,
+    email: booking.email,
+    dayAt: new Date(startMs - 24 * 3600e3).toISOString(),
+    hourAt: new Date(startMs - 3600e3).toISOString(),
+    sendDay: startMs - 24 * 3600e3 > nowMs + 5 * 60e3,
+    day: {
+      subject: 'Reminder: your free rework review is tomorrow',
+      text: [
+        `Hi ${first},`, '',
+        'A quick reminder of your free 30-minute rework review with me tomorrow:', when, join, '',
+        `Before the call, have one report, check or workflow in mind that your team keeps redoing, like the examples on my site: ${SITE_EXAMPLES}`,
+        'No preparation or files needed, and please leave out anything confidential.', '',
+        'Need to change the time? Just reply to this email.', '', ...sign,
+      ].join('\n'),
+    },
+    hour: {
+      subject: 'Starting in an hour: your free rework review',
+      text: [`Hi ${first},`, '', `Your free rework review starts in an hour: ${when}.`, join, '', 'See you soon,', ...sign].join('\n'),
+    },
+  };
+}

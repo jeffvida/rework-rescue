@@ -138,7 +138,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
         <p>A calendar invite with the Google Meet link is on its way to <strong>${esc(req.email)}</strong>. If it isn&rsquo;t there in a few minutes, check your spam folder or <a href="mailto:${esc(SPECIALIST.email)}">email me</a>.</p>
         <p class="bk-step">What happens next</p>
         <ol class="bk-next">
-          <li>Accept the invite so the time is in your calendar.</li>
+          <li>Accept the invite so the time is in your calendar. I&rsquo;ll also email you a reminder a day before and an hour before.</li>
           <li>Need to change it? Reply to the invite or email me.</li>
           <li>Before the call, have the report or process in mind. There&rsquo;s no need to send any files.</li>
         </ol>

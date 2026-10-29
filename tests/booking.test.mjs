@@ -83,3 +83,21 @@ test('sheet row: one column per header, Philippine times, formulas neutralised',
   assert.equal(row['Find Your Rework result'], 'Result: Data Rework');
   assert.equal(row.Status, 'Booked');
 });
+
+test('reminders: times, skipping the 1-day one when too close, visitor time zone', async () => {
+  const { planReminders } = await import('../src/booking/check.js');
+  const b = checkBooking(ok, NOW).booking; // Mon 2 Nov 10:00 PH, visitor in Sydney
+  const r = planReminders(b, { meet: 'https://meet.google.com/abc', nowMs: NOW });
+  assert.equal(r.dayAt, ph('2026-11-01T10:00:00'));
+  assert.equal(r.hourAt, ph('2026-11-02T09:00:00'));
+  assert.equal(r.sendDay, true);
+  assert.match(r.day.text, /^Hi Ana,/);
+  assert.match(r.day.text, /Monday, November 2 at 1:00 PM GMT\+11/, 'shown in Sydney time');
+  assert.match(r.day.text, /Join with Google Meet: https:\/\/meet\.google\.com\/abc/);
+  assert.match(r.day.text, /#samples/);
+  assert.match(r.hour.subject, /Starting in an hour/);
+  const soon = planReminders(b, { nowMs: Date.parse(ph('2026-11-01T22:00:00')) });
+  assert.equal(soon.sendDay, false, 'booked 12 hours ahead: no 1-day reminder');
+  assert.match(soon.hour.text, /link is in your calendar invite/);
+  assert.match(planReminders({ ...b, tz: 'Not/AZone' }, { nowMs: NOW }).hour.text, /GMT\+8/, 'bad time zone falls back to PH');
+});

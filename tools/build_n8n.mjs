@@ -32,15 +32,16 @@ const nodes = [
   {
     id: '7d0b9c1e-0001-4a51-9d1a-6f1c00000001', name: 'Setup notes', type: 'n8n-nodes-base.stickyNote', typeVersion: 1, position: [-260, -260],
     parameters: {
-      width: 560, height: 340,
+      width: 600, height: 380,
       content: [
         '## Rework review booking',
-        '1. Open each **Google** node (the 3 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
+        '1. Open each **Google** node (the 5 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
         '2. Open **Email Jeff** and pick or create a **Gmail OAuth2** credential.',
         '3. Open **Log to Google Sheet**: create a **Google Sheets OAuth2** credential, then pick your bookings sheet (Document, then Sheet). Row 1 of that sheet must hold the column headers listed in n8n/SETUP.md.',
-        '4. Save, then switch the workflow to **Active**.',
-        '5. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.',
-        '6. After testing, set Allowed Origins in both Webhook nodes to your live site address.',
+        '4. Pick the same Google Calendar credential in the two **Google: still on?** nodes and the same Gmail credential in the two **Email: … reminder** nodes.',
+        '5. Save, then switch the workflow to **Active** (or Publish). Keep it active: reminders wait inside each booking run.',
+        '6. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.',
+        '7. After testing, set Allowed Origins in both Webhook nodes to your live site address.',
         '',
         'Slot rules and checks come from src/booking/*.js in the site repo. Edit there and rebuild, not here.',
       ].join('\n'),
@@ -184,7 +185,64 @@ return [{ json: sheetRow(b, { meet: ev.hangoutLink || '', eventLink: ev.htmlLink
       options: {},
     },
   },
+
+  // ---------- Reminders: wait inside this run, re-check the event, then email the visitor
+  {
+    id: '7d0b9c1e-0019-4a51-9d1a-6f1c00000019', name: 'Plan reminders', type: 'n8n-nodes-base.code', typeVersion: 2, position: [2400, 380],
+    parameters: {
+      jsCode: `${LIB}
+// ---- workflow step: when to send the 1-day and 1-hour reminders, and what they say
+const b = $('Check the request').first().json.booking;
+const ev = $('Google: create event + invite').first().json;
+return [{ json: { eventId: ev.id || '', ...planReminders(b, { meet: ev.hangoutLink || '' }) } }];`,
+    },
+  },
+  {
+    id: '7d0b9c1e-0020-4a51-9d1a-6f1c00000020', name: 'Day-before reminder due?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [2640, 380],
+    parameters: ifTrue('c1a00000-0000-4000-8000-000000000003', '={{ $json.sendDay === true && !!$json.eventId }}'),
+  },
+  ...reminderStep('day', 'Wait until 1 day before', 'Google: still on? (1 day)', 'Still on? (1 day)', 'Email: 1-day reminder', 2880, 280, 21),
+  ...reminderStep('hour', 'Wait until 1 hour before', 'Google: still on? (1 hour)', 'Still on? (1 hour)', 'Email: 1-hour reminder', 3920, 480, 25),
 ];
+
+// Four nodes per reminder: wait until the send time, fetch the event, check it wasn't cancelled or moved, email the visitor.
+function reminderStep(kind, waitName, getName, okName, mailName, x, y, n) {
+  const id = (k) => `7d0b9c1e-00${n + k}-4a51-9d1a-6f1c000000${n + k}`;
+  const plan = "$('Plan reminders').first().json";
+  return [
+    {
+      id: id(0), name: waitName, type: 'n8n-nodes-base.wait', typeVersion: 1.1, position: [x, y],
+      webhookId: `5a6c2f0e-4c1b-4e8a-9a51-2b7d00000b${n}`,
+      parameters: { resume: 'specificTime', dateTime: `={{ ${plan}.${kind === 'day' ? 'dayAt' : 'hourAt'} }}` },
+    },
+    {
+      id: id(1), name: getName, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [x + 240, y],
+      // A deleted event can answer with an error; carry on so the check below simply says "not on".
+      onError: 'continueRegularOutput',
+      parameters: {
+        method: 'GET', ...GCAL,
+        url: `={{ 'https://www.googleapis.com/calendar/v3/calendars/primary/events/' + encodeURIComponent(${plan}.eventId) }}`,
+        options: {},
+      },
+    },
+    {
+      id: id(2), name: okName, type: 'n8n-nodes-base.if', typeVersion: 2, position: [x + 480, y],
+      parameters: ifTrue(`c1a00000-0000-4000-8000-0000000000${n}`,
+        `={{ $json.status === 'confirmed' && !!$json.start && Date.parse($json.start.dateTime) === Date.parse(${plan}.start) }}`),
+    },
+    {
+      id: id(3), name: mailName, type: 'n8n-nodes-base.gmail', typeVersion: 2.1, position: [x + 720, y],
+      onError: 'continueRegularOutput',
+      parameters: {
+        sendTo: `={{ ${plan}.email }}`,
+        subject: `={{ ${plan}.${kind}.subject }}`,
+        emailType: 'text',
+        message: `={{ ${plan}.${kind}.text }}`,
+        options: { appendAttribution: false },
+      },
+    },
+  ];
+}
 
 const link = (to, index = 0) => ({ node: to, type: 'main', index });
 const connections = {
@@ -201,6 +259,16 @@ const connections = {
   'Confirm booking': { main: [[link('Email Jeff')]] },
   'Email Jeff': { main: [[link('Sheet row')]] },
   'Sheet row': { main: [[link('Log to Google Sheet')]] },
+  'Log to Google Sheet': { main: [[link('Plan reminders')]] },
+  'Plan reminders': { main: [[link('Day-before reminder due?')]] },
+  'Day-before reminder due?': { main: [[link('Wait until 1 day before')], [link('Wait until 1 hour before')]] },
+  'Wait until 1 day before': { main: [[link('Google: still on? (1 day)')]] },
+  'Google: still on? (1 day)': { main: [[link('Still on? (1 day)')]] },
+  'Still on? (1 day)': { main: [[link('Email: 1-day reminder')], []] },
+  'Email: 1-day reminder': { main: [[link('Wait until 1 hour before')]] },
+  'Wait until 1 hour before': { main: [[link('Google: still on? (1 hour)')]] },
+  'Google: still on? (1 hour)': { main: [[link('Still on? (1 hour)')]] },
+  'Still on? (1 hour)': { main: [[link('Email: 1-hour reminder')], []] },
 };
 
 const workflow = { name: 'Rework Rescue: rework review booking', nodes, connections, settings: {

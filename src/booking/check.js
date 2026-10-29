@@ -78,3 +78,24 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
 export function pruneHistory(history, nowMs) {
   return (history || []).filter((h) => Date.parse(h.slot) > nowMs || nowMs - h.at < 24 * 3600e3);
 }
+
+// Google Sheet log: one row per booking. Create a sheet whose first row has exactly these headers.
+export const SHEET_COLUMNS = [
+  'Booked at (PH)', 'Review time (PH)', 'Review time (UTC)', 'Name', 'Email', 'Company',
+  'Report or process', 'Visitor time zone', 'Find Your Rework result', 'Meet link', 'Calendar link', 'Status',
+];
+
+const fmtSheet = (ms) => new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+}).format(new Date(ms)).replace(',', '');
+
+/** The sheet row for a booking that went through. Status starts as "Booked" for Jeff to update by hand. */
+export function sheetRow(booking, { meet = '', eventLink = '', nowMs = Date.now() } = {}) {
+  // A leading = + - @ would make Sheets treat a visitor's text as a formula; prefix those with an apostrophe.
+  const safe = (v) => { const s = String(v ?? ''); return /^[=+\-@]/.test(s) ? `'${s}` : s; };
+  const values = [
+    fmtSheet(nowMs), fmtSheet(Date.parse(booking.start)), booking.start, booking.name, booking.email, booking.company,
+    booking.process, booking.tz, booking.summary, meet, eventLink, 'Booked',
+  ];
+  return Object.fromEntries(SHEET_COLUMNS.map((c, i) => [c, i < 3 ? values[i] : safe(values[i])]));
+}

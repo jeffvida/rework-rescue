@@ -32,14 +32,15 @@ const nodes = [
   {
     id: '7d0b9c1e-0001-4a51-9d1a-6f1c00000001', name: 'Setup notes', type: 'n8n-nodes-base.stickyNote', typeVersion: 1, position: [-260, -260],
     parameters: {
-      width: 520, height: 300,
+      width: 560, height: 340,
       content: [
         '## Rework review booking',
         '1. Open each **Google** node (the 3 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
         '2. Open **Email Jeff** and pick or create a **Gmail OAuth2** credential.',
-        '3. Save, then switch the workflow to **Active**.',
-        '4. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.',
-        '5. After testing, set Allowed Origins in both Webhook nodes to your live site address.',
+        '3. Open **Log to Google Sheet**: create a **Google Sheets OAuth2** credential, then pick your bookings sheet (Document, then Sheet). Row 1 of that sheet must hold the column headers listed in n8n/SETUP.md.',
+        '4. Save, then switch the workflow to **Active**.',
+        '5. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.',
+        '6. After testing, set Allowed Origins in both Webhook nodes to your live site address.',
         '',
         'Slot rules and checks come from src/booking/*.js in the site repo. Edit there and rebuild, not here.',
       ].join('\n'),
@@ -160,6 +161,29 @@ return [{ json: { start: b.start, meet: $input.first().json.hangoutLink || '' } 
       options: { appendAttribution: false },
     },
   },
+  {
+    id: '7d0b9c1e-0017-4a51-9d1a-6f1c00000017', name: 'Sheet row', type: 'n8n-nodes-base.code', typeVersion: 2, position: [1920, 380],
+    parameters: {
+      jsCode: `${LIB}
+// ---- workflow step: one row for the bookings log (headers in SHEET_COLUMNS)
+const b = $('Check the request').first().json.booking;
+const ev = $('Google: create event + invite').first().json;
+return [{ json: sheetRow(b, { meet: ev.hangoutLink || '', eventLink: ev.htmlLink || '' }) }];`,
+    },
+  },
+  {
+    id: '7d0b9c1e-0018-4a51-9d1a-6f1c00000018', name: 'Log to Google Sheet', type: 'n8n-nodes-base.googleSheets', typeVersion: 4.5, position: [2160, 380],
+    // The visitor already has their answer by now; a logging problem must not undo or block the booking.
+    onError: 'continueRegularOutput',
+    parameters: {
+      operation: 'append',
+      // Pick your bookings sheet from the lists after import (Document, then Sheet).
+      documentId: { __rl: true, value: '', mode: 'list', cachedResultName: '' },
+      sheetName: { __rl: true, value: '', mode: 'list', cachedResultName: '' },
+      columns: { mappingMode: 'autoMapInputData', value: {}, matchingColumns: [], schema: [] },
+      options: {},
+    },
+  },
 ];
 
 const link = (to, index = 0) => ({ node: to, type: 'main', index });
@@ -175,6 +199,8 @@ const connections = {
   'Google: create event + invite': { main: [[link('Remember booking')]] },
   'Remember booking': { main: [[link('Confirm booking')]] },
   'Confirm booking': { main: [[link('Email Jeff')]] },
+  'Email Jeff': { main: [[link('Sheet row')]] },
+  'Sheet row': { main: [[link('Log to Google Sheet')]] },
 };
 
 const workflow = { name: 'Rework Rescue: rework review booking', nodes, connections, settings: {

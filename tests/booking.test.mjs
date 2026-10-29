@@ -63,3 +63,16 @@ test('pruneHistory keeps upcoming slots and the last day of bookings', () => {
   ];
   assert.deepEqual(pruneHistory(h, NOW).map((x) => x.email), ['a@x.com', 'b@x.com']);
 });
+
+test('sheet row: one column per header, Philippine times, formulas neutralised', async () => {
+  const { sheetRow, SHEET_COLUMNS } = await import('../src/booking/check.js');
+  const b = checkBooking({ ...ok, process: '=HYPERLINK("http://x")', summary: 'Result: Data Rework' }, NOW).booking;
+  const row = sheetRow(b, { meet: 'https://meet.google.com/abc', eventLink: 'https://calendar.google.com/e', nowMs: NOW });
+  assert.deepEqual(Object.keys(row), SHEET_COLUMNS);
+  assert.equal(row['Booked at (PH)'], '2026-10-28 09:00');
+  assert.equal(row['Review time (PH)'], '2026-11-02 10:00');
+  assert.equal(row['Review time (UTC)'], SLOT);
+  assert.equal(row['Report or process'], `'=HYPERLINK("http://x")`);
+  assert.equal(row['Find Your Rework result'], 'Result: Data Rework');
+  assert.equal(row.Status, 'Booked');
+});

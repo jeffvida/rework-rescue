@@ -1260,3 +1260,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .bk-form label { margin-bottom: 0; }
 .bk-form input, .bk-form textarea { margin-bottom: 0.9rem; }
 .bk-form .error { margin: -0.5rem 0 0.9rem; }
+
+/* Demonstration label: sits directly above any example numbers (30 Oct 2026). */
+.demo-label { display: inline-block; margin: 0 0 0.5rem; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6b4e0f; background: #fbf1da; border: 1px solid var(--gold, #E6C078); border-radius: 999px; }
+.hero-preview .demo-label { margin-bottom: 0.6rem; }

@@ -128,6 +128,8 @@ export const COPY = {
     ],
     reliable: ['Checks before reporting', 'Exceptions instead of checking everything', 'Inputs reconciled to outputs', 'A person approves'],
     cta: { heading: 'Have a process like this?', button: 'Book a free rework review' },
+    // Shown above the hero card and above each example's numbers.
+    demoLabel: 'Demonstration · fictional data',
     // For visitors who can't hire a specialist themselves.
     shareNote: 'Not the one who decides? Find Your Rework takes about 2 minutes and gives you a result you can copy and send to your manager.',
   },

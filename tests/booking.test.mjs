@@ -22,6 +22,13 @@ test('a valid request becomes a calendar event with a Meet link and an invite', 
   assert.match(r.notify.text, /Australia\/Sydney/);
 });
 
+test('the invite opens with what to prepare, then the details', () => {
+  const d = checkBooking(ok, NOW).event.description;
+  assert.match(d, /^Before the call\nBring one report, check or workflow/);
+  assert.match(d, /https:\/\/rework-rescue\.vercel\.app\/#samples/);
+  assert.ok(d.indexOf('Your details') < d.indexOf('Name: Ana Reyes'));
+});
+
 test('the assessment result travels in the description when present', () => {
   const r = checkBooking({ ...ok, summary: 'Result: Reporting Rework\nAbout 6 hours a week' }, NOW);
   assert.match(r.event.description, /Find Your Rework result:\nResult: Reporting Rework/);

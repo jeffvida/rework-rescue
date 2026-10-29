@@ -9,6 +9,16 @@ export const BOOKING_LIMITS = {
   perDay: 6,               // new bookings accepted in any 24 hours, across everyone
 };
 
+// The opening of the calendar invite the visitor receives. Update the link if the site moves to its own domain.
+export const INVITE_PREP = [
+  'Before the call',
+  'Bring one report, check or workflow your team keeps redoing, like the examples on my site: a weekly report rebuilt from the same exports, or recurring bills checked by hand.',
+  'See the examples: https://rework-rescue.vercel.app/#samples',
+  'No preparation or files needed. Describing how it works today is enough, and please leave out anything confidential.',
+  '',
+  'Your details',
+];
+
 const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').replace(/[ \t]+/g, ' ').trim().slice(0, max);
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
 
@@ -60,7 +70,7 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
     booking: { name, email, company, process, summary, tz, start, end },
     event: {
       summary: `Free rework review: ${name}${company ? ` (${company})` : ''}`,
-      description: lines.join('\n'),
+      description: [...INVITE_PREP, ...lines].join('\n'),
       start: { dateTime: start },
       end: { dateTime: end },
       attendees: [{ email, displayName: name }],

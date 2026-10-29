@@ -205,6 +205,33 @@ return [{ json: { eventId: ev.id || '', ...planReminders(b, { meet: ev.hangoutLi
   },
   ...reminderStep('day', 'Wait until 1 day before', 'Google: still on? (1 day)', 'Still on? (1 day)', 'Email: 1-day reminder', 2880, 280, 21),
   ...reminderStep('hour', 'Wait until 1 hour before', 'Google: still on? (1 hour)', 'Still on? (1 hour)', 'Email: 1-hour reminder', 3920, 480, 25),
+
+  // ---------- Reset (Jeff only): GET .../webhook/rr-forget?email=someone@example.com  (or ?email=all)
+  // Clears remembered bookings so that email can book again. Protected by a Basic Auth credential you create in n8n.
+  {
+    id: '7d0b9c1e-0040-4a51-9d1a-6f1c00000040', name: 'Reset request', type: 'n8n-nodes-base.webhook', typeVersion: 2, position: [-260, 820],
+    webhookId: '5a6c2f0e-4c1b-4e8a-9a51-2b7d00000a03',
+    parameters: { httpMethod: 'GET', path: 'rr-forget', authentication: 'basicAuth', responseMode: 'responseNode', options: {} },
+  },
+  {
+    id: '7d0b9c1e-0041-4a51-9d1a-6f1c00000041', name: 'Forget email', type: 'n8n-nodes-base.code', typeVersion: 2, position: [0, 820],
+    parameters: {
+      jsCode: `${inline('src/booking/check.js').slice(inline('src/booking/check.js').indexOf('function forgetBooking'), inline('src/booking/check.js').indexOf('/** Bookings worth remembering'))}
+// ---- workflow step
+const email = String($input.first().json.query?.email ?? '');
+const store = $getWorkflowStaticData('global');
+const r = forgetBooking(store.bookings, email);
+store.bookings = r.history;
+const message = !email.trim()
+  ? 'Add ?email=someone@example.com (or ?email=all) to the address.'
+  : \`Cleared \${r.removed} remembered booking(s) for \${email.trim().toLowerCase()}. \${store.bookings.length} still remembered.\`;
+return [{ json: { ok: Boolean(email.trim()), removed: r.removed, remaining: store.bookings.length, message } }];`,
+    },
+  },
+  {
+    id: '7d0b9c1e-0042-4a51-9d1a-6f1c00000042', name: 'Reset done', type: 'n8n-nodes-base.respondToWebhook', typeVersion: 1.1, position: [240, 820],
+    parameters: { respondWith: 'text', responseBody: '={{ $json.message }}', options: noStore },
+  },
 ];
 
 // Four nodes per reminder: wait until the send time, fetch the event, check it wasn't cancelled or moved, email the visitor.
@@ -252,6 +279,8 @@ const connections = {
   'Google: busy times': { main: [[link('Work out free slots')]] },
   'Work out free slots': { main: [[link('Send slots')]] },
   'Booking request': { main: [[link('Check the request')]] },
+  'Reset request': { main: [[link('Forget email')]] },
+  'Forget email': { main: [[link('Reset done')]] },
   'Check the request': { main: [[link('Request OK?')]] },
   'Request OK?': { main: [[link('Google: is it still free?')], [link('Reject')]] },
   'Google: is it still free?': { main: [[link('Still free?')]] },

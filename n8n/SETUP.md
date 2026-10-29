@@ -27,6 +27,17 @@ After changing either, run `node tools/build_n8n.mjs` and re-import the workflow
 - Book a test slot on the preview with your own second email address. You should get the invite, and the event should be in your calendar. Delete the test event afterwards.
 - If something fails, open **Executions** in n8n. Successful runs aren't kept (they contain visitors' details); failed runs are.
 
+## Letting an email book again (reset link)
+
+Each email can hold one upcoming review, and n8n remembers bookings itself, separately from the calendar and the sheet. To let an email book again (after testing, or when someone cancels):
+
+1. Once, in n8n: open **Reset request**, set *Authentication* to **Basic Auth**, and create a credential with a username and a long password only you know. Save.
+2. Open the node's **Production URL** in your browser and add `?email=` and the address, for example
+   `https://<your-n8n>/webhook/rr-forget?email=someone@example.com`
+   (or `?email=all` to clear every remembered booking). The browser asks for the username and password, then shows how many it cleared.
+
+This doesn't delete the calendar event or the sheet row; remove those yourself if needed.
+
 ## The bookings sheet
 
 One row per booking: when it was booked and the review time (both Philippine time), the review time in UTC, name, email, company, report or process, visitor's time zone, Find Your Rework result, Meet link, calendar link, and **Status**. Status starts as *Booked*; update it yourself (for example Done, No-show, Rescheduled, Project). Visitors' text starting with = + - or @ is saved with a leading apostrophe so Sheets never runs it as a formula.

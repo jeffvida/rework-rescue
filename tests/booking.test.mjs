@@ -1,7 +1,7 @@
 // Booking request checks (src/booking/check.js), the gate inside the n8n booking webhook. Run: node --test tests/
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { checkBooking, pruneHistory, BOOKING_LIMITS } from '../src/booking/check.js';
+import { checkBooking, pruneHistory, forgetBooking, BOOKING_LIMITS } from '../src/booking/check.js';
 
 const ph = (s) => new Date(`${s}+08:00`).toISOString();
 const NOW = Date.parse(ph('2026-10-28T09:00:00'));
@@ -101,4 +101,16 @@ test('reminders: times, skipping the 1-day one when too close, visitor time zone
   assert.equal(soon.sendDay, false, 'booked 12 hours ahead: no 1-day reminder');
   assert.match(soon.hour.text, /link is in your calendar invite/);
   assert.match(planReminders({ ...b, tz: 'Not/AZone' }, { nowMs: NOW }).hour.text, /GMT\+8/, 'bad time zone falls back to PH');
+});
+
+test('the reset link clears one email, or all, so it can book again', () => {
+  const h = [{ email: 'ana@example.com', slot: SLOT, at: NOW }, { email: 'ben@example.com', slot: SLOT, at: NOW }];
+  assert.equal(checkBooking(ok, NOW, h).code, 'already_booked');
+  const one = forgetBooking(h, ' Ana@Example.com ');
+  assert.equal(one.removed, 1);
+  assert.deepEqual(one.history.map((x) => x.email), ['ben@example.com']);
+  assert.equal(checkBooking(ok, NOW, one.history).ok, true);
+  assert.equal(forgetBooking(h, 'all').history.length, 0);
+  assert.equal(forgetBooking(h, '').removed, 0, 'no email given changes nothing');
+  assert.equal(forgetBooking(undefined, 'ana@example.com').removed, 0);
 });

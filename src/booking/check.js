@@ -91,6 +91,19 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
   };
 }
 
+/**
+ * Clear remembered bookings so an email can book again (Jeff's reset link; doesn't touch the calendar or sheet).
+ * `email` is one address (any case), or 'all' to clear the whole list.
+ * @returns {{history:object[], removed:number}}
+ */
+export function forgetBooking(history, email) {
+  const list = history || [];
+  const target = String(email ?? '').trim().toLowerCase();
+  if (!target) return { history: list, removed: 0 };
+  const kept = target === 'all' ? [] : list.filter((h) => h.email !== target);
+  return { history: kept, removed: list.length - kept.length };
+}
+
 /** Bookings worth remembering for the limits: drop entries more than a day old whose slot has passed. */
 export function pruneHistory(history, nowMs) {
   return (history || []).filter((h) => Date.parse(h.slot) > nowMs || nowMs - h.at < 24 * 3600e3);

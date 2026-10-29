@@ -49,8 +49,8 @@ export const SITE = {
   // Paste the two Production URLs from the workflow's Webhook nodes here. While either is empty, the pop-up
   // shows bookable hours without checking the calendar and ends in an email draft (nothing is sent).
   // Bookable hours live in src/booking/slots.js.
-  bookingAvailabilityUrl: '', // GET, e.g. https://YOUR-NAME.app.n8n.cloud/webhook/rr-availability
-  bookingRequestUrl: '',      // POST, e.g. https://YOUR-NAME.app.n8n.cloud/webhook/rr-book
+  bookingAvailabilityUrl: 'https://reworkrescue.app.n8n.cloud/webhook/rr-availability', // GET, e.g. https://YOUR-NAME.app.n8n.cloud/webhook/rr-availability
+  bookingRequestUrl: 'https://reworkrescue.app.n8n.cloud/webhook/rr-book', // POST, e.g. https://YOUR-NAME.app.n8n.cloud/webhook/rr-book
   // Inquiry delivery. Leave empty until a server-side endpoint exists (for example an n8n webhook URL).
   // This repository is public, so the URL is visible to anyone: the endpoint must filter spam itself.
   // The browser never holds an email-provider key; the endpoint must be your own server or a

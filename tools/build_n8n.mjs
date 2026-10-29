@@ -15,6 +15,8 @@ const ALLOWED_ORIGINS = '*';
 const inline = (file) => readFileSync(join(root, file), 'utf8')
   .split('\n').filter((l) => !/^import\s/.test(l)).join('\n')
   .replace(/^export\s+/gm, '');
+// Rework Rescue bookings sheet: https://docs.google.com/spreadsheets/d/<this id>/edit
+const BOOKINGS_SHEET_ID = '1bBmq3a-LzWgHy41YHFqgRAgIfRcGKTz7QhoxW6MGYFQ';
 const LIB = `${inline('src/booking/slots.js')}\n${inline('src/booking/check.js')}`;
 
 const GCAL = { authentication: 'predefinedCredentialType', nodeCredentialType: 'googleCalendarOAuth2Api' };
@@ -37,7 +39,7 @@ const nodes = [
         '## Rework review booking',
         '1. Open each **Google** node (the 5 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
         '2. Open **Email Jeff** and pick or create a **Gmail OAuth2** credential.',
-        '3. Open **Log to Google Sheet**: create a **Google Sheets OAuth2** credential, then pick your bookings sheet (Document, then Sheet). Row 1 of that sheet must hold the column headers listed in n8n/SETUP.md.',
+        '3. Open **Log to Google Sheet**: create a **Google Sheets OAuth2** credential, the bookings sheet is already filled in. Row 1 of that sheet must hold the column headers listed in n8n/SETUP.md.',
         '4. Pick the same Google Calendar credential in the two **Google: still on?** nodes and the same Gmail credential in the two **Email: … reminder** nodes.',
         '5. Save, then switch the workflow to **Active** (or Publish). Keep it active: reminders wait inside each booking run.',
         '6. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.',
@@ -178,9 +180,9 @@ return [{ json: sheetRow(b, { meet: ev.hangoutLink || '', eventLink: ev.htmlLink
     onError: 'continueRegularOutput',
     parameters: {
       operation: 'append',
-      // Pick your bookings sheet from the lists after import (Document, then Sheet).
-      documentId: { __rl: true, value: '', mode: 'list', cachedResultName: '' },
-      sheetName: { __rl: true, value: '', mode: 'list', cachedResultName: '' },
+      // The bookings sheet, kept here so a re-import doesn't clear it. Sheet ID 0 is the first tab.
+      documentId: { __rl: true, value: BOOKINGS_SHEET_ID, mode: 'id' },
+      sheetName: { __rl: true, value: 0, mode: 'id' },
       columns: { mappingMode: 'autoMapInputData', value: {}, matchingColumns: [], schema: [] },
       options: {},
     },

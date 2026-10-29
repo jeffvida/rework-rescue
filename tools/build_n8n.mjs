@@ -1,0 +1,187 @@
+// Builds n8n/rework-review-booking.json, the importable n8n workflow behind the booking pop-up.
+// Run: node tools/build_n8n.mjs   (after changing src/booking/slots.js or src/booking/check.js)
+//
+// The Code nodes get the same slot rules and request checks the tests cover, copied in as plain JavaScript.
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const OWNER_EMAIL = 'jeffhersonvida@gmail.com';
+// Which websites may call the webhooks from a browser. '*' while you test on Vercel preview links;
+// once live, change it in both Webhook nodes to https://rework-rescue.vercel.app (or your own domain).
+const ALLOWED_ORIGINS = '*';
+
+const inline = (file) => readFileSync(join(root, file), 'utf8')
+  .split('\n').filter((l) => !/^import\s/.test(l)).join('\n')
+  .replace(/^export\s+/gm, '');
+const LIB = `${inline('src/booking/slots.js')}\n${inline('src/booking/check.js')}`;
+
+const GCAL = { authentication: 'predefinedCredentialType', nodeCredentialType: 'googleCalendarOAuth2Api' };
+const noStore = { responseHeaders: { entries: [{ name: 'Cache-Control', value: 'no-store' }] } };
+const ifTrue = (id, expr) => ({
+  conditions: {
+    options: { caseSensitive: true, leftValue: '', typeValidation: 'strict' },
+    conditions: [{ id, leftValue: expr, rightValue: true, operator: { type: 'boolean', operation: 'true', singleValue: true } }],
+    combinator: 'and',
+  },
+  options: {},
+});
+
+const nodes = [
+  {
+    id: '7d0b9c1e-0001-4a51-9d1a-6f1c00000001', name: 'Setup notes', type: 'n8n-nodes-base.stickyNote', typeVersion: 1, position: [-260, -260],
+    parameters: {
+      width: 520, height: 300,
+      content: [
+        '## Rework review booking',
+        '1. Open each **Google** node (the 3 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
+        '2. Open **Email Jeff** and pick or create a **Gmail OAuth2** credential.',
+        '3. Save, then switch the workflow to **Active**.',
+        '4. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.',
+        '5. After testing, set Allowed Origins in both Webhook nodes to your live site address.',
+        '',
+        'Slot rules and checks come from src/booking/*.js in the site repo. Edit there and rebuild, not here.',
+      ].join('\n'),
+    },
+  },
+
+  // ---------- Availability: GET -> Google free/busy -> free slots
+  {
+    id: '7d0b9c1e-0002-4a51-9d1a-6f1c00000002', name: 'Availability request', type: 'n8n-nodes-base.webhook', typeVersion: 2, position: [-260, 120],
+    webhookId: '5a6c2f0e-4c1b-4e8a-9a51-2b7d00000a01',
+    parameters: { httpMethod: 'GET', path: 'rr-availability', responseMode: 'responseNode', options: { allowedOrigins: ALLOWED_ORIGINS } },
+  },
+  {
+    id: '7d0b9c1e-0003-4a51-9d1a-6f1c00000003', name: 'Google: busy times', type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [0, 120],
+    parameters: {
+      method: 'POST', url: 'https://www.googleapis.com/calendar/v3/freeBusy', ...GCAL,
+      sendBody: true, specifyBody: 'json',
+      // 30 days covers the 28-day booking horizon plus the overnight window.
+      jsonBody: "={{ JSON.stringify({ timeMin: $now.toISO(), timeMax: $now.plus({ days: 30 }).toISO(), items: [{ id: 'primary' }] }) }}",
+      options: {},
+    },
+  },
+  {
+    id: '7d0b9c1e-0004-4a51-9d1a-6f1c00000004', name: 'Work out free slots', type: 'n8n-nodes-base.code', typeVersion: 2, position: [240, 120],
+    parameters: {
+      jsCode: `${LIB}
+// ---- workflow step
+const cal = (($input.first().json.calendars || {}).primary) || {};
+if (cal.errors && cal.errors.length) throw new Error('Google Calendar could not be read: ' + JSON.stringify(cal.errors));
+const slots = freeSlots(Date.now(), cal.busy || []).map((t) => new Date(t).toISOString());
+return [{ json: { slots, minutes: RULES.slotMinutes } }];`,
+    },
+  },
+  {
+    id: '7d0b9c1e-0005-4a51-9d1a-6f1c00000005', name: 'Send slots', type: 'n8n-nodes-base.respondToWebhook', typeVersion: 1.1, position: [480, 120],
+    parameters: { respondWith: 'json', responseBody: '={{ JSON.stringify($json) }}', options: noStore },
+  },
+
+  // ---------- Booking: POST -> checks -> slot still free? -> create event (Meet + invite) -> reply -> email Jeff
+  {
+    id: '7d0b9c1e-0006-4a51-9d1a-6f1c00000006', name: 'Booking request', type: 'n8n-nodes-base.webhook', typeVersion: 2, position: [-260, 440],
+    webhookId: '5a6c2f0e-4c1b-4e8a-9a51-2b7d00000a02',
+    parameters: { httpMethod: 'POST', path: 'rr-book', responseMode: 'responseNode', options: { allowedOrigins: ALLOWED_ORIGINS } },
+  },
+  {
+    id: '7d0b9c1e-0007-4a51-9d1a-6f1c00000007', name: 'Check the request', type: 'n8n-nodes-base.code', typeVersion: 2, position: [0, 440],
+    parameters: {
+      jsCode: `${LIB}
+// ---- workflow step
+const store = $getWorkflowStaticData('global');
+store.bookings = pruneHistory(store.bookings, Date.now());
+return [{ json: checkBooking($input.first().json.body, Date.now(), store.bookings) }];`,
+    },
+  },
+  {
+    id: '7d0b9c1e-0008-4a51-9d1a-6f1c00000008', name: 'Request OK?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [240, 440],
+    parameters: ifTrue('c1a00000-0000-4000-8000-000000000001', '={{ $json.ok === true }}'),
+  },
+  {
+    id: '7d0b9c1e-0009-4a51-9d1a-6f1c00000009', name: 'Reject', type: 'n8n-nodes-base.respondToWebhook', typeVersion: 1.1, position: [480, 620],
+    parameters: {
+      respondWith: 'json',
+      responseBody: '={{ JSON.stringify($json.status === 200 ? { ok: true } : { ok: false, error: $json.code }) }}',
+      options: { responseCode: '={{ $json.status }}', ...noStore },
+    },
+  },
+  {
+    id: '7d0b9c1e-0010-4a51-9d1a-6f1c00000010', name: 'Google: is it still free?', type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [480, 400],
+    parameters: {
+      method: 'POST', url: 'https://www.googleapis.com/calendar/v3/freeBusy', ...GCAL,
+      sendBody: true, specifyBody: 'json',
+      jsonBody: "={{ JSON.stringify({ timeMin: $json.booking.start, timeMax: $json.booking.end, items: [{ id: 'primary' }] }) }}",
+      options: {},
+    },
+  },
+  {
+    id: '7d0b9c1e-0011-4a51-9d1a-6f1c00000011', name: 'Still free?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [720, 400],
+    parameters: ifTrue('c1a00000-0000-4000-8000-000000000002',
+      '={{ !!$json.calendars && !!$json.calendars.primary && !$json.calendars.primary.errors && $json.calendars.primary.busy.length === 0 }}'),
+  },
+  {
+    id: '7d0b9c1e-0012-4a51-9d1a-6f1c00000012', name: 'Slot taken', type: 'n8n-nodes-base.respondToWebhook', typeVersion: 1.1, position: [960, 580],
+    parameters: { respondWith: 'json', responseBody: '{"ok":false,"error":"taken"}', options: { responseCode: 409, ...noStore } },
+  },
+  {
+    id: '7d0b9c1e-0013-4a51-9d1a-6f1c00000013', name: 'Google: create event + invite', type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [960, 380],
+    parameters: {
+      method: 'POST',
+      // conferenceDataVersion=1 adds a Google Meet link; sendUpdates=all emails the invite to the visitor.
+      url: 'https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all', ...GCAL,
+      sendBody: true, specifyBody: 'json',
+      jsonBody: "={{ JSON.stringify($('Check the request').first().json.event) }}",
+      options: {},
+    },
+  },
+  {
+    id: '7d0b9c1e-0014-4a51-9d1a-6f1c00000014', name: 'Remember booking', type: 'n8n-nodes-base.code', typeVersion: 2, position: [1200, 380],
+    parameters: {
+      jsCode: `// Kept for the limits in check.js (one upcoming review per email, daily cap). Only email, time and when it was booked.
+const b = $('Check the request').first().json.booking;
+const store = $getWorkflowStaticData('global');
+store.bookings = (store.bookings || []).concat({ email: b.email, slot: b.start, at: Date.now() });
+return [{ json: { start: b.start, meet: $input.first().json.hangoutLink || '' } }];`,
+    },
+  },
+  {
+    id: '7d0b9c1e-0015-4a51-9d1a-6f1c00000015', name: 'Confirm booking', type: 'n8n-nodes-base.respondToWebhook', typeVersion: 1.1, position: [1440, 380],
+    parameters: { respondWith: 'json', responseBody: '={{ JSON.stringify({ ok: true, start: $json.start, meet: $json.meet }) }}', options: noStore },
+  },
+  {
+    id: '7d0b9c1e-0016-4a51-9d1a-6f1c00000016', name: 'Email Jeff', type: 'n8n-nodes-base.gmail', typeVersion: 2.1, position: [1680, 380],
+    onError: 'continueRegularOutput',
+    parameters: {
+      sendTo: OWNER_EMAIL,
+      subject: "={{ $('Check the request').first().json.notify.subject }}",
+      emailType: 'text',
+      message: "={{ $('Check the request').first().json.notify.text }}",
+      options: { appendAttribution: false },
+    },
+  },
+];
+
+const link = (to, index = 0) => ({ node: to, type: 'main', index });
+const connections = {
+  'Availability request': { main: [[link('Google: busy times')]] },
+  'Google: busy times': { main: [[link('Work out free slots')]] },
+  'Work out free slots': { main: [[link('Send slots')]] },
+  'Booking request': { main: [[link('Check the request')]] },
+  'Check the request': { main: [[link('Request OK?')]] },
+  'Request OK?': { main: [[link('Google: is it still free?')], [link('Reject')]] },
+  'Google: is it still free?': { main: [[link('Still free?')]] },
+  'Still free?': { main: [[link('Google: create event + invite')], [link('Slot taken')]] },
+  'Google: create event + invite': { main: [[link('Remember booking')]] },
+  'Remember booking': { main: [[link('Confirm booking')]] },
+  'Confirm booking': { main: [[link('Email Jeff')]] },
+};
+
+const workflow = { name: 'Rework Rescue: rework review booking', nodes, connections, settings: {
+  executionOrder: 'v1',
+  // Privacy: don't keep a record of runs that worked (they contain booking details). Failed runs are kept so problems can be fixed.
+  saveDataSuccessExecution: 'none', saveManualExecutions: false, saveDataErrorExecution: 'all',
+}, pinData: {} };
+mkdirSync(join(root, 'n8n'), { recursive: true });
+writeFileSync(join(root, 'n8n/rework-review-booking.json'), `${JSON.stringify(workflow, null, 2)}\n`);
+console.log(`n8n/rework-review-booking.json: ${nodes.length} nodes`);

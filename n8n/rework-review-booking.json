@@ -1,0 +1,485 @@
+{
+  "name": "Rework Rescue: rework review booking",
+  "nodes": [
+    {
+      "id": "7d0b9c1e-0001-4a51-9d1a-6f1c00000001",
+      "name": "Setup notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -260
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 300,
+        "content": "## Rework review booking\n1. Open each **Google** node (the 3 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for jeffhersonvida@gmail.com.\n2. Open **Email Jeff** and pick or create a **Gmail OAuth2** credential.\n3. Save, then switch the workflow to **Active**.\n4. Copy both **Production URLs** (Webhook nodes) into site-config.js: bookingAvailabilityUrl and bookingRequestUrl.\n5. After testing, set Allowed Origins in both Webhook nodes to your live site address.\n\nSlot rules and checks come from src/booking/*.js in the site repo. Edit there and rebuild, not here."
+      }
+    },
+    {
+      "id": "7d0b9c1e-0002-4a51-9d1a-6f1c00000002",
+      "name": "Availability request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        120
+      ],
+      "webhookId": "5a6c2f0e-4c1b-4e8a-9a51-2b7d00000a01",
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "rr-availability",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      }
+    },
+    {
+      "id": "7d0b9c1e-0003-4a51-9d1a-6f1c00000003",
+      "name": "Google: busy times",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        120
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/freeBusy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ timeMin: $now.toISO(), timeMax: $now.plus({ days: 30 }).toISO(), items: [{ id: 'primary' }] }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "7d0b9c1e-0004-4a51-9d1a-6f1c00000004",
+      "name": "Work out free slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        120
+      ],
+      "parameters": {
+        "jsCode": "// Booking slot rules: the ONE place that decides which times can be booked.\n//\n// Used in two places:\n//  - the n8n workflow (copied into its Code nodes by tools/build_n8n.mjs), which checks Google Calendar\n//    and returns only the free slots, and re-checks a slot before booking it;\n//  - the booking pop-up (src/ui/booking.js), only as a fallback while n8n isn't connected.\n//\n// Change the hours here, run `node tools/build_n8n.mjs`, and re-import n8n/rework-review-booking.json.\n// Keep this file free of imports and browser/Node-only APIs: it must run inside an n8n Code node.\n\nconst RULES = {\n  hostOffsetHours: 8,          // Philippine time, UTC+8, no daylight saving\n  days: [1, 2, 3, 4, 5],       // days a window STARTS on (0 = Sunday): Monday to Friday\n  start: '08:00',              // first start time, Philippine time\n  end: '02:00',                // window ends at this time; earlier than start means the next day (Fri 8:00 am to Sat 2:00 am)\n  slotMinutes: 30,             // meeting length, and the step between start times\n  minNoticeHours: 12,          // no bookings sooner than this\n  daysAhead: 28,               // how far ahead people can book\n};\n\nconst MIN = 60e3;\n\nfunction toMinutes(hhmm) {\n  const [h, m] = hhmm.split(':').map(Number);\n  return h * 60 + m;\n}\n\n/** Every bookable start time (ms since epoch, UTC) from now, before checking the calendar. */\nfunction candidateSlots(nowMs, rules = RULES) {\n  const off = rules.hostOffsetHours * 60 * MIN;\n  const startMin = toMinutes(rules.start);\n  let endMin = toMinutes(rules.end);\n  if (endMin <= startMin) endMin += 24 * 60;\n  const earliest = nowMs + rules.minNoticeHours * 60 * MIN;\n  const latest = nowMs + rules.daysAhead * 24 * 60 * MIN;\n\n  // Host-local midnight of \"today\", as a UTC timestamp. Start one day back so a window that began\n  // yesterday evening and runs past midnight is still included.\n  const hostNow = new Date(nowMs + off);\n  const todayMidnight = Date.UTC(hostNow.getUTCFullYear(), hostNow.getUTCMonth(), hostNow.getUTCDate()) - off;\n\n  const out = [];\n  for (let i = -1; i <= rules.daysAhead + 1; i++) {\n    const dayStart = todayMidnight + i * 24 * 60 * MIN;\n    const weekday = new Date(dayStart + off).getUTCDay();\n    if (!rules.days.includes(weekday)) continue;\n    for (let m = startMin; m + rules.slotMinutes <= endMin; m += rules.slotMinutes) {\n      const t = dayStart + m * MIN;\n      if (t >= earliest && t <= latest) out.push(t);\n    }\n  }\n  return out;\n}\n\n/** Free start times: candidates that don't overlap any busy period ({start, end} ISO strings). */\nfunction freeSlots(nowMs, busy = [], rules = RULES) {\n  const periods = busy\n    .map((b) => [Date.parse(b.start), Date.parse(b.end)])\n    .filter(([s, e]) => Number.isFinite(s) && Number.isFinite(e));\n  const len = rules.slotMinutes * MIN;\n  return candidateSlots(nowMs, rules).filter((t) => !periods.some(([s, e]) => t < e && t + len > s));\n}\n\n/** True if this exact start time (ISO string) is one the rules allow. Does not check the calendar. */\nfunction isAllowedSlot(iso, nowMs, rules = RULES) {\n  const t = Date.parse(iso);\n  if (!Number.isFinite(t)) return false;\n  return candidateSlots(nowMs, rules).includes(t);\n}\n\n// Booking request checks, run inside the n8n workflow before anything touches the calendar.\n// The pop-up validates too, but the webhook is public, so these checks are the real gate.\n// Copied into n8n by tools/build_n8n.mjs together with slots.js (the import line is dropped there).\n\nconst BOOKING_LIMITS = {\n  name: 80, email: 254, company: 120, process: 400, summary: 2000, tz: 64,\n  perEmailUpcoming: 1,     // one upcoming review per email address\n  perDay: 6,               // new bookings accepted in any 24 hours, across everyone\n};\n\nconst clean = (v, max) => String(v ?? '').replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, '').replace(/[ \\t]+/g, ' ').trim().slice(0, max);\nconst EMAIL = /^[^\\s@<>()[\\]\\\\,;:\"]+@[^\\s@<>()[\\]\\\\,;:\"]+\\.[^\\s@<>()[\\]\\\\,;:\"]{2,}$/;\n\nconst fmtHost = (ms) => new Intl.DateTimeFormat('en-US', {\n  timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',\n}).format(new Date(ms));\n\n/**\n * @param {object} body     the JSON the pop-up sent\n * @param {number} nowMs\n * @param {{email:string, slot:string, at:number}[]} history  bookings this workflow accepted before\n * @returns {{ok:true, booking:object, event:object, notify:object} | {ok:false, status:number, code:string}}\n */\nfunction checkBooking(body, nowMs, history = [], rules = RULES) {\n  const b = body && typeof body === 'object' ? body : {};\n  // Honeypot: a hidden field people never fill in. Pretend it worked so bots don't learn anything.\n  if (clean(b.website, 200)) return { ok: false, status: 200, code: 'ok' };\n\n  const name = clean(b.name, BOOKING_LIMITS.name + 1);\n  const email = clean(b.email, BOOKING_LIMITS.email + 1).toLowerCase();\n  const company = clean(b.company, BOOKING_LIMITS.company);\n  const process = clean(b.process, BOOKING_LIMITS.process);\n  const summary = String(b.summary ?? '').replace(/\\r/g, '').trim().slice(0, BOOKING_LIMITS.summary);\n  const tz = clean(b.tz, BOOKING_LIMITS.tz);\n  const slot = clean(b.slot, 40);\n\n  if (!name || name.length > BOOKING_LIMITS.name) return { ok: false, status: 400, code: 'name' };\n  if (!EMAIL.test(email) || email.length > BOOKING_LIMITS.email) return { ok: false, status: 400, code: 'email' };\n  if (!isAllowedSlot(slot, nowMs, rules)) return { ok: false, status: 400, code: 'slot' };\n\n  const startMs = Date.parse(slot);\n  const endMs = startMs + rules.slotMinutes * 60e3;\n  const upcoming = history.filter((h) => h.email === email && Date.parse(h.slot) > nowMs);\n  if (upcoming.length >= BOOKING_LIMITS.perEmailUpcoming) return { ok: false, status: 429, code: 'already_booked' };\n  if (history.filter((h) => nowMs - h.at < 24 * 3600e3).length >= BOOKING_LIMITS.perDay) return { ok: false, status: 429, code: 'busy' };\n\n  const start = new Date(startMs).toISOString();\n  const end = new Date(endMs).toISOString();\n  const whenHost = `${fmtHost(startMs)} Philippine time`;\n  const lines = [\n    `Name: ${name}`, `Email: ${email}`, company ? `Company: ${company}` : '',\n    process ? `Report or process: ${process}` : '', tz ? `Visitor's time zone: ${tz}` : '',\n    summary ? `\\nFind Your Rework result:\\n${summary}` : '',\n    '\\nBooked through the Rework Rescue website.',\n  ].filter(Boolean);\n\n  return {\n    ok: true,\n    booking: { name, email, company, process, summary, tz, start, end },\n    event: {\n      summary: `Free rework review: ${name}${company ? ` (${company})` : ''}`,\n      description: lines.join('\\n'),\n      start: { dateTime: start },\n      end: { dateTime: end },\n      attendees: [{ email, displayName: name }],\n      conferenceData: { createRequest: { requestId: `rr-${startMs}-${Math.random().toString(36).slice(2, 10)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } } },\n      reminders: { useDefault: true },\n    },\n    notify: {\n      subject: `New rework review: ${name}, ${whenHost}`,\n      text: [`New free rework review booked for ${whenHost}.`, '', ...lines, '', 'The calendar invite with the Meet link has been sent to them.'].join('\\n'),\n    },\n  };\n}\n\n/** Bookings worth remembering for the limits: drop entries more than a day old whose slot has passed. */\nfunction pruneHistory(history, nowMs) {\n  return (history || []).filter((h) => Date.parse(h.slot) > nowMs || nowMs - h.at < 24 * 3600e3);\n}\n\n// ---- workflow step\nconst cal = (($input.first().json.calendars || {}).primary) || {};\nif (cal.errors && cal.errors.length) throw new Error('Google Calendar could not be read: ' + JSON.stringify(cal.errors));\nconst slots = freeSlots(Date.now(), cal.busy || []).map((t) => new Date(t).toISOString());\nreturn [{ json: { slots, minutes: RULES.slotMinutes } }];"
+      }
+    },
+    {
+      "id": "7d0b9c1e-0005-4a51-9d1a-6f1c00000005",
+      "name": "Send slots",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "7d0b9c1e-0006-4a51-9d1a-6f1c00000006",
+      "name": "Booking request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        440
+      ],
+      "webhookId": "5a6c2f0e-4c1b-4e8a-9a51-2b7d00000a02",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rr-book",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      }
+    },
+    {
+      "id": "7d0b9c1e-0007-4a51-9d1a-6f1c00000007",
+      "name": "Check the request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        440
+      ],
+      "parameters": {
+        "jsCode": "// Booking slot rules: the ONE place that decides which times can be booked.\n//\n// Used in two places:\n//  - the n8n workflow (copied into its Code nodes by tools/build_n8n.mjs), which checks Google Calendar\n//    and returns only the free slots, and re-checks a slot before booking it;\n//  - the booking pop-up (src/ui/booking.js), only as a fallback while n8n isn't connected.\n//\n// Change the hours here, run `node tools/build_n8n.mjs`, and re-import n8n/rework-review-booking.json.\n// Keep this file free of imports and browser/Node-only APIs: it must run inside an n8n Code node.\n\nconst RULES = {\n  hostOffsetHours: 8,          // Philippine time, UTC+8, no daylight saving\n  days: [1, 2, 3, 4, 5],       // days a window STARTS on (0 = Sunday): Monday to Friday\n  start: '08:00',              // first start time, Philippine time\n  end: '02:00',                // window ends at this time; earlier than start means the next day (Fri 8:00 am to Sat 2:00 am)\n  slotMinutes: 30,             // meeting length, and the step between start times\n  minNoticeHours: 12,          // no bookings sooner than this\n  daysAhead: 28,               // how far ahead people can book\n};\n\nconst MIN = 60e3;\n\nfunction toMinutes(hhmm) {\n  const [h, m] = hhmm.split(':').map(Number);\n  return h * 60 + m;\n}\n\n/** Every bookable start time (ms since epoch, UTC) from now, before checking the calendar. */\nfunction candidateSlots(nowMs, rules = RULES) {\n  const off = rules.hostOffsetHours * 60 * MIN;\n  const startMin = toMinutes(rules.start);\n  let endMin = toMinutes(rules.end);\n  if (endMin <= startMin) endMin += 24 * 60;\n  const earliest = nowMs + rules.minNoticeHours * 60 * MIN;\n  const latest = nowMs + rules.daysAhead * 24 * 60 * MIN;\n\n  // Host-local midnight of \"today\", as a UTC timestamp. Start one day back so a window that began\n  // yesterday evening and runs past midnight is still included.\n  const hostNow = new Date(nowMs + off);\n  const todayMidnight = Date.UTC(hostNow.getUTCFullYear(), hostNow.getUTCMonth(), hostNow.getUTCDate()) - off;\n\n  const out = [];\n  for (let i = -1; i <= rules.daysAhead + 1; i++) {\n    const dayStart = todayMidnight + i * 24 * 60 * MIN;\n    const weekday = new Date(dayStart + off).getUTCDay();\n    if (!rules.days.includes(weekday)) continue;\n    for (let m = startMin; m + rules.slotMinutes <= endMin; m += rules.slotMinutes) {\n      const t = dayStart + m * MIN;\n      if (t >= earliest && t <= latest) out.push(t);\n    }\n  }\n  return out;\n}\n\n/** Free start times: candidates that don't overlap any busy period ({start, end} ISO strings). */\nfunction freeSlots(nowMs, busy = [], rules = RULES) {\n  const periods = busy\n    .map((b) => [Date.parse(b.start), Date.parse(b.end)])\n    .filter(([s, e]) => Number.isFinite(s) && Number.isFinite(e));\n  const len = rules.slotMinutes * MIN;\n  return candidateSlots(nowMs, rules).filter((t) => !periods.some(([s, e]) => t < e && t + len > s));\n}\n\n/** True if this exact start time (ISO string) is one the rules allow. Does not check the calendar. */\nfunction isAllowedSlot(iso, nowMs, rules = RULES) {\n  const t = Date.parse(iso);\n  if (!Number.isFinite(t)) return false;\n  return candidateSlots(nowMs, rules).includes(t);\n}\n\n// Booking request checks, run inside the n8n workflow before anything touches the calendar.\n// The pop-up validates too, but the webhook is public, so these checks are the real gate.\n// Copied into n8n by tools/build_n8n.mjs together with slots.js (the import line is dropped there).\n\nconst BOOKING_LIMITS = {\n  name: 80, email: 254, company: 120, process: 400, summary: 2000, tz: 64,\n  perEmailUpcoming: 1,     // one upcoming review per email address\n  perDay: 6,               // new bookings accepted in any 24 hours, across everyone\n};\n\nconst clean = (v, max) => String(v ?? '').replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, '').replace(/[ \\t]+/g, ' ').trim().slice(0, max);\nconst EMAIL = /^[^\\s@<>()[\\]\\\\,;:\"]+@[^\\s@<>()[\\]\\\\,;:\"]+\\.[^\\s@<>()[\\]\\\\,;:\"]{2,}$/;\n\nconst fmtHost = (ms) => new Intl.DateTimeFormat('en-US', {\n  timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',\n}).format(new Date(ms));\n\n/**\n * @param {object} body     the JSON the pop-up sent\n * @param {number} nowMs\n * @param {{email:string, slot:string, at:number}[]} history  bookings this workflow accepted before\n * @returns {{ok:true, booking:object, event:object, notify:object} | {ok:false, status:number, code:string}}\n */\nfunction checkBooking(body, nowMs, history = [], rules = RULES) {\n  const b = body && typeof body === 'object' ? body : {};\n  // Honeypot: a hidden field people never fill in. Pretend it worked so bots don't learn anything.\n  if (clean(b.website, 200)) return { ok: false, status: 200, code: 'ok' };\n\n  const name = clean(b.name, BOOKING_LIMITS.name + 1);\n  const email = clean(b.email, BOOKING_LIMITS.email + 1).toLowerCase();\n  const company = clean(b.company, BOOKING_LIMITS.company);\n  const process = clean(b.process, BOOKING_LIMITS.process);\n  const summary = String(b.summary ?? '').replace(/\\r/g, '').trim().slice(0, BOOKING_LIMITS.summary);\n  const tz = clean(b.tz, BOOKING_LIMITS.tz);\n  const slot = clean(b.slot, 40);\n\n  if (!name || name.length > BOOKING_LIMITS.name) return { ok: false, status: 400, code: 'name' };\n  if (!EMAIL.test(email) || email.length > BOOKING_LIMITS.email) return { ok: false, status: 400, code: 'email' };\n  if (!isAllowedSlot(slot, nowMs, rules)) return { ok: false, status: 400, code: 'slot' };\n\n  const startMs = Date.parse(slot);\n  const endMs = startMs + rules.slotMinutes * 60e3;\n  const upcoming = history.filter((h) => h.email === email && Date.parse(h.slot) > nowMs);\n  if (upcoming.length >= BOOKING_LIMITS.perEmailUpcoming) return { ok: false, status: 429, code: 'already_booked' };\n  if (history.filter((h) => nowMs - h.at < 24 * 3600e3).length >= BOOKING_LIMITS.perDay) return { ok: false, status: 429, code: 'busy' };\n\n  const start = new Date(startMs).toISOString();\n  const end = new Date(endMs).toISOString();\n  const whenHost = `${fmtHost(startMs)} Philippine time`;\n  const lines = [\n    `Name: ${name}`, `Email: ${email}`, company ? `Company: ${company}` : '',\n    process ? `Report or process: ${process}` : '', tz ? `Visitor's time zone: ${tz}` : '',\n    summary ? `\\nFind Your Rework result:\\n${summary}` : '',\n    '\\nBooked through the Rework Rescue website.',\n  ].filter(Boolean);\n\n  return {\n    ok: true,\n    booking: { name, email, company, process, summary, tz, start, end },\n    event: {\n      summary: `Free rework review: ${name}${company ? ` (${company})` : ''}`,\n      description: lines.join('\\n'),\n      start: { dateTime: start },\n      end: { dateTime: end },\n      attendees: [{ email, displayName: name }],\n      conferenceData: { createRequest: { requestId: `rr-${startMs}-${Math.random().toString(36).slice(2, 10)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } } },\n      reminders: { useDefault: true },\n    },\n    notify: {\n      subject: `New rework review: ${name}, ${whenHost}`,\n      text: [`New free rework review booked for ${whenHost}.`, '', ...lines, '', 'The calendar invite with the Meet link has been sent to them.'].join('\\n'),\n    },\n  };\n}\n\n/** Bookings worth remembering for the limits: drop entries more than a day old whose slot has passed. */\nfunction pruneHistory(history, nowMs) {\n  return (history || []).filter((h) => Date.parse(h.slot) > nowMs || nowMs - h.at < 24 * 3600e3);\n}\n\n// ---- workflow step\nconst store = $getWorkflowStaticData('global');\nstore.bookings = pruneHistory(store.bookings, Date.now());\nreturn [{ json: checkBooking($input.first().json.body, Date.now(), store.bookings) }];"
+      }
+    },
+    {
+      "id": "7d0b9c1e-0008-4a51-9d1a-6f1c00000008",
+      "name": "Request OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        440
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1a00000-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.ok === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7d0b9c1e-0009-4a51-9d1a-6f1c00000009",
+      "name": "Reject",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        620
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.status === 200 ? { ok: true } : { ok: false, error: $json.code }) }}",
+        "options": {
+          "responseCode": "={{ $json.status }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "7d0b9c1e-0010-4a51-9d1a-6f1c00000010",
+      "name": "Google: is it still free?",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/freeBusy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ timeMin: $json.booking.start, timeMax: $json.booking.end, items: [{ id: 'primary' }] }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "7d0b9c1e-0011-4a51-9d1a-6f1c00000011",
+      "name": "Still free?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        720,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1a00000-0000-4000-8000-000000000002",
+              "leftValue": "={{ !!$json.calendars && !!$json.calendars.primary && !$json.calendars.primary.errors && $json.calendars.primary.busy.length === 0 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7d0b9c1e-0012-4a51-9d1a-6f1c00000012",
+      "name": "Slot taken",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        580
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"taken\"}",
+        "options": {
+          "responseCode": 409,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "7d0b9c1e-0013-4a51-9d1a-6f1c00000013",
+      "name": "Google: create event + invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        380
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Check the request').first().json.event) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "7d0b9c1e-0014-4a51-9d1a-6f1c00000014",
+      "name": "Remember booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Kept for the limits in check.js (one upcoming review per email, daily cap). Only email, time and when it was booked.\nconst b = $('Check the request').first().json.booking;\nconst store = $getWorkflowStaticData('global');\nstore.bookings = (store.bookings || []).concat({ email: b.email, slot: b.start, at: Date.now() });\nreturn [{ json: { start: b.start, meet: $input.first().json.hangoutLink || '' } }];"
+      }
+    },
+    {
+      "id": "7d0b9c1e-0015-4a51-9d1a-6f1c00000015",
+      "name": "Confirm booking",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        380
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, start: $json.start, meet: $json.meet }) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "7d0b9c1e-0016-4a51-9d1a-6f1c00000016",
+      "name": "Email Jeff",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1680,
+        380
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "sendTo": "jeffhersonvida@gmail.com",
+        "subject": "={{ $('Check the request').first().json.notify.subject }}",
+        "emailType": "text",
+        "message": "={{ $('Check the request').first().json.notify.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Availability request": {
+      "main": [
+        [
+          {
+            "node": "Google: busy times",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google: busy times": {
+      "main": [
+        [
+          {
+            "node": "Work out free slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Work out free slots": {
+      "main": [
+        [
+          {
+            "node": "Send slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking request": {
+      "main": [
+        [
+          {
+            "node": "Check the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the request": {
+      "main": [
+        [
+          {
+            "node": "Request OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request OK?": {
+      "main": [
+        [
+          {
+            "node": "Google: is it still free?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google: is it still free?": {
+      "main": [
+        [
+          {
+            "node": "Still free?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still free?": {
+      "main": [
+        [
+          {
+            "node": "Google: create event + invite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slot taken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google: create event + invite": {
+      "main": [
+        [
+          {
+            "node": "Remember booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remember booking": {
+      "main": [
+        [
+          {
+            "node": "Confirm booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm booking": {
+      "main": [
+        [
+          {
+            "node": "Email Jeff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false,
+    "saveDataErrorExecution": "all"
+  },
+  "pinData": {}
+}

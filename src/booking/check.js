@@ -11,10 +11,8 @@ export const BOOKING_LIMITS = {
 
 // The opening of the calendar invite the visitor receives. Update the link if the site moves to its own domain.
 export const INVITE_PREP = [
-  'Before the call',
-  'Bring one report, check or workflow your team keeps redoing, like the examples on my site: a weekly report rebuilt from the same exports, or recurring bills checked by hand.',
-  'See the examples: https://rework-rescue.vercel.app/#samples',
-  'No preparation or files needed. Describing how it works today is enough, and please leave out anything confidential.',
+  'Bring one report or check your team keeps redoing. Examples: https://rework-rescue.vercel.app/#samples',
+  'No files or prep needed. Please leave out anything confidential.',
   '',
   'Your details',
 ];
@@ -58,19 +56,28 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
   const start = new Date(startMs).toISOString();
   const end = new Date(endMs).toISOString();
   const whenHost = `${fmtHost(startMs)} Philippine time`;
-  const lines = [
+  const footer = '\nBooked through the Rework Rescue website.';
+  const resultLine = summary ? `\nFind Your Rework result:\n${summary}` : '';
+
+  // Invite: what the visitor sees. No time zone line; Google Calendar already shows their local time.
+  const inviteLines = [
+    `Name: ${name}`, `Email: ${email}`, company ? `Company: ${company}` : '',
+    process ? `Report or process: ${process}` : '', resultLine, footer,
+  ].filter(Boolean);
+
+  // Notification: what Jeff sees. Keeps the visitor's time zone.
+  const notifyLines = [
     `Name: ${name}`, `Email: ${email}`, company ? `Company: ${company}` : '',
     process ? `Report or process: ${process}` : '', tz ? `Visitor's time zone: ${tz}` : '',
-    summary ? `\nFind Your Rework result:\n${summary}` : '',
-    '\nBooked through the Rework Rescue website.',
+    resultLine, footer,
   ].filter(Boolean);
 
   return {
     ok: true,
     booking: { name, email, company, process, summary, tz, start, end },
     event: {
-      summary: `Free rework review: ${name}${company ? ` (${company})` : ''}`,
-      description: [...INVITE_PREP, ...lines].join('\n'),
+      summary: 'Free rework review with Jeff (Rework Rescue)',
+      description: [...INVITE_PREP, ...inviteLines].join('\n'),
       start: { dateTime: start },
       end: { dateTime: end },
       attendees: [{ email, displayName: name }],
@@ -78,8 +85,8 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
       reminders: { useDefault: true },
     },
     notify: {
-      subject: `New rework review: ${name}, ${whenHost}`,
-      text: [`New free rework review booked for ${whenHost}.`, '', ...lines, '', 'The calendar invite with the Meet link has been sent to them.'].join('\n'),
+      subject: `New rework review: ${name}${company ? ` (${company})` : ''}, ${whenHost}`,
+      text: [`New free rework review booked for ${whenHost}.`, '', ...notifyLines, '', 'The calendar invite with the Meet link has been sent to them.'].join('\n'),
     },
   };
 }

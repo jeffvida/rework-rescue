@@ -17,14 +17,15 @@ test('a valid request becomes a calendar event with a Meet link and an invite', 
   assert.equal(Date.parse(r.event.end.dateTime) - Date.parse(SLOT), 30 * 60e3);
   assert.deepEqual(r.event.attendees, [{ email: 'ana@example.com', displayName: 'Ana Reyes' }]);
   assert.equal(r.event.conferenceData.createRequest.conferenceSolutionKey.type, 'hangoutsMeet');
-  assert.match(r.event.summary, /Ana Reyes \(Kestrel Hardware\)/);
-  assert.match(r.notify.subject, /Monday, November 2.*10:00 AM Philippine time/);
-  assert.match(r.notify.text, /Australia\/Sydney/);
+  assert.equal(r.event.summary, 'Free rework review with Jeff (Rework Rescue)');
+  assert.match(r.notify.subject, /Ana Reyes \(Kestrel Hardware\), Monday, November 2.*10:00 AM Philippine time/);
+  assert.match(r.notify.text, /Visitor's time zone: Australia\/Sydney/);
+  assert.doesNotMatch(r.event.description, /time zone/i, 'the invite leaves out the time zone line');
 });
 
 test('the invite opens with what to prepare, then the details', () => {
   const d = checkBooking(ok, NOW).event.description;
-  assert.match(d, /^Before the call\nBring one report, check or workflow/);
+  assert.match(d, /^Bring one report or check your team keeps redoing\./);
   assert.match(d, /https:\/\/rework-rescue\.vercel\.app\/#samples/);
   assert.ok(d.indexOf('Your details') < d.indexOf('Name: Ana Reyes'));
 });

@@ -5,7 +5,7 @@
 //  Logic is a simple lookup: the task chosen in question 2 decides the result (Reporting, Data or
 //  Workflow Rework). The other answers only change the advice, the workload figure and the notes.
 //
-//  Keep the ids (the short CAPITAL codes) unchanged unless you also update tests/finder.test.mjs.
+//  Keep the ids (the short CAPITAL codes) unchanged unless you also update tests/assessment.test.mjs.
 //  No AI, no scoring. Nothing here is sent anywhere.
 // ============================================================================
 

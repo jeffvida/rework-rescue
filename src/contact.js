@@ -1,12 +1,12 @@
-// Inquiry form (Stage 2C section 4.2). Renders into a container and talks only to the submission adapter.
+// Contact page: the inquiry form, plus the booking pop-up when live booking is connected.
 
-import { SITE } from '../config/site.js';
-import { esc } from './esc.js';
-import { validateInquiry, INQUIRY_MESSAGES, ROLE_OPTIONS, SIZE_OPTIONS } from '../inquiry/validate.js';
-import { checkName, checkEmail, checkCompany, checkText, LIMITS } from '../forms/rules.js';
-import { wireField, wireEmailHint, showError } from '../forms/live.js';
-import { buildPayload, summaryPreview } from '../inquiry/payload.js';
-import { submitInquiry } from '../inquiry/adapter.js';
+import { SITE } from '../site-config.js';
+import { mountBooking } from './booking/popup.js';
+import { LIMITS, checkCompany, checkEmail, checkName, checkText, esc, showError, wireEmailHint, wireField } from './forms.js';
+import { INQUIRY_MESSAGES, ROLE_OPTIONS, SIZE_OPTIONS, buildPayload, submitInquiry, summaryPreview, validateInquiry } from './inquiry.js';
+
+// ---- Inquiry form
+// Inquiry form (Stage 2C section 4.2). Renders into a container and talks only to the submission adapter.
 
 function timeZones() {
   let list = [];
@@ -185,4 +185,28 @@ export function confirmationHtml(config = SITE) {
     <p>You'll hear back within ${esc(config.RESPONSE_DAYS)} business days.</p>
     <h2>What to expect</h2>
     <p>The rework review is a free ${esc(config.CALL_MINUTES)}-minute conversation about one report, check or process: whether it's worth fixing, and roughly what it would take. Detailed process mapping, solution design, and implementation are part of a paid, defined-scope project.</p>`;
+}
+
+// ---- Start the contact page
+// Once live booking is connected, "Book a free rework review" opens the booking pop-up here too,
+// and arriving from another page's booking link (contact/#contact-form-area) opens it straight away.
+// Until then this page keeps its contact form as the booking route.
+if (SITE.bookingAvailabilityUrl && SITE.bookingRequestUrl) {
+  const booking = mountBooking({ base: '../' });
+  if (location.hash === '#contact-form-area') booking.open();
+}
+
+const root = document.getElementById('contact-root');
+const area = document.getElementById('contact-form-area');
+if (root && area) {
+  mountInquiryForm(root, {
+    getAnswers: () => ({}),
+    getDecision: () => null,
+    privacyHref: '../privacy/',
+    onSent: () => {
+      root.innerHTML = `<section class="confirmation">${confirmationHtml(SITE)}</section>`;
+      const h = root.querySelector('#confirm-title');
+      if (h) h.focus();
+    },
+  });
 }

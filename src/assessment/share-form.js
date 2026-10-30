@@ -2,12 +2,8 @@
 // The result is never hidden or blocked. Contact details and the assessment are sent only when the
 // visitor opens this form and presses "Share my assessment".
 
-import { esc } from './esc.js';
-import { submitInquiry } from '../inquiry/adapter.js';
-import { buildLeadRecord, newSubmissionId } from '../leads/lead.js';
-import { track, EVENTS } from '../analytics/track.js';
-import { checkName, checkEmail, checkCompany, checkText, LIMITS } from '../forms/rules.js';
-import { wireField, wireEmailHint, showError } from '../forms/live.js';
+import { esc, checkName, checkEmail, checkCompany, checkText, LIMITS, wireField, wireEmailHint, showError } from '../forms.js';
+import { submitInquiry, buildLeadRecord, newSubmissionId } from '../inquiry.js';
 
 export const SHARE_MESSAGES = {
   name: 'Please enter your name.',
@@ -39,10 +35,6 @@ export function mountShareBlock(root, ctx) {
   const max = config.NOTE_MAX || 500;
   let submissionId = null;
   let sending = false;
-  const result = () => {
-    const r = ctx.getResult();
-    return { category: r ? r.pillar || 'FALLBACK' : '', service_pillar: r ? r.pillarName : '' };
-  };
 
   function intro() {
     root.innerHTML = `
@@ -181,7 +173,6 @@ export function mountShareBlock(root, ctx) {
     btn.disabled = false;
     btn.removeAttribute('aria-busy');
     if (res.status === 'sent') {
-      track(EVENTS.LEAD_SUBMITTED, result());
       success(f.name.trim().split(/\s+/)[0]);
       focus();
       return;
@@ -194,7 +185,6 @@ export function mountShareBlock(root, ctx) {
     const b = event.target.closest('[data-share]');
     if (!b) return;
     if (b.dataset.share === 'open') {
-      track(EVENTS.SHARE_STARTED, result());
       form(); wireLive(); focus();
     } else if (b.dataset.share === 'dismiss') {
       dismissed(); focus();
@@ -218,9 +208,6 @@ export function mountShareBlock(root, ctx) {
           ${ctx.linkedin ? `<a class="btn btn-ghost" href="${esc(ctx.linkedin)}" target="_blank" rel="noopener noreferrer">${esc(L.linkedinButton || 'Message on LinkedIn')}<span class="sr-only"> (opens in a new tab)</span></a>` : ''}
         </div>
       </div>`;
-    root.addEventListener('click', (event) => {
-      if (event.target.closest('[data-share-email]')) track(EVENTS.SHARE_STARTED, result());
-    });
     return { open() { root.scrollIntoView({ block: 'start' }); const b = root.querySelector('#share-h'); if (b) b.focus(); } };
   }
 

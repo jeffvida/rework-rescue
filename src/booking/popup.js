@@ -7,10 +7,10 @@
 //  - NOT CONNECTED (either URL empty): times follow the slot rules but aren't checked against the calendar,
 //    and the last step opens an email draft to Jeff. Nothing is sent unless the visitor sends it.
 // If the live service fails, the pop-up falls back to the email draft, so a visitor is never stuck.
-import { SPECIALIST, SITE } from '../config/site.js';
-import { checkName, checkEmail, checkCompany, checkText, tidy, LIMITS } from '../forms/rules.js';
-import { wireField, wireEmailHint, showError } from '../forms/live.js';
-import { candidateSlots } from '../booking/slots.js';
+import { SPECIALIST, SITE } from '../../site-config.js';
+import { checkName, checkEmail, checkCompany, checkText, tidy, LIMITS } from '../forms.js';
+import { wireField, wireEmailHint, showError } from '../forms.js';
+import { candidateSlots } from './slots.js';
 
 const HOST_TZ = 'Asia/Manila'; // UTC+8, no daylight saving
 const LIVE = Boolean(SITE.bookingAvailabilityUrl && SITE.bookingRequestUrl);

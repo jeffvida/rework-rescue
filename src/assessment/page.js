@@ -2,16 +2,15 @@
 // history, storage or cookies. History entries carry the screen name only (#intro, #step-1..3, #result).
 // The only way answers leave the page is the optional share form under the result, when submitted.
 
-import { SITE, SPECIALIST } from '../config/site.js';
+import { SITE, SPECIALIST } from '../../site-config.js';
 import { QUESTIONS, SCREENS, RESULT, INTRO } from './rules.js';
 import {
   taskOptions, validateScreen, nextAfter, firstIncomplete, toggleLimit, diagnose, resultToText, shareSummary,
 } from './engine.js';
-import { esc } from '../ui/esc.js';
-import { mountShareBlock } from '../ui/share-form.js';
-import { mountBooking } from '../ui/booking.js';
-import { readUtm } from '../leads/lead.js';
-import { track, resetOnce, EVENTS } from '../analytics/track.js';
+import { esc } from '../forms.js';
+import { mountShareBlock } from './share-form.js';
+import { mountBooking } from '../booking/popup.js';
+import { readUtm } from '../inquiry.js';
 
 const TOTAL = SCREENS.length;
 
@@ -209,7 +208,6 @@ export function startFinder(app, live, options = {}) {
       labels: RESULT.cta,
       fetchImpl: options.fetchImpl,
     });
-    track(EVENTS.COMPLETED, { category: result.pillar || 'FALLBACK', service_pillar: result.pillarName }, { once: true });
     document.title = `${RESULT.eyebrow}: ${result.pillarName} | ${config.name}`;
     focusTitle();
     announce(`Your result: ${result.pillarName}.`);
@@ -296,12 +294,11 @@ export function startFinder(app, live, options = {}) {
     const b = e.target.closest('[data-action]');
     if (!b) return;
     const a = b.dataset.action;
-    if (a === 'begin') { track(EVENTS.STARTED, {}, { once: true }); go('#step-1'); }
+    if (a === 'begin') { go('#step-1'); }
     else if (a === 'back') history.back();
     else if (a === 'print') window.print();
     else if (a === 'restart') {
       answers = {}; result = null;
-      resetOnce(EVENTS.STARTED, EVENTS.COMPLETED);
       go('#intro');
     } else if (a === 'copy') {
       const text = resultToText(result);
@@ -322,3 +319,8 @@ export function startFinder(app, live, options = {}) {
   route();
   return { getAnswers: () => answers };
 }
+
+// ---- Start the assessment on its page
+const app = document.getElementById('app');
+const live = document.getElementById('live');
+if (app) startFinder(app, live);

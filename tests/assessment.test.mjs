@@ -1,8 +1,8 @@
-// Run with: node --test tests/finder.test.mjs
+// Run with: node --test tests/assessment.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { diagnose, workload, nextAfter, validateScreen, toggleLimit, firstIncomplete, shareSummary } from '../src/finder/engine.js';
-import { QUESTIONS } from '../src/finder/rules.js';
+import { diagnose, workload, nextAfter, validateScreen, toggleLimit, firstIncomplete, shareSummary } from '../src/assessment/engine.js';
+import { QUESTIONS } from '../src/assessment/rules.js';
 
 const full = (o) => ({ frequency: 'MONTHLY', time: 'T_2_4', consistency: 'SAME', limits: ['NONE'], ...o });
 

@@ -1,9 +1,9 @@
 // Field rules shared by the contact form, the assessment share form and the booking pop-up. Run: node --test tests/
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { checkName, checkEmail, suggestEmail, checkCompany, checkText, checkChoice, isTimeZone, MESSAGES } from '../src/forms/rules.js';
-import { validateInquiry } from '../src/inquiry/validate.js';
-import { validateShare } from '../src/ui/share-form.js';
+import { checkName, checkEmail, suggestEmail, checkCompany, checkText, checkChoice, isTimeZone, MESSAGES } from '../src/forms.js';
+import { validateInquiry } from '../src/inquiry.js';
+import { validateShare } from '../src/assessment/share-form.js';
 
 test('valid emails pass', () => {
   for (const e of ['jeff@example.com', 'first.last@company.co.uk', 'a+tag@sub.domain.org', "o'neil@firm.io", ' spaced@ends.com ', 'ACCOUNTS@Big-Co.com.au'])

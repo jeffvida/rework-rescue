@@ -3,15 +3,17 @@
 //
 //  Edit wording here: question text, answer labels, and every sentence on the result page.
 //  Logic is a simple lookup: the task chosen in question 2 decides the result (Reporting, Data or
-//  Workflow Rework). The other answers only change the advice, the workload figure and the notes.
+//  Workflow; Reporting and Data both display as Data & Reporting Rework). The other answers only change the advice, the workload figure and the notes.
 //
 //  Keep the ids (the short CAPITAL codes) unchanged unless you also update tests/assessment.test.mjs.
 //  No AI, no scoring. Nothing here is sent anywhere.
 // ============================================================================
 
+// What the visitor sees. Reporting and Data are still decided separately (each keeps its own advice and
+// example), but both are shown as the one service, Data & Reporting Rework.
 export const PILLARS = {
-  REPORTING: 'Reporting Rework',
-  DATA: 'Data Rework',
+  REPORTING: 'Data & Reporting Rework',
+  DATA: 'Data & Reporting Rework',
   WORKFLOW: 'Workflow Rework',
 };
 
@@ -197,7 +199,7 @@ export const RESULT = {
     diagnosis: "You haven't picked out one specific type of rework yet, and that's okay. The best next step is to focus on one recurring task that takes noticeable staff time.",
     lookFor: ['Happens regularly', 'Takes noticeable staff time', 'Involves copying, checking, preparing, updating or chasing information'],
     steps: ['What starts the task', 'The main steps people take', 'Who does the work', 'How often it happens', 'How much active time it takes'],
-    close: 'Once the process is clearer, it becomes easy to tell whether the main opportunity is Reporting Rework, Data Rework or Workflow Rework.',
+    close: 'Once the process is clearer, it becomes easy to tell whether the main opportunity is Data & Reporting Rework or Workflow Rework.',
   },
   notesHeading: 'Worth checking before any changes',
   notes: {

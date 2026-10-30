@@ -27,10 +27,10 @@ export function startFinder(app, live, options = {}) {
       getContext: () => {
         if (!result) return null;
         // "Something else" answers leave the box empty, so the visitor describes the real task.
-        const process = result.kind === 'fallback' || result.closestFit
-          ? ''
-          : `${result.pillarName}: ${result.answers.task}`;
-        return { process: process.slice(0, 300), summary: shareSummary(result) };
+        const process = result.kind === 'fallback' || result.closestFit ? '' : result.answers.task;
+        // The result preselects the matching service in the pop-up (Reporting and Data both show as Data & Reporting Rework).
+        const service = { REPORTING: 'data', DATA: 'data', WORKFLOW: 'workflow' }[result.pillar] || '';
+        return { process: process.slice(0, 300), summary: shareSummary(result), service };
       },
     });
   }

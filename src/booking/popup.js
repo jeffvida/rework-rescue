@@ -11,6 +11,7 @@ import { SPECIALIST, SITE } from '../../site-config.js';
 import { checkName, checkEmail, checkCompany, checkText, tidy, LIMITS } from '../forms.js';
 import { wireField, wireEmailHint, showError } from '../forms.js';
 import { candidateSlots } from './slots.js';
+import { SERVICE_OPTIONS, serviceLabel } from '../inquiry.js';
 
 const HOST_TZ = 'Asia/Manila'; // UTC+8, no daylight saving
 const LIVE = Boolean(SITE.bookingAvailabilityUrl && SITE.bookingRequestUrl);
@@ -59,6 +60,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
   try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || HOST_TZ; } catch { tz = HOST_TZ; }
   const zones = ZONES.some(([z]) => z === tz) ? ZONES : [[tz, `Your time zone (${tz.replace(/_/g, ' ')})`], ...ZONES];
   let month = null; let day = null; let slot = null; let req = {};
+  let service = ''; // what the visitor wants help with (SERVICE_OPTIONS value), asked before the calendar
   let notice = '';      // one-line message above the calendar (e.g. "that time was just taken")
   let fallback = false; // live booking failed: the "done" step offers the email draft instead
   let busy = false;
@@ -87,6 +89,25 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
         <p class="bk-done-actions"><a class="btn btn-primary" href="${esc(MAILTO_TIME)}">Email me</a>${empty ? '' : '<button type="button" class="bk-link" data-retry>Try again</button>'}</p>
       </div>`;
   }
+
+  // Step 0: what would you like help with? Preselected when the button that opened the pop-up says so.
+  function services() {
+    return `
+      <form class="bk-pick bk-service" data-service-form novalidate>
+        <fieldset>
+          <legend class="bk-step">What would you like help with?</legend>
+          ${SERVICE_OPTIONS.filter(([v]) => v).map(([v, l]) => `<label class="bk-choice"><input type="radio" name="service" value="${esc(v)}"${v === service ? ' checked' : ''}> <span>${esc(l)}</span></label>`).join('')}
+        </fieldset>
+        <p class="error" id="bk-service-err" role="alert" hidden>Please choose one, or pick &ldquo;Not sure yet&rdquo;.</p>
+        <button type="submit" class="btn btn-primary">Choose a time</button>
+      </form>`;
+  }
+
+  // Sent with the booking inside the existing "process" text, so the n8n workflow needs no change.
+  const withService = (text) => {
+    const label = serviceLabel(service);
+    return label ? `Help with: ${label}${text ? `. ${text}` : ''}` : text;
+  };
 
   function calendar() {
     const days = byDay();
@@ -118,6 +139,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     return `
       <form class="bk-form" novalidate>
         <p class="bk-chosen"><strong>${when()}</strong><button type="button" class="bk-link" data-back>Change</button></p>
+        ${service ? `<p class="bk-chosen">Help with: <strong>${esc(serviceLabel(service))}</strong><button type="button" class="bk-link" data-change-service>Change</button></p>` : ''}
         <label for="bk-name">Your name</label><input id="bk-name" name="name" value="${esc(req.name || '')}" required autocomplete="name" maxlength="${LIMITS.name}" aria-describedby="bk-name-err"><p class="error" id="bk-name-err" hidden></p>
         ${LIVE ? `<label for="bk-email">Email <span class="bk-opt">(the calendar invite goes here)</span></label><input id="bk-email" name="email" type="email" inputmode="email" value="${esc(req.email || '')}" required autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="${LIMITS.email}" aria-describedby="bk-email-err bk-email-hint"><p class="error" id="bk-email-err" hidden></p><p class="hint" id="bk-email-hint" aria-live="polite" hidden></p>` : ''}
         <label for="bk-company">Company <span class="bk-opt">(optional)</span></label><input id="bk-company" name="company" value="${esc(req.company || '')}" autocomplete="organization" maxlength="${LIMITS.company}" aria-describedby="bk-company-err"><p class="error" id="bk-company-err" hidden></p>
@@ -152,6 +174,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       'Hi Jeff,', '', "I'd like to book a free rework review.", '',
       `Preferred time: ${w}${fmt(slot, tz, { day: 'numeric', hour: 'numeric', minute: '2-digit' }) === fmt(slot, HOST_TZ, { day: 'numeric', hour: 'numeric', minute: '2-digit' }) ? '' : ` (${fmt(slot, HOST_TZ, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} Philippine time)`}`,
       `Name: ${req.name}`,
+      service ? `Help with: ${serviceLabel(service)}` : '',
       req.company ? `Company: ${req.company}` : '',
       req.process ? `Report or process: ${req.process}` : '',
       ...((getContext() || {}).summary ? ['', 'My Find Your Rework result:', getContext().summary] : []),
@@ -172,11 +195,11 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
   }
 
   function render(step = 'pick') {
-    const main = { loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done }[step]();
+    const main = { service: services, loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done }[step]();
     dlg.innerHTML = `
-      <div class="bk-head"><div><p class="eyebrow">Book a free rework review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
+      <div class="bk-head"><div><p class="eyebrow">Book a free rework review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : step === 'service' ? 'Tell me what it&rsquo;s about.' : 'Pick a time that works for you.'}</h2></div>
         <button type="button" class="bk-x" data-close aria-label="Close">&times;</button></div>
-      ${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> Pick the time that suits you best and I&rsquo;ll confirm it by email.</p>'}
+      ${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
       <div class="bk-body">
         <aside class="bk-side">
           <div class="bk-who"><img src="${base}assets/photo/jeff-avatar.jpg" width="56" height="56" alt=""><p><strong>Jeff Herson Vida</strong><span>Rework Rescue</span></p></div>
@@ -221,7 +244,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     const ctx = getContext() || {};
     const { status, data } = await call(SITE.bookingRequestUrl, {
       method: 'POST',
-      body: { slot: slot.toISOString(), name: req.name, email: req.email, company: req.company, process: req.process, summary: ctx.summary || '', tz, website: f.website.value },
+      body: { slot: slot.toISOString(), name: req.name, email: req.email, company: req.company, process: withService(req.process), summary: ctx.summary || '', tz, website: f.website.value },
     });
     busy = false;
     if (!dlg.open) return;
@@ -257,6 +280,10 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       slot = SLOTS[Number(s.dataset.slot)]; notice = ''; fallback = false;
       showDetails().name.focus(); return;
     }
+    if (t.closest('[data-change-service]')) {
+      const f = dlg.querySelector('.bk-form'); // keep what's been typed so far
+      if (f) req = { name: f.name.value, email: f.email ? f.email.value : '', company: f.company.value, process: f.process.value };
+      render('service'); dlg.querySelector('input[name="service"]:checked, input[name="service"]')?.focus(); return; }
     if (t.closest('[data-back]')) { fallback = false; render(); }
   });
   dlg.addEventListener('change', (e) => {
@@ -266,6 +293,14 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     e.preventDefault();
     if (busy) return;
     const f = e.target;
+    if (f.hasAttribute('data-service-form')) {
+      const picked = f.querySelector('input[name="service"]:checked');
+      const err = f.querySelector('#bk-service-err');
+      if (!picked) { err.hidden = false; f.querySelector('input[name="service"]').focus(); return; }
+      service = picked.value;
+      if (slot) { showDetails().name.focus(); return; } // came back from the details step to change it
+      showCalendar(); return;
+    }
     const checks = { name: checkName, company: (v) => checkCompany(v), process: (v) => checkText(v, { max: 300 }) };
     if (f.email) checks.email = checkEmail;
     let first = null;
@@ -280,18 +315,21 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     render('done'); dlg.querySelector('.bk-done .btn')?.focus();
   });
 
-  const open = () => {
+  const valid = (v) => SERVICE_OPTIONS.some(([o]) => o && o === v);
+  const open = (preselect = '') => {
     if (typeof dlg.showModal !== 'function') return false;
     day = null; month = null; slot = null; req = {}; notice = ''; fallback = false; busy = false;
+    service = valid(preselect) ? preselect : (valid((getContext() || {}).service) ? getContext().service : '');
+    render('service');
     dlg.showModal();
-    showCalendar();
+    dlg.querySelector('input[name="service"]:checked, input[name="service"]')?.focus();
     return true;
   };
 
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href*="contact/#contact-form-area"], [data-book]');
     if (!a) return;
-    if (open()) e.preventDefault();
+    if (open(a.dataset.bookService || '')) e.preventDefault();
   });
 
   return { open };

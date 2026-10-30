@@ -14,6 +14,16 @@ export const INQUIRY_MESSAGES = {
   unconfigured: "Message sending isn't set up on this site yet, so your message was not sent. Nothing has left this page.",
 };
 
+// The three services, used by the contact form and the booking pop-up. Keep the labels in step with the homepage.
+export const SERVICE_OPTIONS = [
+  ['', 'Choose one (optional)'],
+  ['data', 'Data & Reporting Rework'],
+  ['workflow', 'Workflow Rework'],
+  ['systems', 'Systems Rework'],
+  ['unsure', "Not sure yet: I'd like your recommendation"],
+];
+export const serviceLabel = (value) => (SERVICE_OPTIONS.find(([v]) => v && v === value) || [])[1] || '';
+
 export const ROLE_OPTIONS = [
   ['', 'Choose one (optional)'],
   ['owner_director', 'Owner or director'],
@@ -36,7 +46,7 @@ export const SIZE_OPTIONS = [
 /**
  * Checks every field of the contact form. Returns a map of field -> message (empty when all valid).
  * Field keys match the form's element names.
- * @param {{name?:string,email?:string,organization?:string,role?:string,organizationSize?:string,timeZone?:string,note?:string}} fields
+ * @param {{name?:string,email?:string,organization?:string,service?:string,role?:string,organizationSize?:string,timeZone?:string,note?:string}} fields
  */
 export function validateInquiry(fields, { noteMax = 500 } = {}) {
   const errors = {};
@@ -44,6 +54,7 @@ export function validateInquiry(fields, { noteMax = 500 } = {}) {
   set('name', checkName(fields.name));
   set('email', checkEmail(fields.email));
   set('organization', checkCompany(fields.organization));
+  set('service', checkChoice(fields.service || '', SERVICE_OPTIONS.map(([v]) => v).filter(Boolean)));
   set('role', checkChoice(fields.role || '', ROLE_OPTIONS.map(([v]) => v).filter(Boolean)));
   set('organizationSize', checkChoice(fields.organizationSize || '', SIZE_OPTIONS.map(([v]) => v).filter(Boolean)));
   if (!isTimeZone(fields.timeZone)) errors.timeZone = MESSAGES.choice;
@@ -65,6 +76,7 @@ export function buildPayload({ fields, honeypot = '' }) {
       name: (fields.name || '').trim(),
       email: (fields.email || '').trim(),
       organization: (fields.organization || '').trim(),
+      service: serviceLabel(fields.service),
       role: fields.role || '',
       organizationSize: fields.organizationSize || '',
       timeZone: fields.timeZone || '',

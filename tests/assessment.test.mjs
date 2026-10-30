@@ -6,15 +6,17 @@ import { QUESTIONS } from '../src/assessment/rules.js';
 
 const full = (o) => ({ frequency: 'MONTHLY', time: 'T_2_4', consistency: 'SAME', limits: ['NONE'], ...o });
 
-test('Scenario 1: recurring monthly report -> Reporting Rework, repeatable first', () => {
+test('Scenario 1: recurring monthly report -> Reporting (shown as Data & Reporting Rework), repeatable first', () => {
   const r = diagnose(full({ area: 'REPORTS', task: 'R_RECURRING' }));
-  assert.equal(r.pillarName, 'Reporting Rework');
+  assert.equal(r.pillar, 'REPORTING');
+  assert.equal(r.pillarName, 'Data & Reporting Rework');
   assert.equal(r.start.lead, 'Make the reporting process repeatable before trying to automate it.');
 });
 
-test('Scenario 2: two sources do not match -> Data Rework', () => {
+test('Scenario 2: two sources do not match -> Data (shown as Data & Reporting Rework), own advice', () => {
   const r = diagnose(full({ area: 'DATA', task: 'D_MISMATCH' }));
-  assert.equal(r.pillarName, 'Data Rework');
+  assert.equal(r.pillar, 'DATA');
+  assert.equal(r.pillarName, 'Data & Reporting Rework');
   assert.equal(r.start.lead, 'Agree on what the correct data should look like before trying to automate the checking.');
 });
 
@@ -40,7 +42,7 @@ test('Every task maps to a valid result, and every area has a "something else" r
     for (const t of list) {
       const r = diagnose(full({ area, task: t.id }));
       if (t.pillar === null) assert.equal(r.kind, 'fallback');
-      else assert.ok(['Reporting Rework', 'Data Rework', 'Workflow Rework'].includes(r.pillarName), t.id);
+      else assert.ok(['Data & Reporting Rework', 'Workflow Rework'].includes(r.pillarName), t.id);
     }
   }
 });
@@ -95,7 +97,7 @@ test('Validation: every screen needs an answer; task appears only after area', (
 
 test('Shared summary contains the result and answers only', () => {
   const s = shareSummary(diagnose(full({ area: 'REPORTS', task: 'R_COMBINE' })));
-  assert.match(s, /^Result: Reporting Rework/);
+  assert.match(s, /^Result: Data & Reporting Rework/);
   assert.match(s, /Estimated workload: about 2–4 staff-hours a month/);
 });
 
@@ -109,7 +111,7 @@ test('Q5 "Not sure" gets its own find-out-first advice, for every service', () =
 
 test('Low-volume note: under 2 staff-hours a month at the high end; the service stays', () => {
   const low = diagnose(full({ area: 'REPORTS', task: 'R_RECURRING', frequency: 'MONTHLY', time: 'T_30_60' }));
-  assert.equal(low.pillarName, 'Reporting Rework');
+  assert.equal(low.pillarName, 'Data & Reporting Rework');
   assert.match(low.lowVolume, /probably isn’t worth it yet/);
   assert.match(low.lowVolume, /mistakes here are costly/);
   assert.equal(diagnose(full({ area: 'REPORTS', task: 'R_RECURRING', frequency: 'MONTHLY', time: 'T_1_2' })).lowVolume, '', 'exactly 2 is not low');
@@ -123,7 +125,8 @@ test('Low-volume note: under 2 staff-hours a month at the high end; the service 
 
 test('"Something else" is worded as the closest fit', () => {
   const r = diagnose(full({ area: 'DATA', task: 'D_OTHER' }));
-  assert.equal(r.pillarName, 'Data Rework');
+  assert.equal(r.pillar, 'DATA');
+  assert.equal(r.pillarName, 'Data & Reporting Rework');
   assert.ok(r.closestFit);
   assert.match(r.why, /closest fit/);
   assert.equal(diagnose(full({ area: 'DATA', task: 'D_MISMATCH' })).closestFit, false);

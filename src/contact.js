@@ -3,7 +3,7 @@
 import { SITE } from '../site-config.js';
 import { mountBooking } from './booking/popup.js';
 import { LIMITS, checkCompany, checkEmail, checkName, checkText, esc, showError, wireEmailHint, wireField } from './forms.js';
-import { INQUIRY_MESSAGES, ROLE_OPTIONS, SIZE_OPTIONS, buildPayload, submitInquiry, summaryPreview, validateInquiry } from './inquiry.js';
+import { INQUIRY_MESSAGES, ROLE_OPTIONS, SERVICE_OPTIONS, SIZE_OPTIONS, buildPayload, submitInquiry, summaryPreview, validateInquiry } from './inquiry.js';
 
 // ---- Inquiry form
 // Inquiry form (Stage 2C section 4.2). Renders into a container and talks only to the submission adapter.
@@ -51,6 +51,11 @@ export function mountInquiryForm(root, ctx) {
         <label for="inq-org">Organization <span class="opt">(optional)</span></label>
         <input id="inq-org" name="organization" type="text" autocomplete="organization" maxlength="${LIMITS.company}" aria-describedby="inq-org-err">
         <p class="error" id="inq-org-err" hidden></p>
+      </div>
+      <div class="field">
+        <label for="inq-service">What would you like help with? <span class="opt">(optional)</span></label>
+        <select id="inq-service" name="service" aria-describedby="inq-service-err">${SERVICE_OPTIONS.map(([v, l]) => opt(v, l, v === (ctx.service || ''))).join('')}</select>
+        <p class="error" id="inq-service-err" hidden></p>
       </div>
       <div class="field-row">
         <div class="field">
@@ -119,7 +124,7 @@ export function mountInquiryForm(root, ctx) {
   }
 
   // Field key (form element name) -> element id suffix
-  const IDS = { name: 'name', email: 'email', organization: 'org', role: 'role', organizationSize: 'size', timeZone: 'tz', note: 'note' };
+  const IDS = { name: 'name', email: 'email', organization: 'org', service: 'service', role: 'role', organizationSize: 'size', timeZone: 'tz', note: 'note' };
   const ORDER = Object.keys(IDS);
   const el = (k) => q(`#inq-${IDS[k]}`);
   const err = (k) => q(`#inq-${IDS[k]}-err`);
@@ -135,6 +140,7 @@ export function mountInquiryForm(root, ctx) {
     name: form.elements.name.value,
     email: form.elements.email.value,
     organization: form.elements.organization.value,
+    service: form.elements.service.value,
     role: form.elements.role.value,
     organizationSize: form.elements.organizationSize.value,
     timeZone: form.elements.timeZone.value,
@@ -191,9 +197,13 @@ export function confirmationHtml(config = SITE) {
 // Once live booking is connected, "Book a free rework review" opens the booking pop-up here too,
 // and arriving from another page's booking link (contact/#contact-form-area) opens it straight away.
 // Until then this page keeps its contact form as the booking route.
+// A link can preselect the service, e.g. contact/?service=systems#contact-form-area.
+let linkedService = '';
+try { linkedService = new URLSearchParams(location.search).get('service') || ''; } catch { /* ignore */ }
+
 if (SITE.bookingAvailabilityUrl && SITE.bookingRequestUrl) {
   const booking = mountBooking({ base: '../' });
-  if (location.hash === '#contact-form-area') booking.open();
+  if (location.hash === '#contact-form-area') booking.open(linkedService);
 }
 
 const root = document.getElementById('contact-root');
@@ -202,6 +212,7 @@ if (root && area) {
   mountInquiryForm(root, {
     getAnswers: () => ({}),
     getDecision: () => null,
+    service: linkedService,
     privacyHref: '../privacy/',
     onSent: () => {
       root.innerHTML = `<section class="confirmation">${confirmationHtml(SITE)}</section>`;

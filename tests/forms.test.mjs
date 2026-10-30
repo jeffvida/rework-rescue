@@ -74,9 +74,9 @@ test('dropdowns and time zones', () => {
 });
 
 test('contact form checks every field', () => {
-  assert.deepEqual(validateInquiry({ name: 'Ana Cruz', email: 'ana@acme.com', organization: 'Acme', role: 'operations', organizationSize: '11-50', timeZone: 'Asia/Manila', note: 'Weekly report' }), {});
-  const e = validateInquiry({ name: '1', email: 'ana@acme', organization: '--', role: 'boss', organizationSize: 'huge', timeZone: 'Nowhere/Zone', note: 'x'.repeat(501) });
-  assert.deepEqual(Object.keys(e).sort(), ['email', 'name', 'note', 'organization', 'organizationSize', 'role', 'timeZone']);
+  assert.deepEqual(validateInquiry({ name: 'Ana Cruz', email: 'ana@acme.com', organization: 'Acme', service: 'systems', role: 'operations', organizationSize: '11-50', timeZone: 'Asia/Manila', note: 'Weekly report' }), {});
+  const e = validateInquiry({ name: '1', email: 'ana@acme', organization: '--', service: 'website', role: 'boss', organizationSize: 'huge', timeZone: 'Nowhere/Zone', note: 'x'.repeat(501) });
+  assert.deepEqual(Object.keys(e).sort(), ['email', 'name', 'note', 'organization', 'organizationSize', 'role', 'service', 'timeZone']);
 });
 
 test('share form checks every field', () => {

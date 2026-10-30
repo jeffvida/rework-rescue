@@ -618,6 +618,8 @@ details[open] > summary .card-toggle .ct-close { display: inline; }
 .problem-punch { font-family: var(--display); font-weight: 800; font-size: 1.25rem; color: var(--teal); }
 .pillar-num { font-family: var(--display); font-weight: 800; color: var(--accent); letter-spacing: 0.08em; margin: 0 0 0.2rem; font-size: 0.95rem; }
 .pillar-promise { font-weight: 700; color: var(--ink); }
+.pillar-desc { margin: 0.35rem 0 0; font-size: 0.97rem; }
+.systems-path { margin-top: 1.25rem; }
 .pillar-label { font-weight: 700; font-size: 0.95rem; margin: 0.8rem 0 0.3rem; }
 .service-card .check-list { margin: 0 0 0.9rem; }
 .pillar-goal { margin: 0; padding-top: 0.8rem; border-top: 1px solid var(--line); font-size: 0.97rem; }
@@ -1260,3 +1262,10 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .bk-form label { margin-bottom: 0; }
 .bk-form input, .bk-form textarea { margin-bottom: 0.9rem; }
 .bk-form .error { margin: -0.5rem 0 0.9rem; }
+
+/* Booking pop-up: "What would you like help with?" step */
+.bk-service fieldset { border: 0; padding: 0; margin: 0 0 1rem; min-width: 0; }
+.bk-service legend { padding: 0; }
+.bk-choice { display: flex; align-items: center; gap: 0.65rem; padding: 0.7rem 0.85rem; margin: 0.45rem 0; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; color: var(--ink); }
+.bk-choice input { margin: 0; accent-color: var(--teal); }
+.bk-choice:has(input:checked) { border-color: var(--teal); background: var(--info-bg); font-weight: 600; }

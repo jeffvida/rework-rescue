@@ -22,7 +22,7 @@ const SPECIALIST_EMAIL = 'jeffhersonvida@gmail.com';
 // Public contact details: professional email and LinkedIn only. No mobile number is shown anywhere.
 export const SPECIALIST = {
   name: 'Jeff Herson Vida',
-  title: 'Data, Reporting & Workflow Automation Specialist',
+  title: 'Data & Operations Specialist | Reporting, Workflow and Connected Systems',
   email: SPECIALIST_EMAIL,
   linkedin: 'https://www.linkedin.com/in/jeffhersonvida',
   linkedinLabel: 'linkedin.com/in/jeffhersonvida',

@@ -46,14 +46,14 @@ const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
 mountBooking();
 
-// "Check it" in the hero: go to the demo and run the checks there.
+// "Find what's off" in the hero: go to the demo. The visitor starts the checks there, after reading the setup.
 document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
   if (!demo) return;
   e.preventDefault();
   const target = document.getElementById('samples');
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  if (demo.phase === 'ready') setTimeout(() => demo.check(), reduce ? 0 : 750);
+  history.replaceState(null, '', '#samples');
 }));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,

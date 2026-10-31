@@ -244,5 +244,5 @@ export const INTRO = {
   examples: ['Preparing a report', 'Checking or reconciling data', 'Updating a spreadsheet', 'Moving information between systems', 'Following up on approvals', 'Reviewing documents'],
   note: "Don't try to describe your whole business. One process gives you a much more useful result.",
   facts: '6 questions · About 2 minutes · No sign-up · Nothing is saved',
-  button: 'Start the Assessment',
+  button: 'Find Your Rework',
 };

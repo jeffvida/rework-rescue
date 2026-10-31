@@ -7,13 +7,15 @@ import { mountWorkSample } from './sample/ui.js';
 // ---- Phone booking bar
 // Phone-only "Book a free rework review" bar (CSS shows it on narrow screens only).
 // It appears once the hero has scrolled out of view and hides again while the closing
-// call-to-action section or the footer is on screen, so it never doubles up with them.
+// call-to-action section, the footer or any other booking button on the page is on screen,
+// so it never doubles up with them.
 // Without JavaScript or IntersectionObserver the bar simply stays hidden.
 
 export function mountMobileCta() {
   const bar = document.getElementById('mobile-cta');
   const hero = document.querySelector('.hero');
-  const end = [document.getElementById('start'), document.querySelector('.site-footer')].filter(Boolean);
+  const end = [document.getElementById('start'), document.querySelector('.site-footer'),
+    ...document.querySelectorAll('main .btn[href*="contact-form-area"], main .btn[data-book]')].filter(Boolean);
   if (!bar || !hero || typeof IntersectionObserver !== 'function') return;
 
   bar.hidden = false;

@@ -14,13 +14,13 @@ export const INQUIRY_MESSAGES = {
   unconfigured: "Message sending isn't set up on this site yet, so your message was not sent. Nothing has left this page.",
 };
 
-// The three services, used by the contact form and the booking pop-up. Keep the labels in step with the homepage.
+// The three services, asked (optionally) in the booking pop-up. Keep the labels in step with the homepage.
+// The empty value means "not sure yet": the review is where we work it out.
 export const SERVICE_OPTIONS = [
-  ['', 'Choose one (optional)'],
+  ['', 'Not sure yet'],
   ['data', 'Data & Reporting Rework'],
   ['workflow', 'Workflow Rework'],
   ['systems', 'Systems Rework'],
-  ['unsure', "Not sure yet: I'd like your recommendation"],
 ];
 export const serviceLabel = (value) => (SERVICE_OPTIONS.find(([v]) => v && v === value) || [])[1] || '';
 

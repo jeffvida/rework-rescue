@@ -60,7 +60,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
   try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || HOST_TZ; } catch { tz = HOST_TZ; }
   const zones = ZONES.some(([z]) => z === tz) ? ZONES : [[tz, `Your time zone (${tz.replace(/_/g, ' ')})`], ...ZONES];
   let month = null; let day = null; let slot = null; let req = {};
-  let service = ''; // what the visitor wants help with (SERVICE_OPTIONS value), asked before the calendar
+  let service = ''; // what the visitor wants help with (SERVICE_OPTIONS value); optional, asked in the details step
   let notice = '';      // one-line message above the calendar (e.g. "that time was just taken")
   let fallback = false; // live booking failed: the "done" step offers the email draft instead
   let busy = false;
@@ -90,24 +90,10 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       </div>`;
   }
 
-  // Step 0: what would you like help with? Preselected when the button that opened the pop-up says so.
-  function services() {
-    return `
-      <form class="bk-pick bk-service" data-service-form novalidate>
-        <fieldset>
-          <legend class="bk-step">What would you like help with?</legend>
-          ${SERVICE_OPTIONS.filter(([v]) => v).map(([v, l]) => `<label class="bk-choice"><input type="radio" name="service" value="${esc(v)}"${v === service ? ' checked' : ''}> <span>${esc(l)}</span></label>`).join('')}
-        </fieldset>
-        <p class="error" id="bk-service-err" role="alert" hidden>Please choose one, or pick &ldquo;Not sure yet&rdquo;.</p>
-        ${(getContext() || {}).summary ? '' : `<p class="bk-sample-note" id="bk-unsure-hint" aria-live="polite"${service === 'unsure' ? '' : ' hidden'}>Want a head start? <a href="${base}assessment/">Find Your Rework</a> takes about 2 minutes, or continue to pick a time.</p>`}
-        <button type="submit" class="btn btn-primary">Choose a time</button>
-      </form>`;
-  }
-
   // Sent with the booking inside the existing "process" text, so the n8n workflow needs no change.
   const withService = (text) => {
-    const label = serviceLabel(service);
-    return label ? `Help with: ${label}${text ? `. ${text}` : ''}` : text;
+    const label = serviceLabel(service) || 'Not sure yet';
+    return `Help with: ${label}${text ? `. ${text}` : ''}`;
   };
 
   function calendar() {
@@ -140,9 +126,10 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     return `
       <form class="bk-form" novalidate>
         <p class="bk-chosen"><strong>${when()}</strong><button type="button" class="bk-link" data-back>Change</button></p>
-        ${service ? `<p class="bk-chosen">Help with: <strong>${esc(serviceLabel(service))}</strong><button type="button" class="bk-link" data-change-service>Change</button></p>` : ''}
+
         <label for="bk-name">Your name</label><input id="bk-name" name="name" value="${esc(req.name || '')}" required autocomplete="name" maxlength="${LIMITS.name}" aria-describedby="bk-name-err"><p class="error" id="bk-name-err" hidden></p>
         ${LIVE ? `<label for="bk-email">Email <span class="bk-opt">(the calendar invite goes here)</span></label><input id="bk-email" name="email" type="email" inputmode="email" value="${esc(req.email || '')}" required autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="${LIMITS.email}" aria-describedby="bk-email-err bk-email-hint"><p class="error" id="bk-email-err" hidden></p><p class="hint" id="bk-email-hint" aria-live="polite" hidden></p>` : ''}
+        <label for="bk-service">What would you like help with? <span class="bk-opt">(optional)</span></label><select id="bk-service" name="service">${SERVICE_OPTIONS.map(([v, l]) => `<option value="${esc(v)}"${v === service ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>
         <label for="bk-company">Company <span class="bk-opt">(optional)</span></label><input id="bk-company" name="company" value="${esc(req.company || '')}" autocomplete="organization" maxlength="${LIMITS.company}" aria-describedby="bk-company-err"><p class="error" id="bk-company-err" hidden></p>
         <label for="bk-process">Which report or process do you want to look at? <span class="bk-opt">(optional, keep it general)</span></label><textarea id="bk-process" name="process" rows="3" maxlength="400" placeholder="For example: our weekly sales report takes half a day to rebuild." aria-describedby="bk-process-err">${esc(req.process || (getContext() || {}).process || '')}</textarea><p class="error" id="bk-process-err" hidden></p>
         <div class="hp" aria-hidden="true"><label for="bk-website">Leave this field empty</label><input id="bk-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
@@ -175,7 +162,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       'Hi Jeff,', '', "I'd like to book a free rework review.", '',
       `Preferred time: ${w}${fmt(slot, tz, { day: 'numeric', hour: 'numeric', minute: '2-digit' }) === fmt(slot, HOST_TZ, { day: 'numeric', hour: 'numeric', minute: '2-digit' }) ? '' : ` (${fmt(slot, HOST_TZ, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} Philippine time)`}`,
       `Name: ${req.name}`,
-      service ? `Help with: ${serviceLabel(service)}` : '',
+      `Help with: ${serviceLabel(service) || 'Not sure yet'}`,
       req.company ? `Company: ${req.company}` : '',
       req.process ? `Report or process: ${req.process}` : '',
       ...((getContext() || {}).summary ? ['', 'My Find Your Rework result:', getContext().summary] : []),
@@ -196,9 +183,9 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
   }
 
   function render(step = 'pick') {
-    const main = { service: services, loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done }[step]();
+    const main = { loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done }[step]();
     dlg.innerHTML = `
-      <div class="bk-head"><div><p class="eyebrow">Book a free rework review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : step === 'service' ? 'Tell me what it&rsquo;s about.' : 'Pick a time that works for you.'}</h2></div>
+      <div class="bk-head"><div><p class="eyebrow">Book a free rework review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
         <button type="button" class="bk-x" data-close aria-label="Close">&times;</button></div>
       ${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
       <div class="bk-body">
@@ -281,34 +268,15 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       slot = SLOTS[Number(s.dataset.slot)]; notice = ''; fallback = false;
       showDetails().name.focus(); return;
     }
-    if (t.closest('[data-change-service]')) {
-      const f = dlg.querySelector('.bk-form'); // keep what's been typed so far
-      if (f) req = { name: f.name.value, email: f.email ? f.email.value : '', company: f.company.value, process: f.process.value };
-      render('service'); dlg.querySelector('input[name="service"]:checked, input[name="service"]')?.focus(); return; }
     if (t.closest('[data-back]')) { fallback = false; render(); }
   });
   dlg.addEventListener('change', (e) => {
-    if (e.target.name === 'service') {
-      const hint = dlg.querySelector('#bk-unsure-hint');
-      if (hint) hint.hidden = e.target.value !== 'unsure';
-      const err = dlg.querySelector('#bk-service-err');
-      if (err) err.hidden = true;
-      return;
-    }
     if (e.target.id === 'bk-tz') { tz = e.target.value; day = null; month = null; render(); dlg.querySelector('#bk-tz')?.focus(); }
   });
   dlg.addEventListener('submit', (e) => {
     e.preventDefault();
     if (busy) return;
     const f = e.target;
-    if (f.hasAttribute('data-service-form')) {
-      const picked = f.querySelector('input[name="service"]:checked');
-      const err = f.querySelector('#bk-service-err');
-      if (!picked) { err.hidden = false; f.querySelector('input[name="service"]').focus(); return; }
-      service = picked.value;
-      if (slot) { showDetails().name.focus(); return; } // came back from the details step to change it
-      showCalendar(); return;
-    }
     const checks = { name: checkName, company: (v) => checkCompany(v), process: (v) => checkText(v, { max: 300 }) };
     if (f.email) checks.email = checkEmail;
     let first = null;
@@ -318,6 +286,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       if (msg && !first) first = f[k];
     }
     if (first) { first.focus(); return; }
+    service = f.service.value;
     req = { name: tidy(f.name.value), email: f.email ? f.email.value.trim() : '', company: tidy(f.company.value), process: f.process.value.trim() };
     if (LIVE) { book(f); return; }
     render('done'); dlg.querySelector('.bk-done .btn')?.focus();
@@ -328,9 +297,8 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     if (typeof dlg.showModal !== 'function') return false;
     day = null; month = null; slot = null; req = {}; notice = ''; fallback = false; busy = false;
     service = valid(preselect) ? preselect : (valid((getContext() || {}).service) ? getContext().service : '');
-    render('service');
     dlg.showModal();
-    dlg.querySelector('input[name="service"]:checked, input[name="service"]')?.focus();
+    showCalendar();
     return true;
   };
 

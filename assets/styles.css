@@ -620,6 +620,7 @@ details[open] > summary .card-toggle .ct-close { display: inline; }
 .pillar-promise { font-weight: 700; color: var(--ink); }
 .pillar-desc { margin: 0.35rem 0 0; font-size: 0.97rem; }
 .systems-path { margin-top: 1.25rem; }
+.contact-next { margin-top: 1rem; }
 .pillar-label { font-weight: 700; font-size: 0.95rem; margin: 0.8rem 0 0.3rem; }
 .service-card .check-list { margin: 0 0 0.9rem; }
 .pillar-goal { margin: 0; padding-top: 0.8rem; border-top: 1px solid var(--line); font-size: 0.97rem; }
@@ -1208,7 +1209,7 @@ details[open] > summary .card-toggle .ct-close { display: inline; }
 .bk-time:hover, .bk-day:hover { outline: 2px solid var(--teal); }
 .bk-form, .bk-done { grid-column: 1 / -1; max-width: 30rem; }
 .bk-form label { display: block; font-weight: 700; margin-bottom: 0.8rem; }
-.bk-form input, .bk-form textarea { display: block; width: 100%; margin-top: 0.3rem; padding: 0.6rem; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-weight: 400; box-sizing: border-box; }
+.bk-form input, .bk-form textarea, .bk-form select { display: block; width: 100%; margin-top: 0.3rem; padding: 0.6rem; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-weight: 400; box-sizing: border-box; }
 .bk-opt { font-weight: 400; color: var(--muted); }
 .bk-chosen { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; padding: 0.7rem 0.9rem; background: var(--info-bg); border-radius: 10px; }
 .bk-link { border: 0; background: none; color: var(--teal); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; padding: 0; }
@@ -1260,12 +1261,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .hint { margin: 0.45rem 0 0; color: var(--ink); font-size: 0.95rem; }
 .hint-fix { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--teal); text-decoration: underline; cursor: pointer; }
 .bk-form label { margin-bottom: 0; }
-.bk-form input, .bk-form textarea { margin-bottom: 0.9rem; }
+.bk-form input, .bk-form textarea, .bk-form select { margin-bottom: 0.9rem; }
 .bk-form .error { margin: -0.5rem 0 0.9rem; }
 
-/* Booking pop-up: "What would you like help with?" step */
-.bk-service fieldset { border: 0; padding: 0; margin: 0 0 1rem; min-width: 0; }
-.bk-service legend { padding: 0; }
-.bk-choice { display: flex; align-items: center; gap: 0.65rem; padding: 0.7rem 0.85rem; margin: 0.45rem 0; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; color: var(--ink); }
-.bk-choice input { margin: 0; accent-color: var(--teal); }
-.bk-choice:has(input:checked) { border-color: var(--teal); background: var(--info-bg); font-weight: 600; }

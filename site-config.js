@@ -4,7 +4,7 @@
 //  Page wording is NOT here: it lives in the pages themselves (index.html, contact/index.html,
 //  privacy/index.html, assessment/index.html), so each sentence is stored once.
 //  Assessment questions and result wording: src/assessment/rules.js (approved and tested).
-//  Example data: src/sample and src/bills (regenerate with tools/generate_*.py).
+//  Live demo data: src/demo/data.js (one fictional week; tests/demo.test.mjs checks every number).
 //  Colours and layout: assets/styles.css (see the :root block at the top).
 //
 //  How to edit: change the text between the quote marks and commit the file to GitHub.

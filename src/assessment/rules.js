@@ -162,7 +162,7 @@ export const RESULT = {
     },
     fix: 'A report that refreshes from your existing files or exports in minutes instead of being rebuilt, with built-in checks that flag anything that doesn’t add up, and a short guide so more than one person can run it.',
     measures: ['Staff-hours per report', 'Time from period end to report delivery', 'Corrections per reporting cycle'],
-    example: { label: 'From three messy exports to a reliable weekly report', href: '../#example-1' },
+    example: { label: 'One week at a small repair business: checking the weekly report', href: '../#samples' },
   },
   DATA: {
     diagnosis: 'Repeated checking, correcting or reconciling information appears to be your main opportunity.',
@@ -173,7 +173,7 @@ export const RESULT = {
     },
     fix: 'A repeatable check that compares your sources against agreed rules and lists only the items that need a person’s attention, with a simple record of what was checked and corrected.',
     measures: ['Number of discrepancies found each cycle', 'Time spent resolving discrepancies', 'Errors that keep coming back'],
-    example: { label: 'Recurring bills across sites: from a pile of bills to a payment run you can trust', href: '../#example-2' },
+    example: { label: 'One week at a small repair business: finding a duplicate booking and a missing invoice', href: '../#samples' },
   },
   WORKFLOW: {
     diagnosis: 'Repeated follow-ups, handoffs or manual coordination appear to be your main opportunity.',
@@ -184,8 +184,7 @@ export const RESULT = {
     },
     fix: 'One clear path for each request: a single place to see status, a named owner for each step, and reminders or handoffs that happen automatically where it’s safe, so fewer things need chasing.',
     measures: ['Manual follow-ups per request', 'Waiting time between steps', 'Requests without a clear status'],
-    // No dedicated workflow example yet: points at the open-jobs part of example 1 (owners, overdue jobs, follow-ups).
-    example: { label: 'Example 1, step 4 (Weekly report): who owns each open job, what’s overdue and who to chase', href: '../#example-1' },
+    example: { label: 'One week at a small repair business: turning problems into owned tasks', href: '../#samples' },
   },
   fixTail: 'Built with the tools you already have where possible, such as Excel, Power Query or your existing systems.',
   // Q5 = "I'm not sure": the same advice for every service, because the visitor doesn't yet know how the task runs.

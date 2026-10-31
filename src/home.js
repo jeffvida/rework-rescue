@@ -1,9 +1,7 @@
-// Homepage: the two interactive examples, the phone-only booking bar and the booking pop-up.
+// Homepage: the live demo, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
-import { mountBillsSample } from './bills/ui.js';
 import { mountBooking } from './booking/popup.js';
-import { mountWorkSample } from './sample/ui.js';
-import { mountHeroDemo } from './hero-demo.js';
+import { mountDemo } from './demo/ui.js';
 
 // ---- Phone booking bar
 // Phone-only "Book a free rework review" bar (CSS shows it on narrow screens only).
@@ -44,13 +42,19 @@ export function mountMobileCta() {
 }
 
 // ---- Start the homepage
-const a = document.getElementById('work-sample');
-const b = document.getElementById('bills-sample');
-if (a) mountWorkSample(a);
-if (b) mountBillsSample(b);
+const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
 mountBooking();
-mountHeroDemo();
+
+// "Check it" in the hero: go to the demo and run the checks there.
+document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
+  if (!demo) return;
+  e.preventDefault();
+  const target = document.getElementById('samples');
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  if (demo.phase === 'ready') setTimeout(() => demo.check(), reduce ? 0 : 600);
+}));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.
@@ -67,25 +71,8 @@ if (inlineHost) {
   }
 }
 
-// Two examples, one switch. Each keeps its own progress while hidden.
-// Links to #example-1 or #example-2 (hero card, assessment results) open that example directly.
-const picks = [...document.querySelectorAll('[data-sample-pick]')];
-const blocks = { a: document.getElementById('example-1'), b: document.getElementById('example-2') };
-
-function choose(key) {
-  if (!blocks[key]) return;
-  picks.forEach((p) => p.setAttribute('aria-pressed', String(p.dataset.samplePick === key)));
-  Object.entries(blocks).forEach(([k, el]) => { if (el) el.hidden = k !== key; });
+// Old links to the retired examples (#example-1, #example-2) land on the demo.
+if (location.hash === '#example-1' || location.hash === '#example-2') {
+  history.replaceState(null, '', `${location.pathname}${location.search}#samples`);
+  requestAnimationFrame(() => document.getElementById('samples')?.scrollIntoView({ block: 'start' }));
 }
-
-picks.forEach((btn) => btn.addEventListener('click', () => choose(btn.dataset.samplePick)));
-
-function fromHash() {
-  const key = { '#example-1': 'a', '#example-2': 'b' }[location.hash];
-  if (!key) return;
-  choose(key);
-  const target = document.getElementById('samples');
-  if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
-}
-window.addEventListener('hashchange', fromHash);
-fromHash();

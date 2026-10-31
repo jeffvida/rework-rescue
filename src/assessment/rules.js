@@ -216,7 +216,7 @@ export const RESULT = {
   workloadNote: 'This is an estimate of your current workload based on your answers, not a prediction of savings.',
   cta: {
     heading: 'Review this result with me',
-    text: 'Book a free 30-minute rework review. I’ll help you map how this process works today, find the main source of rework, and identify a practical next step. If it’s worth fixing, I’ll outline a scope and estimate.',
+    text: 'This result is a starting point, not a final diagnosis. I’ll help you confirm where the rework is happening during the free review: in 30 minutes, we’ll map the current process, find the main source of rework, and identify a practical next step. If it’s worth fixing, I’ll outline a scope and estimate.',
     // Pick a time in the booking pop-up; the result is added to the request automatically.
     attached: 'Pick a time and your result goes with your request, so you don’t need to explain it again.',
     // Used while no lead store is connected: the result is pre-filled into an email instead.

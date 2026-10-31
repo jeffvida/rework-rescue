@@ -1289,7 +1289,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 /* ==== v3 layout ==== */
 
 /* Problem: three plain statements, no boxes. */
-.pain-tiles { list-style: none; padding: 0; margin: 0 0 2.2rem; display: grid; gap: 1.5rem 2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pain-tiles { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.5rem 2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .pain-tiles li { border-left: 3px solid var(--signal); padding-left: 1rem; color: var(--muted); }
 .pain-tiles strong { display: block; font-family: var(--display); font-size: 1.2rem; line-height: 1.25; color: var(--ink); margin-bottom: 0.35rem; letter-spacing: -0.01em; }
 
@@ -1573,3 +1573,9 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .dm-who .dm-role { display: inline-block; margin: 0 0.4rem 0.2rem 0; }
 }
 .dm-sh-why { display: block; margin-top: 0.3rem; font-size: 0.8rem; color: var(--muted); font-style: italic; }
+
+/* Polish (Nov 2026): bridge from pains into the example; tighter gap; room above the assessment band. */
+.pain-bridge { margin: 1.8rem 0 0; font-size: 1.05rem; color: var(--ink); font-weight: 600; }
+.pain-bridge a { color: var(--teal); }
+#fit { padding-bottom: 1.5rem; }
+#start-here { margin-top: 2.5rem; }

@@ -195,9 +195,9 @@ export function mountDemo(root) {
     paintStrip();
     let h = '';
     if (phase === 'ready') {
-      h = `${svc()}${roles(['auto', 'Runs automatically every Monday'])}
+      h = `${svc()}${roles(['auto', 'In real life: runs every Monday'])}
         <h3 class="dm-h">Monday morning. The report was built by hand.</h3>
-        <p>It says 11 jobs booked and nothing to invoice. Building it took ${esc(HAND_REPORT)}. In real life the checks run on their own. Here, press the button to watch.</p>
+        <p>It says 11 jobs booked, 3 waiting and nothing to invoice. Building it took ${esc(HAND_REPORT)}. Here, press the button to watch the checks run.</p>
         ${move('run Monday’s checks.')}${btn('check', 'Run Monday’s checks')}`;
     } else if (phase === 'checking') {
       h = `${svc()}${roles(['auto', 'Running automatically'])}<h3 class="dm-h">Checking the 18 records</h3><ol class="dm-checks">${CHECKS.map((c, i) => `<li class="${i < ticked ? 'is-done' : ''}">${esc(c.label)}</li>`).join('')}</ol>`;

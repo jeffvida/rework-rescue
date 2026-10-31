@@ -53,7 +53,7 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   const target = document.getElementById('samples');
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  if (demo.phase === 'ready') setTimeout(() => demo.check(), reduce ? 0 : 600);
+  if (demo.phase === 'ready') setTimeout(() => demo.check(), reduce ? 0 : 750);
 }));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,

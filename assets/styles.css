@@ -1485,3 +1485,30 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 @media (prefers-reduced-motion: reduce) {
   .dm-r-row.is-changed { animation: none; }
 }
+
+/* ---- Live demo, round 2: owner language, "your move", reasons beside the numbers */
+.tz-badge { display: inline-block; margin: 0 0 0.7rem; padding: 0.15rem 0.6rem; border-radius: 999px; background: var(--warn-bg); border: 1px solid var(--warn-line); color: #5b3a00; font-size: 0.82rem; font-weight: 700; }
+.demo-section { padding-top: 2.5rem; }
+.dm-move { margin: 0.9rem 0 0.6rem; font-weight: 600; color: var(--ink); }
+.dm-move span { color: var(--teal); font-weight: 800; }
+.dm-count { color: var(--muted); font-weight: 600; }
+.dm-upd { margin: 0.35rem 0 0; font-size: 0.92rem; font-weight: 600; color: var(--teal-dark); }
+.dm-card .dm-upd { color: var(--teal); }
+.dm-card-h { font-family: var(--display); font-weight: 800; font-size: 1.08rem; color: var(--ink); letter-spacing: -0.01em; }
+.dm-card.is-done .dm-card-h::before { content: "\2713  "; color: var(--teal); }
+.dm-card.is-done p:first-child::before { content: none; }
+.dm-card.is-done .dm-card-h::before { content: "\2713  "; }
+.dm-last { margin: 1rem 0 0; padding-top: 0.8rem; border-top: 1px solid #36505a; font-size: 0.9rem; line-height: 1.45; color: #e9efe9; }
+.dm-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); align-items: start; gap: 0.9rem; margin: 0.8rem 0 0.4rem; max-width: 36rem; }
+.dm-fp { margin: 0; border: 1px dashed var(--line); border-radius: 12px; padding: 0.8rem 1rem; background: var(--paper); }
+.dm-fp figcaption { font-weight: 800; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+.dm-fp ul { list-style: none; margin: 0; padding: 0; }
+.dm-fp li { padding: 0.3rem 0; border-bottom: 1px solid var(--line); font-weight: 600; color: var(--ink); }
+.dm-fp li:last-child { border-bottom: 0; }
+.dm-fp li em { display: block; font-style: normal; font-weight: 600; font-size: 0.82rem; color: var(--teal); }
+.dm-fp.is-after { border-style: solid; border-color: var(--teal); background: #fff; }
+.dm-fp li.is-new { color: var(--teal-dark); }
+.dm-fp li.is-new::before { content: "+ "; color: var(--teal); font-weight: 800; }
+@media (max-width: 56rem) {
+  .dm-last { grid-column: 1 / -1; margin: 0.35rem 0 0; padding-top: 0.35rem; font-size: 0.78rem; }
+}

@@ -1,9 +1,11 @@
 // Live demo screens: Check the records → Sort out the problems → Fix the cause, with the weekly report beside them.
+// Written for a business owner: names and dates, not record IDs (those stay in "See all records"), one
+// "Your move" line per step, and a plain reason beside every number that changes.
 // Every number comes from ./engine.js. All emails and replies are simulated and say so on screen.
 // The section's static HTML (index.html) is what visitors see without JavaScript; this replaces it.
 
 import { esc } from '../forms.js';
-import { BUSINESS, NEW_INVOICE, R118_REPLY, TEST_REQUEST } from './data.js';
+import { R118_REPLY, TEST_REQUEST } from './data.js';
 import {
   CHECKS, initialState, report, check, confirmMerge, raiseInvoice, askAddress, receiveReply, fixForm, sendTest, allSorted,
 } from './engine.js';
@@ -11,6 +13,15 @@ import {
 const STAGES = [['check', 'Check the records'], ['resolve', 'Sort out the problems'], ['connect', 'Fix the cause']];
 const ROWS = [['booked', 'Booked'], ['waiting', 'Waiting on someone'], ['notInvoiced', 'Done, not invoiced']];
 const REAL_LINE = 'This site’s own booking works the same way: your request checks my calendar, books the slot, sends the invite and logs it, with nobody retyping anything.';
+
+/** 'Thu 12 Nov 09:00' → 'Thu 12 Nov, 9am' */
+export function when(text) {
+  const m = /^(.*) (\d{2}):(\d{2})$/.exec(text || '');
+  if (!m) return text || '';
+  const h = Number(m[2]); const min = m[3];
+  const hour = ((h + 11) % 12) + 1;
+  return `${m[1]}, ${hour}${min === '00' ? '' : `:${min}`}${h < 12 ? 'am' : 'pm'}`;
+}
 
 export function mountDemo(root) {
   if (!root) return null;
@@ -24,6 +35,7 @@ export function mountDemo(root) {
   let pathLit = 0;
   let busy = false;
   let shown = report(s);
+  const changes = {}; // problem id → "Booked 11 → 10" etc., shown on its card once sorted
 
   root.innerHTML = `
     <div class="dm">
@@ -36,17 +48,21 @@ export function mountDemo(root) {
           <p class="dm-r-title">This week’s report</p>
           <p class="dm-r-tag"></p>
           <dl class="dm-r-rows">${ROWS.map(([k, l]) => `<div class="dm-r-row" data-k="${k}"><dt>${esc(l)}</dt><dd><span class="dm-old"></span><b></b></dd></div>`).join('')}</dl>
-          <p class="dm-flag" hidden></p>
+          <p class="dm-last"></p>
         </aside>
       </div>
       <p class="sr-only" aria-live="polite"></p>
     </div>`;
   const stage = root.querySelector('.dm-stage');
-  const live = root.querySelector('[aria-live]');
+  const live = root.querySelector('.dm > [aria-live]');
+  const lastLine = root.querySelector('.dm-last');
   const say = (m) => { live.textContent = ''; setTimeout(() => { live.textContent = m; }, 30); };
 
-  // ---- the report: the changed number shows its before and after for a few seconds
-  function paintReport() {
+  /** The rows that changed between two reports, as "Booked 11 → 10". */
+  const diff = (a, b) => ROWS.filter(([k]) => a[k] !== b[k]).map(([k, l]) => `${l} ${a[k]} → ${b[k]}`).join(', ');
+
+  // ---- the report: the changed number shows its before and after, with the reason underneath
+  function paintReport(reason) {
     const next = report(s);
     for (const [k] of ROWS) {
       const row = root.querySelector(`.dm-r-row[data-k="${k}"]`);
@@ -56,15 +72,13 @@ export function mountDemo(root) {
         old.textContent = `${shown[k]} → `;
         row.classList.remove('is-changed'); void row.offsetWidth; row.classList.add('is-changed');
         clearTimeout(row._t);
-        row._t = setTimeout(() => { old.textContent = ''; row.classList.remove('is-changed'); }, 3500);
+        row._t = setTimeout(() => { old.textContent = ''; row.classList.remove('is-changed'); }, 4000);
       }
     }
     const tag = root.querySelector('.dm-r-tag');
     tag.textContent = next.tag;
     tag.dataset.tag = next.tag;
-    const flag = root.querySelector('.dm-flag');
-    flag.hidden = !next.likelyDuplicates;
-    flag.textContent = next.likelyDuplicates ? '1 likely duplicate in Booked' : '';
+    if (reason !== undefined) lastLine.textContent = reason;
     shown = next;
   }
 
@@ -80,7 +94,7 @@ export function mountDemo(root) {
   const statusOf = (r) => {
     if (r.merged) return 'Merged into J-2049';
     if (r.status === 'done') return `Done ${r.when}${r.invoice ? `, ${r.invoice}` : r.markedInvoiced && !s.checked ? ', marked invoiced' : ', no invoice'}`;
-    if (r.status === 'booked') return `Booked ${r.when}${r.jobRef ? ` (now ${r.jobRef})` : ''}`;
+    if (r.status === 'booked') return `Booked ${when(r.when)}${r.jobRef ? ` (now ${r.jobRef})` : ''}`;
     if (r.status === 'waiting') return `Waiting: ${r.reason}`;
     if (r.status === 'asked') return 'Waiting on customer (address asked)';
     return 'Request in the inbox, not in the job list';
@@ -95,63 +109,69 @@ export function mountDemo(root) {
   // ---- stage content
   const btn = (action, label, primary = true) => `<button type="button" class="btn ${primary ? 'btn-primary' : 'btn-secondary'} dm-btn" data-act="${action}">${esc(label)}</button>`;
   const prob = (id) => s.problems.find((p) => p.id === id);
+  const move = (text) => `<p class="dm-move"><span>Your move:</span> ${text}</p>`;
+  const upd = (id) => (changes[id] ? `<p class="dm-upd">Report updated: ${esc(changes[id])}</p>` : '');
 
   function cards() {
     const a = prob('duplicate'); const b = prob('invoice'); const c = prob('address');
     const cardA = a.done
-      ? '<li class="dm-card is-done"><p><strong>J-2049 and J-2051:</strong> Merged. One visit stays booked for M. Santos, Thu 12 Nov 09:00.</p></li>'
-      : `<li class="dm-card"><p class="dm-kind">Likely duplicate</p><p><strong>J-2049 and J-2051</strong> look like the same visit: M. Santos, aircon service, Thu 12 Nov 09:00.</p>${btn('merge', 'Confirm merge')}</li>`;
+      ? `<li class="dm-card is-done"><p class="dm-card-h">Santos aircon visit: merged</p><p>One visit stays booked for Thu 12 Nov, 9am.</p>${upd('duplicate')}</li>`
+      : `<li class="dm-card"><p class="dm-card-h">The Santos aircon visit is booked twice</p><p>M. Santos is in the diary twice for Thu 12 Nov, 9am: once from a phone call and once from the website. Same address, same job.</p>${btn('merge', 'Merge into one visit')}</li>`;
     const cardB = b.done
-      ? `<li class="dm-card is-done"><p><strong>J-2041:</strong> Invoice ${NEW_INVOICE} created for the gutter repair.</p></li>`
-      : `<li class="dm-card"><p class="dm-kind">Done, never invoiced</p><p><strong>J-2041</strong>, gutter repair for D. Cruz, was marked invoiced but no invoice exists.</p>${btn('invoice', 'Raise the invoice')}</li>`;
+      ? `<li class="dm-card is-done"><p class="dm-card-h">Cruz gutter repair: invoiced</p><p>The invoice has been raised.</p>${upd('invoice')}</li>`
+      : `<li class="dm-card"><p class="dm-card-h">The Cruz gutter repair was never invoiced</p><p>The job was done on Thu 5 Nov and marked as invoiced, but there’s no invoice in the accounts.</p>${btn('invoice', 'Raise the invoice')}</li>`;
     let cardC;
-    if (c.done) cardC = `<li class="dm-card is-done"><p><span class="dm-sim">Simulated reply</span> from G. Torres: ${R118_REPLY.address}.</p><p><strong>R-118</strong> is booked as ${R118_REPLY.ref}, ${R118_REPLY.when}.</p></li>`;
-    else if (addressAsked) cardC = '<li class="dm-card is-waiting"><p><span class="dm-sim">Simulated email</span> sent to G. Torres asking for the address.</p><p>Waiting on customer…</p></li>';
-    else cardC = '<li class="dm-card"><p class="dm-kind">Can’t be booked</p><p>Website request <strong>R-118</strong> from G. Torres never reached the job list, and has no address.</p>' + btn('ask', 'Ask for the address') + '</li>';
+    if (c.done) cardC = `<li class="dm-card is-done"><p class="dm-card-h">Torres water heater service: booked</p><p><span class="dm-sim">Simulated reply</span> G. Torres sent the address (${esc(R118_REPLY.address)}). Booked for ${esc(when(R118_REPLY.when))}.</p>${upd('address')}</li>`;
+    else if (addressAsked) cardC = '<li class="dm-card is-waiting"><p class="dm-card-h">The Torres request can’t be booked yet</p><p><span class="dm-sim">Simulated email</span> sent to G. Torres asking for the address. Waiting for a reply…</p></li>';
+    else cardC = `<li class="dm-card"><p class="dm-card-h">The Torres request can’t be booked</p><p>G. Torres asked for a water heater service on the website. The request never reached the job list, and there’s no address.</p>${btn('ask', 'Ask for the address')}</li>`;
     return `<ul class="dm-cards">${cardA}${cardB}${cardC}</ul>`;
   }
 
-  function formMock(fixed, filled) {
-    const f = (label, value, req) => `<div class="dm-field${req ? ' is-new' : ''}"><span class="dm-f-label">${esc(label)}${req ? ' <em>(required)</em>' : ''}</span><span class="dm-f-box">${value ? esc(value) : ''}</span></div>`;
-    return `<div class="dm-form${fixed ? ' is-fixed' : ''}" aria-label="Website request form, ${fixed ? 'after' : 'before'}">
-      <p class="dm-form-title">Request a repair</p>
-      ${f('Name', filled ? TEST_REQUEST.customer : '')}${f('Email', filled ? 'test@example.com' : '')}
-      ${fixed ? `${f('Address', filled ? TEST_REQUEST.address : '', true)}${f('Service', filled ? TEST_REQUEST.job : '', true)}${f('Preferred time (free times from the calendar)', filled ? TEST_REQUEST.when : '', true)}` : f('Message', '')}
-    </div>`;
+  // The website form, shown as a picture (not something to type in): before, and after the fix.
+  const FORM_BEFORE = ['Name', 'Email', 'Message'];
+  const FORM_AFTER = [['Name'], ['Email'], ['Address', 'new, required'], ['Service needed', 'new, required'], ['Preferred time', 'new, shows free times from the calendar']];
+  function formPicture(fixed) {
+    const before = `<figure class="dm-fp"><figcaption>Before</figcaption><ul>${FORM_BEFORE.map((f) => `<li>${esc(f)}</li>`).join('')}</ul></figure>`;
+    const after = fixed ? `<figure class="dm-fp is-after"><figcaption>After</figcaption><ul>${FORM_AFTER.map(([f, note]) => `<li class="${note ? 'is-new' : ''}">${esc(f)}${note ? ` <em>${esc(note)}</em>` : ''}</li>`).join('')}</ul></figure>` : '';
+    return `<div class="dm-forms" role="img" aria-label="${fixed ? 'The website request form before and after: address, service and preferred time are now asked for' : 'The website request form asks only for a name, an email and a message'}">${before}${after}</div>`;
   }
 
-  const PATH = ['Website form', 'Job list (all 4 checks pass)', 'Calendar', 'Confirmation email (simulated)', 'This week’s report'];
+  const PATH = ['Request received', 'Checked: nothing missing', `Booked ${when(TEST_REQUEST.when)}`, 'Confirmation sent (simulated)', 'Report updated'];
 
   function paintStage(focus = false) {
     paintStrip();
     let h = '';
     if (phase === 'ready') {
-      h = `<h3 class="dm-h">Monday morning at ${esc(BUSINESS)}</h3>
-        <p>18 records from the website, phone calls and email. The report says 11 jobs are booked and nothing is waiting to be invoiced.</p>
-        ${btn('check', 'Check the records')}`;
+      h = `<h3 class="dm-h">Monday morning. The report was built by hand.</h3>
+        <p>It says 11 jobs are booked and nothing is waiting to be invoiced. It was put together from website requests, phone calls and emails.</p>
+        ${move('check the 18 records behind it.')}${btn('check', 'Check the records')}`;
     } else if (phase === 'checking') {
-      h = `<h3 class="dm-h">Checking 18 records</h3><ol class="dm-checks">${CHECKS.map((c, i) => `<li class="${i < ticked ? 'is-done' : ''}">${esc(c.label)}</li>`).join('')}</ol>`;
+      h = `<h3 class="dm-h">Checking the 18 records</h3><ol class="dm-checks">${CHECKS.map((c, i) => `<li class="${i < ticked ? 'is-done' : ''}">${esc(c.label)}</li>`).join('')}</ol>`;
     } else if (phase === 'resolve') {
-      h = `<h3 class="dm-h">18 records checked. 14 were fine. 3 problems involve the other 4.</h3>
-        <p class="dm-note">The report was wrong in three places. It now shows what’s actually true.</p>${cards()}`;
+      const sorted = s.problems.filter((p) => p.done).length;
+      h = `<h3 class="dm-h">The report was wrong in 3 places.</h3>
+        <p class="dm-upd">Report corrected: ${esc(changes.check || '')}. One booking looks doubled.</p>
+        ${move(`sort out these 3 <span class="dm-count">(${sorted} of 3 done)</span>. Watch the report change as you go.`)}${cards()}`;
     } else if (phase === 'connect' && !s.formFixed) {
-      h = `<p class="dm-sorted">All three problems sorted.</p>
-        <h3 class="dm-h">Why did R-118 arrive without an address?</h3>
-        <p>The website form only asked for a name, an email and a message.</p>${formMock(false, false)}${btn('fix', 'Fix the request form')}`;
+      h = `<p class="dm-sorted">All 3 sorted. The report is right again.</p>
+        <h3 class="dm-h">Why did the Torres request arrive without an address?</h3>
+        <p>Because the website form never asked for one.</p>${formPicture(false)}
+        ${move('fix the cause, so it doesn’t happen next week.')}${btn('fix', 'Fix the request form')}`;
     } else if (phase === 'connect') {
-      h = `<p class="dm-sorted">All three problems sorted.</p>
-        <h3 class="dm-h">Every request now arrives ready to book.</h3>${formMock(true, true)}${btn('send', 'Send a test request')}`;
+      h = `<p class="dm-sorted">All 3 sorted. The report is right again.</p>
+        <h3 class="dm-h">Every request now arrives ready to book.</h3>${formPicture(true)}
+        ${move(`send a test request: ${esc(TEST_REQUEST.job.toLowerCase())} at ${esc(TEST_REQUEST.address)}, ${esc(when(TEST_REQUEST.when))}.`)}${btn('send', 'Send a test request')}`;
     } else if (phase === 'sent' || phase === 'end') {
-      h = `<h3 class="dm-h">${esc(TEST_REQUEST.request)} on its way</h3>
+      h = `<h3 class="dm-h">The test request, step by step</h3>
         <ol class="dm-path">${PATH.map((p, i) => `<li class="${i < pathLit ? 'is-lit' : ''}">${esc(p)}</li>`).join('')}</ol>
-        ${pathLit >= PATH.length ? `<p class="dm-note">${esc(TEST_REQUEST.request)} is now ${esc(TEST_REQUEST.ref)}, booked ${esc(TEST_REQUEST.when)}. Nobody retyped anything.</p>` : ''}`;
+        ${pathLit >= PATH.length ? '<p class="dm-upd">Booked by itself. Nobody retyped anything.</p>' : ''}`;
       if (phase === 'end') {
         const waiting = s.records.filter((r) => r.status === 'waiting');
         h += `<div class="dm-end">
           <h3 class="dm-h">Checked first, fixed at the source.</h3>
-          <p>The numbers are right, the problems have owners, and the form won’t let this one happen again next week.</p>
-          <p class="dm-note">${waiting.length} jobs are still waiting, each with a reason:</p>
-          <ul class="dm-waiting">${waiting.map((r) => `<li><strong>${esc(r.ref)}</strong> ${esc(r.reason)}</li>`).join('')}</ul>
+          <p>The numbers are right, each problem had someone to sort it, and the form won’t let this one happen again next week.</p>
+          <p class="dm-note">${waiting.length} jobs are still waiting, and that’s fine: each has a reason.</p>
+          <ul class="dm-waiting">${waiting.map((r) => `<li><strong>${esc(r.customer)}, ${esc(r.job.toLowerCase())}:</strong> ${esc(r.reason.charAt(0).toLowerCase() + r.reason.slice(1))}</li>`).join('')}</ul>
           <p class="dm-real">${esc(REAL_LINE)}</p>
           <p class="dm-end-actions"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a>${btn('restart', 'Run it again', false)}</p>
         </div>`;
@@ -169,41 +189,54 @@ export function mountDemo(root) {
       busy = true; phase = 'checking'; ticked = 0; paintStage(true);
       for (let i = 1; i <= CHECKS.length; i++) { await wait(450); ticked = i; paintStage(); }
       await wait(250);
-      s = check(s).state; phase = 'resolve'; paintReport(); paintStage(true);
-      say('Checks finished: 3 problems found, report corrected.');
+      const before = report(s);
+      s = check(s).state; phase = 'resolve';
+      changes.check = diff(before, report(s));
+      paintReport('Waiting +1: a website request was stuck in the inbox. Not invoiced +1: a finished job has no invoice. Booked: one visit looks booked twice.');
+      paintStage(true);
+      say(`Checks finished. The report was wrong in 3 places. ${changes.check}.`);
       busy = false; return;
     }
-    if (a === 'merge') { s = confirmMerge(s); paintReport(); say('Duplicate merged; one visit stays booked.'); }
-    if (a === 'invoice') { s = raiseInvoice(s); paintReport(); say(`Invoice created for J-2041.`); }
-    if (a === 'ask') {
-      busy = true; addressAsked = true; s = askAddress(s); paintStage(); say('Simulated email sent to G. Torres.');
-      await wait(1500);
-      s = receiveReply(s); paintReport(); say(`R-118 booked as ${R118_REPLY.ref}.`);
-      busy = false;
-    }
-    if ((a === 'merge' || a === 'invoice' || a === 'ask') && allSorted(s)) {
-      paintStage(); await wait(700); phase = 'connect'; paintStage(true); return;
-    }
     if (a === 'merge' || a === 'invoice' || a === 'ask') {
+      const before = report(s);
+      if (a === 'merge') {
+        s = confirmMerge(s); changes.duplicate = diff(before, report(s));
+        paintReport('Booked −1: the visit booked twice is now one.'); say(`Santos visit merged. ${changes.duplicate}.`);
+      }
+      if (a === 'invoice') {
+        s = raiseInvoice(s); changes.invoice = diff(before, report(s));
+        paintReport('Not invoiced −1: the Cruz invoice was raised.'); say(`Invoice raised. ${changes.invoice}.`);
+      }
+      if (a === 'ask') {
+        busy = true; addressAsked = true; s = askAddress(s); paintStage(); say('Simulated email sent to G. Torres asking for the address.');
+        await wait(1500);
+        s = receiveReply(s); changes.address = diff(before, report(s));
+        paintReport('Booked +1, Waiting −1: G. Torres replied, so the job is booked.'); say(`Torres job booked. ${changes.address}.`);
+        busy = false;
+      }
+      if (allSorted(s)) { paintStage(); await wait(900); phase = 'connect'; paintStage(true); return; }
       paintStage();
       stage.querySelector('.dm-card:not(.is-done) .dm-btn')?.focus();
       return;
     }
-    if (a === 'fix') { s = fixForm(s); paintReport(); paintStage(true); say('Request form fixed.'); return; }
+    if (a === 'fix') {
+      s = fixForm(s); paintReport('No change yet: the fix protects next week’s requests.'); paintStage(true); say('Request form fixed.'); return;
+    }
     if (a === 'send') {
       busy = true;
       const res = sendTest(s); s = res.state; phase = 'sent'; pathLit = 0; paintStage(true);
       for (let i = 1; i <= PATH.length; i++) {
-        await wait(350); pathLit = i; paintStage();
-        if (i === PATH.length) paintReport();
+        await wait(400); pathLit = i; paintStage();
+        if (i === PATH.length) paintReport('Booked +1: the test request booked itself.');
       }
-      say(`Test request booked as ${TEST_REQUEST.ref}.`);
-      await wait(600); phase = 'end'; paintStage(true);
+      say('Test request booked by itself. Booked is now 12.');
+      await wait(700); phase = 'end'; paintStage(true);
       busy = false; return;
     }
     if (a === 'restart') {
       s = initialState(); phase = 'ready'; addressAsked = false; pathLit = 0; ticked = 0;
-      shown = report(s); paintReport(); paintStage(true);
+      Object.keys(changes).forEach((k) => delete changes[k]);
+      shown = report(s); paintReport('Built by hand from the job list.'); paintStage(true);
     }
   }
 
@@ -212,7 +245,7 @@ export function mountDemo(root) {
     if (b) act(b.dataset.act);
   });
 
-  paintReport();
+  paintReport('Built by hand from the job list.');
   paintStage();
   return { check: () => act('check'), get phase() { return phase; } };
 }

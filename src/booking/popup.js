@@ -99,6 +99,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
           ${SERVICE_OPTIONS.filter(([v]) => v).map(([v, l]) => `<label class="bk-choice"><input type="radio" name="service" value="${esc(v)}"${v === service ? ' checked' : ''}> <span>${esc(l)}</span></label>`).join('')}
         </fieldset>
         <p class="error" id="bk-service-err" role="alert" hidden>Please choose one, or pick &ldquo;Not sure yet&rdquo;.</p>
+        ${(getContext() || {}).summary ? '' : `<p class="bk-sample-note" id="bk-unsure-hint" aria-live="polite"${service === 'unsure' ? '' : ' hidden'}>Want a head start? <a href="${base}assessment/">Find Your Rework</a> takes about 2 minutes, or continue to pick a time.</p>`}
         <button type="submit" class="btn btn-primary">Choose a time</button>
       </form>`;
   }
@@ -287,6 +288,13 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     if (t.closest('[data-back]')) { fallback = false; render(); }
   });
   dlg.addEventListener('change', (e) => {
+    if (e.target.name === 'service') {
+      const hint = dlg.querySelector('#bk-unsure-hint');
+      if (hint) hint.hidden = e.target.value !== 'unsure';
+      const err = dlg.querySelector('#bk-service-err');
+      if (err) err.hidden = true;
+      return;
+    }
     if (e.target.id === 'bk-tz') { tz = e.target.value; day = null; month = null; render(); dlg.querySelector('#bk-tz')?.focus(); }
   });
   dlg.addEventListener('submit', (e) => {

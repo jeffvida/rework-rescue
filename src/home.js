@@ -3,6 +3,7 @@
 import { mountBillsSample } from './bills/ui.js';
 import { mountBooking } from './booking/popup.js';
 import { mountWorkSample } from './sample/ui.js';
+import { mountHeroDemo } from './hero-demo.js';
 
 // ---- Phone booking bar
 // Phone-only "Book a free rework review" bar (CSS shows it on narrow screens only).
@@ -49,6 +50,22 @@ if (a) mountWorkSample(a);
 if (b) mountBillsSample(b);
 mountMobileCta();
 mountBooking();
+mountHeroDemo();
+
+// The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
+// so a visit that never scrolls that far doesn't ask the booking service for anything.
+const inlineHost = document.getElementById('book-inline');
+if (inlineHost) {
+  const inline = mountBooking({ inline: inlineHost });
+  if (typeof IntersectionObserver === 'function') {
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { inline.start(); io.disconnect(); }
+    }, { rootMargin: '600px 0px' });
+    io.observe(inlineHost);
+  } else {
+    inline.start();
+  }
+}
 
 // Two examples, one switch. Each keeps its own progress while hidden.
 // Links to #example-1 or #example-2 (hero card, assessment results) open that example directly.

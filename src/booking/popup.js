@@ -52,9 +52,11 @@ async function call(url, { method = 'GET', body } = {}) {
  *   base: path prefix to the site root ('../' on the assessment and contact pages).
  *   getContext: on the assessment result page, returns a pre-fill for the process box and the result summary
  *   that travels with the request.
- * @returns {{open:()=>void}}
+ * @param {HTMLElement} [opts.inline]  When given, the calendar is drawn inside this element on the page instead
+ *   of a pop-up (no close button, no sidebar). Call start() to load the times, e.g. when it scrolls into view.
+ * @returns {{open:()=>boolean, start:()=>void}}
  */
-export function mountBooking({ base = '', getContext = () => null } = {}) {
+export function mountBooking({ base = '', getContext = () => null, inline = null } = {}) {
   let SLOTS = [];
   let tz;
   try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || HOST_TZ; } catch { tz = HOST_TZ; }
@@ -65,10 +67,10 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
   let fallback = false; // live booking failed: the "done" step offers the email draft instead
   let busy = false;
 
-  const dlg = document.createElement('dialog');
-  dlg.className = 'bk';
-  dlg.setAttribute('aria-labelledby', 'bk-title');
-  document.body.appendChild(dlg);
+  const dlg = document.createElement(inline ? 'div' : 'dialog');
+  dlg.className = inline ? 'bk bk-inline' : 'bk';
+  if (inline) inline.appendChild(dlg); else { dlg.setAttribute('aria-labelledby', 'bk-title'); document.body.appendChild(dlg); }
+  const isOpen = () => (inline ? true : dlg.open);
 
   const byDay = () => {
     const m = new Map();
@@ -184,6 +186,11 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
 
   function render(step = 'pick') {
     const main = { loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done }[step]();
+    if (inline) {
+      dlg.innerHTML = `${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
+      <div class="bk-main">${main}</div>`;
+      return;
+    }
     dlg.innerHTML = `
       <div class="bk-head"><div><p class="eyebrow">Book a free rework review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
         <button type="button" class="bk-x" data-close aria-label="Close">&times;</button></div>
@@ -208,11 +215,11 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     return true;
   }
 
-  async function showCalendar() {
+  async function showCalendar(focus = true) {
     const ok = await loadSlots();
-    if (!dlg.open) return;
+    if (!isOpen()) return;
     render(ok ? 'pick' : 'unavailable');
-    dlg.querySelector('.bk-day, .bk-time, [data-retry], .btn')?.focus();
+    if (focus) dlg.querySelector('.bk-day, .bk-time, [data-retry], .btn')?.focus();
   }
 
   function showDetails() {
@@ -235,7 +242,7 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
       body: { slot: slot.toISOString(), name: req.name, email: req.email, company: req.company, process: withService(req.process), summary: ctx.summary || '', tz, website: f.website.value },
     });
     busy = false;
-    if (!dlg.open) return;
+    if (!isOpen()) return;
     const code = data && data.error;
     if (status === 200 && data && data.ok) { render('booked'); dlg.querySelector('.bk-done .btn')?.focus(); return; }
     if (status === 409 || code === 'taken' || code === 'slot') {
@@ -260,7 +267,8 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
 
   dlg.addEventListener('click', (e) => {
     const t = e.target;
-    if (t === dlg || t.closest('[data-close]')) { dlg.close(); return; }
+    if (inline && t.closest('[data-close]')) { reset(); showCalendar(); return; }
+    if (!inline && (t === dlg || t.closest('[data-close]'))) { dlg.close(); return; }
     if (t.closest('[data-retry]')) { showCalendar(); return; }
     const d = t.closest('[data-day]'); if (d) { day = d.dataset.day; notice = ''; render(); dlg.querySelector(`[data-day="${day}"]`)?.focus(); return; }
     const m = t.closest('[data-month]'); if (m && m.dataset.month) { month = m.dataset.month; render(); dlg.querySelectorAll('.bk-day')[6]?.focus(); return; }
@@ -293,10 +301,21 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
   });
 
   const valid = (v) => SERVICE_OPTIONS.some(([o]) => o && o === v);
-  const open = (preselect = '') => {
-    if (typeof dlg.showModal !== 'function') return false;
+  const reset = (preselect = '') => {
     day = null; month = null; slot = null; req = {}; notice = ''; fallback = false; busy = false;
     service = valid(preselect) ? preselect : (valid((getContext() || {}).service) ? getContext().service : '');
+  };
+
+  if (inline) {
+    let started = false;
+    // Without a start() call the visitor still sees the times once they reach this section (see src/home.js).
+    const start = () => { if (started) return; started = true; reset(); showCalendar(false); };
+    return { open: () => false, start };
+  }
+
+  const open = (preselect = '') => {
+    if (typeof dlg.showModal !== 'function') return false;
+    reset(preselect);
     dlg.showModal();
     showCalendar();
     return true;
@@ -308,5 +327,5 @@ export function mountBooking({ base = '', getContext = () => null } = {}) {
     if (open(a.dataset.bookService || '')) e.preventDefault();
   });
 
-  return { open };
+  return { open, start: () => {} };
 }

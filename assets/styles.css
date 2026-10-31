@@ -1282,3 +1282,10 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 @media (max-width: 23rem) {
   .bk-who strong { display: none; }
 }
+
+/* Service cards: line up each part (title, opening line, description, list, outcome) across the three cards. */
+@supports (grid-template-rows: subgrid) {
+  #services .card-grid-3 { row-gap: 0; }
+  #services .service-card { display: grid; grid-row: span 7; grid-template-rows: subgrid; row-gap: 0; align-content: start; margin-bottom: 1rem; }
+  #services .service-card .pillar-goal { margin-top: 0; align-self: start; }
+}

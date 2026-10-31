@@ -21,7 +21,7 @@ export function report(s) {
   const recs = s.checked ? active(s) : s.records.filter((r) => r.inList);
   const booked = recs.filter((r) => r.status === 'booked').length;
   const waiting = recs.filter((r) => r.status === 'waiting' || r.status === 'request' || r.status === 'asked').length;
-  const notInvoiced = recs.filter((r) => r.status === 'done' && (s.checked ? !r.invoice : !r.markedInvoiced)).length;
+  const notInvoiced = recs.filter((r) => r.status === 'done' && (s.checked ? !r.invoice && !r.notBillable : !r.markedInvoiced)).length;
   const dup = s.problems.find((p) => p.id === 'duplicate' && !p.done);
   return { booked, waiting, notInvoiced, likelyDuplicates: dup ? 1 : 0, tag: !s.checked ? 'Built by hand' : (s.problems.some((p) => p.done) || s.formFixed ? 'Updated' : 'Checked') };
 }
@@ -32,13 +32,13 @@ export function runCheck(s, id) {
   if (id === 'combine') return recs.filter((r) => !r.inList).map((r) => r.ref);
   if (id === 'duplicates') {
     const seen = new Map(); const out = [];
-    for (const r of recs.filter((x) => x.status === 'booked')) {
+    for (const r of recs.filter((x) => x.status === 'booked' && !x.confirmedSeparate)) {
       const key = `${r.customer}|${r.address}|${r.when}`;
       if (seen.has(key)) out.push(seen.get(key), r.ref); else seen.set(key, r.ref);
     }
     return out;
   }
-  if (id === 'invoices') return recs.filter((r) => r.status === 'done' && !r.invoice).map((r) => r.ref);
+  if (id === 'invoices') return recs.filter((r) => r.status === 'done' && !r.invoice && !r.notBillable).map((r) => r.ref);
   if (id === 'bookable') return recs.filter((r) => (r.status === 'request' || r.status === 'booked') && (!r.address || !r.job)).map((r) => r.ref);
   return [];
 }
@@ -65,20 +65,37 @@ export function confirmMerge(s) {
   return done(setRecord(s, p.refs.at(-1), { merged: true }), 'duplicate');
 }
 
+/** Keep both: the owner says they really are two visits. Both stay booked and won't be flagged again. */
+export function keepBoth(s) {
+  const p = s.problems.find((x) => x.id === 'duplicate');
+  if (!p || p.done) return s;
+  let next = s;
+  for (const ref of p.refs) next = setRecord(next, ref, { confirmedSeparate: true });
+  return done(next, 'duplicate');
+}
+
+/** Not billable (warranty work): the job stops counting as "done, not invoiced" without an invoice. */
+export function markNotBillable(s) {
+  const p = s.problems.find((x) => x.id === 'invoice');
+  if (!p || p.done) return s;
+  return done(setRecord(s, p.refs.at(0), { notBillable: true }), 'invoice');
+}
+
+/** Send the drafted invoice. */
 export function raiseInvoice(s) {
   const p = s.problems.find((x) => x.id === 'invoice');
   if (!p || p.done) return s;
   return done(setRecord(s, p.refs.at(0), { invoice: NEW_INVOICE }), 'invoice');
 }
 
-/** Ask for the address: the (simulated) email goes out and the request waits on the customer. */
-export function askAddress(s) {
+/** Ask for the address, by the drafted email or by a call from the office (Dana). Both are simulated. */
+export function askAddress(s, via = 'email') {
   const p = s.problems.find((x) => x.id === 'address');
   if (!p || p.done) return s;
-  return setRecord(s, p.refs.at(0), { status: 'asked' });
+  return setRecord(s, p.refs.at(0), { status: 'asked', askedVia: via });
 }
 
-/** The (simulated) reply arrives: the request gets its address and is booked as a job. */
+/** The (simulated) answer arrives: the request gets its address and is booked as a job. */
 export function receiveReply(s) {
   const p = s.problems.find((x) => x.id === 'address');
   if (!p || p.done) return s;

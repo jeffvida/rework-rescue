@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { RECORDS } from '../src/demo/data.js';
-import { initialState, report, check, confirmMerge, raiseInvoice, askAddress, receiveReply, fixForm, sendTest, allSorted, runCheck, CHECKS } from '../src/demo/engine.js';
+import { initialState, report, check, confirmMerge, keepBoth, raiseInvoice, markNotBillable, askAddress, receiveReply, fixForm, sendTest, allSorted, runCheck, CHECKS } from '../src/demo/engine.js';
 
 const nums = (r) => [r.booked, r.waiting, r.notInvoiced];
 
@@ -58,6 +58,24 @@ test('actions in any order land on the same report; the form waits until all thr
   s = confirmMerge(s);
   assert.deepEqual(nums(report(s)), [11, 3, 0]);
   assert.equal(fixForm(s).formFixed, true);
+});
+
+test('the other choices: keep both visits, not billable, Dana calls', () => {
+  let s = check(initialState()).state;
+  s = keepBoth(s);
+  assert.deepEqual(nums(report(s)), [11, 4, 1], 'keeping both leaves Booked at 11');
+  assert.equal(report(s).likelyDuplicates, 0);
+  assert.deepEqual(runCheck(s, 'duplicates'), [], 'two confirmed visits are not flagged again');
+  s = markNotBillable(s);
+  assert.deepEqual(nums(report(s)), [11, 4, 0], 'warranty work no longer counts as not invoiced');
+  assert.deepEqual(runCheck(s, 'invoices'), []);
+  s = askAddress(s, 'call');
+  assert.equal(s.records.find((r) => r.ref === 'R-118').askedVia, 'call');
+  s = receiveReply(s);
+  assert.deepEqual(nums(report(s)), [12, 3, 0]);
+  const { state, passed } = sendTest(fixForm(s));
+  assert.ok(passed);
+  assert.deepEqual(nums(report(state)), [13, 3, 0], 'final Booked is 13 when both visits were kept');
 });
 
 test('the 3 still waiting at the end each have a reason', () => {

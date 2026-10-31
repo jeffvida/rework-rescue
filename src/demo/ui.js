@@ -211,6 +211,7 @@ export function mountDemo(root) {
           <li>Prepared a next step for each one.</li>
         </ul>
         <p class="dm-note">In real life this runs by itself every Monday at 7am. Nobody presses anything.</p>
+        <p class="dm-note"><strong>Each check is a rule I set up for your business after mapping how your work flows.</strong> It catches the problems we’ve agreed to look for.</p>
         ${btn('review', 'Next: review the problems')}`;
     } else if (phase === 'review' || phase === 'applying' || phase === 'applied') {
       const chosen = SHEET.filter((r) => picks[r.id]).length;

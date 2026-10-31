@@ -1572,3 +1572,4 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .dm-who li { display: block; }
   .dm-who .dm-role { display: inline-block; margin: 0 0.4rem 0.2rem 0; }
 }
+.dm-sh-why { display: block; margin-top: 0.3rem; font-size: 0.8rem; color: var(--muted); font-style: italic; }

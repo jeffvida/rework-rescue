@@ -30,12 +30,12 @@ const REAL_LINE = 'This site’s own booking works the same way: your request ch
 
 // The review sheet: one row per problem, two choices each.
 const SHEET = [
-  { id: 'duplicate', found: 'M. Santos aircon service booked twice for Thu 12 Nov, 9am (once by phone, once on the website)', next: 'Merge ready to go',
-    options: [['merge', 'Merge into one visit'], ['keep', 'Keep both: separate visits']] },
-  { id: 'invoice', found: 'D. Cruz gutter repair done Thu 5 Nov, ticked as invoiced, but no invoice in the accounts', next: 'Invoice drafted, ready to send',
-    options: [['send', 'Send the drafted invoice'], ['nobill', 'Not billable: warranty work']] },
-  { id: 'address', found: 'G. Torres water heater request from the website: stuck in the inbox, no address', next: 'Email to the customer written',
-    options: [['email', 'Send the drafted email'], ['call', 'Ask Dana to call instead']] },
+  { id: 'duplicate', found: 'M. Santos aircon service booked twice for Thu 12 Nov, 9am (once by phone, once on the website)', next: 'Merge ready to go', why: 'Could be two real visits, so you decide.',
+    options: [['merge', 'Merge into one'], ['keep', 'Keep both']] },
+  { id: 'invoice', found: 'D. Cruz gutter repair done Thu 5 Nov, ticked as invoiced, but no invoice in the accounts', next: 'Invoice drafted, ready to send', why: 'Could be warranty work, so you decide.',
+    options: [['send', 'Send invoice'], ['nobill', 'Not billable (warranty)']] },
+  { id: 'address', found: 'G. Torres water heater request from the website: stuck in the inbox, no address', next: 'Email to the customer written', why: 'Email or a call? You know the customer.',
+    options: [['email', 'Send email'], ['call', 'Ask Dana to call']] },
 ];
 const DONE_TEXT = {
   merge: 'Merged: one visit, Thu 12 Nov, 9am.',
@@ -164,7 +164,7 @@ export function mountDemo(root) {
       return `<tr class="${rowDone[r.id] ? 'is-done' : ''}"><th scope="row" class="dm-sh-n">${i + 2}</th>
         <td data-label="What was found">${esc(r.found)}</td>
         <td data-label="Why it matters" class="dm-sh-cost">${esc(COSTS[r.id])}</td>
-        <td data-label="Prepared next step">${esc(r.next)}</td>
+        <td data-label="Prepared next step">${esc(r.next)}<span class="dm-sh-why">${esc(r.why)}</span></td>
         <td data-label="Your decision" class="dm-sh-pick">${decision}</td></tr>`;
     }).join('');
     return `<div class="dm-sheet">
@@ -197,7 +197,7 @@ export function mountDemo(root) {
     if (phase === 'ready') {
       h = `${svc()}${roles(['auto', 'Runs automatically every Monday'])}
         <h3 class="dm-h">Monday morning. The report was built by hand.</h3>
-        <p>It says 11 jobs are booked and nothing is waiting to be invoiced. Building it took ${esc(HAND_REPORT)}. Once I’ve set up the checks, they run on their own. Here, you press the button to watch them.</p>
+        <p>It says 11 jobs booked and nothing to invoice. Building it took ${esc(HAND_REPORT)}. In real life the checks run on their own. Here, press the button to watch.</p>
         ${move('run Monday’s checks.')}${btn('check', 'Run Monday’s checks')}`;
     } else if (phase === 'checking') {
       h = `${svc()}${roles(['auto', 'Running automatically'])}<h3 class="dm-h">Checking the 18 records</h3><ol class="dm-checks">${CHECKS.map((c, i) => `<li class="${i < ticked ? 'is-done' : ''}">${esc(c.label)}</li>`).join('')}</ol>`;
@@ -205,36 +205,36 @@ export function mountDemo(root) {
       h = `${svc()}${roles(['auto', 'Done automatically'])}
         <h3 class="dm-h">Done. Here’s what just happened.</h3>
         <ul class="dm-summary">
-          <li>Pulled 18 requests together from the phone, email and website. One was stuck in the inbox.</li>
+          <li>Combined 18 requests from phone, email and the website.</li>
           <li>Ran 4 checks on every record.</li>
-          <li><strong>Found 3 problems and corrected the report.</strong> It was wrong in 2 numbers, and one booking looks doubled.</li>
-          <li>Prepared the next step for each one: an invoice drafted, an email written, a merge ready.</li>
+          <li><strong>Found 3 problems and corrected the report.</strong></li>
+          <li>Prepared a next step for each one.</li>
         </ul>
-        <p class="dm-note">In real life you don’t press anything. This runs by itself at 7am every Monday, and the review sheet is waiting when you start work.</p>
+        <p class="dm-note">In real life this runs by itself every Monday at 7am. Nobody presses anything.</p>
         ${btn('review', 'Next: review the problems')}`;
     } else if (phase === 'review' || phase === 'applying' || phase === 'applied') {
       const chosen = SHEET.filter((r) => picks[r.id]).length;
       h = `${svc()}${roles(['auto', 'Prepared automatically'], ['you', 'Your decision'])}
         <h3 class="dm-h">Your Monday review sheet</h3>
-        <p>One row per problem: what was found, what it costs, and what’s already prepared. You don’t do the work; you decide.</p>
+        <p>Each row shows the problem, what it costs and the next step, ready to go. You choose; the system does the rest.</p>
         ${sheet()}
-        <p class="dm-tools">Works in Excel or Google Sheets, or as an email or a simple page: whichever your team already uses.</p>`;
+        <p class="dm-tools">Clear-cut cases are handled automatically. Only the ones that need a person come to you. Works in Excel, Google Sheets, email or a simple page.</p>`;
       if (phase === 'review') {
-        h += `${move(`choose a decision in each row, then apply them. <span class="dm-count">(${chosen} of 3 chosen)</span>`)}
+        h += `${move(`choose in each row, then apply. <span class="dm-count">(${chosen} of 3 chosen)</span>`)}
           ${btn('apply', 'Apply my decisions')}${sheetError ? `<p class="dm-err" role="alert">${esc(sheetError)}</p>` : ''}`;
       } else if (phase === 'applying') {
         h += `<p class="dm-note">Carrying out your decisions…</p>`;
       } else {
         h += `<p class="dm-sorted">All 3 handled. The report is right again.</p>
-          <p>Fixing this week was the easy part. The same problems will be back next Monday unless their causes are fixed.</p>
-          ${btn('cause', 'Next: why did this happen?')}`;
+          <p>This week’s report is right now. But next Monday the same problems will turn up again, because nothing has changed in how requests come in.</p>
+          ${btn('cause', 'Next: fix why they happened')}`;
       }
     } else if (phase === 'cause') {
       h = `${svc()}${roles(['me', 'My part'])}
         <h3 class="dm-h">Why it happened, and what I’d add</h3>
         <div class="dm-causes"><table><thead><tr><th scope="col">What went wrong</th><th scope="col">Why it happened</th><th scope="col">What I’d add</th></tr></thead><tbody>${
           CAUSES.map((c) => `<tr><th scope="row">${esc(c.problem)}</th><td data-label="Why it happened">${esc(c.why)}</td><td data-label="What I’d add">${esc(c.fix)}</td></tr>`).join('')}</tbody></table></div>
-        <p class="dm-try">Try the last one yourself. Here’s the website form, before and after:</p>
+        <p class="dm-try">Try the last fix yourself. The website form, before and after:</p>
         ${formPicture()}
         ${roles(['customer', 'Now play the customer'])}
         ${move(`send a request through the new form: ${esc(TEST_REQUEST.job.toLowerCase())} at ${esc(TEST_REQUEST.address)}, ${esc(when(TEST_REQUEST.when))}.`)}${btn('send', 'Send a request through the new form')}`;

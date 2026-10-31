@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { RECORDS } from '../src/demo/data.js';
+import { RECORDS, COSTS, CAUSES } from '../src/demo/data.js';
 import { initialState, report, check, confirmMerge, keepBoth, raiseInvoice, markNotBillable, askAddress, receiveReply, fixForm, sendTest, allSorted, runCheck, CHECKS } from '../src/demo/engine.js';
 
 const nums = (r) => [r.booked, r.waiting, r.notInvoiced];
@@ -76,6 +76,12 @@ test('the other choices: keep both visits, not billable, Dana calls', () => {
   const { state, passed } = sendTest(fixForm(s));
   assert.ok(passed);
   assert.deepEqual(nums(report(state)), [13, 3, 0], 'final Booked is 13 when both visits were kept');
+});
+
+test('every problem has a cost and a cause', () => {
+  const s = check(initialState()).state;
+  for (const p of s.problems) assert.ok(COSTS[p.id], p.id);
+  assert.equal(CAUSES.length, s.problems.length);
 });
 
 test('the 3 still waiting at the end each have a reason', () => {

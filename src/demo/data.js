@@ -33,3 +33,16 @@ export const RECORDS = [
 export const NEW_INVOICE = 'INV-3318';
 export const R118_REPLY = { address: '45 Pine St', ref: 'J-2057', when: 'Wed 11 Nov 13:00' };
 export const TEST_REQUEST = { request: 'R-119', ref: 'J-2058', source: 'Website form', customer: 'Test request', job: 'Gutter cleaning', address: '8 Cedar Rd', when: 'Thu 12 Nov 15:00' };
+
+// What each problem costs, and why it happened (made-up figures, like everything here).
+export const HAND_REPORT = 'about 2 hours every Monday';
+export const COSTS = {
+  duplicate: 'Two technicians would go to the same job on Thursday.',
+  invoice: '$480 of finished work, not billed.',
+  address: 'Waiting 4 days. The customer may have called someone else.',
+};
+export const CAUSES = [
+  { problem: 'Santos booked twice', why: 'Phone and website bookings go into different places, so nobody sees both.', fix: 'Every new booking checks the calendar first.' },
+  { problem: 'Cruz never invoiced', why: '“Invoiced” is a box someone ticks by hand.', fix: 'Invoice status comes from the accounts, not a tick box.' },
+  { problem: 'Torres can’t be booked', why: 'The website form never asked for an address, and its requests land in an inbox.', fix: 'Address is required, and requests go straight to the job list.' },
+];

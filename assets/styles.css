@@ -1288,19 +1288,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 
 /* ==== v3 layout ==== */
 
-/* Motif: eight manual steps become five, one of them a person. */
-.motif { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--card); }
-.motif-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 1.1rem; padding-top: 1rem; padding-bottom: 1rem; }
-.motif-label { margin: 0; font-size: 0.95rem; color: var(--muted); }
-.motif-label:last-child { color: var(--ink); font-weight: 700; }
-.motif-steps { list-style: none; display: flex; gap: 0.3rem; margin: 0; padding: 0; }
-.motif-steps li { width: 0.9rem; height: 0.9rem; border-radius: 3px; }
-.motif-before li { border: 2px solid var(--warn-line); background: var(--warn-bg); }
-.motif-after li { background: var(--teal); }
-.motif-after li.is-person { background: var(--signal); border-radius: 50%; }
-.motif-arrow { width: 2.2rem; height: 2px; background: var(--ink); position: relative; }
-.motif-arrow::after { content: ""; position: absolute; right: -1px; top: -4px; border: 5px solid transparent; border-left: 7px solid var(--ink); border-right: 0; }
-
 /* Problem: three plain statements, no boxes. */
 .pain-tiles { list-style: none; padding: 0; margin: 0 0 2.2rem; display: grid; gap: 1.5rem 2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .pain-tiles li { border-left: 3px solid var(--signal); padding-left: 1rem; color: var(--muted); }
@@ -1369,7 +1356,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 @media (max-width: 46rem) {
   .bk.bk-inline { width: auto; height: auto; max-height: none; border-radius: 12px; }
   .bk-inline .bk-main { padding: 1rem; }
-  .motif-label { flex-basis: 100%; text-align: center; }
 }
 
 /* ==== Live demo (src/demo) ==== */
@@ -1425,14 +1411,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-checks li.is-done::after { content: ""; position: absolute; left: 0.42rem; top: 0.38rem; width: 0.45rem; height: 0.25rem; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
 
 /* Step 2: the three problems */
-.dm-cards { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.7rem; }
-.dm-card { border: 1px solid var(--line); border-left: 4px solid var(--signal); border-radius: 10px; padding: 0.8rem 1rem; background: #fff; }
-.dm-card p { margin: 0 0 0.35rem; }
-.dm-card .dm-btn { margin-top: 0.3rem; }
-.dm-kind { font-size: 0.85rem; font-weight: 700; color: var(--accent); }
-.dm-card.is-done { border-left-color: var(--teal); background: var(--info-bg); }
-.dm-card.is-done p:first-child::before { content: "\2713  "; color: var(--teal); font-weight: 800; }
-.dm-card.is-waiting { border-left-style: dashed; }
 .dm-sim { display: inline-block; font-size: 0.78rem; font-weight: 700; padding: 0 0.45rem; border-radius: 999px; background: var(--warn-bg); border: 1px solid var(--warn-line); color: #5b3a00; margin-right: 0.2rem; }
 
 /* Step 3: the form, before and after */
@@ -1493,11 +1471,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-move span { color: var(--teal); font-weight: 800; }
 .dm-count { color: var(--muted); font-weight: 600; }
 .dm-upd { margin: 0.35rem 0 0; font-size: 0.92rem; font-weight: 600; color: var(--teal-dark); }
-.dm-card .dm-upd { color: var(--teal); }
-.dm-card-h { font-family: var(--display); font-weight: 800; font-size: 1.08rem; color: var(--ink); letter-spacing: -0.01em; }
-.dm-card.is-done .dm-card-h::before { content: "\2713  "; color: var(--teal); }
-.dm-card.is-done p:first-child::before { content: none; }
-.dm-card.is-done .dm-card-h::before { content: "\2713  "; }
 .dm-last { margin: 1rem 0 0; padding-top: 0.8rem; border-top: 1px solid #36505a; font-size: 0.9rem; line-height: 1.45; color: #e9efe9; }
 .dm-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); align-items: start; gap: 0.9rem; margin: 0.8rem 0 0.4rem; max-width: 36rem; }
 .dm-fp { margin: 0; border: 1px dashed var(--line); border-radius: 12px; padding: 0.8rem 1rem; background: var(--paper); }
@@ -1531,8 +1504,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-role-team { background: var(--warn-bg); border-color: var(--warn-line); color: #5b3a00; }
 .dm-role-me { background: var(--ink); border-color: var(--ink); color: #fff; }
 .dm-role-customer { background: #fff; border-color: var(--ink); }
-.dm-choices { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-.dm-choices .dm-btn { margin-top: 0; }
 .dm-end-sub { margin: 1rem 0 0.4rem; font-weight: 800; font-family: var(--display); color: var(--ink); }
 .dm-who, .dm-three { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
 .dm-who li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.45rem; }
@@ -1545,7 +1516,59 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 @media (max-width: 640px) {
   .dm-strip li { display: flex; flex-direction: column; align-items: center; text-align: center; }
   .dm-s-svc { font-size: 0.62rem; }
-  .dm-choices .dm-btn { width: 100%; }
 }
 .dm-who li { display: grid; grid-template-columns: auto 1fr; align-items: start; column-gap: 0.5rem; }
 .dm-who .dm-role { justify-self: start; }
+
+/* Live demo, round 4: what-just-happened summary, the Monday review sheet, causes table, bridge and booking ask */
+.dm-summary { margin: 0 0 0.8rem; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.dm-summary li::marker { color: var(--teal); }
+.dm-sheet { margin: 0.8rem 0 0.5rem; border: 1px solid #c9cfc9; border-radius: 8px; overflow: hidden; background: #fff; font-size: 0.9rem; }
+.dm-sh-bar { margin: 0; display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0.75rem; background: #1f6f4a; color: #fff; font-weight: 700; }
+.dm-sh-file::before { content: ""; display: inline-block; width: 0.8rem; height: 0.95rem; margin-right: 0.45rem; vertical-align: -0.1rem; border-radius: 2px; background: #fff; box-shadow: inset 0 0.3rem 0 #b9dcc6; }
+.dm-sh-tab { font-weight: 600; font-size: 0.82rem; opacity: 0.9; }
+.dm-sheet table { width: 100%; border-collapse: collapse; }
+.dm-sheet th, .dm-sheet td { border: 1px solid #dfe3df; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+.dm-sheet thead th { background: #f1f3f1; font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+.dm-sheet .dm-sh-n { width: 2rem; text-align: center; background: #f1f3f1; color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+.dm-sh-cost { color: #7a2e12; font-weight: 600; }
+.dm-sh-pick { min-width: 12rem; background: #fffbea; }
+.dm-sh-pick select { width: 100%; font: inherit; padding: 0.35rem 0.4rem; border: 2px solid var(--teal); border-radius: 6px; background: #fff; color: var(--ink); }
+.dm-sh-done { font-weight: 700; color: var(--teal-dark); }
+.dm-sh-done::before { content: "\2713  "; color: var(--teal); }
+.dm-sheet tr.is-done .dm-sh-pick { background: var(--info-bg); }
+.dm-tools { margin: 0 0 0.5rem; font-size: 0.88rem; color: var(--muted); }
+.dm-err { color: var(--error); font-weight: 700; margin: 0.5rem 0 0; }
+.dm-last ul { margin: 0; padding-left: 1rem; display: grid; gap: 0.3rem; }
+.dm-causes { margin: 0.6rem 0 1rem; }
+.dm-causes table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.dm-causes th, .dm-causes td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.dm-causes thead th { font-size: 0.8rem; color: var(--muted); }
+.dm-causes tbody th { font-weight: 700; color: var(--ink); }
+.dm-causes td:last-child { color: var(--teal-dark); font-weight: 600; }
+.dm-try { font-weight: 600; margin: 0 0 0.5rem; }
+.dm-bridge { margin: 1rem 0 0; }
+.dm-ask { margin: 1rem 0 0; padding: 1rem 1.1rem; border-radius: 12px; background: var(--paper); border: 2px solid var(--teal); }
+.dm-ask p { margin: 0 0 0.6rem; }
+.dm-ask .dm-end-actions { margin: 0; }
+.dm-real { margin-top: 1rem; font-size: 0.88rem; }
+@media (max-width: 640px) {
+  .dm-sheet thead { display: none; }
+  .dm-sheet tr { display: block; border-bottom: 2px solid #c9cfc9; }
+  .dm-sheet th, .dm-sheet td { display: block; border: 0; border-bottom: 1px solid #eef0ee; }
+  .dm-sheet .dm-sh-n { width: auto; text-align: left; }
+  .dm-sheet .dm-sh-n::before { content: "Row "; }
+  .dm-sheet td::before, .dm-causes td::before { content: attr(data-label); display: block; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.02em; }
+  .dm-sh-pick { min-width: 0; }
+  .dm-causes thead { display: none; }
+  .dm-causes tr { display: block; padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
+  .dm-causes th, .dm-causes td { display: block; border: 0; padding: 0.2rem 0; }
+}
+@media (max-width: 56rem) {
+  .dm-last ul { list-style: none; padding: 0; }
+  .dm-last li:not(:last-child) { display: none; }
+}
+@media (max-width: 640px) {
+  .dm-who li { display: block; }
+  .dm-who .dm-role { display: inline-block; margin: 0 0.4rem 0.2rem 0; }
+}

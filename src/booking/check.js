@@ -11,7 +11,7 @@ export const BOOKING_LIMITS = {
 
 // The opening of the calendar invite the visitor receives. Update the link if the site moves to its own domain.
 export const INVITE_PREP = [
-  'Bring one report or check your team keeps redoing. Examples: https://rework-rescue.vercel.app/#samples',
+  'Bring one report or check your team keeps redoing. Live example: https://rework-rescue.vercel.app/#samples',
   'No files or prep needed. Please leave out anything confidential.',
   '',
   'Your details',

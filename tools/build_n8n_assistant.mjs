@@ -19,7 +19,7 @@ const MODEL = PROVIDER === 'gemini' ? 'gemini-3.5-flash-lite' : 'gpt-4.1-mini';
 const AI_NODE = PROVIDER === 'gemini' ? 'Gemini: reply' : 'OpenAI: reply';
 // Which websites may call the webhook from a browser. '*' while you test on Vercel preview links;
 // once live, change it to https://rework-rescue.vercel.app (or your own domain).
-const ALLOWED_ORIGINS = '*';
+const ALLOWED_ORIGINS = 'https://rework-rescue.vercel.app'; // live since 1 Nov 2026; use '*' to test on preview links
 // The assistant log sheet ("assitant-log-header"): https://docs.google.com/spreadsheets/d/<this id>/edit
 const LOG_SHEET_ID = '1ZQaxVtJG4vOeLb3y52-tZh1_XULh7tmv2NdDhTo_L1c';
 

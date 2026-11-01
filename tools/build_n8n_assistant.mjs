@@ -20,6 +20,8 @@ const AI_NODE = PROVIDER === 'gemini' ? 'Gemini: reply' : 'OpenAI: reply';
 // Which websites may call the webhook from a browser. '*' while you test on Vercel preview links;
 // once live, change it to https://rework-rescue.vercel.app (or your own domain).
 const ALLOWED_ORIGINS = '*';
+// The assistant log sheet ("assitant-log-header"): https://docs.google.com/spreadsheets/d/<this id>/edit
+const LOG_SHEET_ID = '1ZQaxVtJG4vOeLb3y52-tZh1_XULh7tmv2NdDhTo_L1c';
 
 const LIB = readFileSync(join(root, 'src/assistant/rules.js'), 'utf8')
   .split('\n').filter((l) => !/^import\s/.test(l)).join('\n')
@@ -129,8 +131,9 @@ return [{ json: { ...done, row: logRow({ ...done, questionsAsked: asked.question
     onError: 'continueRegularOutput',
     parameters: {
       operation: 'append',
-      // Pick the assistant log sheet here (see ASSISTANT-SETUP.md). Sheet ID 0 is the first tab.
-      documentId: { __rl: true, value: '', mode: 'list' },
+      // The assistant log sheet, kept here so a re-import doesn't clear it. Sheet ID 0 is the first tab.
+      // Operation must stay "append" (Append Row); "Get Row(s)" would only read the sheet.
+      documentId: { __rl: true, value: LOG_SHEET_ID, mode: 'id' },
       sheetName: { __rl: true, value: '0', mode: 'id' },
       columns: { mappingMode: 'autoMapInputData', value: {}, matchingColumns: [], schema: [] },
       options: {},

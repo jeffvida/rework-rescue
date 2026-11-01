@@ -1586,7 +1586,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 [data-assistant-only][hidden], .ast-dock [hidden], .ast-panel[hidden], .ast-panel [hidden] { display: none !important; }
 .ast-dock { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 40; display: flex; align-items: center; border-radius: 999px; }
 .ast-dock.has-invite { background: var(--teal-dark); box-shadow: 0 0 0 2px var(--paper), 0 8px 24px rgba(15, 58, 58, 0.28); }
-.ast-fab { width: 60px; height: 60px; flex: none; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 2px solid var(--teal); background: var(--teal-dark); cursor: pointer; box-shadow: 0 0 0 2px var(--paper), 0 6px 18px rgba(15, 58, 58, 0.25); transition: transform 0.15s ease; }
+.ast-fab { width: 60px; height: 60px; flex: none; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 2px solid var(--teal); background: #fff; cursor: pointer; box-shadow: 0 0 0 2px var(--paper), 0 6px 18px rgba(15, 58, 58, 0.25); transition: transform 0.15s ease; }
 .ast-fab:hover { transform: translateY(-2px); }
 .ast-fab img { width: 52px; height: 52px; display: block; }
 .has-invite .ast-fab { box-shadow: none; }

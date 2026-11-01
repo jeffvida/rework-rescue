@@ -1,8 +1,8 @@
-# Assistant setup (n8n + OpenAI)
+# Assistant setup (n8n + Google Gemini)
 
 The chat assistant on the homepage talks to one n8n workflow: `rework-assistant.json`.
 
-- **Assistant request** (`POST …/webhook/rr-assistant`): checks the message and today's limits, asks OpenAI for a reply in a fixed JSON shape, checks that reply (allowed values, no prices or promises, at most 3 follow-up questions), answers the page, then adds one row to the assistant log sheet.
+- **Assistant request** (`POST …/webhook/rr-assistant`): checks the message and today's limits, asks Google Gemini (free tier) for a reply in a fixed JSON shape, checks that reply (allowed values, no prices or promises, at most 3 follow-up questions), answers the page, then adds one row to the assistant log sheet.
 - It never books anything. The "Book a free rework review" button in the chat opens the normal booking pop-up (`rework-review-booking.json`).
 
 Wording, limits, the assistant's instructions and the facts it may use all live in `src/assistant/rules.js` (tested in `tests/assistant.test.mjs`).
@@ -10,9 +10,9 @@ After changing that file, run `node tools/build_n8n_assistant.mjs` and re-import
 
 ## One-time setup
 
-1. **OpenAI account.** At platform.openai.com, create an API key. Under *Limits*, set a **monthly budget** you are comfortable with. This is the real cost backstop.
+1. **Gemini API key (free, no card).** Go to aistudio.google.com, sign in with your Google account, open **Get API key** → **Create API key**, and copy it. Don't add billing: the key stays on the free tier.
 2. In n8n: **Workflows → Import from file** → choose `n8n/rework-assistant.json`.
-3. Open **OpenAI: reply**. Under *Credential for OpenAI*, choose **Create new credential** and paste the API key.
+3. Open **Gemini: reply**. Under *Credential for Header Auth*, choose **Create new credential**: **Name** `x-goog-api-key`, **Value** your API key. Save it as "Gemini API key".
 4. **Log sheet.** In Google Sheets, create a spreadsheet (for example "Rework Rescue assistant log"). Import `n8n/assistant-log-headers.csv` into it (File → Import → Upload → *Replace current sheet*), so row 1 holds the headers. In n8n open **Log to Google Sheet**, pick your existing **Google Sheets** credential, and choose the spreadsheet under *Document*. Don't rename the headers: n8n matches them by name.
 5. **Save**, then switch the workflow to **Active** (top right).
 6. Open **Assistant request**, switch to the **Production URL** tab and copy the URL.
@@ -46,10 +46,16 @@ If something fails, open **Executions** in n8n. Successful runs aren't kept (the
 - At most 3 follow-up questions; a 4th is replaced with the booking offer.
 - 60 messages per visitor per day and 1,500 in total per day. Visitors are told the assistant is resting for the day after that. The daily count uses a short one-way hash of the IP address and is cleared every day; the IP itself is never stored.
 - Replies mentioning a price, percentage, saving or guarantee are replaced with a fixed fallback.
-- The page keeps the conversation; refreshing starts a new one. That's why the daily limits and the OpenAI budget matter more than the per-chat limit.
+- The page keeps the conversation; refreshing starts a new one. That's why the daily limits matter more than the per-chat limit.
 
-Every message counts as an n8n execution and an OpenAI call, so keep an eye on your n8n Cloud plan and OpenAI usage.
+Every message counts as an n8n execution and a Gemini call, so keep an eye on your n8n Cloud plan.
+
+## About the free tier
+
+- **No cost, no card.** Google sets free limits per project (requests per minute and per day); see them in AI Studio. If they run out, visitors get the fallback reply with the booking button until the limit resets (midnight Pacific time).
+- **Data:** on the free tier Google may use the messages and replies to improve its products, and people may review them. The privacy page and the chat's notice say so, and ask visitors to leave out personal and confidential details.
+- **Moving to paid later** (no training on chats): set `PROVIDER = 'openai'` (or turn on Gemini billing) in `tools/build_n8n_assistant.mjs`, rebuild, re-import, add that key, and update the privacy page and `ASSISTANT_TEXT.disclaimer` in `src/assistant/rules.js`.
 
 ## Changing the model
 
-The model is set at the top of `tools/build_n8n_assistant.mjs` (`gpt-4.1-mini`). It must support *structured outputs* (strict JSON schema). If OpenAI retires it, change it there, rebuild, re-import, and re-run the checks above.
+The model is set at the top of `tools/build_n8n_assistant.mjs` (`gemini-3.5-flash-lite`). It must support JSON output with a schema. If the model isn't available to your key (check the list in AI Studio), change it there, rebuild, re-import, and re-run the checks above.

@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  checkRequest, countQuestions, buildOpenAiRequest, parseReply, findUnsafe, finishReply,
-  takeDailyAllowance, visitorKey, logRow, assistantBrief, ASSISTANT_LIMITS, ASSISTANT_TEXT, SERVICES, REPLY_SCHEMA,
+  checkRequest, countQuestions, buildOpenAiRequest, buildGeminiRequest, modelText, parseReply, findUnsafe, finishReply,
+  takeDailyAllowance, visitorKey, logRow, assistantBrief, ASSISTANT_LIMITS, ASSISTANT_TEXT, SERVICES, REPLY_SCHEMA, GEMINI_SCHEMA,
 } from '../src/assistant/rules.js';
 
 const reply = (o) => JSON.stringify({ reply: 'Sounds like Data & Reporting Rework. Want to pick a time for a free review?', stage: 'suggested', service: 'data_reporting', summary: 'Copies 3 sheets into a report every Friday', show_booking: true, ...o });
@@ -68,6 +68,23 @@ test('the OpenAI request uses strict JSON, the brief and the conversation in ord
   assert.deepEqual(req.messages.slice(1).map((m) => m.role), ['user', 'assistant', 'user']);
   assert.equal(req.messages.at(-1).content, 'third');
   assert.ok(req.messages.every((m) => Object.keys(m).join() === 'role,content'), 'no extra fields sent to OpenAI');
+});
+
+test('the Gemini request carries the brief, JSON schema and the conversation with Gemini role names', () => {
+  const req = buildGeminiRequest({ message: 'third', history: asking(1), questionsAsked: 1 });
+  assert.match(req.systemInstruction.parts[0].text, /QUESTIONS_ASKED: 1/);
+  assert.deepEqual(req.contents.map((c) => c.role), ['user', 'model', 'user']);
+  assert.equal(req.contents.at(-1).parts[0].text, 'third');
+  assert.equal(req.generationConfig.responseMimeType, 'application/json');
+  assert.deepEqual(GEMINI_SCHEMA.required.slice().sort(), Object.keys(GEMINI_SCHEMA.properties).sort());
+  assert.deepEqual(GEMINI_SCHEMA.properties.stage.enum, REPLY_SCHEMA.properties.stage.enum);
+});
+
+test('modelText reads Gemini and OpenAI responses, skips thinking parts, and returns "" on errors', () => {
+  assert.equal(modelText({ candidates: [{ content: { parts: [{ text: 'plan', thought: true }, { text: '{"a":' }, { text: '1}' }] } }] }), '{"a":1}');
+  assert.equal(modelText({ choices: [{ message: { content: '{"b":2}' } }] }), '{"b":2}');
+  for (const bad of [undefined, null, {}, { error: { code: 429, message: 'quota' } }, { candidates: [{ finishReason: 'SAFETY' }] }]) assert.equal(modelText(bad), '');
+  assert.equal(finishReply(modelText({ error: { code: 429 } }), 0).outcome, 'invalid', 'quota errors get the fallback');
 });
 
 test('the brief maps every service code to its visitor-facing name', () => {

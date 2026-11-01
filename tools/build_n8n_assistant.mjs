@@ -1,7 +1,7 @@
 // Builds n8n/rework-assistant.json, the importable n8n workflow behind the website's chat assistant.
 // Run: node tools/build_n8n_assistant.mjs   (after changing src/assistant/rules.js, then re-import in n8n)
 //
-// Flow: Webhook -> Check request -> OK? -> OpenAI -> Check reply -> Respond to the page -> Log to Google Sheet.
+// Flow: Webhook -> Check request -> OK? -> AI reply (Gemini or OpenAI) -> Check reply -> Respond to the page -> Log to Google Sheet.
 // The Code nodes get the same rules the tests cover (tests/assistant.test.mjs), copied in as plain JavaScript.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -9,9 +9,14 @@ import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-// The OpenAI model. A small, fast model that supports structured outputs (strict JSON).
-// If OpenAI retires it, change it here, rebuild and re-import (see n8n/ASSISTANT-SETUP.md).
-const OPENAI_MODEL = 'gpt-4.1-mini';
+// Which AI service answers. 'gemini' = Google Gemini free tier (no card needed; Google may use free-tier chats
+// to improve its products, which the privacy page says). 'openai' = paid OpenAI API (not used for training).
+// To switch: change PROVIDER, rebuild, re-import, add that provider's key (see n8n/ASSISTANT-SETUP.md), and
+// update the privacy page and ASSISTANT_TEXT.disclaimer in src/assistant/rules.js.
+const PROVIDER = 'gemini';
+// The model. It must support JSON output with a schema. If it's retired, change it here, rebuild and re-import.
+const MODEL = PROVIDER === 'gemini' ? 'gemini-3.5-flash-lite' : 'gpt-4.1-mini';
+const AI_NODE = PROVIDER === 'gemini' ? 'Gemini: reply' : 'OpenAI: reply';
 // Which websites may call the webhook from a browser. '*' while you test on Vercel preview links;
 // once live, change it to https://rework-rescue.vercel.app (or your own domain).
 const ALLOWED_ORIGINS = '*';
@@ -31,12 +36,14 @@ const nodes = [
       content: [
         '## Rework Rescue assistant',
         'Full steps: n8n/ASSISTANT-SETUP.md in the website repo.',
-        '1. **OpenAI: reply** → pick or create an **OpenAI** credential (your API key).',
+        PROVIDER === 'gemini'
+          ? '1. **Gemini: reply** → create a **Header Auth** credential: Name `x-goog-api-key`, Value = your Google AI Studio API key.'
+          : '1. **OpenAI: reply** → pick or create an **OpenAI** credential (your API key).',
         '2. **Log to Google Sheet** → pick your Google Sheets credential and the assistant log sheet.',
         '3. Save, switch the workflow to **Active**, copy the **Production URL** from **Assistant request**.',
         '4. Put it in `site-config.js` as `assistantUrl`, on a branch, and test on the Vercel preview.',
         '',
-        `Model: ${OPENAI_MODEL}. Rules and limits live in src/assistant/rules.js; rebuild with node tools/build_n8n_assistant.mjs.`,
+        `AI: ${PROVIDER}, model ${MODEL}. Rules and limits live in src/assistant/rules.js; rebuild with node tools/build_n8n_assistant.mjs.`,
         'Successful runs are not saved (they contain what visitors typed). Failed runs are.',
       ].join('\n'),
     },
@@ -58,7 +65,7 @@ const ip = String((req.headers && (req.headers['x-forwarded-for'] || req.headers
 if (!takeDailyAllowance($getWorkflowStaticData('global'), ip)) {
   return [{ json: { ok: false, code: 'daily_limit', notice: 'The assistant is resting for today. You can still book a free rework review below.' } }];
 }
-return [{ json: { ...checked, openai: buildOpenAiRequest(checked, ${JSON.stringify(OPENAI_MODEL)}) } }];`,
+return [{ json: { ...checked, ai: ${PROVIDER === 'gemini' ? 'buildGeminiRequest(checked)' : `buildOpenAiRequest(checked, ${JSON.stringify(MODEL)})`} } }];`,
     },
   },
   {
@@ -81,13 +88,19 @@ return [{ json: { ...checked, openai: buildOpenAiRequest(checked, ${JSON.stringi
     },
   },
   {
-    id: id(6), name: 'OpenAI: reply', type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [420, 160],
-    // A failed or slow call must still answer the visitor: the next step turns it into the fallback reply.
+    id: id(6), name: AI_NODE, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [420, 160],
+    // A failed or slow call (including a used-up free quota) must still answer the visitor:
+    // the next step turns it into the fallback reply.
     onError: 'continueRegularOutput',
-    parameters: {
+    parameters: PROVIDER === 'gemini' ? {
+      method: 'POST', url: `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+      authentication: 'genericCredentialType', genericAuthType: 'httpHeaderAuth',
+      sendBody: true, specifyBody: 'json', jsonBody: '={{ JSON.stringify($json.ai) }}',
+      options: { timeout: 20000 },
+    } : {
       method: 'POST', url: 'https://api.openai.com/v1/chat/completions',
       authentication: 'predefinedCredentialType', nodeCredentialType: 'openAiApi',
-      sendBody: true, specifyBody: 'json', jsonBody: '={{ JSON.stringify($json.openai) }}',
+      sendBody: true, specifyBody: 'json', jsonBody: '={{ JSON.stringify($json.ai) }}',
       options: { timeout: 20000 },
     },
   },
@@ -97,7 +110,7 @@ return [{ json: { ...checked, openai: buildOpenAiRequest(checked, ${JSON.stringi
       jsCode: `${LIB}
 // ---- workflow step: validate the model's JSON, block prices and promises, enforce the question limit
 const asked = $('Check request').first().json;
-const raw = $input.first().json?.choices?.[0]?.message?.content;
+const raw = modelText($input.first().json);
 const done = finishReply(raw, asked.questionsAsked);
 return [{ json: { ...done, row: logRow({ ...done, questionsAsked: asked.questionsAsked, messageCount: asked.messageCount }) } }];`,
     },
@@ -129,8 +142,8 @@ const link = (to) => ({ node: to, type: 'main', index: 0 });
 const connections = {
   'Assistant request': { main: [[link('Check request')]] },
   'Check request': { main: [[link('Request OK?')]] },
-  'Request OK?': { main: [[link('OpenAI: reply')], [link('Notice')]] },
-  'OpenAI: reply': { main: [[link('Check reply')]] },
+  'Request OK?': { main: [[link(AI_NODE)], [link('Notice')]] },
+  [AI_NODE]: { main: [[link('Check reply')]] },
   'Check reply': { main: [[link('Reply to the page')]] },
   'Reply to the page': { main: [[link('Sheet row')]] },
   'Sheet row': { main: [[link('Log to Google Sheet')]] },
@@ -143,4 +156,4 @@ const workflow = { name: 'Rework Rescue: website assistant', nodes, connections,
 }, pinData: {} };
 mkdirSync(join(root, 'n8n'), { recursive: true });
 writeFileSync(join(root, 'n8n/rework-assistant.json'), `${JSON.stringify(workflow, null, 2)}\n`);
-console.log(`n8n/rework-assistant.json: ${nodes.length} nodes, model ${OPENAI_MODEL}`);
+console.log(`n8n/rework-assistant.json: ${nodes.length} nodes, ${PROVIDER} model ${MODEL}`);

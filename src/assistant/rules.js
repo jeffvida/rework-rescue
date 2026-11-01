@@ -1,7 +1,8 @@
 // Rework Rescue assistant: the rules both sides share. Run the tests with: node --test tests/
 //
 // The website (src/assistant/widget.js) uses the wording and limits.
-// The n8n workflow (n8n/rework-assistant.json) runs checkRequest, buildOpenAiRequest and finishReply in its
+// The n8n workflow (n8n/rework-assistant.json) runs checkRequest, buildGeminiRequest (or buildOpenAiRequest),
+// modelText and finishReply in its
 // Code nodes: tools/build_n8n_assistant.mjs copies this file in. After changing it, rebuild and re-import.
 // No imports in this file, so it can be copied into n8n as plain JavaScript.
 
@@ -17,7 +18,7 @@ export const ASSISTANT_TEXT = {
     "My tools don't work well together",
     'I have a different question',
   ],
-  disclaimer: 'AI assistant. It can make mistakes; Jeff reviews everything in the call. Please leave out names, emails and confidential details.',
+  disclaimer: 'AI assistant (Google Gemini). It can make mistakes, and Google may review chats to improve its AI. Please leave out names, contact details and anything confidential.',
   book: 'Book a free rework review',
   fallback: "Sorry, I didn't catch that. You can also book a free rework review below.",
   limitOffer: 'Thanks, that gives Jeff enough to go on. The best next step is a free 30-minute rework review, where he looks at it with you. Want to pick a time?',
@@ -89,7 +90,8 @@ KNOWLEDGE:
 ${KNOWLEDGE}`;
 }
 
-// ---- The JSON shape the model must return (OpenAI structured outputs, strict mode)
+// ---- The JSON shape the model must return. Two spellings of the same shape:
+// REPLY_SCHEMA for OpenAI structured outputs (strict mode), GEMINI_SCHEMA for Gemini's responseSchema (OpenAPI subset).
 export const REPLY_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -141,7 +143,47 @@ export function checkRequest(body) {
   return { ok: true, message, history, questionsAsked: countQuestions(history), messageCount };
 }
 
-/** The Chat Completions request body for OpenAI. */
+export const GEMINI_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    reply: { type: 'STRING' },
+    stage: { type: 'STRING', format: 'enum', enum: STAGES },
+    service: { type: 'STRING', format: 'enum', enum: ['data_reporting', 'workflow', 'systems'], nullable: true },
+    summary: { type: 'STRING', nullable: true },
+    show_booking: { type: 'BOOLEAN' },
+  },
+  required: ['reply', 'stage', 'service', 'summary', 'show_booking'],
+  propertyOrdering: ['reply', 'stage', 'service', 'summary', 'show_booking'],
+};
+
+/** The generateContent request body for Google Gemini (used by the workflow now: free tier). */
+export function buildGeminiRequest({ message, history, questionsAsked }) {
+  return {
+    systemInstruction: { parts: [{ text: assistantBrief(questionsAsked) }] },
+    contents: [
+      ...history.map((t) => ({ role: t.role === 'assistant' ? 'model' : 'user', parts: [{ text: t.content }] })),
+      { role: 'user', parts: [{ text: message }] },
+    ],
+    generationConfig: {
+      temperature: 0.3,
+      // Generous, because some models spend part of this on thinking before the reply.
+      maxOutputTokens: 2048,
+      responseMimeType: 'application/json',
+      responseSchema: GEMINI_SCHEMA,
+    },
+  };
+}
+
+/** Pulls the model's text out of a Gemini or OpenAI response. Returns '' if there is none (an error, a block, a timeout). */
+export function modelText(res) {
+  if (!res || typeof res !== 'object') return '';
+  const parts = res.candidates?.[0]?.content?.parts;
+  if (Array.isArray(parts)) return parts.filter((p) => p && !p.thought && isText(p.text)).map((p) => p.text).join('');
+  const openai = res.choices?.[0]?.message?.content;
+  return isText(openai) ? openai : '';
+}
+
+/** The Chat Completions request body for OpenAI (kept for a later switch to a paid model). */
 export function buildOpenAiRequest({ message, history, questionsAsked }, model) {
   return {
     model,

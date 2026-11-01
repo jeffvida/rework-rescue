@@ -58,6 +58,7 @@ How work runs: a written scope (what will be built, price, timeline, payment) is
 Who: Jeff Herson Vida, Data & Operations Specialist, 8+ years in data operations and reporting (Excel, Power Query, VBA, Python). Based in the Philippines, works remotely with teams worldwide. Clients work directly with him.
 Confidential data: ordinary business information is fine through an agreed route; he will sign a reasonable NDA; sensitive or regulated information needs a review of safeguards first.
 AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
+Choosing a service: visitors don't need to pick one or buy all three. The three are where a problem usually sits (the numbers, the steps around them, or the tools in between), and most problems touch more than one. The free review finds where it starts. The price is based on the work the fix needs, not on how many services it touches. Most first projects are one small fix; anything else found is a separate, optional scope.
 Prices and timelines depend on the scope and are discussed in the free review.`;
 
 // ---- The fixed brief sent to the model with every message

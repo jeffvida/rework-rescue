@@ -10,7 +10,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OWNER_EMAIL = 'jeffhersonvida@gmail.com';
 // Which websites may call the webhooks from a browser. '*' while you test on Vercel preview links;
 // once live, change it in both Webhook nodes to https://rework-rescue.vercel.app (or your own domain).
-const ALLOWED_ORIGINS = '*';
+const ALLOWED_ORIGINS = 'https://rework-rescue.vercel.app'; // live since 1 Nov 2026; use '*' to test on preview links
 
 const inline = (file) => readFileSync(join(root, file), 'utf8')
   .split('\n').filter((l) => !/^import\s/.test(l)).join('\n')

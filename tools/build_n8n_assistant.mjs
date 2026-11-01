@@ -114,7 +114,7 @@ return [{ json: { ...checked, ai: ${PROVIDER === 'gemini' ? 'buildGeminiRequest(
 const asked = $('Check request').first().json;
 const raw = modelText($input.first().json);
 const done = finishReply(raw, asked.questionsAsked);
-return [{ json: { ...done, row: logRow({ ...done, questionsAsked: asked.questionsAsked, messageCount: asked.messageCount }) } }];`,
+return [{ json: { ...done, row: logRow({ ...done, questionsAsked: asked.questionsAsked, messageCount: asked.messageCount, conversationId: asked.conversationId }) } }];`,
     },
   },
   {

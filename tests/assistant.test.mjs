@@ -168,6 +168,31 @@ test('daily limits: per visitor and in total, reset on a new Philippine day; no 
   assert.notEqual(visitorKey('1.1.1.1', '2026-11-01'), visitorKey('1.1.1.1', '2026-11-02'));
 });
 
+test('conversation IDs: a valid one is kept, anything else becomes blank (never rejected)', () => {
+  assert.equal(checkRequest({ message: 'hello there', conversation: 'rr-k3f9q2ab' }).conversationId, 'rr-k3f9q2ab');
+  for (const bad of [undefined, '', 'rr-AB', '<script>', 'rr-' + 'a'.repeat(40), 42]) {
+    const r = checkRequest({ message: 'hello there', conversation: bad });
+    assert.equal(r.ok, true, String(bad));
+    assert.equal(r.conversationId, '', String(bad));
+  }
+});
+
+test('log rows carry the conversation ID and whether booking was offered', () => {
+  const offered = logRow({ ...finishReply(reply(), 0), questionsAsked: 0, messageCount: 2, conversationId: 'rr-k3f9q2ab' });
+  assert.equal(offered['Conversation ID'], 'rr-k3f9q2ab');
+  assert.equal(offered['Booking offered'], 'Yes');
+  const asked = logRow({ ...finishReply(reply({ stage: 'asking', service: null, show_booking: false }), 0), questionsAsked: 0, messageCount: 1 });
+  assert.equal(asked['Booking offered'], 'No');
+  assert.equal(asked['Conversation ID'], '(none)');
+});
+
+test('log columns match the sheet headers file, in order', async () => {
+  const { readFileSync } = await import('node:fs');
+  const headers = readFileSync(new URL('../n8n/assistant-log-headers.csv', import.meta.url), 'utf8').trim().split(',');
+  const row = logRow({ ...finishReply(reply(), 0), questionsAsked: 0, messageCount: 1, conversationId: 'rr-abcdef' });
+  assert.deepEqual(Object.keys(row), headers);
+});
+
 test('log rows hold no message text and are safe for Sheets', () => {
   const done = finishReply(reply({ summary: '=HYPERLINK("x")' }), 0);
   const row = logRow({ ...done, questionsAsked: 0, messageCount: 1 }, Date.parse('2026-11-01T02:00:00Z'));

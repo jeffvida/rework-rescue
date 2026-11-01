@@ -106,6 +106,9 @@ export const REPLY_SCHEMA = {
 };
 
 const isText = (v) => typeof v === 'string';
+// A random ID the page makes for each chat (e.g. "rr-k3f9q2"), so the log can group one chat's rows. Not linked to a person.
+const CONVERSATION_ID = /^rr-[a-z0-9]{6,12}$/;
+export const conversationId = (v) => (isText(v) && CONVERSATION_ID.test(v) ? v : '');
 const clean = (s) => String(s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim();
 
 /** Earlier follow-up questions = assistant turns in the history marked stage "asking". */
@@ -140,7 +143,7 @@ export function checkRequest(body) {
   if (messageCount > L.maxMessages) {
     return fail('too_many', 'This chat has reached its limit. The best next step is a free 30-minute rework review, where Jeff can go through it with you.');
   }
-  return { ok: true, message, history, questionsAsked: countQuestions(history), messageCount };
+  return { ok: true, message, history, questionsAsked: countQuestions(history), messageCount, conversationId: conversationId(body.conversation) };
 }
 
 export const GEMINI_SCHEMA = {
@@ -277,16 +280,18 @@ export function takeDailyAllowance(store, ip, now = Date.now()) {
 }
 
 /** One row for the assistant log sheet. No message text: only the summary in the visitor's words. */
-export function logRow({ outcome, response, summary, questionsAsked, messageCount }, now = Date.now()) {
+export function logRow({ outcome, response, summary, questionsAsked, messageCount, conversationId: chat = '' }, now = Date.now()) {
   const ph = new Date(now + 8 * 3600e3).toISOString().replace('T', ' ').slice(0, 16);
   const safe = (s) => (s && /^[=+\-@]/.test(s) ? `'${s}` : s || '');
   return {
     'Time (PH)': ph,
+    'Conversation ID': chat || '(none)',
     Outcome: outcome,
     Stage: response.stage,
     Service: response.serviceLabel,
     Summary: safe(summary),
     'Questions asked': questionsAsked,
     'Message number': messageCount,
+    'Booking offered': response.showBooking ? 'Yes' : 'No',
   };
 }

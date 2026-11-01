@@ -24,6 +24,12 @@ const session = {
   get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
   set: (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* private mode: fine */ } },
 };
+/** A random ID for this chat, e.g. "rr-k3f9q2ab". Only used to group this chat's rows in the log. */
+const newConversationId = () => {
+  const a = new Uint8Array(8);
+  try { crypto.getRandomValues(a); } catch { for (let i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }
+  return `rr-${[...a].map((b) => (b % 36).toString(36)).join('')}`;
+};
 const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Calls the n8n workflow. Never throws; returns the reply object or null. */
@@ -95,6 +101,7 @@ export function mountAssistant({ base = './' } = {}) {
 
   // ---- State: the conversation, in memory only
   const history = [];
+  const conversation = newConversationId();
   let busy = false;
   let opener = fab;
 
@@ -139,7 +146,7 @@ export function mountAssistant({ base = './' } = {}) {
     const typing = el('p', { class: 'ast-msg ast-msg-bot ast-typing', 'aria-label': 'The assistant is typing' }, el('span'), el('span'), el('span'));
     log.append(typing); scrollDown();
 
-    const data = await ask({ message, history: history.slice(), website: trap.value });
+    const data = await ask({ message, history: history.slice(), conversation, website: trap.value });
     typing.remove();
     const r = data || { reply: T.error, stage: 'notice', showBooking: true, bookService: '' };
     history.push({ role: 'user', content: message });

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+<title>Rework Rescue assistant</title>
+<circle cx="12" cy="12" r="12" fill="#0f3a3a"/>
+<rect x="3" y="5" width="18" height="14" rx="5.5" fill="#ffffff"/>
+<rect x="4.5" y="6.5" width="15" height="11" rx="4" fill="#0f3a3a"/>
+<circle cx="9" cy="10" r="1.3" fill="#ffffff"/><circle cx="15" cy="10" r="1.3" fill="#ffffff"/>
+<path d="M8.8 14l2.2 1.9l3.8-3.2" fill="none" stroke="#e6c078" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

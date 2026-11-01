@@ -38,7 +38,6 @@
           <li><a href="#samples">Live example</a></li>
           <li><a href="#about">How I work</a></li>
           <li><a href="#faq">FAQ</a></li>
-          <li><a href="assessment/">Find Your Rework</a></li>
           <li class="nav-cta"><a class="btn btn-primary btn-small" href="contact/#contact-form-area"><span>Book a <span class="cta-long">free rework </span>review</span></a></li>
         </ul>
       </nav>
@@ -55,7 +54,7 @@
           <p class="hero-actions">
             <a class="btn btn-primary btn-large" href="contact/#contact-form-area">Book a free rework review</a>
           </p>
-          <p class="muted hero-note">Not sure where to start? <a href="assessment/">Find Your Rework</a>: 6 questions, about 2 minutes, no sign-up.</p>
+          <p class="muted hero-note" data-assistant-only hidden>Not sure where to start? <a href="#start" data-assistant-open>Ask the assistant</a>: describe what&rsquo;s off and it suggests where to start.</p>
           <div class="cred-strip">
             <img class="cred-avatar" src="assets/photo/jeff-avatar.jpg" width="288" height="288" alt="">
             <p><a class="cred-name" href="#about">Jeff Herson Vida</a><span class="cred-role">You work directly with me, not a sales team. 8+ years in data operations and reporting.</span></p>
@@ -105,16 +104,6 @@
             <p><strong>This week&#39;s report, checked:</strong> 12 booked, 3 waiting (each with a reason), 0 done but not invoiced.</p>
             <p>The interactive version of this example needs JavaScript.</p>
           </div>
-        </div>
-        <div class="assess-band" id="start-here">
-          <div>
-            <p class="eyebrow">Find Your Rework</p>
-            <h2 id="start-here-h">Not sure where to start?</h2>
-            <p class="lede">Use the assessment to explore whether your biggest challenge is your data and reporting or the way work gets done.</p>
-            <p><strong>It takes about 2 minutes. No sign-up required.</strong></p>
-            <p class="muted">Your answers stay in your browser and aren&#39;t sent to me unless you choose to share your result. Not the one who decides? You can copy your result and send it to your manager.</p>
-          </div>
-          <p class="assess-band-action"><a class="btn btn-primary btn-large" href="assessment/">Find Your Rework</a></p>
         </div>
       </div>
     </section>
@@ -236,7 +225,7 @@
             <li><span class="contact-label">LinkedIn</span> <a href="https://www.linkedin.com/in/jeffhersonvida" target="_blank" rel="noopener noreferrer">linkedin.com/in/jeffhersonvida</a><span class="sr-only"> (opens in a new tab)</span></li>
             <li>Based in the Philippines · Available to work remotely with teams worldwide.</li>
           </ul>
-          <p class="book-assess">Not sure which process to bring? <a href="assessment/">Find Your Rework</a> first.</p>
+          <p class="book-assess" data-assistant-only hidden>Not sure which process to bring? <a href="#start" data-assistant-open>Ask the assistant</a> first.</p>
         </aside>
       </div>
     </section>
@@ -256,8 +245,9 @@
       </div>
     </div>
   </footer>
-  <noscript><div class="container"><p class="callout callout-warn">The assessment and the booking pop-up need JavaScript. The rest of this site works without it, and you can still email me to book.</p></div></noscript>
+  <noscript><div class="container"><p class="callout callout-warn">The assistant, the assessment and the booking pop-up need JavaScript. The rest of this site works without it, and you can still email me to book.</p></div></noscript>
   <div class="mobile-cta no-print" id="mobile-cta" hidden>
+    <button type="button" class="btn btn-secondary mobile-ask" data-assistant-ask data-assistant-open data-assistant-only hidden aria-controls="ast-panel" aria-expanded="false"><img src="assets/brand/assistant-24.svg" width="22" height="22" alt=""><span>Ask</span></button>
     <a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a>
   </div>
   <script type="module" src="./src/nav.js"></script>

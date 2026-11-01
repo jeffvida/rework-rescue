@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48">
+<title>Rework Rescue assistant</title>
+<defs><clipPath id="rr-a48-clip"><circle cx="32" cy="32" r="32"/></clipPath></defs>
+<g clip-path="url(#rr-a48-clip)">
+<circle cx="32" cy="32" r="32" fill="#0f3a3a"/>
+<ellipse cx="32" cy="67" rx="22" ry="12" fill="#ffffff"/>
+</g>
+<line x1="32" y1="16" x2="32" y2="10" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+<circle cx="32" cy="8" r="3.5" fill="#ffffff"/>
+<rect x="7" y="26" width="6" height="13" rx="3" fill="#e8f1f1"/>
+<rect x="51" y="26" width="6" height="13" rx="3" fill="#e8f1f1"/>
+<rect x="12" y="16" width="40" height="34" rx="15" fill="#ffffff"/>
+<rect x="16.5" y="20.5" width="31" height="25" rx="10" fill="#0f3a3a"/>
+<path d="M22.5 29.5q3.5-4.5 7 0M34.5 29.5q3.5-4.5 7 0" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+<path d="M27 37l4 3.5l7.5-6.5" fill="none" stroke="#e6c078" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

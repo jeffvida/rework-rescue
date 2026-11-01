@@ -2,9 +2,10 @@
 
 import { mountBooking } from './booking/popup.js';
 import { mountDemo } from './demo/ui.js';
+import { mountAssistant } from './assistant/widget.js';
 
 // ---- Phone booking bar
-// Phone-only "Book a free rework review" bar (CSS shows it on narrow screens only).
+// Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
 // It appears once the hero has scrolled out of view and hides again while the closing
 // call-to-action section, the footer or any other booking button on the page is on screen,
 // so it never doubles up with them.
@@ -25,7 +26,7 @@ export function mountMobileCta() {
     bar.classList.toggle('is-shown', show);
     // Keep it out of the tab order and away from screen readers while it is off screen.
     bar.setAttribute('aria-hidden', String(!show));
-    bar.querySelector('a').tabIndex = show ? 0 : -1;
+    bar.querySelectorAll('a, button').forEach((c) => { c.tabIndex = show ? 0 : -1; });
   };
 
   new IntersectionObserver((entries) => {
@@ -45,6 +46,8 @@ export function mountMobileCta() {
 const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
 mountBooking();
+// The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
+mountAssistant();
 
 // "Find what's off" in the hero: go to the demo. The visitor starts the checks there, after reading the setup.
 document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {

@@ -1316,6 +1316,12 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .svc-more p, .svc-more li { color: #dbe6e4; font-size: 0.98rem; }
 .svc-label { font-weight: 700; color: #fff !important; margin: 0.8rem 0 0.3rem; }
 .svc-more .check-list li::before { border-color: #78c2a4; }
+.svc-step > .svc-label { margin-top: 0; }
+.svc-build { margin: 0 0 0.9rem; }
+.svc-build li { color: #e9efe9; font-size: 0.98rem; margin-bottom: 0.25rem; }
+.svc-build li::before { border-color: #78c2a4; }
+.svc-more .check-list { margin-top: 0.5rem; }
+.svc-tools { color: #cfdcda; }
 .svc-foot { margin-top: 2.6rem; padding-top: 1.4rem; border-top: 1px solid #36505a; display: grid; gap: 0.5rem; }
 .svc-foot p { margin: 0; }
 .svc-foot a { color: #fff; font-weight: 700; text-decoration-color: #78c2a4; text-underline-offset: 3px; }

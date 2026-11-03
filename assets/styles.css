@@ -15,6 +15,9 @@
   --signal: #e6c078;
   --mark-a: #2e7d72;
   --mark-b: #e6c078;
+  --svc-data: #24655c;
+  --svc-workflow: #8a6516;
+  --svc-systems: #3f5f8f;
   --focus: #0b57d0;
   --warn-bg: #fff3dc;
   --warn-line: #d9a441;
@@ -883,6 +886,8 @@ details[open] > summary .card-toggle .ct-close { display: inline; }
 @media (max-width: 40rem) {
   .mobile-cta { display: flex; gap: 0.5rem; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom)); background: rgba(248, 247, 237, 0.97); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgba(18, 38, 43, 0.08); transform: translateY(110%); transition: transform 0.25s ease; }
   .mobile-cta.is-shown { transform: none; }
+  /* Keyboard focus and jump links stop above the bar instead of under it */
+  html { scroll-padding-bottom: 5rem; }
   .mobile-cta .btn { flex: 1 1 auto; }
   .mobile-cta .mobile-ask { flex: 0 0 auto; gap: 0.4rem; padding-left: 0.9rem; padding-right: 1rem; }
   .mobile-cta .mobile-ask[hidden] { display: none; }
@@ -1299,35 +1304,39 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .section-dark { background: var(--ink); color: #e9efe9; }
 .section-dark h2, .section-dark h3 { color: #fff; }
 .section-dark .lede { color: #cfdcda; }
+/* One colour per service, shared by the service cards and the live example's step tags */
+.svc-data { --svc: var(--svc-data); }
+.svc-workflow { --svc: var(--svc-workflow); }
+.svc-systems { --svc: var(--svc-systems); }
 .svc-flow { list-style: none; padding: 0; margin: 2.4rem 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; position: relative; }
-.svc-flow::before { content: ""; position: absolute; left: 0.7rem; right: 0; top: 0.7rem; height: 2px; background: linear-gradient(90deg, #78c2a4, #78c2a4 92%, transparent); }
+.svc-flow::before { content: ""; position: absolute; left: 0.7rem; right: 0; top: 0.7rem; height: 2px; background: linear-gradient(90deg, var(--svc-data), var(--svc-workflow) 50%, var(--svc-systems) 92%, transparent); }
 .svc-step { position: relative; padding-top: 2.4rem; }
-.svc-step::before { content: ""; position: absolute; left: 0; top: 0; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--ink); border: 3px solid #78c2a4; box-sizing: border-box; }
-.svc-step:not(:last-child)::after { content: ""; position: absolute; right: -1.15rem; top: 0.38rem; border: 6px solid transparent; border-left: 9px solid #78c2a4; border-right: 0; }
+.svc-step::before { content: ""; position: absolute; left: 0; top: 0; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--tint); border: 3px solid var(--svc, var(--teal)); box-sizing: border-box; }
+.svc-step:not(:last-child)::after { content: ""; position: absolute; right: -1.15rem; top: 0.38rem; border: 6px solid transparent; border-left: 9px solid var(--line); border-right: 0; }
 .svc-step h3 { font-size: 1.45rem; margin-bottom: 0.4rem; }
-.svc-when { font-size: 1.1rem; line-height: 1.4; color: #fff; margin: 0 0 0.8rem; }
-.svc-outcome { color: #cfdcda; font-size: 0.98rem; margin: 0 0 0.9rem; }
-.svc-outcome strong { color: #fff; }
-.svc-more summary { cursor: pointer; font-weight: 700; color: #78c2a4; list-style: none; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0; }
+.svc-when { font-size: 1.1rem; line-height: 1.4; color: var(--ink); margin: 0 0 0.8rem; }
+.svc-outcome { color: var(--muted); font-size: 0.98rem; margin: 0 0 0.9rem; }
+.svc-outcome strong { color: var(--ink); }
+.svc-more summary { cursor: pointer; font-weight: 700; color: #24655c; list-style: none; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0; }
 .svc-more summary::-webkit-details-marker { display: none; }
-.svc-more summary::before { content: "+"; display: inline-flex; align-items: center; justify-content: center; width: 1.3rem; height: 1.3rem; border: 2px solid #78c2a4; border-radius: 50%; font-size: 0.95rem; line-height: 1; }
+.svc-more summary::before { content: "+"; display: inline-flex; align-items: center; justify-content: center; width: 1.3rem; height: 1.3rem; border: 2px solid var(--teal); border-radius: 50%; font-size: 0.95rem; line-height: 1; }
 .svc-more[open] summary::before { content: "\2212"; }
-.svc-more summary:focus-visible { outline: 3px solid #fff; outline-offset: 3px; border-radius: 4px; }
-.svc-more p, .svc-more li { color: #dbe6e4; font-size: 0.98rem; }
-.svc-label { font-weight: 700; color: #fff !important; margin: 0.8rem 0 0.3rem; }
-.svc-more .check-list li::before { border-color: #78c2a4; }
+.svc-more summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+.svc-more p, .svc-more li { color: var(--ink); font-size: 0.98rem; }
+.svc-label { font-weight: 700; color: var(--ink) !important; margin: 0.8rem 0 0.3rem; }
+.svc-more .check-list li::before { border-color: var(--svc, var(--teal)); }
 .svc-step > .svc-label { margin-top: 0; }
 .svc-build { margin: 0 0 0.9rem; }
-.svc-build li { color: #e9efe9; font-size: 0.98rem; margin-bottom: 0.25rem; }
-.svc-build li::before { border-color: #78c2a4; }
+.svc-build li { color: var(--ink); font-size: 0.98rem; margin-bottom: 0.25rem; }
+.svc-build li::before { border-color: var(--svc, var(--teal)); }
 .svc-more .check-list { margin-top: 0.5rem; }
-.svc-tools { color: #cfdcda; }
-.svc-foot { margin-top: 2.6rem; padding-top: 1.4rem; border-top: 1px solid #36505a; display: grid; gap: 0.5rem; }
+.svc-tools { color: var(--ink); }
+.svc-foot { margin-top: 2.6rem; padding-top: 1.4rem; border-top: 1px solid var(--line); display: grid; gap: 0.5rem; }
 .svc-foot p { margin: 0; }
-.svc-foot a { color: #fff; font-weight: 700; text-decoration-color: #78c2a4; text-underline-offset: 3px; }
-.svc-foot strong { color: #fff; }
-.svc-small { color: #9fb3b6; font-size: 0.92rem; }
-.svc-small a { font-weight: 400; color: #cfdcda; }
+.svc-foot a { color: var(--teal-dark); font-weight: 700; text-decoration-color: var(--teal); text-underline-offset: 3px; }
+.svc-foot strong { color: var(--ink); }
+.svc-small { color: var(--muted); font-size: 0.92rem; }
+.svc-small a { font-weight: 400; color: var(--teal-dark); }
 
 /* Examples */
 .ws-reliable-line { margin: 1.6rem 0 0; font-weight: 600; color: var(--ink); max-width: 46rem; }
@@ -1353,7 +1362,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 @media (max-width: 56rem) {
   .pain-tiles { grid-template-columns: minmax(0, 1fr); }
   .svc-flow { grid-template-columns: minmax(0, 1fr); gap: 2.2rem; }
-  .svc-flow::before { left: 0.6rem; right: auto; top: 0.7rem; bottom: 0.7rem; width: 2px; height: auto; background: #78c2a4; }
+  .svc-flow::before { left: 0.6rem; right: auto; top: 0.7rem; bottom: 0.7rem; width: 2px; height: auto; background: linear-gradient(180deg, var(--svc-data), var(--svc-workflow), var(--svc-systems)); }
   .svc-step { padding: 0 0 0 2.4rem; }
   .svc-step:not(:last-child)::after { display: none; }
   .handover-list { columns: 1; }
@@ -1501,6 +1510,12 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-s-step { font-weight: 700; }
 .dm-strip li:not(.is-on) .dm-s-step { color: var(--muted); }
 .dm-strip li.is-on .dm-s-svc { color: var(--teal); }
+/* Service tag on each step, in that service's colour */
+.dm-strip .dm-s-svc { justify-self: start; padding: 0.05rem 0.5rem; border-radius: 999px; border: 1px solid currentColor; color: var(--svc, var(--muted)); background: var(--card); }
+.dm-strip li.is-on { border-bottom-color: var(--svc, var(--teal)); }
+.dm-strip li.is-on::before { border-color: var(--svc, var(--teal)); background: var(--svc, var(--teal)); }
+.dm-strip li.is-on .dm-s-svc { color: var(--svc, var(--teal)); }
+.dm-strip li.is-done::before { border-color: var(--svc, var(--teal)); color: var(--svc, var(--teal)); }
 .dm-strip li { display: grid; grid-template-columns: auto 1fr; column-gap: 0.6rem; }
 .dm-strip li::before { grid-row: span 2; align-self: center; }
 .dm-svc { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--muted); }

@@ -20,6 +20,8 @@ const STAGES = [
   ['Workflow Rework', 'Sort out the problems'],
   ['Systems Rework', 'Fix the cause'],
 ];
+// Matches the service cards' colours (see .svc-data / .svc-workflow / .svc-systems in styles.css).
+const SVC_CLASS = ['svc-data', 'svc-workflow', 'svc-systems'];
 const SERVICE_LINE = [
   'First, make the information trustworthy.',
   'Next, turn each problem into a decision.',
@@ -79,7 +81,7 @@ export function mountDemo(root) {
 
   root.innerHTML = `
     <div class="dm">
-      <ol class="dm-strip">${STAGES.map(([svc, step]) => `<li><span class="dm-s-svc">${esc(svc)}</span><span class="dm-s-step">${esc(step)}</span></li>`).join('')}</ol>
+      <ol class="dm-strip">${STAGES.map(([svc, step], i) => `<li class="${SVC_CLASS[i]}"><span class="dm-s-svc">${esc(svc)}</span><span class="dm-s-step">${esc(step)}</span></li>`).join('')}</ol>
       <div class="dm-grid">
         <div class="dm-main"><div class="dm-stage" tabindex="-1"></div>
           <details class="dm-all"><summary>See all 18 records</summary><div class="dm-all-body"></div></details>

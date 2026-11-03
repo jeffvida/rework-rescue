@@ -14,7 +14,8 @@ import { mountAssistant } from './assistant/widget.js';
 export function mountMobileCta() {
   const bar = document.getElementById('mobile-cta');
   const hero = document.querySelector('.hero');
-  const end = [document.getElementById('start'), document.querySelector('.site-footer'),
+  // Also hidden while the live example is on screen, so the bar never sits over its buttons.
+  const end = [document.getElementById('start'), document.getElementById('samples'), document.querySelector('.site-footer'),
     ...document.querySelectorAll('main .btn[href*="contact-form-area"], main .btn[data-book]')].filter(Boolean);
   if (!bar || !hero || typeof IntersectionObserver !== 'function') return;
 

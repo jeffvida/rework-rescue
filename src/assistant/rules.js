@@ -55,7 +55,7 @@ Works with exports from accounting, CRM and job-management systems, in Excel or 
 The free rework review: 30 minutes by video call (Google Meet), about one report, check, workflow, page or tool the visitor chooses. Jeff helps map the current process, find the main source of rework and identify a practical next step. If it's worth fixing, he outlines a scope and estimate. No obligation, not a sales pitch.
 How to book: the visitor picks a time with the "Book a free rework review" button on this page.
 How work runs: a written scope (what will be built, price, timeline, payment) is agreed before any work starts. Most first projects focus on one report, check, workflow or page. Jeff tests on the client's own files, hands over a run guide and a handover call, and fixes anything that doesn't work as agreed in the first 30 days at no extra cost. Ongoing support is optional.
-Who: Jeff Herson Vida, Data & Operations Specialist, 8+ years in data operations and reporting (Excel, Power Query, VBA, Python). Based in the Philippines, works remotely with teams worldwide. Clients work directly with him.
+Who: Jeff Herson Vida, Data, Reporting & AI Automation Specialist, 8+ years in data operations and reporting (Excel, Power Query, VBA, Python). Based in the Philippines, works remotely with teams worldwide. Clients work directly with him.
 Confidential data: ordinary business information is fine through an agreed route; he will sign a reasonable NDA; sensitive or regulated information needs a review of safeguards first.
 AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
 Prices and timelines depend on the scope and are discussed in the free review.`;
@@ -63,7 +63,7 @@ Prices and timelines depend on the scope and are discussed in the free review.`;
 // ---- The fixed brief sent to the model with every message
 export function assistantBrief(questionsAsked) {
   return `You are the Rework Rescue assistant on Jeff Herson Vida's website.
-Jeff is a Data & Operations Specialist who fixes reports, workflows and connected systems that cause rework for small businesses.
+Jeff is a Data, Reporting & AI Automation Specialist who fixes reports, workflows and connected systems that cause rework for small businesses.
 
 Your job: help the visitor describe ONE report or process that feels off, suggest which service fits, and invite them to a free 30-minute rework review.
 

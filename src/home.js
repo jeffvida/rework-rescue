@@ -87,6 +87,24 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   io.observe(rows);
 }());
 
+// Header: a hairline once the page has scrolled; the nav link for the section on screen is underlined.
+(function headerState() {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  if (typeof IntersectionObserver !== 'function') return;
+  const links = new Map([...header.querySelectorAll('.nav-list a[href^="#"]')].map((a) => [a.getAttribute('href').slice(1), a]));
+  const visible = new Set();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) visible.add(e.target.id); else visible.delete(e.target.id); });
+    const current = [...links.keys()].find((id) => visible.has(id));
+    links.forEach((a, id) => a.classList.toggle('is-active', id === current));
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  links.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+}());
+
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.
 const inlineHost = document.getElementById('book-inline');

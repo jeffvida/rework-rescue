@@ -1770,3 +1770,101 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .mobile-cta .mobile-ask span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media (max-width: 21rem) { .mobile-cta .mobile-book .cta-long { display: none; } }
+
+/* ==== Editorial pass (phases 1-2, Nov 2026) ====
+   A type scale and spacing system on a 12-column logic (7/5, 5/7, 4/8 splits), a rhythm of
+   statement / evidence / conversation sections, and boxes only where something is an object
+   (report card, demo window, booking calendar). */
+:root {
+  --fs-display: clamp(2.4rem, 5.4vw, 4.5rem);
+  --fs-statement: clamp(1.75rem, 3.2vw, 2.5rem);
+  --fs-h2: clamp(1.625rem, 2.4vw, 2rem);
+  --fs-h3: clamp(1.25rem, 1.8vw, 1.5rem);
+  --fs-num: clamp(2.25rem, 4vw, 3.5rem);
+  --fs-lede: clamp(1.125rem, 1.4vw, 1.25rem);
+  --space-section: clamp(4rem, 8vw, 7rem);
+  --grid-gap: clamp(1.5rem, 3vw, 3rem);
+  --grid-paper: linear-gradient(rgba(15, 58, 58, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 58, 58, 0.045) 1px, transparent 1px);
+}
+.container { max-width: 75rem; padding: 0 clamp(1rem, 3vw, 2rem); }
+.lede { font-size: var(--fs-lede); line-height: 1.5; max-width: 34em; }
+.section > .container > h2 { font-size: var(--fs-h2); }
+.section { padding: var(--space-section) 0; }
+
+/* Navigation: part of the page until you scroll, then a hairline and a light blur */
+.site-header { background: rgba(248, 247, 237, 0.94); border-bottom-color: transparent; transition: border-color 0.2s ease, background-color 0.2s ease; }
+.site-header.is-scrolled { border-bottom-color: var(--line); background: rgba(248, 247, 237, 0.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.nav-list a:not(.btn) { font-weight: 500; text-underline-offset: 0.45em; text-decoration-thickness: 2px; }
+.nav-list a.is-active:not(.btn) { text-decoration: underline; text-decoration-color: var(--teal); }
+
+/* Hero: asymmetric 7/5, no gradient; grid paper starts behind the report card */
+.hero { position: relative; background: var(--paper); border-bottom: 0; padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(3rem, 6vw, 5rem); overflow: hidden; }
+.hero::before { content: ""; position: absolute; right: 0; bottom: 0; width: 44%; height: 62%; background-color: #e9efeb; background-image: var(--grid-paper); background-size: 28px 28px; border-top-left-radius: 28px; }
+.hero > .container { position: relative; z-index: 1; }
+.hero h1 { font-size: var(--fs-display); line-height: 1.02; letter-spacing: -0.035em; }
+@media (min-width: 52.01rem) { .hero-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--grid-gap); } }
+.hero-sub { font-size: var(--fs-lede); }
+@media (max-width: 52rem) {
+  .hero::before { width: 100%; height: 36%; border-radius: 0; }
+}
+
+/* Sound familiar? A statement: numbered problems in service colours, the bridge line set large */
+.section#fit { padding: var(--space-section) 0 calc(var(--space-section) * 0.8); }
+.pain-tiles { counter-reset: pain; gap: var(--grid-gap); }
+.pain-tiles li { counter-increment: pain; border-left: 0; padding: 1rem 0 0; border-top: 1px solid var(--line); }
+.pain-tiles li::before { content: "0" counter(pain); display: block; font-family: var(--display); font-weight: 800; font-size: var(--fs-num); line-height: 1; letter-spacing: -0.02em; margin-bottom: 0.7rem; color: var(--svc-data); }
+.pain-tiles li:nth-child(2)::before { color: var(--svc-workflow); }
+.pain-tiles li:nth-child(3)::before { color: var(--svc-systems); }
+.pain-bridge { margin: clamp(2.5rem, 5vw, 4rem) 0 0; font-family: var(--display); font-size: var(--fs-statement); font-weight: 800; line-height: 1.15; letter-spacing: -0.025em; max-width: 22em; }
+.pain-bridge a { color: var(--teal); text-decoration-thickness: 3px; text-underline-offset: 0.15em; }
+
+/* Live example: lede and the made-up-data note side by side */
+.section.demo-section { padding: var(--space-section) 0; }
+.demo-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--grid-gap); align-items: end; }
+.demo-head .lede { margin: 0; }
+.demo-head .disclosure { margin: 0; }
+@media (max-width: 52rem) { .demo-head { grid-template-columns: minmax(0, 1fr); gap: 1rem; } }
+
+/* Services: numbered editorial rows, no boxes */
+.section-tint#services { background: var(--paper); }
+.svc-flow { counter-reset: svc; display: block; margin-top: clamp(2rem, 4vw, 3rem); }
+.svc-step { counter-increment: svc; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--grid-gap); padding: clamp(1.75rem, 3vw, 2.5rem) 0; background: none; border: 0; border-top: 2px solid var(--svc); border-radius: 0; box-shadow: none; }
+.svc-step:hover { transform: none; box-shadow: none; }
+.svc-head::before { content: "0" counter(svc); display: block; font-family: var(--display); font-weight: 800; font-size: var(--fs-num); line-height: 1; letter-spacing: -0.02em; color: var(--svc); margin-bottom: 0.8rem; }
+.svc-step h3 { font-size: var(--fs-h3); }
+.svc-body .svc-label { margin-top: 0.2rem; }
+@media (min-width: 52.01rem) { .svc-body .svc-build { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; } }
+@media (max-width: 52rem) {
+  .svc-step { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; padding: 1.6rem 0; }
+}
+.svc-foot { border-top: 2px solid var(--line); margin-top: 0; }
+
+/* About: the conversation section, on the warm tint */
+.section#about { background: var(--tint); }
+@media (min-width: 52.01rem) { .about-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--grid-gap); } }
+.about-copy > p { max-width: 38em; }
+
+/* FAQ: heading and booking button on the left, questions on the right */
+.section-tint#faq { background: var(--paper); }
+.faq-wrap { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--grid-gap); align-items: start; }
+.faq-wrap > * { max-width: none; }
+.faq-side { position: sticky; top: 6rem; }
+.faq-side h2 { font-size: var(--fs-h2); position: relative; padding-top: 0.9rem; }
+.faq-side h2::before { content: ""; position: absolute; top: 0; left: 0; width: 2.6rem; height: 4px; border-radius: 2px; background: var(--teal); }
+@media (max-width: 52rem) {
+  .faq-wrap { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .faq-side { position: static; }
+  .faq-book { display: none; }
+}
+
+/* Closing: the headline across the full width, then calendar and contact */
+.book-head { margin-bottom: clamp(1.75rem, 3vw, 2.5rem); }
+.book-head h2 { font-size: var(--fs-statement); line-height: 1.1; letter-spacing: -0.025em; max-width: 18em; }
+.book-head .lede { max-width: 40em; }
+.book-head h2, .pain-bridge, .hero h1 { text-wrap: balance; }
+.book-head h2 { max-width: 24em; }
+@media (max-width: 52rem) {
+  .pain-tiles li { display: grid; grid-template-columns: 3rem minmax(0, 1fr); column-gap: 0.75rem; padding-top: 1.1rem; }
+  .pain-tiles li::before { grid-row: 1 / span 2; font-size: 2rem; margin: 0; }
+  .svc-head::before { font-size: 2.25rem; margin-bottom: 0.5rem; }
+}

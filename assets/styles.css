@@ -2040,3 +2040,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .proj-list { margin: 0 0 0.9rem; }
 .proj-list li { font-size: 0.97rem; }
 .ph { margin-top: auto !important; padding: 0.6rem 0.75rem; border: 1.5px dashed var(--warn-line); border-radius: 8px; background: var(--warn-bg); color: #5b3a00; font-size: 0.9rem; }
+
+/* The hero card's stacked sheets must never push the page sideways (seen at 900-1100 px) */
+.hero { overflow-x: clip; }

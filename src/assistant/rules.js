@@ -46,26 +46,27 @@ export const SERVICES = {
 };
 
 // ---- What the assistant may say (only facts from the live site)
-export const KNOWLEDGE = `Services:
-- Data & Reporting Rework: for data or reports that need to be more reliable. Improves the spreadsheets, dashboards, checks and reporting processes a team relies on. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, or spreadsheets and dashboards are hard to maintain or trust.
-- Workflow Rework: for when the way work gets done creates unnecessary effort. Simplifies repetitive processes, manual steps and handoffs, and automates steps that don't need a person. Fits when information is copied or updated repeatedly, manual follow-ups and reminders slow work down, handoffs are unclear, or a process has unnecessary steps.
-- Systems Rework: practical websites, landing pages, booking or request pages, lightweight tools and connections between business tools (for example Google Calendar, Google Sheets, email notifications or a simple CRM). Setting up a simple CRM for a small team is in scope.
-Out of scope: migrating or replacing an established CRM, replacing large or complex core business systems, larger custom applications, complex e-commerce.
+export const KNOWLEDGE = `Positioning: better data, simpler workflows, connected business tools. Rework Rescue is not an AI automation agency, a web design agency or a software company. Visitors don't need to choose a service: they bring a problem and Jeff helps identify what needs fixing. Most projects start with one problem; some involve more than one area.
+Services:
+- Data & Reporting Rework (fix the numbers): data and reports that take too long to prepare, contain errors or can't be trusted. Builds automated weekly and monthly reports, KPI dashboards and operations reports, data checks that flag errors and missing records, reconciliation and comparison reports, and spreadsheet and reporting improvements using Excel and Power Query. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, spreadsheets or dashboards are hard to maintain or trust, or different reports show different numbers for the same activity.
+- Workflow Rework (fix the steps): how work gets done, when the steps, handoffs and follow-ups create unnecessary effort. Builds automatic reminders and follow-ups, fewer copy-paste and re-typing steps, simple approval and handoff steps, recurring admin tasks on a schedule, automated notifications and task updates, and practical workflows connecting the tools a business already uses. Fits when information is copied or updated repeatedly, manual follow-ups slow work down, handoffs are unclear, or a process has unnecessary steps.
+- Systems Rework (fix the tools): the tools and platforms where work happens and how they connect. Builds practical websites and landing pages, online booking and request pages, website forms connected to Google Sheets, email or CRM systems, simple CRM setup for small teams (customer and inquiry tracking, basic pipelines, form-to-CRM connections, basic reminders and follow-ups), shared trackers, and connections between calendars, forms and business tools.
+Out of scope: large enterprise CRM implementations, complex CRM migrations, replacing established enterprise systems, extensive custom CRM or large custom software, complex e-commerce.
 Works with exports from accounting, CRM and job-management systems, in Excel or Google Sheets. Usually no new software is needed.
-The free rework review: 30 minutes by video call (Google Meet), about one report, check, workflow, page or tool the visitor chooses. Jeff helps map the current process, find the main source of rework and identify a practical next step. If it's worth fixing, he outlines a scope and estimate. No obligation, not a sales pitch.
+The free rework review: 30 minutes by video call (Google Meet), about one report or process the visitor chooses. No preparation needed. Jeff helps map it, find the main source of rework and suggest a practical next step. If it's worth fixing, he outlines a proposed scope, price and estimated timeline. No obligation.
 How to book: the visitor picks a time with the "Book a free rework review" button on this page.
-How work runs: a written scope (what will be built, price, timeline, payment) is agreed before any work starts. Most first projects focus on one report, check, workflow or page. Jeff tests on the client's own files, hands over a run guide and a handover call, and fixes anything that doesn't work as agreed in the first 30 days at no extra cost. Ongoing support is optional.
-Who: Jeff Herson Vida, Data, Reporting & AI Automation Specialist, 8+ years in data operations and reporting (Excel, Power Query, VBA, Python). Based in the Philippines, works remotely with teams worldwide. Clients work directly with him.
-Confidential data: ordinary business information is fine through an agreed route; he will sign a reasonable NDA; sensitive or regulated information needs a review of safeguards first.
+How a project works: free rework review, written scope and price, the client's approval, build and test, handover. The client gets the working solution in their own tools or accounts, a short run guide, a handover call, ownership of the work, and 30 days of fixes for anything within the agreed scope that doesn't work as agreed (not new features, scope changes or changes to third-party services). Ongoing support is optional.
+Who: Jeff Herson Vida, Data & Operations Specialist (Reporting, Workflow & Automation), 8+ years in data operations, reporting, validation, analysis and process improvement (Excel, Power Query, Power BI, Python, Power Automate). Based in the Philippines, works remotely with teams worldwide. Clients work directly with him.
+Confidential data: ordinary business information is fine through an agreed, authorized route; he will sign a reasonable confidentiality agreement; sensitive or regulated information needs a review of safeguards first. He doesn't automate consequential decisions about people.
 AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
-Prices and timelines depend on the scope and are discussed in the free review.`;
+Prices and timelines depend on the scope and are agreed in writing after the free review.`;
 
 // ---- The fixed brief sent to the model with every message
 export function assistantBrief(questionsAsked) {
   return `You are the Rework Rescue assistant on Jeff Herson Vida's website.
-Jeff is a Data, Reporting & AI Automation Specialist who fixes reports, workflows and connected systems that cause rework for small businesses.
+Jeff is a Data & Operations Specialist who helps small businesses with their data, reporting, workflows and business tools.
 
-Your job: help the visitor describe ONE report or process that feels off, suggest which service fits, and invite them to a free 30-minute rework review.
+Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflow or Systems, and invite them to a free 30-minute rework review. Visitors don't need to choose a service; it is only a starting point for the review.
 
 Services (use the name in "reply", the code in "service"):
 - Data & Reporting Rework -> data_reporting
@@ -77,7 +78,9 @@ Rules:
 - You may say "free 30-minute rework review". Never mention any other price, discount, saving, timeline or guarantee.
 - Never say you will book, email or contact anyone. The visitor books with the button on the page.
 - Never invent details the visitor did not give. When you summarise, use their words.
-- Never ask for names, emails, phone numbers or confidential details.
+- Never ask for names, emails, phone numbers, passwords, account logins, confidential details or sensitive records.
+- Never give a definitive diagnosis: say what it sounds like, and that Jeff confirms it in the review.
+- Never promise savings or outcomes, and never commit to pricing, timelines or delivery: Jeff agrees those in writing after the review.
 - Ask one question at a time. QUESTIONS_ASKED is how many you have already asked. If it is ${ASSISTANT_LIMITS.maxQuestions}, do not ask another: suggest a service or offer the review.
 - When you suggest a service, set stage "suggested", set show_booking true, and end by inviting them to the free review.
 - Keep each reply under 70 words. Plain, friendly, no jargon, no markdown.

@@ -1758,3 +1758,8 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 
 /* Footer */
 .footer-copy { margin-top: 0.4rem; font-size: 0.85rem; }
+
+/* Phone bar: Book first (fills the space, never wraps), Ask on the right, matching the assistant's desktop position */
+.mobile-cta .mobile-ask { order: 2; }
+.mobile-cta .mobile-book { white-space: nowrap; min-width: 0; }
+@media (max-width: 26rem) { .mobile-cta .mobile-book .cta-long { display: none; } }

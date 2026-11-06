@@ -60,3 +60,10 @@ try {
     });
   }
 } catch { /* never break navigation */ }
+
+// Header: part of the page at the top, a hairline under it once the page has scrolled.
+if (header) {
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}

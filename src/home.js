@@ -3,6 +3,8 @@
 import { mountBooking } from './booking/popup.js';
 import { mountDemo } from './demo/ui.js';
 import { mountAssistant } from './assistant/widget.js';
+import { mountMotion } from './motion.js';
+import { mountServices } from './services.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -46,6 +48,8 @@ export function mountMobileCta() {
 // ---- Start the homepage
 const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
+mountServices();
+mountMotion();
 mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();

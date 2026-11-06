@@ -1762,4 +1762,11 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 /* Phone bar: Book first (fills the space, never wraps), Ask on the right, matching the assistant's desktop position */
 .mobile-cta .mobile-ask { order: 2; }
 .mobile-cta .mobile-book { white-space: nowrap; min-width: 0; }
-@media (max-width: 26rem) { .mobile-cta .mobile-book .cta-long { display: none; } }
+/* Narrow phones: Ask shrinks to its icon so the full "Book a free rework review" still fits on one line */
+@media (max-width: 26rem) {
+  .mobile-cta { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .mobile-cta .mobile-book { padding-left: 0.9rem; padding-right: 0.9rem; font-size: 0.97rem; }
+  .mobile-cta .mobile-ask { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .mobile-cta .mobile-ask span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media (max-width: 21rem) { .mobile-cta .mobile-book .cta-long { display: none; } }

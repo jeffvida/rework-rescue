@@ -9,7 +9,8 @@ import { SITE } from '../../site-config.js';
 import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L } from './rules.js';
 
 const INVITE_KEY = 'rr-assistant-invite-seen';
-const INVITE_DELAY_MS = 20000;
+const INVITE_DELAY_MS = 45000;
+const INVITE_SHOW_MS = 8000;
 
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -180,10 +181,14 @@ export function mountAssistant({ base = './' } = {}) {
     setOpen(true, t);
   });
 
-  // ---- Invitation: once per visit, after the hero has scrolled away or after 20 seconds. Never opens the chat itself.
+  // ---- Invitation: once per visit, after the live example (or, on pages without it, the hero) has been scrolled past,
+  // or after 45 seconds. It hides itself after 8 seconds unless the visitor is pointing at it or focused in it,
+  // so it never sits over the content for long. Never opens the chat itself.
   let inviteTimer = null;
+  let inviteHideTimer = null;
   function hideInvite(seen) {
     if (inviteTimer) { clearTimeout(inviteTimer); inviteTimer = null; }
+    if (inviteHideTimer) { clearTimeout(inviteHideTimer); inviteHideTimer = null; }
     invite.hidden = true;
     dock.classList.remove('has-invite');
     if (seen) session.set(INVITE_KEY, '1');
@@ -194,18 +199,24 @@ export function mountAssistant({ base = './' } = {}) {
     invite.hidden = false;
     dock.classList.add('has-invite');
     if (!reduceMotion()) dock.classList.add('ast-animate');
+    const autoHide = () => {
+      inviteHideTimer = setTimeout(() => {
+        if (invite.matches(':hover') || invite.contains(document.activeElement)) autoHide(); else hideInvite(false);
+      }, INVITE_SHOW_MS);
+    };
+    autoHide();
   }
   inviteText.addEventListener('click', () => setOpen(true, fab));
   inviteClose.addEventListener('click', () => hideInvite(true));
   if (!session.get(INVITE_KEY)) {
     inviteTimer = setTimeout(showInvite, INVITE_DELAY_MS);
-    const hero = document.querySelector('.hero');
-    if (hero && typeof IntersectionObserver === 'function') {
-      let seenHero = false;
+    const mark = document.getElementById('samples') || document.querySelector('.hero');
+    if (mark && typeof IntersectionObserver === 'function') {
       const io = new IntersectionObserver((entries) => {
-        entries.forEach((en) => { if (en.isIntersecting) seenHero = true; else if (seenHero) { showInvite(); io.disconnect(); } });
+        // Scrolled past = no longer on screen and above the viewport.
+        entries.forEach((en) => { if (!en.isIntersecting && en.boundingClientRect.bottom < 0) { showInvite(); io.disconnect(); } });
       });
-      io.observe(hero);
+      io.observe(mark);
     }
   }
 

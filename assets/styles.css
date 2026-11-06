@@ -1721,3 +1721,40 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 
 /* Booking calendar: lifted off the dark section */
 .cta-section .bk.bk-inline { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18), 0 24px 48px -12px rgba(0, 0, 0, 0.45); }
+
+/* ==== Visual pass, part 2 ==== */
+
+/* Amber is kept for "something needs attention"; section heading bars switch to teal */
+.section > .container > h2::before { background: var(--teal); }
+
+/* Sound familiar? Each problem carries the colour of the service that fixes it */
+.pain-tiles li:nth-child(1) { border-left-color: var(--svc-data); }
+.pain-tiles li:nth-child(2) { border-left-color: var(--svc-workflow); }
+.pain-tiles li:nth-child(3) { border-left-color: var(--svc-systems); }
+
+/* Services as three cards with a coloured top edge (replaces the dots and connecting line) */
+.svc-flow { gap: 1.5rem; align-items: stretch; }
+.svc-flow::before, .svc-step::before, .svc-step:not(:last-child)::after { display: none; }
+.svc-step { padding: 1.5rem 1.4rem 1.2rem; background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--svc); border-radius: 14px; box-shadow: var(--shadow); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.svc-step:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(18, 38, 43, 0.06), 0 14px 28px -10px rgba(18, 38, 43, 0.18); }
+.svc-step h3 { color: var(--svc); }
+@media (max-width: 56rem) {
+  .svc-flow { gap: 1.2rem; }
+  .svc-step { padding: 1.3rem 1.2rem 1rem; }
+}
+
+/* Section rhythm: the FAQ and Sound familiar? sit tighter so the big stages stand out */
+.section#fit { padding: 3rem 0 2.6rem; }
+.section#faq { padding: 2.8rem 0; }
+
+/* How I work steps: a compact numbered list on phones */
+@media (max-width: 40rem) {
+  .steps-row { gap: 0.4rem; }
+  .steps-row li { display: grid; grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.85rem; padding: 0.85rem 0 0.4rem; border-top-width: 1px; border-top-color: var(--line); }
+  .steps-row li::before { grid-row: 1 / span 2; width: 2rem; height: 2rem; margin: 0; font-size: 0.9rem; box-shadow: none; }
+  .steps-row li h3 { font-size: 1.05rem; margin: 0.2rem 0 0.2rem; }
+  .steps-row li p { margin: 0; font-size: 0.95rem; }
+}
+
+/* Footer */
+.footer-copy { margin-top: 0.4rem; font-size: 0.85rem; }

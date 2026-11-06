@@ -1662,3 +1662,62 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .ast-form { padding-bottom: calc(0.4rem + env(safe-area-inset-bottom)); }
 }
 @media print { .ast-dock, .ast-panel { display: none !important; } }
+
+/* ==== Visual pass (Nov 2026): stronger hero, the demo as the main stage, real depth on key cards ==== */
+:root {
+  --shadow-lift: 0 1px 2px rgba(18, 38, 43, 0.06), 0 12px 24px -8px rgba(18, 38, 43, 0.14), 0 34px 64px -20px rgba(18, 38, 43, 0.22);
+}
+
+/* Hero: bigger headline */
+.hero h1 { font-size: clamp(2.1rem, 4.6vw, 3.45rem); line-height: 1.05; letter-spacing: -0.03em; }
+
+/* Hero report card: a real sheet on a small stack, tilted slightly on wide screens */
+.hero-preview.teaser { position: relative; isolation: isolate; }
+.hero-preview.teaser::before, .hero-preview.teaser::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+.hero-preview.teaser::before { transform: rotate(1.6deg) translateY(5px); opacity: 0.75; }
+.hero-preview.teaser::after { transform: rotate(3.2deg) translateY(10px); opacity: 0.45; }
+@media (min-width: 52.01rem) {
+  .hero-preview.teaser::before { transform: rotate(2.2deg) translate(6px, 4px); }
+  .hero-preview.teaser::after { transform: rotate(4.6deg) translate(12px, 10px); }
+}
+.tz-card { position: relative; box-shadow: var(--shadow-lift); transition: transform 0.35s ease; }
+@media (min-width: 52.01rem) {
+  .tz-card { transform: rotate(-1.4deg); }
+  .hero-preview.teaser:hover .tz-card, .tz-card:focus-within { transform: rotate(0deg); }
+}
+
+/* One-time check on load: the numbers count up (src/home.js), a check sweeps the rows, then the suspicious 0 is marked */
+.tz-rows { position: relative; overflow: hidden; }
+.tz-rows::after { content: ""; position: absolute; left: 0; right: 0; height: 40%; top: 100%; opacity: 0; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(46, 125, 114, 0.18), transparent); }
+.tz-live .tz-rows::after { animation: hp-sweep 1s ease-in-out 1s both; }
+.tz-rows li.tz-suspect { position: relative; margin: 0 -0.6rem; padding-left: 0.6rem; padding-right: 2.4rem; border-radius: 8px; background: var(--warn-bg); }
+.tz-live .tz-rows li.tz-suspect { animation: tz-mark 0.5s ease-out 2s both; }
+.tz-q { position: absolute; right: 0.5rem; top: 50%; width: 1.45rem; height: 1.45rem; margin-top: -0.72rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--signal); color: var(--ink); font-family: var(--display); font-weight: 800; font-size: 0.95rem; line-height: 1; }
+.tz-live .tz-q { animation: hp-pop 0.3s ease-out 2.1s both, tz-ping 1.3s ease-out 2.4s 2; }
+@keyframes tz-mark { from { background-color: transparent; } to { background-color: var(--warn-bg); } }
+@keyframes tz-ping { 0% { box-shadow: 0 0 0 0 rgba(230, 192, 120, 0.7); } 100% { box-shadow: 0 0 0 12px rgba(230, 192, 120, 0); } }
+
+/* The live example gets its own stage: a quiet grid background (like a sheet) and more room */
+.section.demo-section { padding: 4.5rem 0 5rem; background-color: #e9efeb; background-image: linear-gradient(rgba(15, 58, 58, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 58, 58, 0.045) 1px, transparent 1px); background-size: 28px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.demo-section .disclosure { margin-bottom: 0; }
+
+/* ...framed as an app window */
+.demo-window { margin-top: 1.8rem; border-radius: 16px; background: var(--card); box-shadow: var(--shadow-lift); }
+.demo-window-bar { display: flex; align-items: center; gap: 0.9rem; padding: 0.65rem 1rem; background: var(--ink); color: #cfdcda; border-radius: 16px 16px 0 0; font-size: 0.85rem; font-weight: 600; }
+.dw-dots { display: inline-flex; gap: 0.4rem; }
+.dw-dots i { width: 0.65rem; height: 0.65rem; border-radius: 50%; background: #36505a; }
+.dw-dots i:first-child { background: var(--signal); }
+.dw-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.demo-window .demo-app { margin-top: 0; }
+.demo-window .dm { border: 0; border-radius: 0 0 16px 16px; }
+.demo-window .dm-strip { border-radius: 0; }
+.demo-window .demo-static { padding: 1.4rem 1.5rem 0.6rem; }
+@media (max-width: 56rem) {
+  .section.demo-section { padding: 3rem 0 3.5rem; }
+  .demo-window { border-radius: 12px; }
+  .demo-window-bar { border-radius: 12px 12px 0 0; }
+  .demo-window .dm { border-radius: 0 0 12px 12px; }
+}
+
+/* Booking calendar: lifted off the dark section */
+.cta-section .bk.bk-inline { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18), 0 24px 48px -12px rgba(0, 0, 0, 0.45); }

@@ -60,6 +60,33 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   history.replaceState(null, '', '#samples');
 }));
 
+// Hero report card: the numbers count up once when the card is on screen, a check sweeps the rows and the 0 gets marked (the HTML already holds the final values,
+// so without JavaScript or with reduced motion the finished card shows straight away).
+(function countUp() {
+  const rows = document.querySelector('[data-countup]');
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!rows || reduce || typeof requestAnimationFrame !== 'function') return;
+  const nums = [...rows.querySelectorAll('b')].map((el) => ({ el, to: Number(el.textContent) })).filter((n) => n.to > 0);
+  const duration = 900;
+  const delay = 250;
+  nums.forEach((n) => { n.el.textContent = '0'; });
+  let start = null;
+  const tick = (t) => {
+    if (start === null) start = t;
+    const p = Math.min(1, Math.max(0, (t - start - delay) / duration));
+    const eased = 1 - (1 - p) ** 3;
+    nums.forEach((n) => { n.el.textContent = String(Math.round(n.to * eased)); });
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  const play = () => { rows.closest('.tz-card')?.classList.add('tz-live'); requestAnimationFrame(tick); };
+  // Plays when the card is on screen (on phones it sits below the first screen).
+  if (typeof IntersectionObserver !== 'function') { play(); return; }
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
+  }, { threshold: 0.6 });
+  io.observe(rows);
+}());
+
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.
 const inlineHost = document.getElementById('book-inline');

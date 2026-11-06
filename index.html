@@ -64,10 +64,10 @@
           <div class="tz-card">
             <p class="tz-badge">Fictional example</p>
             <p class="tz-title">Weekly report, Quillfern Home Repairs</p>
-            <ul class="tz-rows">
+            <ul class="tz-rows" data-countup>
               <li><span>Booked this week</span><b>11</b></li>
               <li><span>Waiting on someone</span><b>3</b></li>
-              <li><span>Done, not invoiced</span><b>0</b></li>
+              <li class="tz-suspect"><span>Done, not invoiced</span><b>0</b><span class="tz-q" aria-hidden="true">?</span></li>
             </ul>
             <p class="tz-note">Built by hand on Monday morning.</p>
             <p class="tz-ask">Something&rsquo;s off in this report. Want to find it?</p>
@@ -94,6 +94,8 @@
         <h2 id="samples-h">Can you trust this week&rsquo;s report?</h2>
         <p class="lede">You run Quillfern Home Repairs, a small repair business. Monday&rsquo;s report looks fine, but the problems behind it are the three above. It takes about a minute.</p>
         <p class="disclosure">A made-up business with made-up data. It shows how I approach a week like this; it isn&#39;t a client project.</p>
+        <div class="demo-window">
+        <div class="demo-window-bar" aria-hidden="true"><span class="dw-dots"><i></i><i></i><i></i></span><span class="dw-title">Quillfern Home Repairs &middot; Monday review</span></div>
         <div id="demo-app" class="demo-app">
           <div class="demo-static">
             <ol class="steps-list">
@@ -104,6 +106,7 @@
             <p><strong>This week&#39;s report, checked:</strong> 12 booked, 3 waiting (each with a reason), 0 done but not invoiced.</p>
             <p>The interactive version of this example needs JavaScript.</p>
           </div>
+        </div>
         </div>
       </div>
     </section>

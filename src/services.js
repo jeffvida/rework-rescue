@@ -41,6 +41,7 @@ export function mountServices() {
   const buttons = items.map((li, i) => {
     const name = li.querySelector('h3')?.textContent || '';
     const when = li.querySelector('.svc-when')?.textContent || '';
+    const short = li.querySelector('.svc-short')?.textContent || '';
     li.id = li.id || `svc-panel-${i + 1}`;
     const b = document.createElement('button');
     b.type = 'button';
@@ -50,8 +51,9 @@ export function mountServices() {
     b.setAttribute('aria-controls', li.id);
     const n = document.createElement('span'); n.className = 'svc-tab-n'; n.textContent = `0${i + 1}`;
     const t = document.createElement('span'); t.className = 'svc-tab-name'; t.textContent = name;
+    const sh = document.createElement('span'); sh.className = 'svc-tab-short'; sh.textContent = short;
     const w = document.createElement('span'); w.className = 'svc-tab-when'; w.textContent = when;
-    b.append(n, t, w);
+    b.append(n, t, sh, w);
     tabs.append(b);
     return b;
   });

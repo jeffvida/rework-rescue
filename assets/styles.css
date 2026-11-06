@@ -2000,3 +2000,12 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .pv-again:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .pv-times[hidden], .pv-try[hidden], .pv-btn[hidden], .pv-again[hidden] { display: none; }
 .pv-again { margin-left: 0; }
+
+/* Services: "you don't need to choose" up front, a short label per area */
+.svc-intro { color: var(--ink); max-width: 38em; }
+.svc-areas { margin: 0.5rem 0 0; color: var(--muted); max-width: 38em; }
+.svc-short { margin: 0.15rem 0 0.35rem; font-family: var(--display); font-weight: 600; font-size: 1.05rem; color: var(--svc); }
+.svc-ui.is-tabbed .svc-step > .svc-short { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.svc-tab { grid-template-rows: auto auto auto; }
+.svc-tab-n { grid-row: 1 / span 3; }
+.svc-tab-short { font-family: var(--display); font-weight: 600; font-size: 0.98rem; color: var(--svc); margin-top: 0.1rem; }

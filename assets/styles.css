@@ -2009,3 +2009,34 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .svc-tab { grid-template-rows: auto auto auto; }
 .svc-tab-n { grid-row: 1 / span 3; }
 .svc-tab-short { font-family: var(--display); font-weight: 600; font-size: 0.98rem; color: var(--svc); margin-top: 0.1rem; }
+
+/* Live example: the fixed website form the visitor sends */
+.dm-form { display: grid; gap: 0.7rem; max-width: 28rem; margin-top: 0.8rem; padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.dm-form label { display: grid; gap: 0.25rem; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.dm-form label em { font-style: normal; font-weight: 500; font-size: 0.82rem; color: var(--muted); }
+.dm-form input, .dm-form select { font: inherit; font-weight: 400; padding: 0.55rem 0.7rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); min-height: 2.6rem; }
+.dm-form input:focus-visible, .dm-form select:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.dm-form [aria-invalid="true"] { border-color: #b3261e; background: #fff4f2; }
+.dm-form .dm-note { margin: 0; font-size: 0.88rem; }
+.dm-form p { margin: 0; }
+
+/* How a project works: one line, five stops */
+.project-flow { margin: 2.2rem 0 0.4rem; }
+.project-flow-h { font-size: 1.15rem; margin: 0 0 0.8rem; }
+.project-flow-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; counter-reset: pf; }
+.project-flow-list li { counter-increment: pf; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.9rem 0.45rem 0.5rem; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-weight: 600; font-size: 0.95rem; }
+.project-flow-list li::before { content: counter(pf); display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--teal); color: #fff; font-size: 0.8rem; }
+.project-flow-list li:not(:last-child)::after { content: "\2192"; margin-left: 0.4rem; color: var(--muted); font-weight: 400; }
+.handover-note { margin: 0.6rem 0 0; color: var(--muted); font-size: 0.95rem; max-width: 46em; }
+
+/* Selected Projects & Practical Examples */
+.proj-grid { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1.4rem; }
+.proj { display: flex; flex-direction: column; padding: 1.4rem 1.4rem 1.2rem; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--svc); border-radius: 14px; }
+.proj h3 { font-size: 1.25rem; margin: 0.6rem 0 0.5rem; }
+.proj > p { margin: 0 0 0.8rem; }
+.proj-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 !important; }
+.proj-tag { font-size: 0.8rem; font-weight: 600; color: #fff; background: var(--svc); padding: 0.15rem 0.6rem; border-radius: 999px; }
+.proj-kind { font-size: 0.8rem; font-weight: 600; color: var(--ink); background: var(--paper); border: 1px solid var(--line); padding: 0.15rem 0.6rem; border-radius: 999px; }
+.proj-list { margin: 0 0 0.9rem; }
+.proj-list li { font-size: 0.97rem; }
+.ph { margin-top: auto !important; padding: 0.6rem 0.75rem; border: 1.5px dashed var(--warn-line); border-radius: 8px; background: var(--warn-bg); color: #5b3a00; font-size: 0.9rem; }

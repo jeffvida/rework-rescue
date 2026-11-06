@@ -37,12 +37,12 @@ export const TEST_REQUEST = { request: 'R-119', ref: 'J-2058', source: 'Website 
 // What each problem costs, and why it happened (made-up figures, like everything here).
 export const HAND_REPORT = 'about 2 hours every Monday';
 export const COSTS = {
-  duplicate: 'Two technicians would go to the same job on Thursday.',
-  invoice: '$480 of finished work, not billed.',
-  address: 'Waiting 4 days. The customer may have called someone else.',
+  duplicate: 'Two technicians could go to the same job on Thursday.',
+  invoice: '$480 of finished work hasn\u2019t been billed.',
+  address: 'Waiting four days. The customer may have called someone else.',
 };
 export const CAUSES = [
-  { problem: 'Santos booked twice', why: 'Phone and website bookings go into different places, so nobody sees both.', fix: 'Every new booking checks the calendar first.' },
-  { problem: 'Cruz never invoiced', why: '“Invoiced” is a box someone ticks by hand.', fix: 'Invoice status comes from the accounts, not a tick box.' },
-  { problem: 'Torres can’t be booked', why: 'The website form never asked for an address, and its requests land in an inbox.', fix: 'Address is required, and requests go straight to the job list.' },
+  { problem: 'Santos booked twice', why: 'Phone and website bookings are stored separately.', fix: 'Every new booking checks the calendar first.' },
+  { problem: 'Cruz not invoiced', why: 'Invoice status depends on a manually updated checkbox.', fix: 'Invoice status is matched against the accounts.' },
+  { problem: 'Torres request incomplete', why: 'The website form does not require an address and sends requests to an inbox.', fix: 'Require an address and send requests directly to the job list.' },
 ];

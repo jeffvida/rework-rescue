@@ -7,6 +7,7 @@ const REVEAL = [
   '#fit h2', '.pain-tiles > li', '.pain-bridge',
   '#samples h2', '#samples .lede', '#samples .disclosure',
   '#services h2', '#services .lede', '.svc-ui', '.svc-foot',
+  '#projects h2', '#projects .lede', '.proj',
   '.about-grid > *', '.steps-row', '.handover-h', '.handover-list',
   '#faq h2', '.faq-item',
   '.book-main', '.cta-contact',

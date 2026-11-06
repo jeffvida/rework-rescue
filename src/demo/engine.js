@@ -15,11 +15,17 @@ export function initialState() {
 }
 
 const active = (s) => s.records.filter((r) => !r.merged);
+const visitKey = (r) => `${r.customer}|${r.address}|${r.when}`;
 
 /** The three numbers the owner wants, as the report shows them. */
 export function report(s) {
   const recs = s.checked ? active(s) : s.records.filter((r) => r.inList);
-  const booked = recs.filter((r) => r.status === 'booked').length;
+  // Booked = unique confirmed visits. By hand, every booking entry was counted; once checked, two entries for the
+  // same customer, address and time count as one visit unless the owner confirmed they are separate visits.
+  const bookedRecs = recs.filter((r) => r.status === 'booked');
+  const booked = s.checked
+    ? new Set(bookedRecs.map((r) => (r.confirmedSeparate ? r.ref : visitKey(r)))).size
+    : bookedRecs.length;
   const waiting = recs.filter((r) => r.status === 'waiting' || r.status === 'request' || r.status === 'asked').length;
   const notInvoiced = recs.filter((r) => r.status === 'done' && (s.checked ? !r.invoice && !r.notBillable : !r.markedInvoiced)).length;
   const dup = s.problems.find((p) => p.id === 'duplicate' && !p.done);
@@ -33,7 +39,7 @@ export function runCheck(s, id) {
   if (id === 'duplicates') {
     const seen = new Map(); const out = [];
     for (const r of recs.filter((x) => x.status === 'booked' && !x.confirmedSeparate)) {
-      const key = `${r.customer}|${r.address}|${r.when}`;
+      const key = visitKey(r);
       if (seen.has(key)) out.push(seen.get(key), r.ref); else seen.set(key, r.ref);
     }
     return out;
@@ -95,23 +101,42 @@ export function askAddress(s, via = 'email') {
   return setRecord(s, p.refs.at(0), { status: 'asked', askedVia: via });
 }
 
-/** The (simulated) answer arrives: the request gets its address and is booked as a job. */
+/** The customer confirms (simulated, by its own button): the request gets its address and becomes a booked job. */
 export function receiveReply(s) {
   const p = s.problems.find((x) => x.id === 'address');
   if (!p || p.done) return s;
-  const s2 = setRecord(s, p.refs.at(0), { status: 'booked', address: R118_REPLY.address, when: R118_REPLY.when, jobRef: R118_REPLY.ref, inList: true });
+  const r = s.records.find((x) => x.ref === p.refs.at(0));
+  if (!r || r.status !== 'asked') return s; // nobody asked yet, so nobody can confirm
+  const s2 = setRecord(s, r.ref, { status: 'booked', address: R118_REPLY.address, when: R118_REPLY.when, jobRef: R118_REPLY.ref, inList: true });
   return done(s2, 'address');
 }
 
+/** The owner's decisions on the review sheet are carried out; the customer still has to confirm. */
+export const decided = (s) => s.checked && s.problems.every((p) => p.done || s.records.find((r) => r.ref === p.refs.at(0))?.status === 'asked');
 export const allSorted = (s) => s.checked && s.problems.every((p) => p.done);
 
 export function fixForm(s) { return allSorted(s) ? { ...s, formFixed: true } : s; }
 
-/** The visitor's test request through the fixed form. Returns the state and whether it passed every check. */
-export function sendTest(s) {
-  if (!s.formFixed || s.testSent) return { state: s, passed: false };
-  const rec = { ref: TEST_REQUEST.ref, source: TEST_REQUEST.source, customer: TEST_REQUEST.customer, job: TEST_REQUEST.job, address: TEST_REQUEST.address, status: 'booked', when: TEST_REQUEST.when, inList: true };
+// The fixed form's preferred-time list: slots on the test day, minus anything already booked.
+export const SLOT_TIMES = ['09:00', '11:00', '13:00', '15:00'];
+export function freeSlots(s, day = TEST_REQUEST.when.slice(0, -6)) {
+  const taken = new Set(active(s).filter((r) => r.status === 'booked' && (r.when || '').startsWith(day)).map((r) => r.when.slice(-5)));
+  return SLOT_TIMES.filter((t) => !taken.has(t)).map((t) => `${day} ${t}`);
+}
+
+/** The visitor's test request through the fixed form. Every field is required and the time must be free.
+ *  Returns the state, whether it passed every check, and the problems found (empty when it passed). */
+export function sendTest(s, input = {}) {
+  if (!s.formFixed || s.testSent) return { state: s, passed: false, errors: ['not-ready'] };
+  const req = { name: 'Test request', job: TEST_REQUEST.job, address: TEST_REQUEST.address, when: TEST_REQUEST.when, ...input };
+  const errors = [];
+  if (!String(req.name || '').trim()) errors.push('name');
+  if (!String(req.address || '').trim()) errors.push('address');
+  if (!String(req.job || '').trim()) errors.push('job');
+  if (!freeSlots(s).includes(req.when)) errors.push('when');
+  if (errors.length) return { state: s, passed: false, errors };
+  const rec = { ref: TEST_REQUEST.ref, source: TEST_REQUEST.source, customer: req.name.trim(), job: req.job.trim(), address: req.address.trim(), status: 'booked', when: req.when, inList: true };
   const next = { ...s, testSent: true, records: [...s.records, rec] };
   const passed = CHECKS.every((c) => !runCheck(next, c.id).includes(rec.ref));
-  return { state: next, passed };
+  return { state: passed ? next : s, passed, errors: passed ? [] : ['check'] };
 }

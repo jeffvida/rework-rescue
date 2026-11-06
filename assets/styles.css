@@ -1853,10 +1853,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .is-playing .pv-bar { animation: pv-grow 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 /* the bars are the 3rd-8th rects in the picture (after the frame and the tag) */
 .is-playing .pv-bar:nth-of-type(4) { animation-delay: 0.08s; } .is-playing .pv-bar:nth-of-type(5) { animation-delay: 0.16s; } .is-playing .pv-bar:nth-of-type(6) { animation-delay: 0.24s; } .is-playing .pv-bar:nth-of-type(7) { animation-delay: 0.32s; } .is-playing .pv-bar:nth-of-type(8) { animation-delay: 0.4s; }
-.is-playing .pv-kpi-n { animation: pv-fade 0.5s ease 0.5s both; }
-.is-playing .pv-row { animation: pv-rise 0.4s ease both; }
-.is-playing .pv-row:nth-of-type(1) { animation-delay: 0.7s; } .is-playing .pv-row:nth-of-type(2) { animation-delay: 0.85s; } .is-playing .pv-row:nth-of-type(3) { animation-delay: 1s; }
-.is-playing .pv-row-flag rect { animation: pv-flash 0.9s ease 1.4s 2; }
 
 
 
@@ -1911,21 +1907,24 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .ast-chip:hover::after { transform: translateX(3px); }
 .ast-chip:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-/* Workflow preview: a job card and its activity log (Auto / You) */
+/* Data preview: rows the checks review */
+.pv-pending { font-size: 11.5px; fill: var(--muted) !important; opacity: 0; }
+
+/* Workflow preview: a quote card and its activity log (Auto / You) */
 .pv-card { fill: var(--paper); stroke: var(--line); }
 .pv-card-id { font-family: var(--display); font-weight: 600; font-size: 13px; fill: var(--ink); }
 .pv-card-t { font-size: 11.5px; fill: var(--ink); }
 .pv-card-m { font-size: 11px; fill: var(--muted); }
 .pv-st rect { fill: var(--svc); }
 .pv-st text { font-size: 11px; font-weight: 600; fill: #fff; }
-.pv-st-new, .pv-st-sched { opacity: 0; }
+.pv-st-a, .pv-st-b { opacity: 0; }
 .pv-log-h { font-size: 11px; font-weight: 600; fill: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
-.pv-log text { font-size: 11.5px; fill: var(--ink); }
+.pv-log text { font-size: 11px; fill: var(--ink); }
 .pv-auto { fill: var(--info-bg); }
-.pv-log .pv-auto-t { font-size: 10px; font-weight: 600; fill: var(--teal-dark); }
+.pv-log .pv-auto-t { font-size: 9.5px; font-weight: 600; fill: var(--teal-dark); }
 .pv-you-bg { fill: var(--warn-bg); stroke: var(--warn-line); }
 .pv-you { fill: var(--svc); }
-.pv-log .pv-you-t { font-size: 10px; font-weight: 600; fill: #fff; }
+.pv-log .pv-you-t { font-size: 9.5px; font-weight: 600; fill: #fff; }
 
 /* Systems preview: calendar checked first, free times only, logged and booked */
 .pv-panel-h { font-size: 10.5px; font-weight: 600; fill: var(--ink); }
@@ -1933,14 +1932,16 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .pv-busy { fill: #e3e1d6; }
 .pv-busy-t { font-size: 9.5px; fill: var(--muted); }
 .pv-free { fill: #fff; stroke: var(--teal); stroke-dasharray: 3 2; }
-.pv-booked { fill: var(--svc); stroke: var(--svc); }
-.pv-booked-t { font-size: 9.5px; font-weight: 600; fill: #fff; }
+.pv-booked { opacity: 0; }
+.pv-booked.pv-on { opacity: 1; }
+.pv-booked rect { fill: var(--svc); stroke: var(--svc); }
+.pv-booked text { font-size: 9.5px; font-weight: 600; fill: #fff; }
 .pv-field { fill: #fff; stroke: var(--line); }
 .pv-field-t { font-size: 10.5px; fill: var(--ink); }
-.pv-chip rect { fill: #fff; stroke: var(--svc); }
-.pv-chip text { font-size: 10px; font-weight: 600; fill: var(--svc); }
-.pv-chip-on rect { fill: var(--svc); }
-.pv-chip-on text { fill: #fff; }
+.pv-chip rect { fill: #fff; stroke: var(--svc); transition: fill 0.2s ease; }
+.pv-chip text { font-size: 10px; font-weight: 600; fill: var(--svc); transition: fill 0.2s ease; }
+.pv-chip.pv-on rect { fill: var(--svc); }
+.pv-chip.pv-on text { fill: #fff; }
 .pv-send-t { font-size: 10px; font-weight: 600; fill: #fff; }
 .pv-row-old { font-size: 10px; fill: var(--muted); }
 .pv-sheet-new > rect:first-child { fill: var(--info-bg); }
@@ -1950,28 +1951,52 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .pv-step-c { font-size: 10.5px; fill: var(--muted); }
 .svc-preview-note { margin: 0.55rem 0 0; font-size: 0.92rem; color: var(--muted); }
 
+/* Ready state (set by src/previews.js): the picture waits for the visitor's one step.
+   Without JavaScript none of these classes are set, so the finished picture shows. */
+.pv-ready .pv-ok, .pv-ready .pv-flag { opacity: 0; }
+.pv-ready .pv-pending { opacity: 1; }
+.pv-ready .pv-row-flag rect { fill: var(--paper); stroke: none; }
+.pv-ready .pv-st-a { opacity: 1; } .pv-ready .pv-st-c { opacity: 0; }
+.pv-ready .pv-log-after { opacity: 0; }
+.pv-ready .pv-you { animation: pv-wait 1.6s ease-in-out 3; }
+.pv-ready .pv-sheet-new, .pv-ready .pv-link.l2 { opacity: 0; }
+.pv-ready .pv-chip.pv-on rect { fill: #fff; } .pv-ready .pv-chip.pv-on text { fill: var(--svc); }
+.pv-ready .pv-chip.pv-pick rect { fill: var(--svc); } .pv-ready .pv-chip.pv-pick text { fill: #fff; }
+.pv-ready .pv-booked.pv-on { opacity: 0; }
+@keyframes pv-wait { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+/* Done: what happens after the visitor's step */
 @keyframes pv-shown { from, to { opacity: 1; } }
 @keyframes pv-hidden { from, to { opacity: 0; } }
-@keyframes pv-chip-pick { from { fill: #fff; } }
-@keyframes pv-chip-pick-t { from { fill: var(--svc); } }
+.pv-done .pv-ok, .pv-done .pv-flag { animation: pv-fade 0.35s ease both; }
+.pv-done .pv-row:nth-of-type(2) .pv-ok { animation-delay: 0.25s; }
+.pv-done .pv-row-flag .pv-flag { animation-delay: 0.5s; }
+.pv-done .pv-row-flag rect { animation: pv-fade 0.35s ease 0.5s both, pv-flash 0.9s ease 0.9s 2; }
+.pv-done .pv-log-after { animation: pv-rise 0.35s ease both; }
+.pv-done .pv-log-after:nth-of-type(8) { animation-delay: 0.6s; }
+.pv-done .pv-st-b { animation: pv-shown 0.6s linear; }
+.pv-done .pv-st-c { animation: pv-hidden 0.6s linear; }
+.pv-done .pv-link.l2 { animation: pv-draw-link 0.3s ease both; }
+.pv-done .pv-sheet-new { animation: pv-fade 0.4s ease 0.2s both; }
+.pv-done .pv-booked.pv-on { animation: pv-fade 0.4s ease 0.5s both; }
+
+/* Intro when a preview first appears (bars grow, free slots light up) */
+.is-playing .svc-preview-systems .pv-free { animation: pv-glow 0.8s ease 0.1s; }
 @keyframes pv-glow { 0%, 100% { stroke-width: 1; } 50% { stroke-width: 2.5; } }
 
-/* workflow: log lines arrive, the card's status follows them */
-.is-playing .pv-log { animation: pv-rise 0.35s ease both; }
-/* the log lines are the 4th-8th groups (after the three status pills) */
-.is-playing .pv-log:nth-of-type(4) { animation-delay: 0.2s; } .is-playing .pv-log:nth-of-type(5) { animation-delay: 0.6s; } .is-playing .pv-log:nth-of-type(6) { animation-delay: 1.1s; } .is-playing .pv-log:nth-of-type(7) { animation-delay: 1.6s; } .is-playing .pv-log:nth-of-type(8) { animation-delay: 2.2s; }
-.is-playing .pv-st-new { animation: pv-shown 1.1s linear 0s; }
-.is-playing .pv-st-sched { animation: pv-shown 1.1s linear 1.1s; }
-.is-playing .pv-st-rem { animation: pv-hidden 2.2s linear 0s; }
-
-/* systems: free slots light up, the form offers them, one is picked, logged and booked */
-.is-playing .svc-preview-systems .pv-free { animation: pv-glow 0.8s ease 0.1s; }
-.is-playing .pv-booked, .is-playing .pv-booked-t { animation: pv-fade 0.4s ease 2.5s both; }
-.is-playing .pv-link.l1 { animation: pv-draw-link 0.3s ease 0.8s both; }
-.is-playing .pv-chip { animation: pv-rise 0.3s ease both; }
-.is-playing .pv-chip:nth-of-type(1) { animation-delay: 1s; } .is-playing .pv-chip:nth-of-type(2) { animation-delay: 1.1s; } .is-playing .pv-chip:nth-of-type(3) { animation-delay: 1.2s; }
-.is-playing .pv-chip-on rect { animation: pv-rise 0.3s ease 1s both, pv-chip-pick 0.3s ease 1.6s both; }
-.is-playing .pv-chip-on text { animation: pv-chip-pick-t 0.3s ease 1.6s both; }
-.is-playing .pv-send { animation: pv-pulse 0.5s ease 1.9s; }
-.is-playing .pv-link.l2 { animation: pv-draw-link 0.3s ease 2.1s both; }
-.is-playing .pv-sheet-new { animation: pv-fade 0.4s ease 2.3s both; }
+/* The Try it controls */
+.pv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.6rem; margin-top: 0.75rem; }
+.pv-controls[hidden] { display: none; }
+.pv-try { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.pv-times { display: inline-flex; gap: 0.4rem; }
+.pv-btn { min-height: 2.5rem; padding: 0.35rem 1rem; border: 1.5px solid var(--svc); border-radius: 999px; background: #fff; color: var(--svc); font: inherit; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease, opacity 0.18s ease; }
+.pv-btn:hover:not([disabled]) { transform: translateY(-1px); }
+.pv-btn[data-pv-go], .pv-btn[aria-pressed="true"] { background: var(--svc); color: #fff; }
+.pv-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.pv-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.pv-result { flex-basis: 100%; margin: 0.15rem 0 0; font-size: 0.95rem; color: var(--ink); min-height: 1.4em; }
+.pv-result:empty { display: none; }
+.pv-again { background: none; border: 0; padding: 0; color: var(--teal-dark); font: inherit; font-size: 0.95rem; text-decoration: underline; text-underline-offset: 0.18em; cursor: pointer; margin-left: 0.3rem; }
+.pv-again:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.pv-times[hidden], .pv-try[hidden], .pv-btn[hidden], .pv-again[hidden] { display: none; }
+.pv-again { margin-left: 0; }

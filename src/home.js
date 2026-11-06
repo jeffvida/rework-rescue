@@ -5,6 +5,7 @@ import { mountDemo } from './demo/ui.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 import { mountServices } from './services.js';
+import { mountPreviews } from './previews.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -48,6 +49,7 @@ export function mountMobileCta() {
 // ---- Start the homepage
 const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
+mountPreviews();
 mountServices();
 mountMotion();
 mountBooking();

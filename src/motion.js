@@ -20,11 +20,11 @@ const REVEAL = [
 ];
 // Groups whose children come in one after another.
 const STAGGER = [
-  ['.pain-tiles', 110],
-  ['.exp-list', 110],
-  ['.about-copy', 70],
-  ['.faq-wrap', 45, '.faq-item'],
-  ['.book-main', 80],
+  ['.pain-tiles', 70],
+  ['.exp-list', 70],
+  ['.about-copy', 35],
+  ['.faq-wrap', 30, '.faq-item'],
+  ['.book-main', 50],
 ];
 
 export function mountMotion() {
@@ -56,7 +56,7 @@ export function mountMotion() {
       io.unobserve(e.target);
       if (e.target.classList.contains('exp-head')) countTo(e.target.querySelector('[data-count-to]'));
     });
-  }, { rootMargin: '0px 0px -8% 0px' });
+  }, { rootMargin: '0px 0px -4% 0px' });
   els.forEach((el) => io.observe(el));
 
   // When printing, show everything that hasn't been scrolled to yet.
@@ -67,7 +67,7 @@ export function mountMotion() {
 function countTo(el) {
   if (!el || typeof requestAnimationFrame !== 'function') return;
   const to = Number(el.dataset.countTo) || 0;
-  const dur = 900;
+  const dur = 700;
   let t0 = null;
   el.textContent = '0';
   const tick = (t) => {

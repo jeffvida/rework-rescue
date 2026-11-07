@@ -2401,3 +2401,25 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
   .hero-cta-main .cta-micro { text-align: center; }
 }
 .pv-kpi-d { font-size: 13px; } .pv-you-ok { font-size: 13px; }
+
+/* Timing pass (8 Nov, approved): reveals ~35% faster, shorter travel, timeline in ~0.8 s, quicker About text.
+   Hero card, service entrances and the three examples are unchanged. */
+.motion .rv { transform: translateY(12px); transition: opacity 0.35s ease, transform 0.48s var(--ease-out); transition-delay: var(--rv-delay, 0ms); }
+.motion .rv.is-in { transform: none; }
+.motion .rv.rv-group { transform: none; }
+.motion .steps-row.rv { transform: none; }
+/* How I work: line draws in 0.6 s; each step (number + text) lands as it passes; all four in by ~0.8 s */
+.motion .steps-row.rv::before { transition: transform 0.6s var(--ease-io) 0s; }
+.motion .steps-row.rv li > * { transform: translateY(6px); transition: opacity 0.25s ease, transform 0.3s var(--ease-out); }
+.motion .steps-row.rv li::before { transition: transform 0.28s cubic-bezier(0.3, 1.4, 0.5, 1), opacity 0.2s ease; }
+.motion .steps-row.rv.is-in li:nth-child(1) > *, .motion .steps-row.rv.is-in li:nth-child(1)::before { transition-delay: 0.05s; }
+.motion .steps-row.rv.is-in li:nth-child(2) > *, .motion .steps-row.rv.is-in li:nth-child(2)::before { transition-delay: 0.2s; }
+.motion .steps-row.rv.is-in li:nth-child(3) > *, .motion .steps-row.rv.is-in li:nth-child(3)::before { transition-delay: 0.35s; }
+.motion .steps-row.rv.is-in li:nth-child(4) > *, .motion .steps-row.rv.is-in li:nth-child(4)::before { transition-delay: 0.5s; }
+/* About: photo reveal shorter; text follows almost at once */
+.motion .about-section .photo-card.rv .photo-frame { transition: clip-path 0.6s var(--ease-io); }
+.motion .about-section .photo-card.rv .about-photo { transition: transform 0.8s var(--ease-out); }
+.motion .about-copy > .rv { transition-delay: calc(var(--rv-delay, 0ms) + 0.08s); }
+/* Pain-list accent lines and the closing contact column keep pace */
+.motion .pain-tiles li.rv.is-in::after { transition-duration: 0.4s; transition-delay: calc(var(--rv-delay, 0ms) + 0.12s); }
+.motion .cta-section .cta-contact.rv { transition-delay: 0.12s; }

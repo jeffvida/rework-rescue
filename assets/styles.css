@@ -2194,3 +2194,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .svc-have strong { display: block; color: var(--ink); font-size: 0.98rem; }
 .svc-have span { display: block; color: var(--muted); font-size: 0.94rem; line-height: 1.45; }
 .svc-ui.is-tabbed .svc-step > .svc-familiar { margin-bottom: 0; }
+
+/* Services: "What you can have" is always shown (phones too), as a plain heading, not a toggle */
+.svc-detail > summary { display: none; }
+.svc-label-have { display: block; margin-top: 1rem; }

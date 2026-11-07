@@ -340,7 +340,7 @@ export function mountDemo(root) {
         <div class="dm-ask">
           <h3 class="dm-h">Your business could work this way, too.</h3>
           <p>You don’t need another complicated system. You need a clearer process, reliable information and tools that work together.</p>
-          <p>Bring one report or process you don’t fully trust. In a free 30-minute review, we’ll identify what’s causing the rework and discuss a practical way to improve it.</p>
+          <p>Bring one report or process you don’t fully trust. In a free 30-minute review, I’ll help you identify what’s causing the rework and discuss a practical way to improve it.</p>
           <div class="dm-end-actions"><div class="dm-ask-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a><p class="cta-micro">30 minutes · No obligation</p></div>
             <button type="button" class="dm-link" data-act="restart">Run it again</button></div>
         </div>

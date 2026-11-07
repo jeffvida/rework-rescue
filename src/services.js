@@ -97,8 +97,9 @@ export function mountServices() {
       if (wide) { li.setAttribute('role', 'tabpanel'); li.setAttribute('aria-labelledby', buttons[k].id); li.tabIndex = 0; }
       else { li.removeAttribute('role'); li.removeAttribute('aria-labelledby'); li.removeAttribute('tabindex'); li.hidden = false; }
     });
-    // Wide: details and example always open (summaries hidden by CSS). Narrow: start compact.
-    list.querySelectorAll('.svc-detail, .svc-try').forEach((d) => { d.open = wide; });
+    // "What you can have" stays open at every width. The example is always open on wide screens; on phones it starts closed.
+    list.querySelectorAll('.svc-detail').forEach((d) => { d.open = true; });
+    list.querySelectorAll('.svc-try').forEach((d) => { d.open = wide; });
     if (wide) select(current, false);
   };
   // Phones: an example plays when the visitor opens it.

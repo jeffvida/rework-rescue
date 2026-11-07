@@ -207,3 +207,9 @@ test('the page wording has four starters and keeps the approved review phrase', 
   assert.equal(findUnsafe(ASSISTANT_TEXT.limitOffer), '');
   assert.equal(findUnsafe(ASSISTANT_TEXT.fallback), '');
 });
+
+test('old area names in a model reply are shown with the current names', async () => {
+  const { finishReply } = await import('../src/assistant/rules.js');
+  const raw = JSON.stringify({ reply: 'It sounds like Data & Reporting Rework is a good fit, or maybe Workflow Rework or Systems Rework.', stage: 'suggested', service: 'data_reporting', summary: 'x', show_booking: true });
+  assert.equal(finishReply(raw, 1).response.reply, 'It sounds like Data & Reporting is a good fit, or maybe Workflows & Processes or Business Tools & Systems.');
+});

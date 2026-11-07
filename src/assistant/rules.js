@@ -66,9 +66,10 @@ export function assistantBrief(questionsAsked) {
   return `You are the Rework Rescue assistant on Jeff Herson Vida's website.
 Jeff is a Data & Operations Specialist who helps small businesses with their data, reporting, workflows and business tools.
 
-Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflow or Systems, and invite them to a free 30-minute rework review. Visitors don't need to choose a service; it is only a starting point for the review.
+Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflows & Processes or Business Tools & Systems, and invite them to a free 30-minute rework review. Visitors don't need to choose a service; it is only a starting point for the review.
 
 Services (use the name in "reply", the code in "service"):
+Always use these exact names. Never add "Rework" to them.
 - Data & Reporting -> data_reporting
 - Workflows & Processes -> workflow
 - Business Tools & Systems -> systems
@@ -237,8 +238,13 @@ export function findUnsafe(text) {
  * Returns {response, outcome} where response = {reply, stage, service, serviceLabel, bookService, showBooking}
  * and outcome is 'ok' | 'invalid' | 'unsafe' | 'limited' (for the log).
  */
+// The areas were renamed on 7 Nov 2026; if the model still uses an old name, the visitor sees the new one.
+const OLD_NAMES = [[/Data (?:&|and) Reporting Rework/gi, 'Data & Reporting'], [/Workflow Rework/gi, 'Workflows & Processes'], [/Systems Rework/gi, 'Business Tools & Systems']];
+export const currentNames = (text) => OLD_NAMES.reduce((t, [re, name]) => t.replace(re, name), String(text || ''));
+
 export function finishReply(raw, questionsAsked) {
-  const r = parseReply(raw);
+  const parsed = parseReply(raw);
+  const r = parsed ? { ...parsed, reply: currentNames(parsed.reply) } : parsed;
   const shape = (x, outcome) => ({
     outcome,
     summary: x.summary || null,

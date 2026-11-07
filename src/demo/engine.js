@@ -29,7 +29,16 @@ export function report(s) {
   const waiting = recs.filter((r) => r.status === 'waiting' || r.status === 'request' || r.status === 'asked').length;
   const notInvoiced = recs.filter((r) => r.status === 'done' && (s.checked ? !r.invoice && !r.notBillable : !r.markedInvoiced)).length;
   const dup = s.problems.find((p) => p.id === 'duplicate' && !p.done);
-  return { booked, waiting, notInvoiced, likelyDuplicates: dup ? 1 : 0, tag: !s.checked ? 'Built by hand' : (s.problems.some((p) => p.done) || s.formFixed ? 'Updated' : 'Checked') };
+  return { booked, waiting, notInvoiced, likelyDuplicates: dup ? 1 : 0, tag: status(s) };
+}
+
+/** Report status: Built by hand → Checked (checks ran) → Actions applied (every owner decision carried out, customer
+ *  still to reply) → Updated (everything settled, including the customer's simulated reply). */
+export function status(s) {
+  if (!s.checked) return 'Built by hand';
+  if (allSorted(s)) return 'Updated';
+  if (decided(s)) return 'Actions applied';
+  return 'Checked';
 }
 
 /** Runs one check on the current records. Returns the records it flags (refs). */

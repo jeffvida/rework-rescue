@@ -31,11 +31,11 @@ const ROWS = [['booked', 'Booked'], ['waiting', 'Waiting'], ['notInvoiced', 'Don
 
 // The review sheet: one row per problem, two choices each.
 const SHEET = [
-  { id: 'duplicate', found: 'M. Santos aircon service booked twice for Thu 12 Nov, 9am.', next: 'Merge ready to go.', why: 'Could be two real visits, so you decide.',
+  { id: 'duplicate', label: 'M. Santos booked twice', found: 'M. Santos aircon service booked twice for Thu 12 Nov, 9am.', next: 'Merge ready to go.', why: 'Could be two real visits, so you decide.',
     options: [['merge', 'Merge into one'], ['keep', 'Keep both']] },
-  { id: 'invoice', found: 'D. Cruz gutter repair completed Thu 5 Nov, but no invoice exists in the accounts.', next: 'Invoice drafted, ready to send.', why: 'Could be warranty work, so you decide.',
+  { id: 'invoice', label: 'D. Cruz not invoiced', found: 'D. Cruz gutter repair completed Thu 5 Nov, but no invoice exists in the accounts.', next: 'Invoice drafted, ready to send.', why: 'Could be warranty work, so you decide.',
     options: [['send', 'Send invoice'], ['nobill', 'Not billable (warranty)']] },
-  { id: 'address', found: 'G. Torres water heater request from the website is stuck in the inbox, with no address.', next: 'Email to the customer written.', why: 'Email or a call? You know the customer.',
+  { id: 'address', label: 'G. Torres request with no address', found: 'G. Torres water heater request from the website is stuck in the inbox, with no address.', next: 'Email to the customer written.', why: 'Email or a call? You know the customer.',
     options: [['email', 'Send email'], ['call', 'Ask Dana to call']] },
 ];
 const DONE_TEXT = {
@@ -204,7 +204,7 @@ export function mountDemo(root) {
     const rows = SHEET.map((r, i) => {
       const decision = rowDone[r.id]
         ? `<span class="dm-sh-done">${esc(rowDone[r.id])}</span>`
-        : `<select data-row="${r.id}" aria-label="Your decision for row ${i + 2}"${locked ? ' disabled' : ''}><option value="">Choose…</option>${
+        : `<select data-row="${r.id}" aria-label="Your decision, row ${i + 2}: ${esc(r.label)}"${locked ? ' disabled' : ''}><option value="">Choose…</option>${
           r.options.map(([v, l]) => `<option value="${v}"${picks[r.id] === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
       return `<tr class="${rowDone[r.id] ? 'is-done' : ''}"><th scope="row" class="dm-sh-n">${i + 2}</th>
         <td data-label="What was found">${esc(r.found)}</td>
@@ -295,11 +295,11 @@ export function mountDemo(root) {
         h += `<p class="dm-sorted">${esc(appliedLine(picks))}</p>`;
         if (confirmed) {
           h += `${roles(['customer', 'The customer'])}
-            <p class="dm-sorted">Customer confirmed. The booking is now scheduled.</p>
-            <p class="dm-note">This confirmation is simulated to demonstrate how the process works.</p>
+            <p class="dm-sorted">Customer reply received (simulated). G. Torres provided the missing address and confirmed the appointment.</p>
+            <p class="dm-note">In a live process, the booking would update when the customer responds.</p>
             ${btn('cause', 'Next: improve the process')}`;
         } else {
-          h += `<p class="dm-note">Waiting for G. Torres to confirm…</p>`;
+          h += `<p class="dm-note">Actions applied. Waiting for G. Torres to reply…</p>`;
         }
       }
     } else if (phase === 'cause') {
@@ -328,7 +328,7 @@ export function mountDemo(root) {
     } else if (phase === 'end') {
       // The completed experience: final report, what improved, the booking ask, who does what
       const r = report(s);
-      h = `<h3 class="dm-h">Checked first. Fixed at the source.</h3>
+      h = `<h3 class="dm-h">Checked first. Improved at the source.</h3>
         <div class="dm-final" aria-label="Final report"><p class="dm-final-t">This week’s report <span>${esc(r.tag)}</span></p>
           <p class="dm-final-n"><span><b>${r.booked}</b> booked</span><span><b>${r.waiting}</b> waiting</span><span><b>${r.notInvoiced}</b> done but not invoiced</span></p></div>
         <p class="dm-end-sub">What improved?</p>
@@ -368,7 +368,7 @@ export function mountDemo(root) {
       paintReport('Waiting +1: a website request was stuck in the inbox.');
       paintReport('Not invoiced +1: a completed job has no invoice.');
       paintStage(true);
-      say('Checks finished. Three problems found and the report corrected: Booked 11 → 10, Waiting 3 → 4, Done, not invoiced 0 → 1.');
+      say('Checks finished. Three problems found and the report corrected: Booked 11 → 10, Waiting 3 → 4, Done, not invoiced 0 → 1. Report status: Checked.');
       busy = false; return;
     }
     if (a === 'review' && phase === 'findings') { phase = 'review'; paintStage(true); return; }
@@ -392,13 +392,16 @@ export function mountDemo(root) {
       phase = decided(s) ? 'applied' : 'review';
       paintStage();
       // The customer's reply follows by itself (simulated), so the visitor doesn't need another click.
-      await wait(1000);
+      say(`${appliedLine(picks)} Report status: Actions applied. Waiting for the customer to reply.`);
+      // The customer's reply (simulated) arrives by itself after a short pause, so the visitor doesn't need another click
+      // and still sees the "Actions applied" status first.
+      await new Promise((r) => setTimeout(r, 2000)); // a pause, not motion: kept with reduced motion too
       s = fixForm(receiveReply(s)); confirmed = true;
-      rowDone.address = `Customer confirmed (${R118_REPLY.address}). Booked ${when(R118_REPLY.when)} (simulated).`;
-      paintReport('Booked +1, Waiting −1: G. Torres confirmed the booking.');
+      rowDone.address = `Customer replied (simulated): ${R118_REPLY.address}, booked ${when(R118_REPLY.when)}.`;
+      paintReport('Booked +1, Waiting −1: G. Torres replied with the address and confirmed (simulated).');
       paintStage();
       stage.querySelector('[data-act="cause"]')?.focus();
-      say(`${appliedLine(picks)} Customer confirmed. The report now says ${report(s).booked} booked, ${report(s).waiting} waiting, ${report(s).notInvoiced} not invoiced.`);
+      say(`Customer reply received (simulated). G. Torres provided the missing address and confirmed the appointment. Report status: Updated. ${report(s).booked} booked, ${report(s).waiting} waiting, ${report(s).notInvoiced} not invoiced.`);
       busy = false; return;
     }
     if (a === 'cause' && phase === 'applied' && confirmed) { phase = 'cause'; paintStage(true); return; }
@@ -424,6 +427,7 @@ export function mountDemo(root) {
     if (a === 'restart') {
       s = initialState(); phase = 'ready'; pathLit = 0; ticked = 0; confirmed = false; picks = {}; rowDone = {}; sheetError = ''; formError = ''; formVals = {}; bookedWhen = TEST_REQUEST.when;
       shown = report(s); paintReport(null); paintReport('Built by hand from the job list.'); paintStage(true);
+      say('Simulation reset. Report status: Built by hand.');
     }
   }
 

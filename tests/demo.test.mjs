@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { RECORDS, COSTS, CAUSES } from '../src/demo/data.js';
-import { initialState, report, check, confirmMerge, keepBoth, raiseInvoice, markNotBillable, askAddress, receiveReply, fixForm, sendTest, allSorted, decided, freeSlots, runCheck, CHECKS } from '../src/demo/engine.js';
+import { initialState, report, status, check, confirmMerge, keepBoth, raiseInvoice, markNotBillable, askAddress, receiveReply, fixForm, sendTest, allSorted, decided, freeSlots, runCheck, CHECKS } from '../src/demo/engine.js';
 
 const nums = (r) => [r.booked, r.waiting, r.notInvoiced];
 
@@ -40,7 +40,7 @@ test('the four checks find exactly the three planted problems', () => {
 
 test('each action moves the report exactly as the brief says (default choices)', () => {
   let s = check(initialState()).state;
-  s = confirmMerge(s); assert.deepEqual(nums(report(s)), [10, 4, 1], 'merging does not reduce Booked a second time'); assert.equal(report(s).likelyDuplicates, 0); assert.equal(report(s).tag, 'Updated');
+  s = confirmMerge(s); assert.deepEqual(nums(report(s)), [10, 4, 1], 'merging does not reduce Booked a second time'); assert.equal(report(s).likelyDuplicates, 0); assert.equal(report(s).tag, 'Checked', 'one decision carried out is not yet "Actions applied"');
   s = raiseInvoice(s); assert.deepEqual(nums(report(s)), [10, 4, 0]);
   s = askAddress(s); assert.deepEqual(nums(report(s)), [10, 4, 0], 'sending the email books nothing');
   assert.ok(decided(s)); assert.ok(!allSorted(s), 'still waiting on the customer');
@@ -131,4 +131,83 @@ test('the homepage shows the calculated numbers', async () => {
     assert.match(teaser, new RegExp(`${label}[^<]*</span><b>${n}</b>`), label);
   }
   assert.equal(CHECKS.length, 4);
+});
+
+// ---- Final refinement (7 Nov): status progression, simulated customer reply, every decision combination, privacy notice
+
+const MERGE = { merge: confirmMerge, keep: keepBoth };
+const INVOICE = { send: raiseInvoice, nobill: markNotBillable };
+
+/** Runs the whole simulation for one combination of decisions, recording the report and status after each stage. */
+function play(dup, inv, via, withForm = true) {
+  const steps = [];
+  const snap = (label, s) => steps.push({ label, nums: nums(report(s)), tag: report(s).tag });
+  let s = initialState(); snap('start', s);
+  s = check(s).state; snap('checked', s);
+  s = askAddress(INVOICE[inv](MERGE[dup](s)), via); snap('applied', s);
+  s = fixForm(receiveReply(s)); snap('confirmed', s);
+  if (withForm) { const res = sendTest(s, { when: 'Thu 12 Nov 15:00' }); assert.ok(res.passed); s = res.state; snap('test booking', s); }
+  return { s, steps };
+}
+
+test('report status: Built by hand → Checked → Actions applied → Updated', () => {
+  const { steps } = play('merge', 'send', 'email');
+  assert.deepEqual(steps.map((x) => x.tag), ['Built by hand', 'Checked', 'Actions applied', 'Updated', 'Updated']);
+  let s = check(initialState()).state;
+  s = raiseInvoice(confirmMerge(s));
+  assert.equal(status(s), 'Checked', 'two of three decisions carried out: still Checked');
+  s = askAddress(s);
+  assert.equal(status(s), 'Actions applied', 'all decisions carried out, customer still to reply');
+  s = receiveReply(s);
+  assert.equal(status(s), 'Updated');
+});
+
+test('the simulated customer reply adds the address, books the visit and clears Waiting by one', () => {
+  let s = askAddress(raiseInvoice(confirmMerge(check(initialState()).state)), 'call');
+  const before = report(s);
+  assert.equal(s.records.find((r) => r.ref === 'R-118').status, 'asked', 'stays waiting until the reply');
+  s = receiveReply(s);
+  const r = s.records.find((x) => x.ref === 'R-118');
+  assert.equal(r.address, '45 Pine St');
+  assert.equal(r.status, 'booked');
+  assert.equal(report(s).booked, before.booked + 1);
+  assert.equal(report(s).waiting, before.waiting - 1);
+  assert.equal(report(s).notInvoiced, before.notInvoiced);
+});
+
+test('all eight decision combinations give the expected report at every stage', () => {
+  for (const dup of ['merge', 'keep']) for (const inv of ['send', 'nobill']) for (const via of ['email', 'call']) {
+    const { steps } = play(dup, inv, via);
+    const k = dup === 'keep' ? 1 : 0;
+    assert.deepEqual(steps.map((x) => x.nums), [[11, 3, 0], [10, 4, 1], [10 + k, 4, 0], [11 + k, 3, 0], [12 + k, 3, 0]], `${dup}/${inv}/${via}`);
+  }
+});
+
+test('both final outcomes, with and without the optional test booking', () => {
+  assert.deepEqual(nums(report(play('merge', 'send', 'email').s)), [12, 3, 0]);
+  assert.deepEqual(nums(report(play('keep', 'send', 'email').s)), [13, 3, 0]);
+  assert.deepEqual(nums(report(play('merge', 'nobill', 'call', false).s)), [11, 3, 0]);
+  assert.deepEqual(nums(report(play('keep', 'nobill', 'call', false).s)), [12, 3, 0]);
+});
+
+test('reset after a full run starts from the hand-built report again', () => {
+  const { s } = play('keep', 'nobill', 'call');
+  assert.equal(s.records.length, 19, 'the test booking was added');
+  const fresh = initialState();
+  assert.deepEqual(nums(report(fresh)), [11, 3, 0]);
+  assert.equal(report(fresh).tag, 'Built by hand');
+  assert.equal(fresh.records.length, 18);
+  assert.ok(fresh.records.every((r) => !r.merged && !r.confirmedSeparate && !r.notBillable && r.status !== 'asked'));
+  assert.equal(fresh.formFixed, false);
+  assert.equal(fresh.testSent, false);
+});
+
+test('the privacy notice describes the current Quillfern simulation', async () => {
+  const html = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  const sec = html.slice(html.indexOf('The examples on the homepage'), html.indexOf('When you contact me'));
+  assert.match(sec, /Quillfern Home Repairs is a fictional business/);
+  assert.match(sec, /page&rsquo;s memory only/);
+  assert.match(sec, /does not send your entries to my real booking service/);
+  assert.match(sec, /does not create real calendar bookings, send real invoices, emails or phone calls/);
+  assert.doesNotMatch(html, /Recurring bills across sites|three messy exports/, 'the retired examples are gone');
 });

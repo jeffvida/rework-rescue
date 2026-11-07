@@ -18,9 +18,9 @@ export const INQUIRY_MESSAGES = {
 // The empty value means "not sure yet": the review is where we work it out.
 export const SERVICE_OPTIONS = [
   ['', 'Not sure yet'],
-  ['data', 'Data & Reporting Rework'],
-  ['workflow', 'Workflow Rework'],
-  ['systems', 'Systems Rework'],
+  ['data', 'Data & Reporting'],
+  ['workflow', 'Workflows & Processes'],
+  ['systems', 'Business Tools & Systems'],
 ];
 export const serviceLabel = (value) => (SERVICE_OPTIONS.find(([v]) => v && v === value) || [])[1] || '';
 

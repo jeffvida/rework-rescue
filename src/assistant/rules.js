@@ -40,17 +40,17 @@ export const STAGES = ['asking', 'suggested', 'answered', 'out_of_scope'];
 
 // Internal code -> visitor-facing name, and the value the booking pop-up's service field uses.
 export const SERVICES = {
-  data_reporting: { label: 'Data & Reporting Rework', book: 'data' },
-  workflow: { label: 'Workflow Rework', book: 'workflow' },
-  systems: { label: 'Systems Rework', book: 'systems' },
+  data_reporting: { label: 'Data & Reporting', book: 'data' },
+  workflow: { label: 'Workflows & Processes', book: 'workflow' },
+  systems: { label: 'Business Tools & Systems', book: 'systems' },
 };
 
 // ---- What the assistant may say (only facts from the live site)
 export const KNOWLEDGE = `Positioning: better data, simpler workflows, connected business tools. Rework Rescue is not an AI automation agency, a web design agency or a software company. Visitors don't need to choose a service: they bring a problem and Jeff helps identify what needs fixing. Most projects start with one problem; some involve more than one area.
 Services:
-- Data & Reporting Rework (fix the numbers): data and reports that take too long to prepare, contain errors or can't be trusted. Builds automated weekly and monthly reports, KPI dashboards and operations reports, data checks that flag errors and missing records, reconciliation and comparison reports, and spreadsheet and reporting improvements using Excel and Power Query. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, spreadsheets or dashboards are hard to maintain or trust, or different reports show different numbers for the same activity.
-- Workflow Rework (fix the steps): how work gets done, when the steps, handoffs and follow-ups create unnecessary effort. Builds automatic reminders and follow-ups, fewer copy-paste and re-typing steps, simple approval and handoff steps, recurring admin tasks on a schedule, automated notifications and task updates, and practical workflows connecting the tools a business already uses. Fits when information is copied or updated repeatedly, manual follow-ups slow work down, handoffs are unclear, or a process has unnecessary steps.
-- Systems Rework (fix the tools): the tools and platforms where work happens and how they connect. Builds practical websites and landing pages, online booking and request pages, website forms connected to Google Sheets, email or CRM systems, simple CRM setup for small teams (customer and inquiry tracking, basic pipelines, form-to-CRM connections, basic reminders and follow-ups), shared trackers, and connections between calendars, forms and business tools.
+- Data & Reporting (fix the numbers): data and reports that take too long to prepare, contain errors or can't be trusted. Builds automated weekly and monthly reports, KPI dashboards and operations reports, data checks that flag errors and missing records, reconciliation and comparison reports, and spreadsheet and reporting improvements using Excel and Power Query. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, spreadsheets or dashboards are hard to maintain or trust, or different reports show different numbers for the same activity.
+- Workflows & Processes (fix the steps): how work gets done, when the steps, handoffs and follow-ups create unnecessary effort. Builds automatic reminders and follow-ups, fewer copy-paste and re-typing steps, simple approval and handoff steps, recurring admin tasks on a schedule, automated notifications and task updates, and practical workflows connecting the tools a business already uses. Fits when information is copied or updated repeatedly, manual follow-ups slow work down, handoffs are unclear, or a process has unnecessary steps.
+- Business Tools & Systems (fix the tools): the tools and platforms where work happens and how they connect. Builds practical websites and landing pages, online booking and request pages, website forms connected to Google Sheets, email or CRM systems, simple CRM setup for small teams (customer and inquiry tracking, basic pipelines, form-to-CRM connections, basic reminders and follow-ups), shared trackers, and connections between calendars, forms and business tools.
 Out of scope: large enterprise CRM implementations, complex CRM migrations, replacing established enterprise systems, extensive custom CRM or large custom software, complex e-commerce.
 Works with exports from accounting, CRM and job-management systems, in Excel or Google Sheets. Usually no new software is needed.
 The free rework review: 30 minutes by video call (Google Meet), about one report or process the visitor chooses. No preparation needed. Jeff helps map it, find the main source of rework and suggest a practical next step. If it's worth fixing, he outlines a proposed scope, price and estimated timeline. No obligation.
@@ -69,9 +69,9 @@ Jeff is a Data & Operations Specialist who helps small businesses with their dat
 Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflow or Systems, and invite them to a free 30-minute rework review. Visitors don't need to choose a service; it is only a starting point for the review.
 
 Services (use the name in "reply", the code in "service"):
-- Data & Reporting Rework -> data_reporting
-- Workflow Rework -> workflow
-- Systems Rework -> systems
+- Data & Reporting -> data_reporting
+- Workflows & Processes -> workflow
+- Business Tools & Systems -> systems
 
 Rules:
 - Use only the facts in KNOWLEDGE below. If something isn't there, say Jeff can answer it in the review. Never guess.

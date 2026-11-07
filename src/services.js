@@ -97,8 +97,14 @@ export function mountServices() {
       if (wide) { li.setAttribute('role', 'tabpanel'); li.setAttribute('aria-labelledby', buttons[k].id); li.tabIndex = 0; }
       else { li.removeAttribute('role'); li.removeAttribute('aria-labelledby'); li.removeAttribute('tabindex'); li.hidden = false; }
     });
+    // Wide: details and example always open (summaries hidden by CSS). Narrow: start compact.
+    list.querySelectorAll('.svc-detail, .svc-try').forEach((d) => { d.open = wide; });
     if (wide) select(current, false);
   };
+  // Phones: an example plays when the visitor opens it.
+  list.querySelectorAll('.svc-try').forEach((d) => d.addEventListener('toggle', () => {
+    if (d.open && !list.classList.contains('is-tabbed')) play(d.closest('.svc-step'));
+  }));
   if (mq) (mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply));
   apply();
 }

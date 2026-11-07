@@ -1,8 +1,8 @@
 // Live demo screens, with the weekly report beside them:
-//   1 Check the records (Data & Reporting Rework): the checks run, then a short "what just happened" summary.
-//   2 Sort out the problems (Workflow Rework): a Monday review sheet, one row per problem, with what it costs and
+//   1 Check the records (Data & Reporting): the checks run, then a short "what just happened" summary.
+//   2 Sort out the problems (Workflows & Processes): a Monday review sheet, one row per problem, with what it costs and
 //     the prepared next step. The owner picks a decision in each row and applies them with one click.
-//   3 Fix the cause (Systems Rework): why each problem happened and what I'd improve; the customer confirms (a
+//   3 Fix the cause (Business Tools & Systems): why each problem happened and what I'd improve; the customer confirms (a
 //     simulated button), then the visitor sends a request through the fixed form (required fields, free slots only).
 //   End: who did what, the three services, a bridge for other businesses and the booking ask.
 // Roles are explicit: the checks prepare, the owner decides, the team calls if chosen, I fix the cause.
@@ -17,9 +17,9 @@ import {
 } from './engine.js';
 
 const STAGES = [
-  ['Data & Reporting Rework', 'Check the records'],
-  ['Workflow Rework', 'Sort out the problems'],
-  ['Systems Rework', 'Fix the cause'],
+  ['Data & Reporting', 'Check the records'],
+  ['Workflows & Processes', 'Sort out the problems'],
+  ['Business Tools & Systems', 'Fix the cause'],
 ];
 // Matches the service cards' colours (see .svc-data / .svc-workflow / .svc-systems in styles.css).
 const SVC_CLASS = ['svc-data', 'svc-workflow', 'svc-systems'];
@@ -299,9 +299,9 @@ export function mountDemo(root) {
           ${whoDidWhat()}
           <p class="dm-end-sub">One process, three improvements</p>
           <ul class="dm-three">
-            <li><a href="#services">Data &amp; Reporting Rework</a>: you know which numbers are right.</li>
-            <li><a href="#services">Workflow Rework</a>: each problem comes to you with the next step prepared.</li>
-            <li><a href="#services">Systems Rework</a>: your tools work together, so the same problems are less likely to happen again.</li>
+            <li><a href="#services">Data &amp; Reporting</a>: you know which numbers are right.</li>
+            <li><a href="#services">Workflows &amp; Processes</a>: each problem comes to you with the next step prepared.</li>
+            <li><a href="#services">Business Tools &amp; Systems</a>: your tools work together, so the same problems are less likely to happen again.</li>
           </ul>
           <p class="dm-bridge"><strong>Not a repair business?</strong> The same problems show up as orders keyed in twice, timesheets that don’t match payroll, supplier bills nobody checked, or a monthly report rebuilt from five spreadsheets.</p>
           <div class="dm-ask">

@@ -8,7 +8,7 @@ import {
   takeDailyAllowance, visitorKey, logRow, assistantBrief, ASSISTANT_LIMITS, ASSISTANT_TEXT, SERVICES, REPLY_SCHEMA, GEMINI_SCHEMA,
 } from '../src/assistant/rules.js';
 
-const reply = (o) => JSON.stringify({ reply: 'Sounds like Data & Reporting Rework. Want to pick a time for a free review?', stage: 'suggested', service: 'data_reporting', summary: 'Copies 3 sheets into a report every Friday', show_booking: true, ...o });
+const reply = (o) => JSON.stringify({ reply: 'Sounds like Data & Reporting. Want to pick a time for a free review?', stage: 'suggested', service: 'data_reporting', summary: 'Copies 3 sheets into a report every Friday', show_booking: true, ...o });
 const asking = (n) => Array.from({ length: n }, (_, i) => [{ role: 'user', content: `answer ${i}` }, { role: 'assistant', content: `question ${i}?`, stage: 'asking' }]).flat();
 
 test('a normal first message passes the check', () => {
@@ -105,7 +105,7 @@ test('14: honest lines pass the price check, prices and promises do not', () => 
   for (const ok of [
     "Jeff doesn't offer guarantees, but the free 30-minute rework review is a good start.",
     'The free 30-minute review is a video call. Want to pick a time?',
-    'That sounds like Workflow Rework: 3 people copy the same job details every day.',
+    'That sounds like Workflows & Processes: 3 people copy the same job details every day.',
     'Prices depend on the scope and are covered in the free review.',
     'He tests on your own files and fixes anything that does not work as agreed in the first 30 days.',
   ]) assert.equal(findUnsafe(ok), '', ok);
@@ -123,7 +123,7 @@ test('14: honest lines pass the price check, prices and promises do not', () => 
 test('finishReply passes a good suggestion through with the booking button and service names', () => {
   const { response, outcome } = finishReply(reply(), 1);
   assert.equal(outcome, 'ok');
-  assert.equal(response.serviceLabel, 'Data & Reporting Rework');
+  assert.equal(response.serviceLabel, 'Data & Reporting');
   assert.equal(response.bookService, 'data');
   assert.equal(response.showBooking, true);
 });
@@ -198,7 +198,7 @@ test('log rows hold no message text and are safe for Sheets', () => {
   const row = logRow({ ...done, questionsAsked: 0, messageCount: 1 }, Date.parse('2026-11-01T02:00:00Z'));
   assert.equal(row['Time (PH)'], '2026-11-01 10:00');
   assert.equal(row.Summary, '\'=HYPERLINK("x")');
-  assert.equal(row.Service, 'Data & Reporting Rework');
+  assert.equal(row.Service, 'Data & Reporting');
   assert.ok(!Object.values(row).some((v) => String(v).includes('Want to pick a time')), 'reply text is not logged');
 });
 

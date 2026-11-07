@@ -53,9 +53,9 @@ async function askPreview(payload) {
   const asked = payload.history.filter((t) => t.role === 'assistant' && t.stage === 'asking').length;
   if (asked === 0) return { reply: 'Thanks. Roughly how often does that happen, and what usually goes wrong?', stage: 'asking', service: null, serviceLabel: '', bookService: '', showBooking: false };
   const said = [...payload.history.filter((t) => t.role === 'user').map((t) => t.content), payload.message].join(' ').toLowerCase();
-  const pick = /tool|website|form|calendar|crm|system|talk/.test(said) ? ['systems', 'Systems Rework', 'systems']
-    : /task|follow|call|crack|handoff|remind|copy/.test(said) ? ['workflow', 'Workflow Rework', 'workflow']
-      : ['data_reporting', 'Data & Reporting Rework', 'data'];
+  const pick = /tool|website|form|calendar|crm|system|talk/.test(said) ? ['systems', 'Business Tools & Systems', 'systems']
+    : /task|follow|call|crack|handoff|remind|copy/.test(said) ? ['workflow', 'Workflows & Processes', 'workflow']
+      : ['data_reporting', 'Data & Reporting', 'data'];
   return { reply: `That sounds like ${pick[1]}. In a free 30-minute rework review, Jeff can look at where it goes wrong with you and suggest a practical next step. Want to pick a time?`, stage: 'suggested', service: pick[0], serviceLabel: pick[1], bookService: pick[2], showBooking: true };
 }
 

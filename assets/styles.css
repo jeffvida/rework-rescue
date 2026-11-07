@@ -2092,3 +2092,23 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .hero-actions { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 .cta-micro { margin: 0; font-size: 0.92rem; font-weight: 500; color: var(--muted); }
 @media (max-width: 52rem) { .hero-actions { align-items: stretch; } .cta-micro { text-align: center; } }
+
+/* Live demo, round 5 (7 Nov copy): findings, the optional form try, the closing ask */
+.dm-findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.4rem 1.4rem; margin: 1.1rem 0 0.4rem; padding-top: 0.9rem; border-top: 1px solid var(--line); }
+.dm-f-h { margin: 0 0 0.35rem; font-weight: 700; color: var(--ink); }
+.dm-try-block { margin-top: 1.3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.dm-sub { font-size: 1.05rem; margin: 0 0 0.2rem; }
+.dm-try-block .dm-end-actions { margin-top: 0.6rem; }
+.dm-try-block .dm-end-actions .dm-btn { margin-top: 0; }
+.dm-ask .dm-h { font-size: 1.2rem; margin-bottom: 0.5rem; }
+.dm-ask-cta { display: inline-flex; flex-direction: column; gap: 0.35rem; }
+.dm-ask .dm-ask-cta .cta-micro { margin: 0; text-align: center; }
+.dm-ask .dm-end-actions { align-items: flex-start; gap: 0.6rem 1.2rem; }
+.dm-ask .dm-link { margin-top: 0.7rem; }
+/* Phones: a compact strip, number + step name only (the area name is on each screen) */
+@media (max-width: 640px) {
+  .dm-strip .dm-s-svc { display: none; }
+  .dm-strip li { padding: 0.55rem 0.35rem; }
+  .dm-ask-cta { display: flex; width: 100%; }
+  .dm-ask-cta .btn, .dm-try-block .dm-end-actions .btn { width: 100%; }
+}

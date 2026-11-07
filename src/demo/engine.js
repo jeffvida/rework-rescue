@@ -4,10 +4,10 @@
 import { RECORDS, NEW_INVOICE, R118_REPLY, TEST_REQUEST } from './data.js';
 
 export const CHECKS = [
-  { id: 'combine', label: 'Bringing website, phone and email requests into one list' },
-  { id: 'duplicates', label: 'Looking for the same visit booked twice' },
-  { id: 'invoices', label: 'Matching done jobs to invoices' },
-  { id: 'bookable', label: 'Checking every request can be booked' },
+  { id: 'combine', label: 'Bringing website, phone and email records into one list.' },
+  { id: 'duplicates', label: 'Looking for the same visit booked twice.' },
+  { id: 'invoices', label: 'Matching completed jobs to invoices.' },
+  { id: 'bookable', label: 'Checking whether every request has the information needed to book.' },
 ];
 
 export function initialState() {
@@ -128,9 +128,10 @@ export function freeSlots(s, day = TEST_REQUEST.when.slice(0, -6)) {
  *  Returns the state, whether it passed every check, and the problems found (empty when it passed). */
 export function sendTest(s, input = {}) {
   if (!s.formFixed || s.testSent) return { state: s, passed: false, errors: ['not-ready'] };
-  const req = { name: 'Test request', job: TEST_REQUEST.job, address: TEST_REQUEST.address, when: TEST_REQUEST.when, ...input };
+  const req = { name: 'Test request', email: 'test@example.com', job: TEST_REQUEST.job, address: TEST_REQUEST.address, when: TEST_REQUEST.when, ...input };
   const errors = [];
   if (!String(req.name || '').trim()) errors.push('name');
+  if (!String(req.email || '').trim()) errors.push('email');
   if (!String(req.address || '').trim()) errors.push('address');
   if (!String(req.job || '').trim()) errors.push('job');
   if (!freeSlots(s).includes(req.when)) errors.push('when');

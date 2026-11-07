@@ -66,6 +66,7 @@ test('the fixed form needs every field and only offers free times', () => {
   assert.deepEqual(freeSlots(s), ['Thu 12 Nov 11:00', 'Thu 12 Nov 15:00'], '9am (Santos) and 1pm (Perez) are taken');
   assert.deepEqual(sendTest(s, { address: ' ' }).errors, ['address']);
   assert.deepEqual(sendTest(s, { job: '' }).errors, ['job']);
+  assert.deepEqual(sendTest(s, { email: '' }).errors, ['email'], 'email is required too');
   assert.deepEqual(sendTest(s, { when: 'Thu 12 Nov 09:00' }).errors, ['when'], 'a taken slot is refused');
   assert.equal(sendTest(s, { when: 'Thu 12 Nov 11:00' }).passed, true);
 });
@@ -126,7 +127,7 @@ test('the homepage shows the calculated numbers', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const teaser = html.slice(html.indexOf('class="tz-card"'), html.indexOf('</figure>'));
   const r = report(initialState());
-  for (const [label, n] of [['Booked', r.booked], ['Waiting on someone', r.waiting], ['Done, not invoiced', r.notInvoiced]]) {
+  for (const [label, n] of [['Booking entries', r.booked], ['Waiting on someone', r.waiting], ['Done, not invoiced', r.notInvoiced]]) {
     assert.match(teaser, new RegExp(`${label}[^<]*</span><b>${n}</b>`), label);
   }
   assert.equal(CHECKS.length, 4);

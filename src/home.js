@@ -66,16 +66,20 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero report card: the numbers count up once when the card is on screen, a check sweeps the rows and the 0 gets marked (the HTML already holds the final values,
-// so without JavaScript or with reduced motion the finished card shows straight away).
-(function countUp() {
+// Hero report card: a coordinated entrance the first time it is on screen. The card settles in, its parts appear
+// in order (badge, title, rows), the numbers count up, a check sweeps the rows, the 0 gets marked, and the prompt
+// and button come last. The HTML already holds the finished card, so without JavaScript or with reduced motion
+// it shows straight away; the CSS only hides the parts while .tz-stage is set and .tz-live is not.
+(function heroCard() {
   const rows = document.querySelector('[data-countup]');
+  const card = rows && rows.closest('.tz-card');
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!rows || reduce || typeof requestAnimationFrame !== 'function') return;
+  if (!rows || !card || reduce || typeof requestAnimationFrame !== 'function') return;
   const nums = [...rows.querySelectorAll('b')].map((el) => ({ el, to: Number(el.textContent) })).filter((n) => n.to > 0);
-  const duration = 900;
-  const delay = 250;
+  const duration = 850;
+  const delay = 650; // starts once the rows are in
   nums.forEach((n) => { n.el.textContent = '0'; });
+  card.classList.add('tz-stage');
   let start = null;
   const tick = (t) => {
     if (start === null) start = t;
@@ -84,13 +88,13 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
     nums.forEach((n) => { n.el.textContent = String(Math.round(n.to * eased)); });
     if (p < 1) requestAnimationFrame(tick);
   };
-  const play = () => { rows.closest('.tz-card')?.classList.add('tz-live'); requestAnimationFrame(tick); };
+  const play = () => { card.classList.add('tz-live'); requestAnimationFrame(tick); };
   // Plays when the card is on screen (on phones it sits below the first screen).
   if (typeof IntersectionObserver !== 'function') { play(); return; }
   const io = new IntersectionObserver((entries) => {
     if (entries.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
-  }, { threshold: 0.6 });
-  io.observe(rows);
+  }, { threshold: 0.35 });
+  io.observe(card);
 }());
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,

@@ -2198,3 +2198,206 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 /* Services: "What you can have" is always shown (phones too), as a plain heading, not a toggle */
 .svc-detail > summary { display: none; }
 .svc-label-have { display: block; margin-top: 1rem; }
+
+/* ==========================================================================
+   Motion design pass (8 Nov): smooth, responsive and purposeful.
+   Everything below either styles new layout or animates content that is already in the page.
+   Hidden-until-animated states only apply under .motion / .tz-stage / .svc-wait, which scripts set
+   only when motion is allowed; the global reduced-motion rule switches all animation off.
+   ========================================================================== */
+:root { --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1); --ease-io: cubic-bezier(0.45, 0, 0.2, 1); }
+
+/* Reveals: a little more travel, smoother easing; groups reveal through their children */
+.motion .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.75s var(--ease-out); transition-delay: var(--rv-delay, 0ms); }
+.motion .rv.is-in { opacity: 1; transform: none; }
+.motion .rv.rv-group { opacity: 1; transform: none; }
+
+/* ---- Hero: second button ---- */
+.hero-actions { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 0.8rem 1rem; }
+.hero-cta-main { display: flex; flex-direction: column; gap: 0.45rem; }
+.btn-quiet { background: transparent; color: var(--teal-dark); border-color: var(--line); }
+.btn-quiet:hover { background: var(--card); border-color: var(--teal); color: var(--teal-dark); }
+.hero-explore::after { content: "\2193"; display: inline-block; margin-left: 0.5rem; transition: transform 0.25s var(--ease-out); }
+.hero-explore:hover::after { transform: translateY(2px); }
+@media (max-width: 52rem) {
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { width: 100%; }
+}
+
+/* ---- Hero card: coordinated entrance (home.js adds .tz-stage, then .tz-live when it is on screen) ---- */
+@keyframes tz-card-in { from { opacity: 0; transform: translateY(22px) rotate(0.6deg); } }
+@keyframes tz-part-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes tz-row-in { from { opacity: 0; transform: translateX(-10px); } }
+.tz-stage:not(.tz-live) { opacity: 0; }
+.tz-stage.tz-live { animation: tz-card-in 0.7s var(--ease-out) both; }
+.tz-stage.tz-live .tz-badge { animation: tz-part-in 0.4s var(--ease-out) 0.25s both; }
+.tz-stage.tz-live .tz-title { animation: tz-part-in 0.45s var(--ease-out) 0.33s both; }
+.tz-stage.tz-live .tz-date { animation: tz-part-in 0.45s var(--ease-out) 0.4s both; }
+.tz-stage.tz-live .tz-rows li { animation: tz-row-in 0.45s var(--ease-out) both; }
+.tz-stage.tz-live .tz-rows li:nth-child(1) { animation-delay: 0.5s; }
+.tz-stage.tz-live .tz-rows li:nth-child(2) { animation-delay: 0.58s; }
+.tz-stage.tz-live .tz-rows li:nth-child(3) { animation: tz-row-in 0.45s var(--ease-out) 0.66s both, tz-mark 0.5s ease-out 1.9s both; }
+.tz-stage.tz-live .tz-rows::after { animation: hp-sweep 0.9s var(--ease-io) 1.15s both; }
+.tz-stage.tz-live .tz-q { animation: hp-pop 0.32s var(--ease-out) 2s both, tz-ping 1.3s ease-out 2.3s 2; }
+.tz-stage.tz-live .tz-note { animation: tz-part-in 0.45s var(--ease-out) 1.5s both; }
+.tz-stage.tz-live .tz-ask { animation: tz-part-in 0.5s var(--ease-out) 2.15s both; }
+.tz-stage.tz-live .tz-btn { animation: tz-part-in 0.5s var(--ease-out) 2.3s both; }
+.tz-rows li.tz-suspect { background: var(--warn-bg); }
+
+/* ---- "Sound familiar?": an editorial, numbered list ---- */
+.fit-eyebrow { margin: 0 0 0.4rem; }
+#fit h2 { max-width: 22ch; font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.35rem); line-height: 1.15; letter-spacing: -0.015em; }
+.pain-tiles { counter-reset: pain; margin-top: 1.8rem; gap: 0 2.4rem; }
+.pain-tiles li { counter-increment: pain; border-left: 0; padding: 1.1rem 0 0; border-top: 1px solid var(--line); position: relative; }
+.pain-tiles li::before { content: counter(pain, decimal-leading-zero); display: block; font-family: var(--display); font-weight: 600; font-size: 0.9rem; letter-spacing: 0.04em; color: var(--svc-data); margin-bottom: 0.45rem; }
+.pain-tiles li:nth-child(2)::before { color: var(--svc-workflow); }
+.pain-tiles li:nth-child(3)::before { color: var(--svc-systems); }
+.pain-tiles li::after { content: ""; position: absolute; left: 0; top: -1px; height: 2px; width: 2.6rem; background: currentColor; color: var(--svc-data); transform-origin: left; transition: transform 0.6s var(--ease-out) 0.2s; }
+.pain-tiles li:nth-child(2)::after { color: var(--svc-workflow); }
+.pain-tiles li:nth-child(3)::after { color: var(--svc-systems); }
+.motion .pain-tiles li.rv::after { transform: scaleX(0); }
+.motion .pain-tiles li.rv.is-in::after { transform: scaleX(1); transition-delay: calc(var(--rv-delay, 0ms) + 0.25s); }
+@media (max-width: 52rem) { .pain-tiles { gap: 1.2rem; } }
+
+/* ---- Services: each service makes an entrance (services.js: .svc-wait → .svc-enter) ---- */
+@keyframes svc-ex-in { from { opacity: 0; transform: translateX(18px) scale(0.985); } }
+@keyframes svc-part-in { from { opacity: 0; transform: translateY(12px); } }
+.svc-wait > * { opacity: 0; }
+.svc-enter > * { animation: svc-part-in 0.5s var(--ease-out) both; }
+.svc-enter > h3 { animation-delay: 0s; }
+.svc-enter > .svc-short { animation-delay: 0.05s; }
+.svc-enter > .svc-when { animation-delay: 0.1s; }
+.svc-enter > .svc-try { animation: svc-ex-in 0.6s var(--ease-out) 0.05s both; }
+.svc-enter > .svc-label { animation-delay: 0.16s; }
+.svc-enter > .svc-familiar { animation-delay: 0.22s; }
+.svc-enter > .svc-detail { animation-delay: 0.3s; }
+.svc-ui.is-tabbed .svc-enter > .svc-try { animation-delay: 0s; }
+.svc-ui:not(.is-tabbed) .svc-enter > .svc-try { animation: svc-part-in 0.5s var(--ease-out) 0.36s both; }
+.svc-tab { transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s var(--ease-out); }
+.svc-tab:hover:not([aria-selected="true"]) { transform: translateX(3px); }
+.svc-tab-n { transition: color 0.25s ease; }
+
+/* ---- Data preview: the check scans the rows, the duplicate is flagged, Booked and the current bar update ---- */
+.pv-scan { fill: var(--info-bg); opacity: 0; transform-box: view-box; }
+@keyframes pv-scan { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(48px); } }
+.pv-done .pv-scan { animation: pv-scan 0.75s var(--ease-io) both; }
+.pv-kpi-d { font-size: 10.5px; font-weight: 600; fill: #7a2e12; }
+.pv-ready .pv-kpi-d { opacity: 0; }
+.pv-done .pv-kpi-d { animation: pv-rise 0.35s var(--ease-out) 1s both; }
+.pv-bar-now { transform: scaleY(0.9); transition: transform 0.6s var(--ease-out); }
+.pv-ready .pv-bar-now { transform: none; }
+.pv-done .pv-bar-now { transition-delay: 1s; }
+
+/* ---- Workflow preview: connections draw step by step; the person's step is the one that waits ---- */
+.pv-conn { fill: none; stroke: var(--teal); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 10; stroke-dashoffset: 0; }
+.pv-conn.c2, .pv-conn.c3 { stroke: var(--svc); }
+.pv-ready .pv-conn-after { stroke-dashoffset: 10; }
+.is-playing .pv-conn.c1 { animation: pv-conn-draw 0.3s var(--ease-io) 0.2s both; }
+.is-playing .pv-conn.c2 { animation: pv-conn-draw 0.3s var(--ease-io) 0.45s both; }
+@keyframes pv-conn-draw { from { stroke-dashoffset: 10; } to { stroke-dashoffset: 0; } }
+.pv-done .pv-conn.c3 { animation: pv-conn-draw 0.25s var(--ease-io) 0.05s both; }
+.pv-done .pv-conn.c4 { animation: pv-conn-draw 0.25s var(--ease-io) 0.6s both; }
+.pv-done .pv-log-after.la1 { animation: pv-rise 0.35s var(--ease-out) 0.25s both; }
+.pv-done .pv-log-after.la2 { animation: pv-rise 0.35s var(--ease-out) 0.8s both; }
+.pv-you-ok { font-size: 10px; font-weight: 700; fill: var(--teal-dark); }
+.pv-ready .pv-you-ok { opacity: 0; }
+.pv-done .pv-you-ok { animation: pv-fade 0.3s ease both; }
+.pv-done .pv-you-bg { fill: #fffaf0; transition: fill 0.3s ease; }
+.pv-done .pv-st-a { animation: pv-shown 0.25s linear; }
+.pv-done .pv-st-b { animation: pv-shown 0.6s linear 0.25s; }
+.pv-done .pv-st-c { animation: pv-hidden 0.85s linear; }
+
+/* ---- Systems preview: the request travels from the form to the calendar and the job sheet ---- */
+.pv-dot { fill: var(--svc); opacity: 0; }
+@keyframes pv-to-cal { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-40px, -63px); } }
+@keyframes pv-to-sheet { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(74px, -38px); } }
+.pv-done .pv-dot-cal { animation: pv-to-cal 0.55s var(--ease-io) both; }
+.pv-done .pv-dot-sheet { animation: pv-to-sheet 0.6s var(--ease-io) 0.1s both; }
+.pv-done .pv-link.l1 { animation: pv-draw-link 0.25s ease 0.45s both; }
+.pv-done .pv-link.l2 { animation: pv-draw-link 0.25s ease 0.55s both; }
+.pv-done .pv-booked.pv-on { animation: pv-fade 0.35s ease 0.55s both, pv-ring 0.9s ease-out 0.9s; }
+.pv-done .pv-sheet-new { animation: pv-fade 0.4s ease 0.65s both; }
+@keyframes pv-ring { 0% { filter: drop-shadow(0 0 0 rgba(63, 95, 143, 0.6)); } 50% { filter: drop-shadow(0 0 5px rgba(63, 95, 143, 0.55)); } 100% { filter: drop-shadow(0 0 0 rgba(63, 95, 143, 0)); } }
+
+/* ---- Experience: a dark band with the 8+ figure ---- */
+.section.experience { background: var(--ink); color: #dfe9e6; }
+.experience h2, .experience h3 { color: #fff; }
+.experience .lede { color: #dfe9e6; }
+.experience .exp p { color: #c9d8d4; }
+.experience .exp-note { color: #a9bdb8; }
+.exp-head { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1rem 3rem; align-items: center; }
+.exp-stat { margin: 0; display: grid; grid-template-columns: auto auto; justify-content: start; align-items: baseline; }
+.exp-num, .exp-plus { font-family: var(--display); font-weight: 600; font-size: clamp(4.5rem, 3rem + 5vw, 7.5rem); line-height: 0.9; color: var(--signal); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.exp-plus { transition: opacity 0.3s ease, transform 0.4s var(--ease-out); }
+.motion .exp-head.rv .exp-plus { opacity: 0; transform: translateY(-6px); }
+.motion .exp-head.rv .exp-stat.is-counted .exp-plus { opacity: 1; transform: none; }
+.exp-stat-l { grid-column: 1 / -1; margin-top: 0.7rem; max-width: 15rem; font-weight: 600; color: #fff; line-height: 1.35; }
+.exp-intro h2 { margin-top: 0; }
+.experience .exp { border-top-width: 2px; }
+.experience .exp.svc-data { --svc: #78c2a4; } .experience .exp.svc-workflow { --svc: var(--signal); } .experience .exp.svc-systems { --svc: #9db6e0; }
+.exp-list { margin-top: 2.4rem; }
+@media (max-width: 52rem) { .exp-head { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- How I work: a timeline that draws, with each step arriving as the line reaches it ---- */
+.how-section .steps-h { margin: 0.4rem 0 0; max-width: 40rem; }
+.how-section h2 { margin-bottom: 0; }
+.motion .steps-row.rv { opacity: 1; transform: none; }
+.motion .steps-row.rv li > * { opacity: 0; transform: translateY(10px); transition: opacity 0.45s ease, transform 0.55s var(--ease-out); }
+.motion .steps-row.rv.is-in li > * { opacity: 1; transform: none; }
+.motion .steps-row.rv.is-in li:nth-child(1) > * { transition-delay: 0.3s; }
+.motion .steps-row.rv.is-in li:nth-child(2) > * { transition-delay: 0.65s; }
+.motion .steps-row.rv.is-in li:nth-child(3) > * { transition-delay: 1s; }
+.motion .steps-row.rv.is-in li:nth-child(4) > * { transition-delay: 1.35s; }
+.motion .steps-row.rv::before { transition: transform 1.4s var(--ease-io) 0.15s; }
+@media (min-width: 52.01rem) { .steps-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem; } }
+/* Below desktop the timeline runs down the left */
+@media (max-width: 52rem) {
+  .steps-row { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
+  .steps-row li { display: grid; grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.85rem; padding: 0.85rem 0 0.4rem; border-top: 0; position: relative; }
+  .steps-row li::before { grid-row: 1 / span 2; width: 2rem; height: 2rem; margin: 0; font-size: 0.9rem; position: relative; z-index: 1; box-shadow: 0 0 0 4px var(--paper); }
+  .steps-row li h3 { font-size: 1.05rem; margin: 0.2rem 0 0.2rem; }
+  .steps-row li p { margin: 0; font-size: 0.95rem; }
+  .steps-row::before { right: auto; top: 1.3rem; bottom: 1.6rem; left: 0.95rem; width: 2px; height: auto; transform-origin: center top; }
+  .motion .steps-row.rv::before { transform: scaleY(0); }
+  .motion .steps-row.rv.is-in::before { transform: scaleY(1); }
+}
+
+/* ---- About: the photo is revealed, then the text follows ---- */
+.about-eyebrow { margin: 0 0 0.3rem; }
+.about-section h2 { margin: 0 0 0.2rem; }
+.motion .about-section .photo-card.rv { opacity: 1; transform: none; }
+.motion .about-section .photo-card.rv .photo-frame { clip-path: inset(0 0 100% 0 round 18px); transition: clip-path 0.9s var(--ease-io); }
+.motion .about-section .photo-card.rv .about-photo { transform: scale(1.08); transition: transform 1.2s var(--ease-out); }
+.motion .about-section .photo-card.rv.is-in .photo-frame { clip-path: inset(0 0 0 0 round 18px); }
+.motion .about-section .photo-card.rv.is-in .about-photo { transform: none; }
+.motion .about-copy > .rv { transition-delay: calc(var(--rv-delay, 0ms) + 0.25s); }
+@media (min-width: 52.01rem) { .about-section .about-grid { grid-template-columns: minmax(0, 19rem) minmax(0, 1fr); gap: 3.5rem; } }
+
+/* ---- Final CTA ---- */
+.cta-section h2 { font-size: clamp(1.9rem, 1.3rem + 2.2vw, 2.7rem); line-height: 1.1; letter-spacing: -0.02em; }
+.cta-facts { list-style: none; margin: 1.1rem 0 0.4rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cta-facts li { padding: 0.3rem 0.8rem; border: 1px solid rgba(230, 192, 120, 0.55); border-radius: 999px; color: #fff; font-size: 0.92rem; font-weight: 600; }
+.cta-facts li::before { content: ""; display: inline-block; width: 0.45rem; height: 0.45rem; margin-right: 0.45rem; border-radius: 50%; background: var(--signal); vertical-align: 0.08rem; }
+.cta-section .btn-primary { transition: background-color 0.2s ease, transform 0.25s var(--ease-out), box-shadow 0.25s ease; }
+.cta-section .btn-primary:hover:not([disabled]) { transform: translateY(-2px); box-shadow: 0 10px 24px -10px rgba(230, 192, 120, 0.8); }
+.motion .cta-section .cta-contact.rv { transition-delay: 0.3s; }
+
+/* Buttons everywhere: a slightly springier lift */
+.btn:hover:not([disabled]) { transition-timing-function: var(--ease-out); }
+/* fixes after first QA */
+.exp-stat { display: block; }
+.exp-num, .exp-plus { display: inline-block; }
+.exp-stat-l { display: block; }
+.hero-actions { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; column-gap: 1.4rem; row-gap: 0.45rem; }
+.hero-cta-main { display: contents; }
+.hero-cta-main .btn { grid-column: 1; grid-row: 1; }
+.hero-cta-main .cta-micro { grid-column: 1; grid-row: 2; }
+.hero-explore { grid-column: 2; grid-row: 1; }
+.btn.btn-quiet.hero-explore { border-color: transparent; padding-left: 0.4rem; padding-right: 0.4rem; font-size: 1.02rem; text-decoration: underline; text-decoration-color: rgba(46, 125, 114, 0.35); text-underline-offset: 0.3em; }
+.btn.btn-quiet.hero-explore:hover { background: transparent; border-color: transparent; text-decoration-color: var(--teal); }
+@media (max-width: 52rem) {
+  .hero-actions { grid-template-columns: minmax(0, 1fr); }
+  .hero-explore { grid-column: 1; grid-row: 3; justify-self: center; }
+  .hero-cta-main .cta-micro { text-align: center; }
+}
+.pv-kpi-d { font-size: 13px; } .pv-you-ok { font-size: 13px; }

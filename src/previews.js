@@ -31,9 +31,29 @@ function setup(fig) {
   box.append(again);
 
   const chip = (t) => fig.querySelector(`[data-pv-chip="${t}"]`);
+  // Data preview: once the duplicate is flagged, Booked counts down to the de-duplicated figure.
+  const kpi = fig.querySelector('[data-pv-kpi]');
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let kpiTimer = null;
+  const countKpi = () => {
+    if (!kpi) return;
+    const from = Number(kpi.dataset.pvKpi); const to = Number(kpi.dataset.pvKpiTo);
+    if (reduce || typeof requestAnimationFrame !== 'function') { kpi.textContent = String(to); return; }
+    kpiTimer = setTimeout(() => {
+      const t0 = performance.now();
+      const tick = (t) => {
+        const p = Math.min(1, (t - t0) / 500);
+        kpi.textContent = String(Math.round(from + (to - from) * p));
+        if (p < 1 && fig.classList.contains('pv-done')) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, 1000);
+  };
 
   const reset = () => {
     picked = null;
+    clearTimeout(kpiTimer);
+    if (kpi) kpi.textContent = kpi.dataset.pvKpi;
     fig.classList.remove('pv-done');
     fig.classList.add('pv-ready');
     result.textContent = '';
@@ -68,6 +88,7 @@ function setup(fig) {
     if (tryLabel) tryLabel.hidden = true;
     if (timeWrap) timeWrap.hidden = true;
     result.textContent = RESULT[kind](picked);
+    countKpi();
     again.hidden = false;
     again.focus({ preventScroll: true });
   });

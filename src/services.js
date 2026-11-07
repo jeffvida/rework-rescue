@@ -12,6 +12,19 @@ export function mountServices() {
   if (!items.length) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Entrance (8 Nov motion pass): a service's example slides in, then its lists and outcome follow.
+  // Desktop: the first time the services come on screen, and on every tab change. Phones: each service once,
+  // when it scrolls into view. .svc-wait hides the parts only until then, and only when motion is allowed.
+  const motionOK = !reduce && typeof IntersectionObserver === 'function';
+  const enter = (li) => {
+    if (!motionOK || !li) return;
+    li.classList.remove('svc-wait', 'svc-enter');
+    void li.offsetWidth; // restart the animation
+    li.classList.add('svc-enter');
+  };
+  if (motionOK) items.forEach((li) => li.classList.add('svc-wait'));
+  let seen = false;
+
   const play = (li) => {
     const fig = li.querySelector('.svc-preview');
     if (!fig || reduce) return;
@@ -68,6 +81,7 @@ export function mountServices() {
       items[k].hidden = !on;
     });
     if (focus) buttons[i].focus();
+    if (seen) enter(items[i]);
     play(items[i]);
   };
 
@@ -108,4 +122,23 @@ export function mountServices() {
   }));
   if (mq) (mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply));
   apply();
+
+  if (motionOK) {
+    // Desktop: the panel on show makes its entrance when the services first come on screen.
+    const wideIo = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting) || !wrap.classList.contains('is-tabbed')) return;
+      wideIo.disconnect(); seen = true; enter(items[current]);
+    }, { threshold: 0.2 });
+    wideIo.observe(wrap);
+    // Phones: each service once, as it scrolls into view.
+    const narrowIo = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting || wrap.classList.contains('is-tabbed')) return;
+        narrowIo.unobserve(e.target); enter(e.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    items.forEach((li) => narrowIo.observe(li));
+    // Switching between layouts (e.g. rotating a tablet) never leaves a service hidden.
+    if (mq) (mq.addEventListener ? mq.addEventListener('change', () => { seen = true; items.forEach((li) => li.classList.remove('svc-wait')); }) : null);
+  }
 }

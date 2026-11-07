@@ -104,7 +104,11 @@ export function mountDemo(root) {
         <aside class="dm-report" aria-label="This week’s report">
           <p class="dm-r-title">This week’s report</p>
           <p class="dm-r-tag"></p>
-          <dl class="dm-r-rows">${ROWS.map(([k, l]) => `<div class="dm-r-row" data-k="${k}"><dt>${esc(l)}</dt><dd><span class="dm-old"></span><b></b></dd></div>`).join('')}</dl>
+          <dl class="dm-r-rows">${ROWS.map(([k, l]) => `<div class="dm-r-row" data-k="${k}"><dt>${esc(l)}</dt><dd><span class="dm-old"></span><b></b><span class="dm-unit"></span></dd></div>`).join('')}</dl>
+          <details class="dm-defs"><summary>What the numbers mean</summary><ul>
+            <li><strong>Booked:</strong> unique confirmed visits.</li>
+            <li><strong>Waiting:</strong> requests or jobs that still need someone to act.</li>
+            <li><strong>Done, not invoiced:</strong> completed jobs without an invoice.</li></ul></details>
           <div class="dm-last"></div>
         </aside>
       </div>
@@ -129,6 +133,8 @@ export function mountDemo(root) {
         row._t = setTimeout(() => { old.textContent = ''; row.classList.remove('is-changed'); }, 4000);
       }
     }
+    // Before the checks the hand-built report counts booking entries; afterwards, unique confirmed visits.
+    root.querySelector('.dm-r-row[data-k="booked"] .dm-unit').textContent = s.checked ? 'unique confirmed visits' : 'booking entries';
     const tag = root.querySelector('.dm-r-tag');
     tag.textContent = next.tag;
     tag.dataset.tag = next.tag;
@@ -216,7 +222,7 @@ export function mountDemo(root) {
     if (phase === 'ready') {
       h = `${svc()}${roles(['auto', 'In real life: runs every Monday'])}
         <h3 class="dm-h">Monday morning. The report was built by hand.</h3>
-        <p>It says 11 jobs booked, 3 waiting and nothing to invoice. Building it took ${esc(HAND_REPORT)}. Here, press the button to watch the checks run.</p>
+        <p>It says 11 booking entries, 3 waiting and nothing to invoice. Building it took ${esc(HAND_REPORT)}. Here, press the button to watch the checks run.</p>
         ${move('run Monday’s checks.')}${btn('check', 'Run Monday’s checks')}`;
     } else if (phase === 'checking') {
       h = `${svc()}${roles(['auto', 'Running automatically'])}<h3 class="dm-h">Checking the 18 records</h3><ol class="dm-checks">${CHECKS.map((c, i) => `<li class="${i < ticked ? 'is-done' : ''}">${esc(c.label)}</li>`).join('')}</ol>`;
@@ -229,6 +235,7 @@ export function mountDemo(root) {
           <li>Prepared a next step for each problem.</li>
         </ul>
         <p class="dm-sorted">The checks found three problems: one duplicate booking, one completed job without an invoice, and one request stuck in the inbox. The report has been corrected to reflect the actual records.</p>
+        <p class="dm-note">The initial report contains 11 booking entries. After checking for duplicate records, these represent 10 unique confirmed visits. The difference is a duplicate entry, not a valid booking being removed.</p>
         <p class="dm-note">In real life this runs by itself every Monday at 7am. Nobody presses anything.</p>
         <p class="dm-note"><strong>Each check is a rule I set up for your business after mapping how your work flows.</strong> It catches the problems we’ve agreed to look for.</p>
         ${btn('review', 'Next: review the problems')}`;

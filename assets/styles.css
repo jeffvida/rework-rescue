@@ -2043,3 +2043,30 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 
 /* The hero card's stacked sheets must never push the page sideways (seen at 900-1100 px) */
 .hero { overflow-x: clip; }
+
+/* What I can help you improve: positioning line and "not sure" note */
+.svc-position { margin: 0.4rem 0 0.2rem; font-family: var(--display); font-weight: 600; font-size: clamp(1.2rem, 2vw, 1.45rem); color: var(--teal-dark); letter-spacing: -0.01em; }
+.svc-choose { margin: 2rem 0 0; padding: 1.1rem 1.3rem; border-left: 4px solid var(--teal); background: rgba(255, 255, 255, 0.6); border-radius: 0 10px 10px 0; max-width: 46rem; }
+.svc-choose h3 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+.svc-choose p { margin: 0; }
+
+/* Experience behind the work: compact, three short columns, no cards */
+.exp-list { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 2.2rem; }
+.exp { padding-top: 0.9rem; border-top: 3px solid var(--svc); }
+.exp h3 { font-size: 1.12rem; margin: 0 0 0.35rem; }
+.exp p { margin: 0; color: var(--ink-soft, var(--ink)); }
+.exp-note { margin: 1.4rem 0 0; font-size: 0.92rem; color: var(--muted); max-width: 46rem; }
+@media (max-width: 52rem) { .exp-list { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; } }
+
+/* How I work: the process heading above the four steps */
+.steps-h { margin: 2.6rem 0 0.4rem; font-size: clamp(1.2rem, 2vw, 1.45rem); }
+
+/* Booking: the second supporting line */
+.book-sub { margin: 0.6rem 0 0; max-width: 40em; color: rgba(255, 255, 255, 0.85); }
+
+/* Live example report: what the Booked number counts, and the definitions */
+.dm-unit { display: block; font-size: 0.78rem; font-weight: 500; opacity: 0.8; margin-top: 0.1rem; }
+.dm-defs { margin: 0.9rem 0 0; font-size: 0.85rem; }
+.dm-defs summary { cursor: pointer; font-weight: 600; }
+.dm-defs ul { margin: 0.5rem 0 0; padding-left: 1.1rem; }
+.dm-defs li { margin: 0.25rem 0; }

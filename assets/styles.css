@@ -2087,3 +2087,8 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .svc-ui.is-tabbed .svc-detail { margin-top: 0; }
 .svc-ui.is-tabbed .svc-step > .svc-build { margin-bottom: 0; }
 .svc-ui.is-tabbed .svc-build-more { margin-top: 0.55rem; }
+
+/* Hero: what the review involves, right under the main button (hero only) */
+.hero-actions { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.cta-micro { margin: 0; font-size: 0.92rem; font-weight: 500; color: var(--muted); }
+@media (max-width: 52rem) { .hero-actions { align-items: stretch; } .cta-micro { text-align: center; } }

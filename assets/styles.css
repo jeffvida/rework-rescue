@@ -2185,3 +2185,12 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 }
 .dm-forms .dm-fp li { padding: 0.2rem 0; }
 .dm-forms .dm-fp li em { display: inline; margin-left: 0.3rem; }
+
+/* Services (7 Nov copy): familiar situations, what you can have, what gets better */
+.svc-label-have { display: none; }
+.svc-ui.is-tabbed .svc-label-have { display: block; margin-top: 1rem; }
+.svc-have { list-style: none; margin: 0.3rem 0 0.9rem; padding: 0; display: grid; gap: 0.55rem; }
+.svc-have li { padding-left: 0.8rem; border-left: 3px solid var(--svc, var(--teal)); }
+.svc-have strong { display: block; color: var(--ink); font-size: 0.98rem; }
+.svc-have span { display: block; color: var(--muted); font-size: 0.94rem; line-height: 1.45; }
+.svc-ui.is-tabbed .svc-step > .svc-familiar { margin-bottom: 0; }

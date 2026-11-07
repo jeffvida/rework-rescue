@@ -3,9 +3,9 @@
 // picture shows and the controls stay hidden.
 
 const RESULT = {
-  data: () => 'The checks found 1 duplicate before the report went out.',
-  workflow: () => 'You made the one decision. The rest ran on its own.',
-  systems: (t) => `Booked for Tue ${t}. Typed once, it shows up in all three.`,
+  data: () => 'Sample check complete: one duplicate was flagged before the report was finalized.',
+  workflow: () => 'Sample complete: nothing was sent until you approved the quote. Then it went out and a follow-up was set.',
+  systems: (t) => `Sample only, no real booking was made: Tuesday at ${t} now shows in the sample calendar and job sheet.`,
 };
 
 export function mountPreviews() {

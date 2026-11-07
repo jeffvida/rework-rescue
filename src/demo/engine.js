@@ -4,7 +4,7 @@
 import { RECORDS, NEW_INVOICE, R118_REPLY, TEST_REQUEST } from './data.js';
 
 export const CHECKS = [
-  { id: 'combine', label: 'Bringing website, phone and email records into one list.' },
+  { id: 'combine', label: 'Bringing records together from different sources.' },
   { id: 'duplicates', label: 'Looking for the same visit booked twice.' },
   { id: 'invoices', label: 'Matching completed jobs to invoices.' },
   { id: 'bookable', label: 'Checking whether every request has the information needed to book.' },

@@ -1,12 +1,12 @@
-// Live demo screens, with the weekly report beside them (five screens, 7 Nov copy):
-//   1 The problem (Data & Reporting): the hand-built report and one button.
-//   2 The findings (Data & Reporting): the four checks run, then the three problems and the corrected report.
-//   3 The owner's decisions (Workflows & Processes): a Monday review sheet, one row per problem, with why it matters and
-//     the prepared next step. The owner picks a decision in each row and applies them with one click; the customer's
-//     confirmation (simulated) follows by itself.
-//   4 Fix the causes (Business Tools & Systems): why each problem happened and what I'd improve, plus an optional try of
-//     the improved form (required fields, free slots only).
-//   5 Results: three improvements, who does what, and the booking ask.
+// Live demo: an interactive Monday operations review at Quillfern Home Repairs, with the weekly report beside it.
+// Five stages, each tied to one service area:
+//   1 Investigate the report (Data & Reporting): the hand-built report; the four checks run.
+//   2 Discover the problems (Data & Reporting): three findings, revealed one by one; the report is corrected.
+//   3 Make the decisions (Workflows & Processes): a Monday review sheet; the owner picks a decision per row and applies
+//     them with one click. The customer's confirmation (simulated) follows by itself.
+//   4 Improve the process (Business Tools & Systems): why each problem happened and the improvement I'd propose.
+//   5 See the better workflow (Business Tools & Systems): the improved form, ready to send (optional), then the final
+//     report, what improved, the booking ask and who does what.
 // Roles are explicit: the checks prepare, the owner decides, the team calls if chosen, I fix the cause.
 // Every number comes from ./engine.js. Emails, calls and replies are simulated and say so on screen.
 // The section's static HTML (index.html) is what visitors see without JavaScript; this replaces it.
@@ -19,13 +19,15 @@ import {
 } from './engine.js';
 
 const STAGES = [
-  ['Data & Reporting', 'Check the records'],
-  ['Workflows & Processes', 'Sort out the problems'],
-  ['Business Tools & Systems', 'Fix the cause'],
+  ['Data & Reporting', 'Investigate the report'],
+  ['Data & Reporting', 'Discover the problems'],
+  ['Workflows & Processes', 'Make the decisions'],
+  ['Business Tools & Systems', 'Improve the process'],
+  ['Business Tools & Systems', 'See the better workflow'],
 ];
 // Matches the service cards' colours (see .svc-data / .svc-workflow / .svc-systems in styles.css).
-const SVC_CLASS = ['svc-data', 'svc-workflow', 'svc-systems'];
-const ROWS = [['booked', 'Booked'], ['waiting', 'Waiting on someone'], ['notInvoiced', 'Done, not invoiced']];
+const SVC_CLASS = ['svc-data', 'svc-data', 'svc-workflow', 'svc-systems', 'svc-systems'];
+const ROWS = [['booked', 'Booked'], ['waiting', 'Waiting'], ['notInvoiced', 'Done, not invoiced']];
 
 // The review sheet: one row per problem, two choices each.
 const SHEET = [
@@ -52,6 +54,12 @@ const REASON = {
   email: 'Waiting unchanged: G. Torres hasn’t confirmed yet.',
   call: 'Waiting unchanged: G. Torres hasn’t confirmed yet.',
 };
+// Stage 2: the three findings, revealed one by one.
+const FINDINGS = [
+  { label: 'Duplicate booking', who: 'M. Santos', lines: ['Aircon service.', 'Thu 12 Nov, 9am.', 'Two bookings exist for the same visit.'], impact: 'Two technicians could go to the same job.' },
+  { label: 'Missing invoice', who: 'D. Cruz', lines: ['Gutter repair.', 'Completed Thu 5 Nov.', 'The job list says it was invoiced, but no invoice exists in the accounts.'], impact: '$480 of completed work hasn’t been billed.' },
+  { label: 'Incomplete request', who: 'G. Torres', lines: ['Water heater service.', 'Website request.', 'No address supplied.', 'Still sitting in the inbox.'], impact: 'Waiting four days. The customer may have called someone else.' },
+];
 // What the review sheet carried out, in one sentence.
 const APPLIED = {
   merge: 'the duplicate booking has been confirmed as one visit',
@@ -78,7 +86,7 @@ export function mountDemo(root) {
   const wait = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
 
   let s = initialState();
-  // ready | checking | findings | review | applying | applied | cause | form | sent | end
+  // ready | checking (stage 1) · findings (2) · review | applying | applied (3) · cause (4) · better | sent (5) · end
   let phase = 'ready';
   let ticked = 0;
   let pathLit = 0;
@@ -102,7 +110,7 @@ export function mountDemo(root) {
         <aside class="dm-report" aria-label="This week’s report">
           <p class="dm-r-title">This week’s report</p>
           <p class="dm-r-tag"></p>
-          <dl class="dm-r-rows">${ROWS.map(([k, l]) => `<div class="dm-r-row" data-k="${k}"><dt>${esc(l)}</dt><dd><span class="dm-old"></span><b></b><span class="dm-unit"></span></dd></div>`).join('')}</dl>
+          <dl class="dm-r-rows">${ROWS.map(([k, l]) => `<div class="dm-r-row" data-k="${k}"><dt>${esc(l)}</dt><dd><span class="dm-old"></span><b></b><span class="dm-q" aria-hidden="true">?</span><span class="dm-unit"></span></dd></div>`).join('')}</dl>
           <details class="dm-defs"><summary>What the numbers mean</summary><ul>
             <li><strong>Booked:</strong> unique confirmed visits.</li>
             <li><strong>Waiting:</strong> requests or jobs that still need someone to act.</li>
@@ -117,20 +125,35 @@ export function mountDemo(root) {
   const lastLine = root.querySelector('.dm-last');
   const say = (m) => { live.textContent = ''; setTimeout(() => { live.textContent = m; }, 30); };
 
-  // ---- the report: a changed number shows its before and after; the reasons sit underneath
+  // ---- the report: a changed number counts to its new value and shows its before and after; the reasons sit underneath.
+  // Until the checks run, the 0 carries the same "?" as the hero card.
+  function tween(el, from, to) {
+    if (reduce || typeof requestAnimationFrame !== 'function' || from === to) { el.textContent = to; return; }
+    const t0 = performance.now(); const dur = 450;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      el.textContent = String(Math.round(from + (to - from) * (1 - (1 - p) ** 3)));
+      if (p < 1 && el._to === to) requestAnimationFrame(step);
+    };
+    el._to = to; requestAnimationFrame(step);
+  }
   function paintReport(reason) {
     const next = report(s);
     for (const [k] of ROWS) {
       const row = root.querySelector(`.dm-r-row[data-k="${k}"]`);
       const old = row.querySelector('.dm-old');
-      row.querySelector('b').textContent = next[k];
+      const num = row.querySelector('b');
       if (next[k] !== shown[k]) {
+        tween(num, shown[k], next[k]);
         old.textContent = `${shown[k]} → `;
         row.classList.remove('is-changed'); void row.offsetWidth; row.classList.add('is-changed');
         clearTimeout(row._t);
         row._t = setTimeout(() => { old.textContent = ''; row.classList.remove('is-changed'); }, 4000);
+      } else {
+        num._to = next[k]; num.textContent = next[k];
       }
     }
+    root.querySelector('.dm-r-row[data-k="notInvoiced"]').classList.toggle('is-suspect', !s.checked);
     // Before the checks the hand-built report counts booking entries; afterwards, unique confirmed visits.
     root.querySelector('.dm-r-row[data-k="booked"] .dm-unit').textContent = s.checked ? 'unique confirmed visits' : 'booking entries';
     const tag = root.querySelector('.dm-r-tag');
@@ -143,7 +166,7 @@ export function mountDemo(root) {
     shown = next;
   }
 
-  const stageIndex = () => ({ ready: 0, checking: 0, findings: 0, review: 1, applying: 1, applied: 1, cause: 2, form: 2, sent: 2, end: 3 }[phase]);
+  const stageIndex = () => ({ ready: 0, checking: 0, findings: 1, review: 2, applying: 2, applied: 2, cause: 3, better: 4, sent: 4, end: 5 }[phase]);
   function paintStrip() {
     const at = stageIndex();
     root.querySelectorAll('.dm-strip li').forEach((li, i) => {
@@ -218,9 +241,7 @@ export function mountDemo(root) {
     const slots = freeSlots(s);
     const v = { name: 'Test customer', email: 'test@example.com', address: TEST_REQUEST.address, job: TEST_REQUEST.job, when: slots.includes(TEST_REQUEST.when) ? TEST_REQUEST.when : '', ...formVals };
     const err = (k) => (formError && formError.split(' ').includes(k) ? ' aria-invalid="true"' : '');
-    return `${roles(['customer', 'Now play the customer'])}
-      ${move(`send a request through the new form: ${esc(TEST_REQUEST.job.toLowerCase())} at ${esc(TEST_REQUEST.address)}, ${esc(when(TEST_REQUEST.when))}.`)}
-      <form class="dm-form" novalidate>
+    return `<form class="dm-form" novalidate aria-label="Improved booking form (simulation)">
         <label>Name <em>required</em> <input name="name" value="${esc(v.name)}" autocomplete="off"${err('name')}></label>
         <label>Email <em>required</em> <input name="email" type="email" value="${esc(v.email)}" autocomplete="off"${err('email')}></label>
         <label>Address <em>required</em> <input name="address" value="${esc(v.address)}" autocomplete="off"${err('address')}></label>
@@ -229,45 +250,38 @@ export function mountDemo(root) {
           slots.map((t) => `<option value="${esc(t)}"${v.when === t ? ' selected' : ''}>${esc(when(t))}</option>`).join('')}</select></label>
         <p class="dm-note">${esc(when(TEST_REQUEST.when).split(',')[0])}: 9am and 1pm are already booked, so they aren’t offered.</p>
         ${formError ? `<p class="dm-err" role="alert">${esc(formError.split(' ').some((k) => k !== 'when') ? 'Fill in the required fields.' : 'Choose one of the available times.')}</p>` : ''}
-        <p><button type="submit" class="btn btn-primary dm-btn">Send request</button></p>
+        <p class="dm-end-actions"><button type="submit" class="btn btn-primary dm-btn">Send request</button>
+          <button type="button" class="dm-link" data-act="end">Skip to the results</button></p>
       </form>`;
   }
 
   function paintStage(focus = false) {
     paintStrip();
     let h = '';
-    if (phase === 'ready') {
-      // Screen 1: the problem
-      h = `${area(0, 'First, make the information trustworthy.')}${roles(['auto', 'In real life: runs every Monday'])}
+    if (phase === 'ready' || phase === 'checking') {
+      // Stage 1: investigate the report
+      h = `${area(0, 'First, make the information trustworthy.')}${roles(['auto', phase === 'ready' ? 'In real life: runs every Monday' : 'Running automatically'])}
         <h3 class="dm-h">Monday morning. The report was built by hand.</h3>
         <p>It says 11 booking entries, 3 waiting and nothing to invoice. Building it took ${esc(HAND_REPORT)}.</p>
         <p>Here, run the checks to see what’s hiding in the records.</p>
-        ${move('Run Monday’s checks.')}${btn('check', 'Run Monday’s checks')}`;
-    } else if (phase === 'checking') {
-      h = `${area(0, 'The checks reveal what’s missing.')}${roles(['auto', 'Running automatically'])}
-        <h3 class="dm-h">Checking the records…</h3>
-        <p>18 records brought together. Four checks run across every record.</p>
-        ${checksList()}`;
+        ${phase === 'ready' ? btn('check', 'Run Monday’s checks') : checksList()}`;
     } else if (phase === 'findings') {
-      // Screen 2: the findings
-      const r = report(s);
-      h = `${area(0, 'The checks reveal what’s missing.')}${roles(['auto', 'Running automatically'])}
+      // Stage 2: discover the problems (the cards fade in one by one)
+      h = `${area(1, 'The checks reveal what’s missing.')}${roles(['auto', 'Running automatically'])}
         <h3 class="dm-h">Three problems were hiding in the records.</h3>
         <p>18 records brought together. Four checks run across every record.</p>
-        ${checksList()}
-        <div class="dm-findings">
-          <div><p class="dm-f-h">The checks found three problems:</p>
-            <ul class="dm-summary"><li>One duplicate booking.</li><li>One completed job without an invoice.</li><li>One customer request stuck in the inbox.</li></ul></div>
-          <div><p class="dm-f-h">The report now reflects the records more accurately:</p>
-            <ul class="dm-summary"><li>${r.booked} confirmed visits.</li><li>${r.waiting} items waiting for action.</li><li>${r.notInvoiced} completed job not yet invoiced.</li></ul></div>
-        </div>
+        <ol class="dm-finds">${FINDINGS.map((f) => `<li class="dm-find">
+          <p class="dm-find-label">${esc(f.label)}</p>
+          <p class="dm-find-who">${esc(f.who)}</p>
+          <p class="dm-find-lines">${f.lines.map((l) => esc(l)).join(' ')}</p>
+          <p class="dm-find-impact"><span>Impact:</span> ${esc(f.impact)}</p></li>`).join('')}</ol>
         <p class="dm-note">The original 11 booking entries included one duplicate. After checking, they represent 10 unique confirmed visits, without removing a valid booking.</p>
         <p class="dm-note">In a live setup, these checks run automatically every Monday using rules configured around your business.</p>
-        ${btn('review', 'Next: review the problems')}`;
+        ${btn('review', 'Review the problems')}`;
     } else if (phase === 'review' || phase === 'applying' || phase === 'applied') {
-      // Screen 3: the owner's decisions
+      // Stage 3: make the decisions
       const chosen = SHEET.filter((r) => picks[r.id]).length;
-      h = `${area(1, 'Next, turn each problem into a decision.')}${roles(['auto', 'Prepared automatically'], ['you', 'Your decision'])}
+      h = `${area(2, 'Next, turn each problem into a decision.')}${roles(['auto', 'Prepared automatically'], ['you', 'Your decision'])}
         <h3 class="dm-h">Your Monday review sheet</h3>
         <p>Each row shows what was found, why it matters and the next step. You decide what happens when human judgment is needed.</p>
         ${sheet()}
@@ -283,52 +297,58 @@ export function mountDemo(root) {
           h += `${roles(['customer', 'The customer'])}
             <p class="dm-sorted">Customer confirmed. The booking is now scheduled.</p>
             <p class="dm-note">This confirmation is simulated to demonstrate how the process works.</p>
-            ${btn('cause', 'Next: fix why they happened')}`;
+            ${btn('cause', 'Next: improve the process')}`;
         } else {
           h += `<p class="dm-note">Waiting for G. Torres to confirm…</p>`;
         }
       }
-    } else if (phase === 'cause' || phase === 'form' || phase === 'sent') {
-      // Screen 4: fix the causes, with the improved form as an optional try
-      h = `${area(2, 'Finally, fix the source so the same problems are less likely to return.')}${roles(['me', 'My part'])}
+    } else if (phase === 'cause') {
+      // Stage 4: improve the process (proposed improvements, not built in this example)
+      h = `${area(3, 'Finally, fix the source so the same problems are less likely to return.')}${roles(['me', 'My part'])}
         <h3 class="dm-h">Why it happened, and what I’d improve.</h3>
-        <div class="dm-causes"><table><thead><tr><th scope="col">Problem</th><th scope="col">Why it happened</th><th scope="col">What I’d improve</th></tr></thead><tbody>${
-          CAUSES.map((c) => `<tr><th scope="row">${esc(c.problem)}.</th><td data-label="Why it happened">${esc(c.why)}</td><td data-label="What I’d improve">${esc(c.fix)}</td></tr>`).join('')}</tbody></table></div>
+        <ol class="dm-fixes">${CAUSES.map((c) => `<li class="dm-fix">
+          <p class="dm-fix-h">${esc(c.problem)}.</p>
+          <dl><div><dt>Why it happened</dt><dd>${esc(c.why)}</dd></div><div class="dm-fix-to"><dt>What I’d improve</dt><dd>${esc(c.fix)}</dd></div></dl></li>`).join('')}</ol>
         <p>The aim isn’t just to correct this week’s report. It’s to improve the process that created the problems in the first place.</p>
-        <div class="dm-try-block">
-          <h4 class="dm-sub">A better way to receive booking requests.</h4>
-          ${formPicture()}
-          <p class="dm-note">The form checks that the required information is complete and only offers available appointment times.</p>`;
-      if (phase === 'cause') {
-        h += `<p class="dm-end-actions">${btn('end', 'Next: see the results')}${btn('tryform', 'Try the improved form', 'secondary')}</p></div>`;
-      } else if (phase === 'form') {
-        h += `${testForm()}<p><button type="button" class="dm-link" data-act="end">Skip to the results</button></p></div>`;
+        <p class="dm-note">These are proposed improvements for this fictional business. The improved form is the one you can try next.</p>
+        ${btn('better', 'Next: see the better workflow')}`;
+    } else if (phase === 'better' || phase === 'sent') {
+      // Stage 5: see the better workflow (the form is ready to send; trying it is optional)
+      h = `${area(4, 'Requests arrive complete and only at free times.')}${roles(['customer', 'You play the customer'])}
+        <h3 class="dm-h">A better way to receive booking requests.</h3>
+        <p>The improved form captures the information needed upfront and only offers available appointment times.</p>
+        ${formPicture()}`;
+      if (phase === 'better') {
+        h += `${move('Try the improved booking form. It’s filled in with an example request; change anything you like.')}${testForm()}`;
       } else {
-        h += `<p class="dm-f-h">Your request, step by step</p>
+        h += `<p class="dm-f-h">Your request, step by step <span class="dm-sim">Simulation</span></p>
           <ol class="dm-path">${path().map((p, i) => `<li class="${i < pathLit ? 'is-lit' : ''}">${esc(p)}</li>`).join('')}</ol>
-          ${pathLit >= path().length ? `<p class="dm-upd">Your request booked itself. Booked is now ${report(s).booked}.</p>${btn('end', 'Next: see the results')}` : ''}</div>`;
+          ${pathLit >= path().length ? `<p class="dm-upd">Your request booked itself. Booked is now ${report(s).booked}.</p>` : ''}`;
       }
     } else if (phase === 'end') {
-      // Screen 5: results and the booking ask
+      // The completed experience: final report, what improved, the booking ask, who does what
+      const r = report(s);
       h = `<h3 class="dm-h">Checked first. Fixed at the source.</h3>
-        <p class="dm-end-sub">One process, three improvements.</p>
+        <div class="dm-final" aria-label="Final report"><p class="dm-final-t">This week’s report <span>${esc(r.tag)}</span></p>
+          <p class="dm-final-n"><span><b>${r.booked}</b> booked</span><span><b>${r.waiting}</b> waiting</span><span><b>${r.notInvoiced}</b> done but not invoiced</span></p></div>
+        <p class="dm-end-sub">What improved?</p>
         <ul class="dm-three">
           <li><a href="#services">Data &amp; Reporting</a>: you know which numbers are right.</li>
           <li><a href="#services">Workflows &amp; Processes</a>: each problem comes with the next step prepared.</li>
           <li><a href="#services">Business Tools &amp; Systems</a>: your tools work together, so the same problems are less likely to happen again.</li>
         </ul>
-        <p class="dm-note">Shown in this example: the checks, the review sheet and the improved form. The other fixes are what I’d set up for a real business.</p>
-        <p class="dm-end-sub">Who does what?</p>
-        ${whoDoesWhat()}
         <div class="dm-ask">
           <h3 class="dm-h">Your business could work this way, too.</h3>
           <p>You don’t need another complicated system. You need a clearer process, reliable information and tools that work together.</p>
           <p>Bring one report or process you don’t fully trust. In a free 30-minute review, we’ll identify what’s causing the rework and discuss a practical way to improve it.</p>
           <div class="dm-end-actions"><div class="dm-ask-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a><p class="cta-micro">30 minutes · No obligation</p></div>
             <button type="button" class="dm-link" data-act="restart">Run it again</button></div>
-        </div>`;
+        </div>
+        <p class="dm-end-sub">Who does what?</p>
+        ${whoDoesWhat()}`;
     }
     stage.innerHTML = h;
+    stage.querySelectorAll('.dm-h').forEach((el) => el.setAttribute('tabindex', '-1')); // so a new step's heading can take focus
     paintAll();
     if (focus) (stage.querySelector('.dm-h') || stage).focus({ preventScroll: false });
   }
@@ -337,16 +357,18 @@ export function mountDemo(root) {
   async function act(a) {
     if (busy) return;
     if (a === 'check' && phase === 'ready') {
-      busy = true; phase = 'checking'; ticked = 0; paintStage(true);
-      for (let i = 1; i <= CHECKS.length; i++) { await wait(450); ticked = i; paintStage(); }
-      await wait(250);
+      busy = true; phase = 'checking'; ticked = 0; paintStage();
+      stage.querySelector('.dm-checks')?.setAttribute('tabindex', '-1');
+      stage.querySelector('.dm-checks')?.focus();
+      for (let i = 1; i <= CHECKS.length; i++) { await wait(300); ticked = i; paintStage(); }
+      await wait(300);
       s = check(s).state; phase = 'findings';
       paintReport(null);
       paintReport('Booked −1: one visit was entered twice.');
       paintReport('Waiting +1: a website request was stuck in the inbox.');
       paintReport('Not invoiced +1: a completed job has no invoice.');
       paintStage(true);
-      say('Checks finished. Three problems found and the report corrected: Booked 11 → 10, Waiting on someone 3 → 4, Done, not invoiced 0 → 1.');
+      say('Checks finished. Three problems found and the report corrected: Booked 11 → 10, Waiting 3 → 4, Done, not invoiced 0 → 1.');
       busy = false; return;
     }
     if (a === 'review' && phase === 'findings') { phase = 'review'; paintStage(true); return; }
@@ -360,19 +382,19 @@ export function mountDemo(root) {
         ['invoice', (x) => (picks.invoice === 'nobill' ? markNotBillable(x) : raiseInvoice(x))],
       ];
       for (const [id, step] of steps) {
-        await wait(600);
+        await wait(450);
         s = step(s); rowDone[id] = DONE_TEXT[picks[id]];
         paintReport(REASON[picks[id]]); paintStage();
       }
-      await wait(600);
+      await wait(450);
       s = askAddress(s, picks.address); rowDone.address = DONE_TEXT[picks.address];
       paintReport(REASON[picks.address]);
       phase = decided(s) ? 'applied' : 'review';
       paintStage();
       // The customer's reply follows by itself (simulated), so the visitor doesn't need another click.
-      await wait(1100);
+      await wait(1000);
       s = fixForm(receiveReply(s)); confirmed = true;
-      rowDone.address = `Customer confirmed (${R118_REPLY.address}). Booked ${when(R118_REPLY.when)}.`;
+      rowDone.address = `Customer confirmed (${R118_REPLY.address}). Booked ${when(R118_REPLY.when)} (simulated).`;
       paintReport('Booked +1, Waiting −1: G. Torres confirmed the booking.');
       paintStage();
       stage.querySelector('[data-act="cause"]')?.focus();
@@ -380,27 +402,25 @@ export function mountDemo(root) {
       busy = false; return;
     }
     if (a === 'cause' && phase === 'applied' && confirmed) { phase = 'cause'; paintStage(true); return; }
-    if (a === 'tryform' && phase === 'cause') {
-      phase = 'form'; paintStage();
-      stage.querySelector('.dm-form input')?.focus();
-      return;
-    }
-    if (a === 'send' && phase === 'form') {
+    if (a === 'better' && phase === 'cause') { phase = 'better'; paintStage(true); return; }
+    if (a === 'send' && phase === 'better') {
       const res = sendTest(s, formVals);
       if (!res.passed) { formError = res.errors.join(' '); paintStage(); stage.querySelector('[aria-invalid="true"]')?.focus(); return; }
       busy = true; formError = '';
       bookedWhen = formVals.when || TEST_REQUEST.when;
       s = res.state; phase = 'sent'; pathLit = 0; paintStage();
+      stage.querySelector('.dm-f-h')?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
       const steps = path().length;
       for (let i = 1; i <= steps; i++) {
-        await wait(400); pathLit = i; paintStage();
+        await wait(300); pathLit = i; paintStage();
         if (i === steps) paintReport('Booked +1: your request booked itself.');
       }
-      stage.querySelector('[data-act="end"]')?.focus();
       say(`Your request booked itself. Booked is now ${report(s).booked}.`);
+      await wait(1400);
+      phase = 'end'; paintStage(true);
       busy = false; return;
     }
-    if (a === 'end' && (phase === 'cause' || phase === 'form' || phase === 'sent')) { formError = ''; phase = 'end'; paintStage(true); return; }
+    if (a === 'end' && phase === 'better') { formError = ''; phase = 'end'; paintStage(true); return; }
     if (a === 'restart') {
       s = initialState(); phase = 'ready'; pathLit = 0; ticked = 0; confirmed = false; picks = {}; rowDone = {}; sheetError = ''; formError = ''; formVals = {}; bookedWhen = TEST_REQUEST.when;
       shown = report(s); paintReport(null); paintReport('Built by hand from the job list.'); paintStage(true);

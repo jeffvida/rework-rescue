@@ -2112,3 +2112,76 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
   .dm-ask-cta { display: flex; width: 100%; }
   .dm-ask-cta .btn, .dm-try-block .dm-end-actions .btn { width: 100%; }
 }
+
+/* Live demo, round 6 (7 Nov simulation spec): five-stage strip, findings, proposed fixes, final report */
+.tz-date { margin: -0.7rem 0 0.9rem; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+.demo-window-bar .dw-title { text-transform: uppercase; letter-spacing: 0.06em; color: #fff; font-weight: 700; }
+.dw-sub { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.75rem; opacity: 0.85; white-space: nowrap; }
+.dw-status { margin-left: auto; font-size: 0.78rem; opacity: 0.85; white-space: nowrap; }
+@media (max-width: 40rem) { .dw-sub { display: none; } }
+@media (max-width: 30rem) { .dw-status { display: none; } }
+
+.dm-strip { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.dm-strip li { padding: 0.7rem 0.7rem; font-size: 0.86rem; }
+.dm-strip .dm-s-svc { font-size: 0.62rem; letter-spacing: 0.01em; padding: 0.02rem 0.4rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dm-strip .dm-s-step { line-height: 1.25; }
+@media (max-width: 56rem) {
+  /* Compact: numbers for every stage, the name only for the current one */
+  .dm-strip { display: flex; }
+  .dm-strip li { flex: 0 0 auto; display: flex; flex-direction: row; align-items: center; gap: 0.4rem; padding: 0.55rem 0.5rem; font-size: 0.82rem; text-align: left; }
+  .dm-strip li.is-on { flex: 1 1 auto; }
+  .dm-strip li::before { grid-row: auto; }
+  .dm-strip .dm-s-svc { display: none; }
+  .dm-strip li:not(.is-on) .dm-s-step { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* Report panel: the suspicious 0 before the checks, like the hero card */
+.dm-q { display: none; margin-left: 0.5rem; width: 1.3rem; height: 1.3rem; vertical-align: 0.35rem; border-radius: 50%; background: var(--signal); color: var(--ink); font-size: 0.85rem; line-height: 1.3rem; text-align: center; }
+.dm-r-row.is-suspect { background: rgba(230, 192, 120, 0.14); }
+.dm-r-row.is-suspect .dm-q { display: inline-block; }
+
+/* Stage 2: findings, revealed one by one */
+.dm-finds { list-style: none; margin: 0.9rem 0 1rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.8rem; }
+.dm-find { padding: 0.85rem 0.95rem; border-left: 3px solid var(--signal); background: var(--paper); border-radius: 0 10px 10px 0; animation: dm-in 0.4s ease-out both; }
+.dm-find:nth-child(2) { animation-delay: 0.35s; }
+.dm-find:nth-child(3) { animation-delay: 0.7s; }
+.dm-find p { margin: 0; }
+.dm-find-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a2e12; }
+.dm-find-who { font-weight: 800; color: var(--ink); margin-top: 0.25rem !important; }
+.dm-find-lines { font-size: 0.9rem; color: var(--ink); }
+.dm-find-impact { margin-top: 0.5rem !important; font-size: 0.88rem; font-weight: 600; color: #7a2e12; }
+.dm-find-impact span { font-weight: 800; }
+@keyframes dm-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Stage 4: proposed fixes */
+.dm-fixes { list-style: none; margin: 0.8rem 0 1rem; padding: 0; display: grid; gap: 0.2rem; }
+.dm-fix { padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
+.dm-fix:first-child { border-top: 1px solid var(--line); }
+.dm-fix-h { margin: 0 0 0.35rem; font-weight: 800; color: var(--ink); }
+.dm-fix dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.3rem 1.4rem; }
+.dm-fix dt { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.dm-fix dd { margin: 0.1rem 0 0; font-size: 0.93rem; }
+.dm-fix-to dd { color: var(--teal-dark); font-weight: 600; }
+
+/* The end: final report */
+.dm-final { margin: 0.4rem 0 1rem; padding: 0.85rem 1rem; border-radius: 12px; background: var(--ink); color: #e9efe9; }
+.dm-final-t { margin: 0 0 0.4rem; font-weight: 700; color: #fff; }
+.dm-final-t span { margin-left: 0.5rem; padding: 0.05rem 0.5rem; border-radius: 999px; border: 1px solid #78c2a4; color: #78c2a4; font-size: 0.78rem; }
+.dm-final-n { margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem; }
+.dm-final-n b { font-family: var(--display); font-size: 1.6rem; color: #fff; margin-right: 0.3rem; font-variant-numeric: tabular-nums; }
+.dm-ask { margin-bottom: 0.4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-find { animation: none; }
+}
+/* Strip tags in normal case so "Business Tools & Systems" fits five columns */
+.dm-strip .dm-s-svc { text-transform: none; letter-spacing: 0; font-size: 0.68rem; }
+/* The improved form: label and "required" on one line; two columns where there's room */
+.dm-form label { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.4rem; row-gap: 0.25rem; }
+.dm-form label input, .dm-form label select { flex: 1 0 100%; }
+@media (min-width: 40.01rem) {
+  .dm-form { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.9rem; max-width: 38rem; }
+  .dm-form label:nth-of-type(5), .dm-form p { grid-column: 1 / -1; }
+}
+.dm-forms .dm-fp li { padding: 0.2rem 0; }
+.dm-forms .dm-fp li em { display: inline; margin-left: 0.3rem; }

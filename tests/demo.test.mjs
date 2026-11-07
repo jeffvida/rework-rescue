@@ -1,6 +1,6 @@
 // Run with: node --test tests/demo.test.mjs
 // Every number the live demo shows comes from src/demo/engine.js working on src/demo/data.js. These tests pin the
-// story in the 7 Nov brief: 11/3/0 by hand, 10/4/1 checked (the duplicate counts once), 10/4/0 after the decisions,
+// story in the 7 Nov simulation spec: 11/3/0 by hand, 10/4/1 checked (the duplicate counts once), 10/4/0 after the decisions,
 // 11/3/0 once the customer confirms, 12/3/0 after the visitor's test booking.
 import test from 'node:test';
 import assert from 'node:assert/strict';

@@ -67,6 +67,7 @@ export const ISSUES = {
   duplicate: {
     title: 'Possible duplicate',
     brief: 'possible duplicate work',
+    card: ['Possible duplicate task', 'Two records may describe the same work.'],
     explain: 'This work appears more than once. Should these records be treated as one item or kept separate?',
     why: 'A duplicate makes the workload look bigger than it is, and two people may end up doing the same work.',
     choices: [['merge', 'Merge these records'], ['separate', 'Keep them separate']],
@@ -74,6 +75,7 @@ export const ISSUES = {
   finance: {
     title: 'Completed work without a finance match',
     brief: 'completed work without an invoice match',
+    card: ['Completed work not invoiced', 'One completed item has no matching invoice.'],
     explain: 'This work is marked as complete, but there’s no matching entry in the finance register.',
     why: 'Not every completed item needs an invoice. Some work is internal, under warranty or not billable, so this needs a decision rather than an automatic fix.',
     choices: [['followUp', 'Flag for invoice follow-up'], ['noInvoiceDue', 'Confirm no invoice is due']],
@@ -81,6 +83,7 @@ export const ISSUES = {
   owner: {
     title: 'No one assigned',
     brief: 'an open task without an owner',
+    card: ['Work without an owner', 'One open task needs someone responsible.'],
     explain: 'This item is still open, but nobody is listed as responsible for it.',
     why: 'Work without an owner is easy to miss, and nobody knows who should follow it up.',
     choices: [['assign', 'Assign someone'], ['pending', 'Leave it pending']],

@@ -2274,17 +2274,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 /* Hero card: a calm preview of the sample report. Readable at once; no staged entrance. */
 .ops-card { padding: 1.4rem 1.5rem 1.2rem; }
 .ops-eyebrow { margin: 0 0 0.55rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
-.ops-card .tz-title { margin-bottom: 0.9rem; }
-.ops-card .tz-date { margin: -0.6rem 0 1rem; }
-.ops-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin: 0 0 1rem; border-top: 1px solid var(--line); }
-.ops-metrics > div { padding: 0.7rem 0.2rem 0.6rem; border-bottom: 1px solid var(--line); }
-.ops-metrics > div:nth-child(odd) { padding-right: 0.8rem; border-right: 1px solid var(--line); }
-.ops-metrics > div:nth-child(even) { padding-left: 0.9rem; }
-.ops-metrics dt { font-size: 0.82rem; color: var(--muted); font-weight: 600; }
-.ops-metrics dd { margin: 0.15rem 0 0; font-family: var(--display); font-weight: 700; font-size: 1.75rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--ink); }
-.ops-metrics .ops-status dd { display: inline-block; margin-top: 0.35rem; padding: 0.15rem 0.6rem; border-radius: 999px; font-family: var(--sans); font-size: 0.85rem; font-weight: 700; background: var(--warn-bg); border: 1px solid var(--warn-line); color: #5b3a00; }
-.ops-items-note { margin: 0 0 1.1rem; font-size: 0.92rem; line-height: 1.45; color: var(--ink); }
-.ops-note { margin: 0.8rem 0 0; font-size: 0.8rem; color: var(--muted); }
 
 /* Demo: report status colours */
 .dm-r-tag[data-tag="Review required"] { border-color: var(--signal); color: var(--signal); }
@@ -2388,8 +2377,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
   .dm-flow { flex-direction: column; align-items: stretch; gap: 1.3rem; }
   .dm-flow li:not(:last-child)::after { content: "\2193"; right: auto; left: 50%; top: auto; bottom: -1.2rem; transform: translateX(-50%); }
   .dm2 .dm-r-row dt { font-size: 0.66rem; }
-  .ops-metrics dd { font-size: 1.45rem; }
-}
+  }
 
 /* Stage 4 refinements: short labels and a compact pinned report on phones; issue titles wrap inside their box */
 .dm-l-short { display: none; }
@@ -2438,4 +2426,43 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .exp-kind + .exp-list { margin-top: 0.9rem; }
 .exp-close { margin: 1.8rem 0 0; max-width: 46rem; font-size: 1.05rem; color: #fff; }
 .about-where { margin: 1rem 0 0; font-size: 0.92rem; color: var(--muted); }
+
+/* ==== Hero card: weekly operations report (Nov 2026). Figures and issue lines come from heroSummary(). ==== */
+.ops-card { padding: 1.5rem 1.5rem 1.4rem; }
+.ops-ic { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ops-top { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.55rem; }
+.ops-top .ops-eyebrow { margin: 0; }
+.ops-flag { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0; padding: 0.2rem 0.65rem 0.2rem 0.5rem; border-radius: 999px; background: var(--warn-bg); border: 1px solid var(--warn-line); color: #5b3a00; font-size: 0.82rem; font-weight: 700; }
+.ops-flag .ops-ic { width: 1rem; height: 1rem; }
+.ops-card .tz-title { margin: 0 0 0.25rem; font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.5rem); line-height: 1.2; }
+.ops-card .tz-date { margin: 0 0 1rem; }
+.ops-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 1.1rem; padding: 0.8rem 0.4rem; border-radius: 12px; background: #eef4f1; }
+.ops-sum > div { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 0.55rem; align-items: start; align-content: start; padding: 0 0.6rem; }
+.ops-sum > div + div { border-left: 1px solid rgba(15, 58, 58, 0.14); }
+.ops-sum .ops-ic { grid-row: 1 / 3; width: 2.2rem; height: 2.2rem; padding: 0.45rem; border-radius: 10px; background: #dcebe5; color: var(--teal); }
+.ops-sum .ops-sum-open .ops-ic { background: #e3eaf5; color: var(--svc-systems); }
+.ops-sum dd { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.75rem; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ops-sum dt { font-size: 0.85rem; line-height: 1.25; color: var(--ink-soft, var(--ink)); }
+.ops-check-h { margin: 0 0 0.55rem; font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+.ops-checks { list-style: none; margin: 0 0 0.9rem; padding: 0; display: grid; gap: 0.45rem; }
+.ops-checks li { display: flex; align-items: center; gap: 0.75rem; margin: 0; padding: 0.6rem 0.75rem; border-radius: 10px; background: var(--paper); }
+.ops-checks li[hidden] { display: none; }
+.ops-checks .ops-ic { width: 2.1rem; height: 2.1rem; padding: 0.42rem; border-radius: 9px; background: #dcebe5; color: var(--teal); }
+.ops-checks li[data-hero-issue="finance"] .ops-ic { background: var(--warn-bg); color: #8a6516; }
+.ops-checks li[data-hero-issue="owner"] .ops-ic { background: #e3eaf5; color: var(--svc-systems); }
+.ops-checks p { margin: 0; line-height: 1.3; }
+.ops-checks strong { display: block; font-size: 0.95rem; color: var(--ink); }
+.ops-checks span { display: block; font-size: 0.86rem; color: var(--muted); }
+.ops-note { display: flex; align-items: center; gap: 0.45rem; margin: 0 0 0.9rem; padding: 0.45rem 0.7rem; border-radius: 8px; background: #eef4f1; font-size: 0.82rem; color: var(--ink-soft, var(--ink)); }
+.ops-note .ops-ic { width: 1rem; height: 1rem; color: var(--muted); }
+.ops-card .ops-cta { display: flex; justify-content: center; gap: 0.5rem; width: 100%; margin: 0; }
+/* Phones: icons above the numbers so the figures keep their size */
+@media (max-width: 30rem) {
+  .ops-card { padding: 1.2rem 1.05rem 1.15rem; }
+  .ops-sum { padding: 0.75rem 0.2rem; }
+  .ops-sum > div { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; row-gap: 0.3rem; padding: 0 0.5rem; }
+  .ops-sum .ops-ic { grid-row: auto; width: 1.9rem; height: 1.9rem; padding: 0.38rem; }
+  .ops-sum dd { font-size: 1.6rem; }
+  .ops-checks li { padding: 0.55rem 0.6rem; gap: 0.6rem; }
+}
 

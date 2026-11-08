@@ -8,7 +8,7 @@ import * as DATA from '../src/demo/data.js';
 import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES, CONSEQUENCE, PREVENTION } from '../src/demo/data.js';
 import {
   initialState, sourceCounts, runChecks, findings, check, decide, clearDecision, allDecided, finalize, reopen, status, outstanding,
-  report, heroSummary,
+  report, heroSummary, weekRange,
 } from '../src/demo/engine.js';
 
 const nums = (r) => [r.openWork, r.completed, r.notInvoiced, r.noOwner, r.itemsToReview];
@@ -85,15 +85,28 @@ test('after the check: 11 open (1 possible duplicate), 7 completed, 1 not invoic
   assert.equal(r.status, 'Review required');
 });
 
-test('hero summary comes from the engine: 30 records, 3 sources, 3 to review, review required, issue kinds only', () => {
+test('hero summary comes from the engine: the hand-built week, issue kinds only, no findings', () => {
   const h = heroSummary();
-  assert.deepEqual(h, { sourceRecords: 30, sourcesChecked: 3, itemsToReview: 3, status: 'Review required',
-    issuesBrief: 'Possible duplicate work, completed work without an invoice match, and an open task without an owner.' });
-  // One phrase per kind of issue the checks actually find, in the engine's order.
-  assert.deepEqual(findings(check(initialState())).map((f) => ISSUES[f.issue].brief),
+  assert.deepEqual({ ...h, issues: undefined }, { sourceRecords: 30, sourcesChecked: 3, itemsToReview: 3, status: 'Review required',
+    issuesBrief: 'Possible duplicate work, completed work without an invoice match, and an open task without an owner.',
+    workItems: 18, completed: 7, openWork: 11, weekRange: '2–6 November 2026', issues: undefined });
+  // The summary is what the hand-built update says; the issues are what the checks find.
+  assert.equal(h.workItems, TRACKER.length);
+  const shown = report(initialState());
+  assert.equal(h.completed, shown.completed); assert.equal(h.openWork, shown.openWork);
+  assert.equal(h.workItems, h.completed + h.openWork);
+  const found = findings(check(initialState()));
+  assert.equal(h.itemsToReview, found.length);
+  assert.deepEqual(h.issues.map((i) => i.issue), ['duplicate', 'finance', 'owner']);
+  assert.deepEqual(h.issues.map((i) => i.title), ['Possible duplicate task', 'Completed work not invoiced', 'Work without an owner']);
+  assert.deepEqual(found.map((f) => ISSUES[f.issue].brief),
     ['possible duplicate work', 'completed work without an invoice match', 'an open task without an owner']);
-  assert.equal(h.itemsToReview, findings(check(initialState())).length);
   assert.ok(!JSON.stringify(h).includes('W-'), 'the hero never carries the detailed findings');
+});
+
+test('week range follows the sample week label', () => {
+  assert.equal(weekRange('Week ending Fri 6 Nov 2026'), '2–6 November 2026');
+  assert.equal(weekRange('Week ending Fri 2 Oct 2026'), '28 September – 2 October 2026');
 });
 
 // ---- Decisions
@@ -232,21 +245,23 @@ test('demo wording: first person only (no "we"), no repair business, a consequen
 
 import { readFile } from 'node:fs/promises';
 
-test('the hero snapshot shows the engine’s figures and the kinds of issue, not the findings', async () => {
+test('the hero card shows the engine’s figures and issue kinds, not the findings', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const card = html.slice(html.indexOf('class="tz-card ops-card"'), html.indexOf('</figure>'));
   const h = heroSummary();
   for (const [k, v] of Object.entries(h)) {
-    const found = [...card.matchAll(new RegExp(`data-hero="${k}">([^<]*)<`, 'g'))].map((m) => m[1]);
-    assert.ok(found.length, `${k} is on the card`);
-    for (const f of found) assert.equal(f, String(v), k);
+    if (typeof v === 'object') continue;
+    for (const m of card.matchAll(new RegExp(`data-hero="${k}">([^<]*)<`, 'g'))) assert.equal(m[1], String(v), k);
   }
-  assert.match(card, /Weekly operations snapshot/i);
-  assert.match(card, /Can you trust this week&rsquo;s report\?/);
-  assert.match(card, /Source records checked[\s\S]*Items requiring review[\s\S]*Data sources</);
+  for (const k of ['status', 'weekRange', 'workItems', 'completed', 'openWork', 'itemsToReview']) assert.match(card, new RegExp(`data-hero="${k}"`), `${k} on the card`);
+  const lines = [...card.matchAll(/data-hero-issue="(\w+)">[\s\S]*?<strong>([^<]*)<\/strong> <span>([^<]*)<\/span>/g)].map((m) => ({ issue: m[1], title: m[2], text: m[3] }));
+  assert.deepEqual(lines, h.issues, 'issue lines match the engine');
+  assert.match(card, /Weekly operations report/i);
+  assert.match(card, /Before sharing this week&rsquo;s update&hellip;/);
+  assert.match(card, /Work items[\s\S]*Marked complete[\s\S]*Still open/);
+  assert.match(card, /things to check/);
+  assert.match(card, /Fictional sample data &middot; No real client information/);
   assert.match(card, /Start the live example/);
-  assert.match(card, /Fictional sample &middot; No real business data/);
-  // Kinds of issue only: no Work IDs, record details, amounts, people or invoice numbers.
   assert.doesNotMatch(card, /W-3\d\d|INV-|Alex|Priya|Sam\b|Jordan|Website content|Customer training|Customer feedback|Quillfern/i, 'no detailed findings in the hero');
 });
 

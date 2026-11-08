@@ -80,6 +80,20 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   });
 }());
 
+// Hero card issue lines: one per kind of issue the checks find, worded from ISSUES[*].card. Lines the engine
+// doesn't report are hidden, so the card can never list an issue the live example won't find.
+(function heroIssues() {
+  const found = new Map(heroSummary().issues.map((i) => [i.issue, i]));
+  document.querySelectorAll('[data-hero-issue]').forEach((li) => {
+    const i = found.get(li.dataset.heroIssue);
+    li.hidden = !i;
+    if (!i) return;
+    const strong = li.querySelector('strong'); const span = li.querySelector('p span');
+    if (strong) strong.textContent = i.title;
+    if (span) span.textContent = i.text;
+  });
+}());
+
 // The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.
 document.querySelectorAll('[data-week]').forEach((el) => { el.textContent = WEEK; });
 

@@ -67,18 +67,25 @@
         </div>
         <figure class="hero-preview teaser no-print">
           <div class="tz-card ops-card">
-            <p class="ops-eyebrow">Weekly operations snapshot</p>
-            <p class="tz-title">Can you trust this week&rsquo;s report?</p>
-            <p class="tz-date">Illustrative business data</p>
-            <dl class="ops-metrics" data-hero-summary>
-              <div><dt>Source records checked</dt><dd data-hero="sourceRecords">30</dd></div>
-              <div><dt>Items requiring review</dt><dd data-hero="itemsToReview">3</dd></div>
-              <div><dt>Data sources</dt><dd data-hero="sourcesChecked">3</dd></div>
-              <div class="ops-status"><dt>Report status</dt><dd data-hero="status">Review required</dd></div>
+            <div class="ops-top">
+              <p class="ops-eyebrow">Weekly operations report</p>
+              <p class="ops-flag"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.2M12 17h.01"/></svg><span data-hero="status">Review required</span></p>
+            </div>
+            <p class="tz-title">Before sharing this week&rsquo;s update&hellip;</p>
+            <p class="tz-date">Illustrative sample &middot; <span data-hero="weekRange">2–6 November 2026</span></p>
+            <dl class="ops-sum">
+              <div class="ops-sum-work"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 12.5l2.3 2.3 4.7-4.7"/></svg><dd data-hero="workItems">18</dd><dt>Work items</dt></div>
+              <div class="ops-sum-done"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.2 2.6 2.6 5-5"/></svg><dd data-hero="completed">7</dd><dt>Marked complete</dt></div>
+              <div class="ops-sum-open"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 4 8.5 4.5L12 13 3.5 8.5 12 4Z"/><path d="m3.5 12.5 8.5 4.5 8.5-4.5"/><path d="m3.5 16 8.5 4.5 8.5-4.5"/></svg><dd data-hero="openWork">11</dd><dt>Still open</dt></div>
             </dl>
-            <p class="ops-items-note" data-hero="issuesBrief">Possible duplicate work, completed work without an invoice match, and an open task without an owner.</p>
-            <a class="btn btn-primary tz-btn" href="#samples" data-demo-check>Start the live example</a>
-            <p class="ops-note">Fictional sample &middot; No real business data</p>
+            <p class="ops-check-h"><span data-hero="itemsToReview">3</span> things to check</p>
+            <ul class="ops-checks">
+              <li data-hero-issue="duplicate"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg><p><strong>Possible duplicate task</strong> <span>Two records may describe the same work.</span></p></li>
+              <li data-hero-issue="finance"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3v-17Z"/><path d="M9 8h6M9 11.5h6M9 15h4"/></svg><p><strong>Completed work not invoiced</strong> <span>One completed item has no matching invoice.</span></p></li>
+              <li data-hero-issue="owner"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.9-3.7 3.9-5.8 7.5-5.8s6.6 2.1 7.5 5.8"/></svg><p><strong>Work without an owner</strong> <span>One open task needs someone responsible.</span></p></li>
+            </ul>
+            <p class="ops-note"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg>Fictional sample data &middot; No real client information</p>
+            <a class="btn btn-primary tz-btn ops-cta" href="#samples" data-demo-check>Start the live example <span aria-hidden="true">&rarr;</span></a>
           </div>
         </figure>
       </div>

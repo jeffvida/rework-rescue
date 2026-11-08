@@ -3,7 +3,7 @@
 // The source rows never change. A decision is stored as data and the report is worked out again from the rows plus
 // the decisions, so any decision can be changed or cleared without undoing anything. Reset = initialState().
 
-import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES } from './data.js';
+import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES, WEEK } from './data.js';
 
 const ISSUE_IDS = ['duplicate', 'finance', 'owner'];
 
@@ -130,11 +130,31 @@ export function report(s) {
  *  Summary figures only; the findings themselves are never part of it. */
 export function heroSummary() {
   const counts = sourceCounts();
-  const checked = check(initialState());
+  const start = initialState();
+  const shown = report(start); // what the hand-built update says before anyone checks it
+  const checked = check(start);
   const r = report(checked);
   // The kinds of issue found, in the visitor's words (ISSUES[*].brief), without Work IDs or details.
   const kinds = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ISSUES[k].brief);
   const list = kinds.length > 2 ? `${kinds.slice(0, -1).join(', ')}, and ${kinds[kinds.length - 1]}` : kinds.join(' and ');
   const issuesBrief = list ? `${list.charAt(0).toUpperCase()}${list.slice(1)}.` : '';
-  return { sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status, issuesBrief };
+  // The issues to check, as hero-card lines (ISSUES[*].card): kind of problem only, no Work IDs or record details.
+  const issues = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ({ issue: k, title: ISSUES[k].card[0], text: ISSUES[k].card[1] }));
+  return {
+    sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status, issuesBrief,
+    workItems: TRACKER.length, completed: shown.completed, openWork: shown.openWork, weekRange: weekRange(WEEK), issues,
+  };
+}
+
+/** 'Week ending Fri 6 Nov 2026' → '2–6 November 2026' (Monday to Friday; spans months if needed). */
+export function weekRange(label) {
+  const m = /(\d{1,2}) (\w{3}) (\d{4})$/.exec(label);
+  if (!m) return '';
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const end = new Date(Date.UTC(Number(m[3]), months.findIndex((x) => x.startsWith(m[2])), Number(m[1])));
+  const mon = new Date(end); mon.setUTCDate(end.getUTCDate() - 4);
+  const name = (d) => months[d.getUTCMonth()];
+  return mon.getUTCMonth() === end.getUTCMonth()
+    ? `${mon.getUTCDate()}–${end.getUTCDate()} ${name(end)} ${end.getUTCFullYear()}`
+    : `${mon.getUTCDate()} ${name(mon)} – ${end.getUTCDate()} ${name(end)} ${end.getUTCFullYear()}`;
 }

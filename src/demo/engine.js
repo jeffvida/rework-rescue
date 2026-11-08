@@ -88,7 +88,7 @@ export function outstanding(s) {
   if (!s.checked) return [];
   const c = runChecks(); const d = s.decisions; const out = [];
   if (d.finance?.choice === 'followUp') for (const id of c.missingFinance) out.push({ issue: 'finance', id, action: 'Invoice follow-up' });
-  if (d.owner?.choice === 'pending') for (const id of c.noOwner) out.push({ issue: 'owner', id, action: `No owner yet: ${d.owner.reason}` });
+  if (d.owner?.choice === 'pending') for (const id of c.noOwner) out.push({ issue: 'owner', id, action: 'No owner yet', reason: d.owner.reason });
   return out;
 }
 

@@ -22,9 +22,10 @@ const STAGES = [
 ];
 // Matches the service colours (see .svc-data / .svc-workflow / .svc-systems in styles.css).
 const SVC_CLASS = ['svc-data', 'svc-data', 'svc-workflow', 'svc-workflow', 'svc-systems'];
+// [key, label, short label for the pinned report on phones]
 const ROWS = [
-  ['openWork', 'Open work'], ['completed', 'Completed this week'], ['notInvoiced', 'Completed, not invoiced'],
-  ['noOwner', 'Open with no owner'], ['itemsToReview', 'Items to review'],
+  ['openWork', 'Open work', 'Open'], ['completed', 'Completed this week', 'Done'], ['notInvoiced', 'Completed, not invoiced', 'Not invoiced'],
+  ['noOwner', 'Open with no owner', 'No owner'], ['itemsToReview', 'Items to review', 'To review'],
 ];
 const CHECKS = [
   'Bringing the three sources together by Work ID.',
@@ -53,6 +54,11 @@ const WHO = [
   ['me', 'Me', 'Map the process, find the causes, and set up the checks and improvements that make the work run better.'],
 ];
 
+// How an open action reads in the report ("W-314 No owner yet (work is on hold)") and in the end sentence.
+const lower = (x) => x.charAt(0).toLowerCase() + x.slice(1);
+const openText = (o) => (o.reason ? `${o.action} (${lower(o.reason)})` : o.action);
+const endText = (o) => (o.issue === 'finance' ? `${o.id} needs an invoice follow-up` : `${o.id} has no owner yet (${lower(o.reason)})`);
+
 export function mountDemo(root) {
   if (!root) return null;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -79,7 +85,7 @@ export function mountDemo(root) {
         <aside class="dm-report" aria-label="This week’s report">
           <p class="dm-r-title">This week’s report</p>
           <p class="dm-r-tag"></p>
-          <dl class="dm-r-rows">${ROWS.map(([k, l]) => `<div class="dm-r-row" data-k="${k}"><dt>${esc(l)}</dt><dd><span class="dm-old"></span><b></b><span class="dm-unit"></span></dd></div>`).join('')}</dl>
+          <dl class="dm-r-rows">${ROWS.map(([k, l, sh]) => `<div class="dm-r-row" data-k="${k}"><dt><span class="dm-l-long">${esc(l)}</span><span class="dm-l-short" aria-hidden="true">${esc(sh)}</span></dt><dd><span class="dm-old"></span><b></b><span class="dm-unit"></span></dd></div>`).join('')}</dl>
           <div class="dm-open"></div>
           <div class="dm-last"></div>
         </aside>
@@ -139,7 +145,7 @@ export function mountDemo(root) {
     tag.dataset.tag = next.status;
     const open = outstanding(s);
     root.querySelector('.dm-open').innerHTML = open.length
-      ? `<p class="dm-open-h">Still open</p><ul>${open.map((o) => `<li><b>${esc(o.id)}</b> ${esc(o.action)}</li>`).join('')}</ul>` : '';
+      ? `<p class="dm-open-h">Still open</p><ul>${open.map((o) => `<li><b>${esc(o.id)}</b> <span>${esc(openText(o))}</span></li>`).join('')}</ul>` : '';
     if (line !== undefined) lines = line === null ? [] : [...lines.slice(-2), line];
     root.querySelector('.dm-last').innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join('');
     shown = next;
@@ -193,7 +199,7 @@ export function mountDemo(root) {
     }
     const consequence = d ? (typeof CONSEQUENCE[d.choice] === 'function' ? CONSEQUENCE[d.choice](d.member || d.reason) : CONSEQUENCE[d.choice]) : '';
     return `<fieldset class="dm-decide${d ? ' is-decided' : ''}"><legend>${esc(f.title)} <span class="dm-ids">${esc(f.ids.join(' and '))}</span></legend>
-      <p class="dm-q">${esc(f.explain)}</p>
+      <p class="dm-explain">${esc(f.explain)}</p>
       <div class="dm-choices">${radios}</div>${detail}
       ${consequence ? `<p class="dm-sorted">${esc(consequence)}</p>` : ''}</fieldset>`;
   }
@@ -255,7 +261,7 @@ export function mountDemo(root) {
       h = `<h3 class="dm-h">Checked, decided, and improved at the source.</h3>
         <div class="dm-final" aria-label="Final report"><p class="dm-final-t">This week’s report <span data-tag="${esc(r.status)}">${esc(r.status)}</span></p>
           <p class="dm-final-n"><span><b>${r.openWork}</b> open</span><span><b>${r.completed}</b> completed</span><span><b>${r.notInvoiced}</b> not invoiced</span><span><b>${r.noOwner}</b> with no owner</span><span><b>${r.itemsToReview}</b> to review</span></p>
-          ${open.length ? `<p class="dm-final-open">Still open: ${open.map((o) => `${esc(o.id)}, ${esc(o.action.charAt(0).toLowerCase() + o.action.slice(1))}`).join('; ')}. The review is finished, but ${open.length === 1 ? 'this action' : 'these actions'} still need${open.length === 1 ? 's' : ''} doing.</p>` : '<p class="dm-final-open">Nothing left open.</p>'}</div>
+          ${open.length ? `<p class="dm-final-open"><strong>Still open:</strong> ${open.map((o) => esc(endText(o))).join('; ')}. The review is finished, but ${open.length === 1 ? 'this still needs' : 'these still need'} doing.</p>` : '<p class="dm-final-open">Nothing left open.</p>'}</div>
         <p class="dm-end-sub">What improved?</p>
         <ul class="dm-three">
           <li><a href="#services">Data &amp; Reporting</a>: the report matches what’s in the records.</li>

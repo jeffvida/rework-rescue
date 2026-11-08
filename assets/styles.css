@@ -1381,11 +1381,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 /* Hero teaser: the hand-built report, with one question and one button. */
 .tz-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.4rem 1.5rem 1.5rem; box-shadow: 0 14px 36px rgba(18, 38, 43, 0.10); }
 .tz-title { font-family: var(--display); font-weight: 800; font-size: 1.1rem; margin: 0 0 1rem; color: var(--ink); letter-spacing: -0.01em; }
-.tz-rows { list-style: none; padding: 0; margin: 0 0 0.9rem; border-top: 1px solid var(--line); }
-.tz-rows li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line); color: var(--ink); }
-.tz-rows b { font-family: var(--display); font-size: 1.9rem; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
-.tz-note { font-size: 0.9rem; color: var(--muted); margin: 0 0 1.1rem; }
-.tz-ask { font-family: var(--display); font-weight: 700; font-size: 1.2rem; line-height: 1.3; color: var(--ink); margin: 0 0 0.9rem; }
 
 /* The demo frame */
 .demo-app { margin-top: 1.6rem; }
@@ -1419,7 +1414,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-old { color: var(--signal); font-size: 1.25rem; }
 .dm-r-row.is-changed { background: rgba(230, 192, 120, 0.16); animation: dm-pulse 1.4s ease-out; }
 @keyframes dm-pulse { 0% { box-shadow: 0 0 0 0 rgba(230, 192, 120, 0.6); } 100% { box-shadow: 0 0 0 10px rgba(230, 192, 120, 0); } }
-.dm-flag { margin: 0.8rem 0 0; font-size: 0.88rem; color: var(--signal); font-weight: 700; }
 
 /* Step 1: the checks ticking */
 .dm-checks { list-style: none; padding: 0; margin: 0.6rem 0 0; display: grid; gap: 0.8rem; }
@@ -1435,26 +1429,10 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 /* Step 3: the form, before and after */
 .dm-sorted { font-weight: 700; color: var(--teal); margin: 0 0 0.6rem; }
 .dm-sorted::before { content: "\2713  "; }
-.dm-form { border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem 0.6rem; margin: 0.6rem 0 1rem; max-width: 26rem; background: var(--paper); }
-.dm-form-title { font-family: var(--display); font-weight: 800; margin: 0 0 0.7rem; }
-.dm-field { margin-bottom: 0.6rem; }
-.dm-f-label { display: block; font-size: 0.88rem; font-weight: 600; color: var(--ink); }
-.dm-f-label em { font-style: normal; color: var(--teal); }
-.dm-f-box { display: block; min-height: 2.1rem; margin-top: 0.2rem; padding: 0.35rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; background: #fff; font-size: 0.95rem; }
-.dm-field.is-new .dm-f-box { border-color: var(--teal); box-shadow: inset 3px 0 0 #78c2a4; }
 
 /* The test request's path */
-.dm-path { list-style: none; padding: 0; margin: 0.6rem 0 0.9rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem; }
-.dm-path li { position: relative; padding: 0.35rem 0.75rem; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-weight: 600; font-size: 0.92rem; background: #fff; }
-.dm-path li:not(:last-child)::after { content: ""; position: absolute; right: -1.15rem; top: 50%; border: 5px solid transparent; border-left: 7px solid var(--line); transform: translateY(-50%); }
-.dm-path li.is-lit { background: var(--teal); border-color: var(--teal); color: #fff; }
-.dm-path li.is-lit:not(:last-child)::after { border-left-color: var(--teal); }
 
 /* The end */
-.dm-end { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
-.dm-waiting { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: 0.3rem; }
-.dm-waiting strong { display: inline-block; min-width: 4.2rem; }
-.dm-real { padding: 0.7rem 0.9rem; border-radius: 10px; background: var(--info-bg); border: 1px solid var(--teal); color: var(--ink); }
 .dm-end-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1rem 0 0; }
 
 /* See all 18 records */
@@ -1475,7 +1453,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .dm-r-row dt { font-size: 0.75rem; line-height: 1.2; }
   .dm-r-row dd { font-size: 1.35rem; }
   .dm-old { font-size: 0.9rem; }
-  .dm-flag { grid-column: 1 / -1; margin: 0.2rem 0 0; font-size: 0.8rem; }
   .dm-main { padding: 1.1rem 1rem 1rem; min-height: 0; }
   .dm-strip li { padding: 0.6rem 0.5rem; font-size: 0.8rem; gap: 0.35rem; flex-direction: column; text-align: center; }
 }
@@ -1484,23 +1461,9 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 }
 
 /* ---- Live demo, round 2: owner language, "your move", reasons beside the numbers */
-.tz-badge { display: inline-block; margin: 0 0 0.7rem; padding: 0.15rem 0.6rem; border-radius: 999px; background: var(--warn-bg); border: 1px solid var(--warn-line); color: #5b3a00; font-size: 0.82rem; font-weight: 700; }
 .demo-section { padding-top: 2.5rem; }
-.dm-move { margin: 0.9rem 0 0.6rem; font-weight: 600; color: var(--ink); }
-.dm-move span { color: var(--teal); font-weight: 800; }
 .dm-count { color: var(--muted); font-weight: 600; }
-.dm-upd { margin: 0.35rem 0 0; font-size: 0.92rem; font-weight: 600; color: var(--teal-dark); }
 .dm-last { margin: 1rem 0 0; padding-top: 0.8rem; border-top: 1px solid #36505a; font-size: 0.9rem; line-height: 1.45; color: #e9efe9; }
-.dm-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); align-items: start; gap: 0.9rem; margin: 0.8rem 0 0.4rem; max-width: 36rem; }
-.dm-fp { margin: 0; border: 1px dashed var(--line); border-radius: 12px; padding: 0.8rem 1rem; background: var(--paper); }
-.dm-fp figcaption { font-weight: 800; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
-.dm-fp ul { list-style: none; margin: 0; padding: 0; }
-.dm-fp li { padding: 0.3rem 0; border-bottom: 1px solid var(--line); font-weight: 600; color: var(--ink); }
-.dm-fp li:last-child { border-bottom: 0; }
-.dm-fp li em { display: block; font-style: normal; font-weight: 600; font-size: 0.82rem; color: var(--teal); }
-.dm-fp.is-after { border-style: solid; border-color: var(--teal); background: #fff; }
-.dm-fp li.is-new { color: var(--teal-dark); }
-.dm-fp li.is-new::before { content: "+ "; color: var(--teal); font-weight: 800; }
 @media (max-width: 56rem) {
   .dm-last { grid-column: 1 / -1; margin: 0.35rem 0 0; padding-top: 0.35rem; font-size: 0.78rem; }
 }
@@ -1522,7 +1485,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-strip li::before { grid-row: span 2; align-self: center; }
 .dm-svc { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--muted); }
 .dm-svc strong { color: var(--teal); }
-.dm-roles { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.5rem; }
 .dm-role { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.1rem 0.55rem; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); white-space: nowrap; }
 .dm-role-auto { background: var(--info-bg); border-color: var(--teal); color: var(--teal-dark); }
 .dm-role-you { background: var(--teal); border-color: var(--teal); color: #fff; }
@@ -1546,49 +1508,11 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .dm-who .dm-role { justify-self: start; }
 
 /* Live demo, round 4: what-just-happened summary, the Monday review sheet, causes table, bridge and booking ask */
-.dm-summary { margin: 0 0 0.8rem; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
-.dm-summary li::marker { color: var(--teal); }
-.dm-sheet { margin: 0.8rem 0 0.5rem; border: 1px solid #c9cfc9; border-radius: 8px; overflow: hidden; background: #fff; font-size: 0.9rem; }
-.dm-sh-bar { margin: 0; display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0.75rem; background: #1f6f4a; color: #fff; font-weight: 700; }
-.dm-sh-file::before { content: ""; display: inline-block; width: 0.8rem; height: 0.95rem; margin-right: 0.45rem; vertical-align: -0.1rem; border-radius: 2px; background: #fff; box-shadow: inset 0 0.3rem 0 #b9dcc6; }
-.dm-sh-tab { font-weight: 600; font-size: 0.82rem; opacity: 0.9; }
-.dm-sheet table { width: 100%; border-collapse: collapse; }
-.dm-sheet th, .dm-sheet td { border: 1px solid #dfe3df; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
-.dm-sheet thead th { background: #f1f3f1; font-size: 0.8rem; color: var(--muted); font-weight: 700; }
-.dm-sheet .dm-sh-n { width: 2rem; text-align: center; background: #f1f3f1; color: var(--muted); font-weight: 600; font-size: 0.8rem; }
-.dm-sh-cost { color: #7a2e12; font-weight: 600; }
-.dm-sh-pick { min-width: 12rem; background: #fffbea; }
-.dm-sh-pick select { width: 100%; font: inherit; padding: 0.35rem 0.4rem; border: 2px solid var(--teal); border-radius: 6px; background: #fff; color: var(--ink); }
-.dm-sh-done { font-weight: 700; color: var(--teal-dark); }
-.dm-sh-done::before { content: "\2713  "; color: var(--teal); }
-.dm-sheet tr.is-done .dm-sh-pick { background: var(--info-bg); }
-.dm-tools { margin: 0 0 0.5rem; font-size: 0.88rem; color: var(--muted); }
 .dm-err { color: var(--error); font-weight: 700; margin: 0.5rem 0 0; }
 .dm-last ul { margin: 0; padding-left: 1rem; display: grid; gap: 0.3rem; }
-.dm-causes { margin: 0.6rem 0 1rem; }
-.dm-causes table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-.dm-causes th, .dm-causes td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-.dm-causes thead th { font-size: 0.8rem; color: var(--muted); }
-.dm-causes tbody th { font-weight: 700; color: var(--ink); }
-.dm-causes td:last-child { color: var(--teal-dark); font-weight: 600; }
-.dm-try { font-weight: 600; margin: 0 0 0.5rem; }
-.dm-bridge { margin: 1rem 0 0; }
 .dm-ask { margin: 1rem 0 0; padding: 1rem 1.1rem; border-radius: 12px; background: var(--paper); border: 2px solid var(--teal); }
 .dm-ask p { margin: 0 0 0.6rem; }
 .dm-ask .dm-end-actions { margin: 0; }
-.dm-real { margin-top: 1rem; font-size: 0.88rem; }
-@media (max-width: 640px) {
-  .dm-sheet thead { display: none; }
-  .dm-sheet tr { display: block; border-bottom: 2px solid #c9cfc9; }
-  .dm-sheet th, .dm-sheet td { display: block; border: 0; border-bottom: 1px solid #eef0ee; }
-  .dm-sheet .dm-sh-n { width: auto; text-align: left; }
-  .dm-sheet .dm-sh-n::before { content: "Row "; }
-  .dm-sheet td::before, .dm-causes td::before { content: attr(data-label); display: block; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.02em; }
-  .dm-sh-pick { min-width: 0; }
-  .dm-causes thead { display: none; }
-  .dm-causes tr { display: block; padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
-  .dm-causes th, .dm-causes td { display: block; border: 0; padding: 0.2rem 0; }
-}
 @media (max-width: 56rem) {
   .dm-last ul { list-style: none; padding: 0; }
   .dm-last li:not(:last-child) { display: none; }
@@ -1597,7 +1521,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .dm-who li { display: block; }
   .dm-who .dm-role { display: inline-block; margin: 0 0.4rem 0.2rem 0; }
 }
-.dm-sh-why { display: block; margin-top: 0.3rem; font-size: 0.8rem; color: var(--muted); font-style: italic; }
 
 /* Polish (Nov 2026): bridge from pains into the example; tighter gap; room above the assessment band. */
 .pain-bridge { margin: 1.8rem 0 0; font-size: 1.05rem; color: var(--ink); font-weight: 600; }
@@ -1689,15 +1612,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 }
 
 /* One-time check on load: the numbers count up (src/home.js), a check sweeps the rows, then the suspicious 0 is marked */
-.tz-rows { position: relative; overflow: hidden; }
-.tz-rows::after { content: ""; position: absolute; left: 0; right: 0; height: 40%; top: 100%; opacity: 0; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(46, 125, 114, 0.18), transparent); }
-.tz-live .tz-rows::after { animation: hp-sweep 1s ease-in-out 1s both; }
-.tz-rows li.tz-suspect { position: relative; margin: 0 -0.6rem; padding-left: 0.6rem; padding-right: 2.4rem; border-radius: 8px; background: var(--warn-bg); }
-.tz-live .tz-rows li.tz-suspect { animation: tz-mark 0.5s ease-out 2s both; }
-.tz-q { position: absolute; right: 0.5rem; top: 50%; width: 1.45rem; height: 1.45rem; margin-top: -0.72rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--signal); color: var(--ink); font-family: var(--display); font-weight: 800; font-size: 0.95rem; line-height: 1; }
-.tz-live .tz-q { animation: hp-pop 0.3s ease-out 2.1s both, tz-ping 1.3s ease-out 2.4s 2; }
-@keyframes tz-mark { from { background-color: transparent; } to { background-color: var(--warn-bg); } }
-@keyframes tz-ping { 0% { box-shadow: 0 0 0 0 rgba(230, 192, 120, 0.7); } 100% { box-shadow: 0 0 0 12px rgba(230, 192, 120, 0); } }
 
 /* The live example gets its own stage: a quiet grid background (like a sheet) and more room */
 .section.demo-section { padding: 4.5rem 0 5rem; background-color: #e9efeb; background-image: linear-gradient(rgba(15, 58, 58, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 58, 58, 0.045) 1px, transparent 1px); background-size: 28px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -2011,14 +1925,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .svc-tab-short { font-family: var(--display); font-weight: 600; font-size: 0.98rem; color: var(--svc); margin-top: 0.1rem; }
 
 /* Live example: the fixed website form the visitor sends */
-.dm-form { display: grid; gap: 0.7rem; max-width: 28rem; margin-top: 0.8rem; padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
-.dm-form label { display: grid; gap: 0.25rem; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
-.dm-form label em { font-style: normal; font-weight: 500; font-size: 0.82rem; color: var(--muted); }
-.dm-form input, .dm-form select { font: inherit; font-weight: 400; padding: 0.55rem 0.7rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); min-height: 2.6rem; }
-.dm-form input:focus-visible, .dm-form select:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
-.dm-form [aria-invalid="true"] { border-color: #b3261e; background: #fff4f2; }
-.dm-form .dm-note { margin: 0; font-size: 0.88rem; }
-.dm-form p { margin: 0; }
 
 /* How a project works: one line, five stops */
 .project-flow { margin: 2.2rem 0 0.4rem; }
@@ -2066,10 +1972,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 
 /* Live example report: what the Booked number counts, and the definitions */
 .dm-unit { display: block; font-size: 0.78rem; font-weight: 500; opacity: 0.8; margin-top: 0.1rem; }
-.dm-defs { margin: 0.9rem 0 0; font-size: 0.85rem; }
-.dm-defs summary { cursor: pointer; font-weight: 600; }
-.dm-defs ul { margin: 0.5rem 0 0; padding-left: 1.1rem; }
-.dm-defs li { margin: 0.25rem 0; }
 
 /* Service areas: compact on phones (name, short line, three capabilities), the rest and the example expand.
    On wide screens src/services.js opens both and their summaries are hidden, so desktop reads as before. */
@@ -2094,12 +1996,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 @media (max-width: 52rem) { .hero-actions { align-items: stretch; } .cta-micro { text-align: center; } }
 
 /* Live demo, round 5 (7 Nov copy): findings, the optional form try, the closing ask */
-.dm-findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.4rem 1.4rem; margin: 1.1rem 0 0.4rem; padding-top: 0.9rem; border-top: 1px solid var(--line); }
-.dm-f-h { margin: 0 0 0.35rem; font-weight: 700; color: var(--ink); }
-.dm-try-block { margin-top: 1.3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
-.dm-sub { font-size: 1.05rem; margin: 0 0 0.2rem; }
-.dm-try-block .dm-end-actions { margin-top: 0.6rem; }
-.dm-try-block .dm-end-actions .dm-btn { margin-top: 0; }
 .dm-ask .dm-h { font-size: 1.2rem; margin-bottom: 0.5rem; }
 .dm-ask-cta { display: inline-flex; flex-direction: column; gap: 0.35rem; }
 .dm-ask .dm-ask-cta .cta-micro { margin: 0; text-align: center; }
@@ -2136,31 +2032,13 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 }
 
 /* Report panel: the suspicious 0 before the checks, like the hero card */
-.dm-q { display: none; margin-left: 0.5rem; width: 1.3rem; height: 1.3rem; vertical-align: 0.35rem; border-radius: 50%; background: var(--signal); color: var(--ink); font-size: 0.85rem; line-height: 1.3rem; text-align: center; }
 .dm-r-row.is-suspect { background: rgba(230, 192, 120, 0.14); }
-.dm-r-row.is-suspect .dm-q { display: inline-block; }
 
 /* Stage 2: findings, revealed one by one */
-.dm-finds { list-style: none; margin: 0.9rem 0 1rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.8rem; }
-.dm-find { padding: 0.85rem 0.95rem; border-left: 3px solid var(--signal); background: var(--paper); border-radius: 0 10px 10px 0; animation: dm-in 0.4s ease-out both; }
-.dm-find:nth-child(2) { animation-delay: 0.35s; }
-.dm-find:nth-child(3) { animation-delay: 0.7s; }
-.dm-find p { margin: 0; }
-.dm-find-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a2e12; }
-.dm-find-who { font-weight: 800; color: var(--ink); margin-top: 0.25rem !important; }
-.dm-find-lines { font-size: 0.9rem; color: var(--ink); }
-.dm-find-impact { margin-top: 0.5rem !important; font-size: 0.88rem; font-weight: 600; color: #7a2e12; }
-.dm-find-impact span { font-weight: 800; }
 @keyframes dm-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* Stage 4: proposed fixes */
-.dm-fixes { list-style: none; margin: 0.8rem 0 1rem; padding: 0; display: grid; gap: 0.2rem; }
-.dm-fix { padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
-.dm-fix:first-child { border-top: 1px solid var(--line); }
 .dm-fix-h { margin: 0 0 0.35rem; font-weight: 800; color: var(--ink); }
-.dm-fix dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.3rem 1.4rem; }
-.dm-fix dt { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-.dm-fix dd { margin: 0.1rem 0 0; font-size: 0.93rem; }
 .dm-fix-to dd { color: var(--teal-dark); font-weight: 600; }
 
 /* The end: final report */
@@ -2171,20 +2049,9 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .dm-final-n b { font-family: var(--display); font-size: 1.6rem; color: #fff; margin-right: 0.3rem; font-variant-numeric: tabular-nums; }
 .dm-ask { margin-bottom: 0.4rem; }
 
-@media (prefers-reduced-motion: reduce) {
-  .dm-find { animation: none; }
-}
 /* Strip tags in normal case so "Business Tools & Systems" fits five columns */
 .dm-strip .dm-s-svc { text-transform: none; letter-spacing: 0; font-size: 0.68rem; }
 /* The improved form: label and "required" on one line; two columns where there's room */
-.dm-form label { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.4rem; row-gap: 0.25rem; }
-.dm-form label input, .dm-form label select { flex: 1 0 100%; }
-@media (min-width: 40.01rem) {
-  .dm-form { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.9rem; max-width: 38rem; }
-  .dm-form label:nth-of-type(5), .dm-form p { grid-column: 1 / -1; }
-}
-.dm-forms .dm-fp li { padding: 0.2rem 0; }
-.dm-forms .dm-fp li em { display: inline; margin-left: 0.3rem; }
 
 /* Services (7 Nov copy): familiar situations, what you can have, what gets better */
 .svc-label-have { display: none; }
@@ -2202,7 +2069,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 /* ==========================================================================
    Motion design pass (8 Nov): smooth, responsive and purposeful.
    Everything below either styles new layout or animates content that is already in the page.
-   Hidden-until-animated states only apply under .motion / .tz-stage / .svc-wait, which scripts set
+   Hidden-until-animated states only apply under .motion / .svc-wait, which scripts set
    only when motion is allowed; the global reduced-motion rule switches all animation off.
    ========================================================================== */
 :root { --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1); --ease-io: cubic-bezier(0.45, 0, 0.2, 1); }
@@ -2224,25 +2091,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
   .hero-actions .btn { width: 100%; }
 }
 
-/* ---- Hero card: coordinated entrance (home.js adds .tz-stage, then .tz-live when it is on screen) ---- */
-@keyframes tz-card-in { from { opacity: 0; transform: translateY(22px) rotate(0.6deg); } }
-@keyframes tz-part-in { from { opacity: 0; transform: translateY(8px); } }
-@keyframes tz-row-in { from { opacity: 0; transform: translateX(-10px); } }
-.tz-stage:not(.tz-live) { opacity: 0; }
-.tz-stage.tz-live { animation: tz-card-in 0.7s var(--ease-out) both; }
-.tz-stage.tz-live .tz-badge { animation: tz-part-in 0.4s var(--ease-out) 0.25s both; }
-.tz-stage.tz-live .tz-title { animation: tz-part-in 0.45s var(--ease-out) 0.33s both; }
-.tz-stage.tz-live .tz-date { animation: tz-part-in 0.45s var(--ease-out) 0.4s both; }
-.tz-stage.tz-live .tz-rows li { animation: tz-row-in 0.45s var(--ease-out) both; }
-.tz-stage.tz-live .tz-rows li:nth-child(1) { animation-delay: 0.5s; }
-.tz-stage.tz-live .tz-rows li:nth-child(2) { animation-delay: 0.58s; }
-.tz-stage.tz-live .tz-rows li:nth-child(3) { animation: tz-row-in 0.45s var(--ease-out) 0.66s both, tz-mark 0.5s ease-out 1.9s both; }
-.tz-stage.tz-live .tz-rows::after { animation: hp-sweep 0.9s var(--ease-io) 1.15s both; }
-.tz-stage.tz-live .tz-q { animation: hp-pop 0.32s var(--ease-out) 2s both, tz-ping 1.3s ease-out 2.3s 2; }
-.tz-stage.tz-live .tz-note { animation: tz-part-in 0.45s var(--ease-out) 1.5s both; }
-.tz-stage.tz-live .tz-ask { animation: tz-part-in 0.5s var(--ease-out) 2.15s both; }
-.tz-stage.tz-live .tz-btn { animation: tz-part-in 0.5s var(--ease-out) 2.3s both; }
-.tz-rows li.tz-suspect { background: var(--warn-bg); }
 
 /* ---- "Sound familiar?": an editorial, numbered list ---- */
 .fit-eyebrow { margin: 0 0 0.4rem; }
@@ -2487,7 +2335,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .dm-decide { margin: 0; padding: 0.8rem 1rem 0.7rem; border: 1px solid var(--line); border-radius: 10px; }
 .dm-decide.is-decided { border-color: var(--teal); }
 .dm-decide legend { padding: 0 0.3rem; margin-left: -0.3rem; font-weight: 700; }
-.dm-q { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--muted); }
+.dm-explain { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--muted); }
 .dm-choices { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .dm-choice { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.5rem; padding: 0.35rem 0.85rem; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 0.92rem; background: var(--card); }
 .dm-choice:has(input:checked) { border-color: var(--teal); background: var(--info-bg); }
@@ -2550,4 +2398,32 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
   .dm2 .dm-r-row dt { font-size: 0.66rem; }
   .ops-metrics dd { font-size: 1.45rem; }
 }
-.dm-find2 .dm-find-label { text-transform: none; letter-spacing: 0; color: var(--ink); }
+
+/* Stage 4 refinements: short labels and a compact pinned report on phones; issue titles wrap inside their box */
+.dm-l-short { display: none; }
+.dm-decide legend { float: left; width: 100%; padding: 0; margin: 0 0 0.4rem; line-height: 1.35; }
+.dm-decide legend + * { clear: both; }
+.dm-decide legend .dm-ids { white-space: nowrap; margin-left: 0.25rem; }
+.dm-final-open strong { color: var(--signal); }
+@media (max-width: 56rem) {
+  .dm2 .dm-report { padding: 0.5rem 0.75rem 0.55rem; gap: 0 0.6rem; }
+  .dm2 .dm-r-title { font-size: 0.85rem; margin: 0; }
+  .dm2 .dm-r-tag { font-size: 0.72rem; padding: 0 0.45rem; }
+  .dm2 .dm-l-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .dm2 .dm-l-short { display: inline; }
+  .dm2 .dm-r-rows { gap: 0.25rem; margin-top: 0.3rem; }
+  .dm2 .dm-r-row { padding: 0.2rem 0.3rem; text-align: center; }
+  .dm2 .dm-r-row dt { font-size: 0.68rem; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dm2 .dm-r-row dd { font-size: 1.15rem; line-height: 1.2; margin: 0; }
+  .dm2 .dm-old { display: none; }
+  .dm2 .dm-open { margin-top: 0.25rem; font-size: 0.74rem; line-height: 1.3; }
+  .dm2 .dm-open-h { font-size: 0.68rem; }
+  .dm2 .dm-open ul { font-size: 0.74rem; }
+  .dm2 .dm-open li span { display: none; }
+  .dm2 .dm-open li { margin-right: 0.35rem; }
+}
+.dm-final-t span { display: inline-block; white-space: nowrap; }
+@media (max-width: 56rem) {
+  .dm2 .dm-r-rows { align-items: end; }
+  .dm2 .dm-r-row dt { white-space: normal; overflow: visible; text-overflow: clip; font-size: 0.66rem; }
+}

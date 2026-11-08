@@ -203,7 +203,7 @@ test('status: Built by hand → Review required → Review complete, or Follow-u
   s = decide(decide(s, 'duplicate', 'merge'), 'finance', 'noInvoiceDue'); assert.equal(status(s), 'Review required');
   s = decide(s, 'owner', 'pending', 'Work is on hold'); assert.ok(allDecided(s));
   assert.equal(status(s), 'Follow-up pending');
-  assert.deepEqual(outstanding(s), [{ issue: 'owner', id: 'W-314', action: 'No owner yet: Work is on hold' }]);
+  assert.deepEqual(outstanding(s), [{ issue: 'owner', id: 'W-314', action: 'No owner yet', reason: 'Work is on hold' }]);
   assert.equal(report(s).itemsToReview, 0, '0 to review, but the open action stays visible');
   s = decide(s, 'owner', 'assign', 'Sam'); assert.equal(status(s), 'Review complete'); assert.deepEqual(outstanding(s), []);
   s = decide(s, 'finance', 'followUp');
@@ -255,4 +255,14 @@ test('no Quillfern left on the homepage or in the demo code', async () => {
   for (const f of ['../index.html', '../src/demo/ui.js', '../src/demo/data.js', '../src/demo/engine.js', '../src/home.js']) {
     assert.doesNotMatch(await readFile(new URL(f, import.meta.url), 'utf8'), /quillfern/i, f);
   }
+});
+
+test('the privacy notice describes the new simulation, with no Quillfern or test booking form', async () => {
+  const html = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  const sec = html.slice(html.indexOf('<h2>The examples on the homepage</h2>'), html.indexOf('<h2>When you contact me</h2>'));
+  assert.doesNotMatch(html, /quillfern|test booking form/i);
+  assert.match(sec, /fictional/);
+  assert.match(sec, /not connected to any accounting, finance, work-tracking or other business system/);
+  assert.match(sec, /not in cookies, local storage or session storage/);
+  assert.match(html, /<h2>When you contact me<\/h2>[\s\S]*Booking a review/, 'booking disclosures still there');
 });

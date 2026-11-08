@@ -88,7 +88,6 @@ test('after the check: 11 open (1 possible duplicate), 7 completed, 1 not invoic
 test('hero summary comes from the engine: the hand-built week, issue kinds only, no findings', () => {
   const h = heroSummary();
   assert.deepEqual({ ...h, issues: undefined }, { sourceRecords: 30, sourcesChecked: 3, itemsToReview: 3, status: 'Review required',
-    issuesBrief: 'Possible duplicate work, completed work without an invoice match, and an open task without an owner.',
     workItems: 18, completed: 7, openWork: 11, weekRange: '2–6 November 2026', issues: undefined });
   // The summary is what the hand-built update says; the issues are what the checks find.
   assert.equal(h.workItems, TRACKER.length);
@@ -99,6 +98,7 @@ test('hero summary comes from the engine: the hand-built week, issue kinds only,
   assert.equal(h.itemsToReview, found.length);
   assert.deepEqual(h.issues.map((i) => i.issue), ['duplicate', 'finance', 'owner']);
   assert.deepEqual(h.issues.map((i) => i.title), ['Possible duplicate task', 'Completed work not invoiced', 'Work without an owner']);
+  assert.deepEqual(h.issues.map((i) => i.brief), ['Possible duplicate work', 'Completed work without an invoice match', 'An open task without an owner']);
   assert.deepEqual(found.map((f) => ISSUES[f.issue].brief),
     ['possible duplicate work', 'completed work without an invoice match', 'an open task without an owner']);
   assert.ok(!JSON.stringify(h).includes('W-'), 'the hero never carries the detailed findings');
@@ -255,7 +255,7 @@ test('the hero card shows the engine’s figures and issue kinds, not the findin
   }
   for (const k of ['status', 'weekRange', 'workItems', 'completed', 'openWork', 'itemsToReview']) assert.match(card, new RegExp(`data-hero="${k}"`), `${k} on the card`);
   const lines = [...card.matchAll(/data-hero-issue="(\w+)">[\s\S]*?<strong>([^<]*)<\/strong> <span>([^<]*)<\/span>/g)].map((m) => ({ issue: m[1], title: m[2], text: m[3] }));
-  assert.deepEqual(lines, h.issues, 'issue lines match the engine');
+  assert.deepEqual(lines, h.issues.map(({ issue, title, text }) => ({ issue, title, text })), 'issue lines match the engine');
   assert.match(card, /Weekly operations report/i);
   assert.match(card, /Before sharing this week&rsquo;s update&hellip;/);
   assert.match(card, /Work items[\s\S]*Marked complete[\s\S]*Still open/);
@@ -334,16 +334,18 @@ test('the end of the demo describes proposed improvements, not finished ones', a
   assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean|What improved\?/);
 });
 
-test('the demo intro shows the scenario at a glance, from the engine', async () => {
+test('the demo intro: exact copy, issues from the engine, your role, disclosure', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('class="demo-window"'));
   const h = heroSummary();
   assert.match(sec, /Can you trust this week&rsquo;s report\?/);
-  assert.match(sec, /Three sources<\/strong> hold the same week/);
-  assert.match(sec, new RegExp(`data-hero="itemsToReview">${h.itemsToReview}<`));
-  assert.ok(sec.includes(`data-hero="issuesBrief">${h.issuesBrief}<`), 'issue kinds match the engine');
-  assert.match(sec, /You review the records first<\/strong>, then decide/);
-  assert.match(sec, /This is a fictional example using made-up data/);
+  assert.ok(sec.includes('Here&rsquo;s a week&rsquo;s worth of work for a small team, recorded in three different places: a work tracker, a completion log, and a finance register.'));
+  assert.ok(sec.includes('At first glance, the report looks fine. Check the records and see whether the numbers tell the same story.'));
+  assert.match(sec, new RegExp(`data-hero="itemsToReview">${h.itemsToReview}</span> issues to investigate`));
+  const lines = [...sec.matchAll(/data-intro-issue="(\w+)">([^<]*)</g)].map((m) => ({ issue: m[1], brief: m[2] }));
+  assert.deepEqual(lines, h.issues.map(({ issue, brief }) => ({ issue, brief })), 'issue lines match the engine');
+  assert.ok(sec.includes('Your role</p><p class="demo-role-t">Check the records. Make the decisions. See what a clearer process could look like.'));
+  assert.ok(sec.includes('This is a fictional example using made-up data. It demonstrates how I approach an operational problem; it isn&#39;t a client project.'));
   assert.doesNotMatch(sec, /W-3\d\d/);
 });
 

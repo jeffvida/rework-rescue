@@ -2419,9 +2419,6 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @media (max-width: 56rem) { .dm-report { top: var(--header-h); } }
 
 /* ==== Credibility pass (Nov 2026): demo at a glance, experience highlights, location ==== */
-.demo-brief { list-style: none; max-width: 46rem; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.45rem; }
-.demo-brief li { position: relative; padding-left: 1.2rem; }
-.demo-brief li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--teal); }
 .exp-kind { margin: 2.2rem 0 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal); }
 .exp-kind + .exp-list { margin-top: 0.9rem; }
 .exp-close { margin: 1.8rem 0 0; max-width: 46rem; font-size: 1.05rem; color: #fff; }
@@ -2464,5 +2461,29 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .ops-sum .ops-ic { grid-row: auto; width: 1.9rem; height: 1.9rem; padding: 0.38rem; }
   .ops-sum dd { font-size: 1.6rem; }
   .ops-checks li { padding: 0.55rem 0.6rem; gap: 0.6rem; }
+}
+
+/* ==== Live example intro (Nov 2026): issues to investigate, your role, disclosure ==== */
+.demo-intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.9rem; max-width: 52rem; margin: 1.3rem 0 0.9rem; }
+@media (min-width: 48rem) { .demo-intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.demo-issues { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.25rem 1rem; box-shadow: 0 4px 14px rgba(18, 38, 43, 0.05); }
+.demo-issues-h { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 0.6rem; font-family: var(--display); font-weight: 600; font-size: 1.2rem; color: var(--ink); }
+.demo-issues-h .ops-ic { width: 2.3rem; height: 2.3rem; padding: 0.45rem; border-radius: 10px; background: var(--warn-bg); color: #5b3a00; }
+.demo-issues ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.demo-issues li { position: relative; margin: 0; padding-left: 1.3rem; font-size: 1.02rem; }
+.demo-issues li[hidden] { display: none; }
+.demo-issues li::before { content: ""; position: absolute; left: 0.1rem; top: 0.55em; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--teal); }
+.demo-role { display: flex; align-items: center; gap: 1rem; background: #e6f1ec; border: 1px solid #cfe3da; border-radius: 14px; padding: 1.1rem 1.25rem; }
+.demo-role > .ops-ic { width: 3rem; height: 3rem; padding: 0.6rem; border-radius: 12px; background: #d3e8df; color: var(--ink); flex: none; }
+.demo-role > div { padding-left: 1rem; border-left: 1px solid #b9d7ca; }
+.demo-role-k { margin: 0 0 0.25rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
+.demo-role-t { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.35; color: var(--ink); }
+.demo-disclosure { max-width: 52rem; display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.88rem; }
+.demo-disclosure .ops-ic { width: 1.1rem; height: 1.1rem; margin-top: 0.1rem; color: var(--muted); }
+@media (max-width: 30rem) {
+  .demo-issues, .demo-role { padding: 1rem; }
+  .demo-role { gap: 0.8rem; }
+  .demo-role > .ops-ic { width: 2.6rem; height: 2.6rem; }
+  .demo-role > div { padding-left: 0.8rem; }
 }
 

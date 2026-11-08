@@ -134,14 +134,13 @@ export function heroSummary() {
   const shown = report(start); // what the hand-built update says before anyone checks it
   const checked = check(start);
   const r = report(checked);
-  // The kinds of issue found, in the visitor's words (ISSUES[*].brief), without Work IDs or details.
-  const kinds = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ISSUES[k].brief);
-  const list = kinds.length > 2 ? `${kinds.slice(0, -1).join(', ')}, and ${kinds[kinds.length - 1]}` : kinds.join(' and ');
-  const issuesBrief = list ? `${list.charAt(0).toUpperCase()}${list.slice(1)}.` : '';
-  // The issues to check, as hero-card lines (ISSUES[*].card): kind of problem only, no Work IDs or record details.
-  const issues = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ({ issue: k, title: ISSUES[k].card[0], text: ISSUES[k].card[1] }));
+  // The kinds of issue the checks find, for the hero card (ISSUES[*].card) and the demo intro (ISSUES[*].brief).
+  // Kind of problem only: no Work IDs or record details.
+  const issues = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ({
+    issue: k, title: ISSUES[k].card[0], text: ISSUES[k].card[1], brief: `${ISSUES[k].brief.charAt(0).toUpperCase()}${ISSUES[k].brief.slice(1)}`,
+  }));
   return {
-    sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status, issuesBrief,
+    sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status,
     workItems: TRACKER.length, completed: shown.completed, openWork: shown.openWork, weekRange: weekRange(WEEK), issues,
   };
 }

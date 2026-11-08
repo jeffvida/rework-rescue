@@ -2493,7 +2493,7 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .demo-after-t strong { display: block; font-family: var(--display); font-weight: 600; font-size: 1.1rem; }
 .demo-after-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
 .demo-after-cta .cta-micro { margin: 0; }
-.dm-optional { margin: 1rem 0 0; font-size: 0.95rem; color: var(--ink); }
+.dm-next-note { margin: 1rem 0 0; font-size: 0.95rem; color: var(--ink); }
 @media (max-width: 30rem) {
   .demo-after-cta, .demo-after-cta .btn { width: 100%; }
   .demo-after-cta .btn { justify-content: center; }

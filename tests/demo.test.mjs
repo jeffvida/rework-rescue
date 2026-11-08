@@ -375,15 +375,23 @@ test('booking after the demo: one strip with the first-project line, using the e
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
   assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="demo-window"'), 'after the demo window');
-  assert.match(after, /Most projects start with one report or recurring process, so you can start small\./);
+  assert.match(after, /Most projects start with one report or recurring process\. Once that&rsquo;s working, we can look at what&rsquo;s next\./);
   assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });
 
-test('after Finish decisions, booking sits beside Next and the last two stages are optional', async () => {
+test('after Finish decisions, booking sits beside Next, and nothing is called optional', async () => {
   const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
   const st = ui.slice(ui.indexOf('} else if (at === 3) {'), ui.indexOf('} else if (at === 4) {'));
-  assert.match(st, /The last two steps are optional\./);
+  assert.match(st, /This week&rsquo;s report is sorted, and these changes could stop the same problems coming back\./);
+  assert.doesNotMatch(st, /optional|main point/i);
   assert.match(st, /href="contact\/#contact-form-area">Book a free rework review</);
-  assert.match(st, /btn\('next', 'Next: a better way of working \(optional\)', 'secondary'\)/);
+  assert.match(st, /btn\('next', 'Next: see how your tools could work together →', 'secondary'\)/);
+});
+
+test('the final demo screen has no booking box (the strip below the demo carries it)', async () => {
+  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
+  const end = ui.slice(ui.indexOf("<h3 class=\"dm-h\">Checked, decisions made"));
+  assert.doesNotMatch(end.slice(0, end.indexOf('}\n')), /dm-ask|Book a free rework review/);
+  assert.match(end, /data-act="back"[\s\S]*data-act="restart">Run it again/);
 });

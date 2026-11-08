@@ -244,8 +244,8 @@ export function mountDemo(root) {
           <dl><div><dt>Now</dt><dd>${esc(p.before)}</dd></div><div class="dm-fix-to"><dt>Improvement</dt><dd>${esc(p.after)}</dd></div></dl></li>`).join('')}</ol>
         <p>These improvements could mean less repeated checking, fewer missed tasks and fewer manual corrections.</p>
         <p class="dm-note">Proposed improvements for this fictional team.</p>
-        <p class="dm-optional">You&rsquo;ve seen the main point: the report was checked and every item has a decision. The last two steps are optional.</p>
-        ${nav(`<a class="btn btn-primary dm-book" href="contact/#contact-form-area">Book a free rework review</a>${btn('next', 'Next: a better way of working (optional)', 'secondary')}`)}`;
+        <p class="dm-next-note">This week&rsquo;s report is sorted, and these changes could stop the same problems coming back.</p>
+        ${nav(`<a class="btn btn-primary dm-book" href="contact/#contact-form-area">Book a free rework review</a>${btn('next', 'Next: see how your tools could work together →', 'secondary')}`)}`;
     } else if (at === 4) {
       const flow = ['Operations Tracker', 'Completion Log', 'Finance Register', 'Clearer operations report'];
       h = `${area(4, 'Your everyday tools, working together.')}
@@ -269,16 +269,10 @@ export function mountDemo(root) {
           <li><a href="#services">Workflows &amp; Processes</a>: every item has a decision, and the same problems are less likely to return.</li>
           <li><a href="#services">Business Tools &amp; Systems</a>: a clearer way for the tracker, completion log and finance register to work together.</li>
         </ul>
-        <div class="dm-ask">
-          <h3 class="dm-h">Your business could work this way, too.</h3>
-          <p>You don’t need another complicated system. You need a clearer process, reliable information and tools that work together.</p>
-          <p>Bring one report or process you don’t fully trust. In a free 30-minute review, I’ll help you identify what’s causing the rework and discuss a practical way to improve it.</p>
-          <div class="dm-end-actions"><div class="dm-ask-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a><p class="cta-micro">30 minutes · No obligation</p></div>
-            <button type="button" class="dm-link" data-act="back">&larr; Back</button>
-            <button type="button" class="dm-link" data-act="restart">Run it again</button></div>
-        </div>
         <p class="dm-end-sub">Who does what?</p>
-        <ul class="dm-who">${WHO.map(([cls, who, what]) => `<li><span class="dm-role dm-role-${cls}">${esc(who)}</span> <span>${esc(what)}</span></li>`).join('')}</ul>`;
+        <ul class="dm-who">${WHO.map(([cls, who, what]) => `<li><span class="dm-role dm-role-${cls}">${esc(who)}</span> <span>${esc(what)}</span></li>`).join('')}</ul>
+        <div class="dm-end-actions"><button type="button" class="dm-link" data-act="back">&larr; Back</button>
+          <button type="button" class="dm-link" data-act="restart">Run it again</button></div>`;
     }
     stage.innerHTML = h;
     stage.querySelectorAll('.dm-h').forEach((el) => el.setAttribute('tabindex', '-1'));

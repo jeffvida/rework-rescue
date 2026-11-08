@@ -7,39 +7,41 @@
 // owner). W-304 is also missing from finance, but it was internal work, so it must NOT be flagged.
 // The engine (./engine.js) works out every number the page shows from these rows; tests/demo.test.mjs checks them.
 
-export const WEEK = 'Week ending Fri 13 Nov 2026';
+// The sample week: a completed week (Mon 2 – Fri 6 Nov 2026). Work due after it is still open.
+// The demo window's title bar in index.html shows this label; home.js writes it in and tests/demo.test.mjs pins the HTML to it.
+export const WEEK = 'Week ending Fri 6 Nov 2026';
 
 // status: 'Not started' | 'In progress' | 'Complete'. owner '' = nobody assigned.
 export const TRACKER = [
-  { id: 'W-301', work: 'Monthly supplier statement', owner: 'Alex', status: 'Complete', due: 'Mon 9 Nov' },
-  { id: 'W-302', work: 'New customer setup', owner: 'Priya', status: 'Complete', due: 'Tue 10 Nov' },
-  { id: 'W-303', work: 'Service contract renewal', owner: 'Sam', status: 'Complete', due: 'Tue 10 Nov' },
-  { id: 'W-304', work: 'Update the staff rota', owner: 'Jordan', status: 'Complete', due: 'Wed 11 Nov' },
-  { id: 'W-305', work: 'Equipment order for a customer', owner: 'Alex', status: 'Complete', due: 'Wed 11 Nov' },
-  { id: 'W-306', work: 'Quarterly customer review', owner: 'Priya', status: 'Complete', due: 'Thu 12 Nov' },
-  { id: 'W-307', work: 'Customer training session', owner: 'Sam', status: 'Complete', due: 'Thu 12 Nov' },
-  { id: 'W-308', work: 'Monthly sales report', owner: 'Jordan', status: 'In progress', due: 'Fri 13 Nov' },
-  { id: 'W-309', work: 'Follow up overdue payments', owner: 'Alex', status: 'In progress', due: 'Fri 13 Nov' },
-  { id: 'W-310', work: 'Quarterly stock count', owner: 'Priya', status: 'Not started', due: 'Mon 16 Nov' },
-  { id: 'W-311', work: 'Website content update', owner: 'Sam', status: 'In progress', due: 'Tue 17 Nov' },
-  { id: 'W-312', work: 'Supplier price review', owner: 'Jordan', status: 'Not started', due: 'Wed 18 Nov' },
-  { id: 'W-313', work: 'New starter onboarding', owner: 'Priya', status: 'In progress', due: 'Wed 18 Nov' },
-  { id: 'W-314', work: 'Customer feedback survey', owner: '', status: 'Not started', due: 'Fri 13 Nov' },
-  { id: 'W-315', work: 'Insurance renewal paperwork', owner: 'Alex', status: 'Not started', due: 'Thu 19 Nov' },
-  { id: 'W-316', work: 'Website content update', owner: 'Jordan', status: 'Not started', due: 'Tue 17 Nov' },
-  { id: 'W-317', work: 'Office equipment check', owner: 'Sam', status: 'Not started', due: 'Fri 20 Nov' },
-  { id: 'W-318', work: 'Annual pricing update', owner: 'Jordan', status: 'Not started', due: 'Fri 20 Nov' },
+  { id: 'W-301', work: 'Monthly supplier statement', owner: 'Alex', status: 'Complete', due: 'Mon 2 Nov' },
+  { id: 'W-302', work: 'New customer setup', owner: 'Priya', status: 'Complete', due: 'Tue 3 Nov' },
+  { id: 'W-303', work: 'Service contract renewal', owner: 'Sam', status: 'Complete', due: 'Tue 3 Nov' },
+  { id: 'W-304', work: 'Update the staff rota', owner: 'Jordan', status: 'Complete', due: 'Wed 4 Nov' },
+  { id: 'W-305', work: 'Equipment order for a customer', owner: 'Alex', status: 'Complete', due: 'Wed 4 Nov' },
+  { id: 'W-306', work: 'Quarterly customer review', owner: 'Priya', status: 'Complete', due: 'Thu 5 Nov' },
+  { id: 'W-307', work: 'Customer training session', owner: 'Sam', status: 'Complete', due: 'Thu 5 Nov' },
+  { id: 'W-308', work: 'Monthly sales report', owner: 'Jordan', status: 'In progress', due: 'Fri 6 Nov' },
+  { id: 'W-309', work: 'Follow up overdue payments', owner: 'Alex', status: 'In progress', due: 'Fri 6 Nov' },
+  { id: 'W-310', work: 'Quarterly stock count', owner: 'Priya', status: 'Not started', due: 'Mon 9 Nov' },
+  { id: 'W-311', work: 'Website content update', owner: 'Sam', status: 'In progress', due: 'Tue 10 Nov' },
+  { id: 'W-312', work: 'Supplier price review', owner: 'Jordan', status: 'Not started', due: 'Wed 11 Nov' },
+  { id: 'W-313', work: 'New starter onboarding', owner: 'Priya', status: 'In progress', due: 'Wed 11 Nov' },
+  { id: 'W-314', work: 'Customer feedback survey', owner: '', status: 'Not started', due: 'Fri 6 Nov' },
+  { id: 'W-315', work: 'Insurance renewal paperwork', owner: 'Alex', status: 'Not started', due: 'Thu 12 Nov' },
+  { id: 'W-316', work: 'Website content update', owner: 'Jordan', status: 'Not started', due: 'Tue 10 Nov' },
+  { id: 'W-317', work: 'Office equipment check', owner: 'Sam', status: 'Not started', due: 'Fri 13 Nov' },
+  { id: 'W-318', work: 'Annual pricing update', owner: 'Jordan', status: 'Not started', due: 'Fri 13 Nov' },
 ];
 
 // billable: whether the completed work should lead to an invoice (shown to the visitor as the result text).
 export const COMPLETION = [
-  { id: 'W-301', completed: 'Mon 9 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-302', completed: 'Tue 10 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-303', completed: 'Tue 10 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-304', completed: 'Wed 11 Nov', result: 'Internal task, no invoice', billable: false },
-  { id: 'W-305', completed: 'Wed 11 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-306', completed: 'Thu 12 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-307', completed: 'Thu 12 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-301', completed: 'Mon 2 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-302', completed: 'Tue 3 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-303', completed: 'Tue 3 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-304', completed: 'Wed 4 Nov', result: 'Internal task, no invoice', billable: false },
+  { id: 'W-305', completed: 'Wed 4 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-306', completed: 'Thu 5 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-307', completed: 'Thu 5 Nov', result: 'Delivered to customer', billable: true },
 ];
 
 export const FINANCE = [

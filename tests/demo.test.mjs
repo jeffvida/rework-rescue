@@ -266,3 +266,47 @@ test('the privacy notice describes the new simulation, with no Quillfern or test
   assert.match(sec, /not in cookies, local storage or session storage/);
   assert.match(html, /<h2>When you contact me<\/h2>[\s\S]*Booking a review/, 'booking disclosures still there');
 });
+
+// ---- The sample week (completed week ending Fri 6 Nov 2026)
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const asDate = (label) => { // 'Fri 6 Nov' → Date (2026), checking the weekday matches the date
+  const [dow, d, mon] = label.split(' ');
+  assert.equal(mon, 'Nov', label);
+  const dt = new Date(Date.UTC(2026, 10, Number(d)));
+  assert.equal(DAYS[dt.getUTCDay()], dow, `${label} is a ${DAYS[dt.getUTCDay()]}`);
+  return dt;
+};
+
+test('the sample week is a completed week ending Fri 6 Nov 2026, and every date fits it', () => {
+  assert.equal(DATA.WEEK, 'Week ending Fri 6 Nov 2026');
+  const end = asDate(DATA.WEEK.replace('Week ending ', '').replace(' 2026', ''));
+  const start = new Date(end); start.setUTCDate(end.getUTCDate() - 4); // Monday
+  for (const r of COMPLETION) {
+    const d = asDate(r.completed);
+    assert.ok(d >= start && d <= end, `${r.id} was completed during the sample week`);
+  }
+  for (const r of TRACKER) {
+    const d = asDate(r.due);
+    if (r.status === 'Complete') assert.ok(d >= start && d <= end, `${r.id} was due during the sample week`);
+    else assert.ok(d >= start, `${r.id} is open work due this week or later`);
+  }
+  // Only the week label lives in the code: no other week constants.
+  assert.deepEqual(Object.keys(DATA).filter((k) => /week|date/i.test(k)), ['WEEK']);
+});
+
+test('the demo window shows the same week as the data', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const m = html.match(/<span class="dw-status" data-week>([^<]*)</);
+  assert.ok(m, 'the demo title bar has the week');
+  assert.equal(m[1], DATA.WEEK);
+  assert.doesNotMatch(html, /13 Nov/);
+});
+
+test('the end of the demo describes proposed improvements, not finished ones', async () => {
+  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
+  assert.match(ui, /These improvements could mean less repeated checking, fewer missed tasks and fewer manual corrections\./);
+  assert.match(ui, /Checked, decisions made, and improvements identified\./);
+  assert.match(ui, /a clearer way for the tracker, completion log and finance register to work together\./);
+  assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean/);
+});

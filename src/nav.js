@@ -5,6 +5,20 @@ const header = document.querySelector('.site-header');
 const toggle = header && header.querySelector('.nav-toggle');
 const nav = document.getElementById('site-nav');
 
+// Sticky header offset: --header-h is the header's real height while it is sticky (0 when it scrolls away, as on
+// phones). styles.css turns it into scroll-padding-top, so jump links, scrollIntoView() and focus stop below it.
+function measureHeader() {
+  if (!header) return;
+  const sticky = getComputedStyle(header).position === 'sticky';
+  const h = sticky ? Math.ceil(header.getBoundingClientRect().height) : 0;
+  document.documentElement.style.setProperty('--header-h', `${h}px`);
+}
+if (header) {
+  measureHeader();
+  if (typeof ResizeObserver === 'function') new ResizeObserver(measureHeader).observe(header);
+  window.addEventListener('resize', measureHeader, { passive: true });
+}
+
 if (header && toggle && nav) {
   header.classList.add('nav-ready');
   toggle.hidden = false;
@@ -12,6 +26,7 @@ if (header && toggle && nav) {
   const setOpen = (open) => {
     header.classList.toggle('nav-open', open);
     toggle.setAttribute('aria-expanded', String(open));
+    measureHeader(); // before the browser follows a menu link, so it stops below the closed header
   };
 
   toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));

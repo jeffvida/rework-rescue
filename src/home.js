@@ -3,6 +3,7 @@
 import { mountBooking } from './booking/popup.js';
 import { mountDemo } from './demo/ui.js';
 import { heroSummary } from './demo/engine.js';
+import { WEEK } from './demo/data.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 import { mountServices } from './services.js';
@@ -78,6 +79,9 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
     if (v !== undefined) el.textContent = String(v);
   });
 }());
+
+// The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.
+document.querySelectorAll('[data-week]').forEach((el) => { el.textContent = WEEK; });
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

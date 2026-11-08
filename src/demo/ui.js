@@ -244,7 +244,8 @@ export function mountDemo(root) {
           <dl><div><dt>Now</dt><dd>${esc(p.before)}</dd></div><div class="dm-fix-to"><dt>Improvement</dt><dd>${esc(p.after)}</dd></div></dl></li>`).join('')}</ol>
         <p>These improvements could mean less repeated checking, fewer missed tasks and fewer manual corrections.</p>
         <p class="dm-note">Proposed improvements for this fictional team.</p>
-        ${nav(btn('next', 'Next: see a better way of working'))}`;
+        <p class="dm-optional">You&rsquo;ve seen the main point: the report was checked and every item has a decision. The last two steps are optional.</p>
+        ${nav(`<a class="btn btn-primary dm-book" href="contact/#contact-form-area">Book a free rework review</a>${btn('next', 'Next: a better way of working (optional)', 'secondary')}`)}`;
     } else if (at === 4) {
       const flow = ['Operations Tracker', 'Completion Log', 'Finance Register', 'Clearer operations report'];
       h = `${area(4, 'Your everyday tools, working together.')}

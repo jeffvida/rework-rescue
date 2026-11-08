@@ -358,15 +358,32 @@ test('page: experience sits right after the live example, marked as previous pro
   assert.match(html, /Based in the Philippines\. Working remotely with businesses and teams across time zones\./);
 });
 
-test('page: no prices, testimonials or client results; service names kept; symptom lists at most 3', async () => {
+test('page: no prices, testimonials or client results; service names kept; services kept short', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const visible = html.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '');
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
   for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<h3>${n}</h3>`), n);
-  const lists = [...html.matchAll(/<ul class="check-list svc-build svc-familiar">([\s\S]*?)<\/ul>/g)];
-  assert.equal(lists.length, 3);
-  for (const [, l] of lists) assert.ok((l.match(/<li>/g) || []).length <= 3);
+  // Services stay short: the problem line per service, no separate symptom lists.
+  assert.doesNotMatch(html, /svc-familiar|Does this sound familiar\?/);
   assert.match(html, /Simple CRM setup/);
   assert.match(html, /I don&#39;t automate consequential decisions about people\./);
   assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
+});
+
+test('booking after the demo: one strip with the first-project line, using the existing pop-up link', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
+  const after = sec.slice(sec.indexOf('class="demo-after"'));
+  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="demo-window"'), 'after the demo window');
+  assert.match(after, /Most projects start with one report or recurring process, so you can start small\./);
+  assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
+  assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
+});
+
+test('after Finish decisions, booking sits beside Next and the last two stages are optional', async () => {
+  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
+  const st = ui.slice(ui.indexOf('} else if (at === 3) {'), ui.indexOf('} else if (at === 4) {'));
+  assert.match(st, /The last two steps are optional\./);
+  assert.match(st, /href="contact\/#contact-form-area">Book a free rework review</);
+  assert.match(st, /btn\('next', 'Next: a better way of working \(optional\)', 'secondary'\)/);
 });

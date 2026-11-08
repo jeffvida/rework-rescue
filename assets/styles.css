@@ -2487,3 +2487,15 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .demo-role > div { padding-left: 0.8rem; }
 }
 
+/* ==== Client-feedback pass (Nov 2026): booking after the demo, optional last stages ==== */
+.demo-after { display: flex; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; flex-wrap: wrap; max-width: 64rem; margin: 1.5rem auto 0; padding: 1rem 1.25rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.demo-after-t { margin: 0; flex: 1 1 22rem; color: var(--ink); }
+.demo-after-t strong { display: block; font-family: var(--display); font-weight: 600; font-size: 1.1rem; }
+.demo-after-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+.demo-after-cta .cta-micro { margin: 0; }
+.dm-optional { margin: 1rem 0 0; font-size: 0.95rem; color: var(--ink); }
+@media (max-width: 30rem) {
+  .demo-after-cta, .demo-after-cta .btn { width: 100%; }
+  .demo-after-cta .btn { justify-content: center; }
+}
+

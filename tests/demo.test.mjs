@@ -98,9 +98,6 @@ test('hero summary comes from the engine: the hand-built week, issue kinds only,
   assert.equal(h.itemsToReview, found.length);
   assert.deepEqual(h.issues.map((i) => i.issue), ['duplicate', 'finance', 'owner']);
   assert.deepEqual(h.issues.map((i) => i.title), ['Possible duplicate task', 'Completed work not invoiced', 'Work without an owner']);
-  assert.deepEqual(h.issues.map((i) => i.brief), ['Possible duplicate work', 'Completed work without an invoice match', 'An open task without an owner']);
-  assert.deepEqual(found.map((f) => ISSUES[f.issue].brief),
-    ['possible duplicate work', 'completed work without an invoice match', 'an open task without an owner']);
   assert.ok(!JSON.stringify(h).includes('W-'), 'the hero never carries the detailed findings');
 });
 
@@ -334,16 +331,14 @@ test('the end of the demo describes proposed improvements, not finished ones', a
   assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean|What improved\?/);
 });
 
-test('the demo intro: exact copy, issues from the engine, your role, disclosure', async () => {
+test('the demo intro: exact copy, your role, disclosure (no repeat of the hero issues)', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('class="demo-window"'));
   const h = heroSummary();
   assert.match(sec, /Can you trust this week&rsquo;s report\?/);
   assert.ok(sec.includes('Here&rsquo;s a week&rsquo;s work recorded across three different business records.'));
   assert.ok(sec.includes('The report looks fine at first. But can you spot what doesn&rsquo;t add up?'));
-  assert.match(sec, new RegExp(`data-hero="itemsToReview">${h.itemsToReview}</span> issues to investigate`));
-  const lines = [...sec.matchAll(/data-intro-issue="(\w+)">([^<]*)</g)].map((m) => ({ issue: m[1], brief: m[2] }));
-  assert.deepEqual(lines, h.issues.map(({ issue, brief }) => ({ issue, brief })), 'issue lines match the engine');
+  assert.doesNotMatch(sec, /demo-issues|issues to investigate|data-intro-issue/, 'the hero card already lists the issues');
   assert.ok(sec.includes('Your role</p><p class="demo-role-t">Check the records. Make the decisions. See what a clearer process could look like.'));
   assert.ok(sec.includes('This is a fictional example using made-up data. It demonstrates how I approach an operational problem; it isn&#39;t a client project.'));
   assert.doesNotMatch(sec, /W-3\d\d/);
@@ -355,7 +350,7 @@ test('page: experience sits right after the live example, marked as previous pro
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   const exp = html.slice(order[1], order[2]);
   for (const t of ['Utility Billing &amp; Data Validation', 'Operational Reporting &amp; Analysis', 'Solar &amp; Energy Performance Analysis', 'Previous professional experience', 'not Rework Rescue client projects']) assert.ok(exp.includes(t), t);
-  assert.match(html, /Based in the Philippines\. Working remotely with businesses and teams across time zones\./);
+  assert.match(html, /Based in the Philippines\. Available for calls Monday to Friday/);
 });
 
 test('page: no prices, testimonials or client results; service names kept; services kept short', async () => {
@@ -416,4 +411,14 @@ test('hero says who it is for and what the review is', async () => {
   assert.match(hero, /I help small service businesses fix the weekly reports and spreadsheets their teams rebuild by hand/);
   assert.match(hero, /A 30-minute call about one report or process<span class="cta-micro-sep"> &middot; <\/span><span class="cta-micro-2">Free &middot; No obligation<\/span>/);
   assert.doesNotMatch(hero, /hero-note/);
+});
+
+test('availability on the page matches the booking calendar rules', async () => {
+  const { RULES } = await import('../src/booking/slots.js');
+  assert.deepEqual([RULES.days, RULES.start, RULES.end, RULES.hostOffsetHours], [[1, 2, 3, 4, 5], '08:00', '02:00', 8], 'if the booking hours change, update the availability lines');
+  for (const f of ['../index.html', '../contact/index.html']) {
+    const html = await readFile(new URL(f, import.meta.url), 'utf8');
+    assert.match(html, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/, f);
+    assert.doesNotMatch(html, /teams worldwide|across time zones/, f);
+  }
 });

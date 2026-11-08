@@ -92,12 +92,6 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
     if (strong) strong.textContent = i.title;
     if (span) span.textContent = i.text;
   });
-  // The same issues in the live example's intro.
-  document.querySelectorAll('[data-intro-issue]').forEach((li) => {
-    const i = found.get(li.dataset.introIssue);
-    li.hidden = !i;
-    if (i) li.textContent = i.brief;
-  });
 }());
 
 // The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.

@@ -134,10 +134,10 @@ export function heroSummary() {
   const shown = report(start); // what the hand-built update says before anyone checks it
   const checked = check(start);
   const r = report(checked);
-  // The kinds of issue the checks find, for the hero card (ISSUES[*].card) and the demo intro (ISSUES[*].brief).
+  // The kinds of issue the checks find, for the hero card (ISSUES[*].card).
   // Kind of problem only: no Work IDs or record details.
   const issues = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ({
-    issue: k, title: ISSUES[k].card[0], text: ISSUES[k].card[1], brief: `${ISSUES[k].brief.charAt(0).toUpperCase()}${ISSUES[k].brief.slice(1)}`,
+    issue: k, title: ISSUES[k].card[0], text: ISSUES[k].card[1],
   }));
   return {
     sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status,

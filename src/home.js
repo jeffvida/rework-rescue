@@ -2,6 +2,7 @@
 
 import { mountBooking } from './booking/popup.js';
 import { mountDemo } from './demo/ui.js';
+import { heroSummary } from './demo/engine.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 import { mountServices } from './services.js';
@@ -56,7 +57,7 @@ mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// "Find what's off" in the hero: go to the demo. The visitor starts the checks there, after reading the setup.
+// "Explore the live example" and "Start the live example" in the hero: go to the demo. The visitor starts the checks there, after reading the setup.
 document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
   if (!demo) return;
   e.preventDefault();
@@ -66,35 +67,16 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero report card: a coordinated entrance the first time it is on screen. The card settles in, its parts appear
-// in order (badge, title, rows), the numbers count up, a check sweeps the rows, the 0 gets marked, and the prompt
-// and button come last. The HTML already holds the finished card, so without JavaScript or with reduced motion
-// it shows straight away; the CSS only hides the parts while .tz-stage is set and .tz-live is not.
+// Hero snapshot card: a preview of the sample report, worked out by the same engine as the live example
+// (heroSummary in ./demo/engine.js). The HTML already holds the same figures for visitors without JavaScript, and
+// tests/demo.test.mjs fails if they ever differ; here the engine's values are written in, so the engine always wins.
+// Summary figures only: the findings themselves appear only once the visitor runs the check in the demo.
 (function heroCard() {
-  const rows = document.querySelector('[data-countup]');
-  const card = rows && rows.closest('.tz-card');
-  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!rows || !card || reduce || typeof requestAnimationFrame !== 'function') return;
-  const nums = [...rows.querySelectorAll('b')].map((el) => ({ el, to: Number(el.textContent) })).filter((n) => n.to > 0);
-  const duration = 850;
-  const delay = 650; // starts once the rows are in
-  nums.forEach((n) => { n.el.textContent = '0'; });
-  card.classList.add('tz-stage');
-  let start = null;
-  const tick = (t) => {
-    if (start === null) start = t;
-    const p = Math.min(1, Math.max(0, (t - start - delay) / duration));
-    const eased = 1 - (1 - p) ** 3;
-    nums.forEach((n) => { n.el.textContent = String(Math.round(n.to * eased)); });
-    if (p < 1) requestAnimationFrame(tick);
-  };
-  const play = () => { card.classList.add('tz-live'); requestAnimationFrame(tick); };
-  // Plays when the card is on screen (on phones it sits below the first screen).
-  if (typeof IntersectionObserver !== 'function') { play(); return; }
-  const io = new IntersectionObserver((entries) => {
-    if (entries.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
-  }, { threshold: 0.35 });
-  io.observe(card);
+  const h = heroSummary();
+  document.querySelectorAll('[data-hero]').forEach((el) => {
+    const v = h[el.dataset.hero];
+    if (v !== undefined) el.textContent = String(v);
+  });
 }());
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,

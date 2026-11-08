@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import * as DATA from '../src/demo/data.js';
 import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES, CONSEQUENCE, PREVENTION } from '../src/demo/data.js';
 import {
-  initialState, sourceCounts, runChecks, findings, check, decide, clearDecision, allDecided, finalize, reopen, status,
+  initialState, sourceCounts, runChecks, findings, check, decide, clearDecision, allDecided, finalize, reopen, status, outstanding,
   report, heroSummary,
 } from '../src/demo/engine.js';
 
@@ -132,12 +132,15 @@ const apply = (s, [dup, fin, own], i = 0) => decide(decide(decide(s, 'duplicate'
 test('all eight decision combinations give the expected final report', () => {
   assert.equal(COMBOS.length, 8);
   COMBOS.forEach((combo, i) => {
+    const open = combo[1] === 'followUp' || combo[2] === 'pending';
+    const want = open ? 'Follow-up pending' : 'Review complete';
     let s = apply(check(initialState()), combo, i);
-    assert.equal(status(s), 'Decisions made', combo.join('|'));
+    assert.equal(status(s), want, combo.join('|'));
     s = finalize(s);
     const r = report(s);
     assert.deepEqual(nums(r), EXPECTED[combo.join('|')], combo.join('|'));
-    assert.equal(r.status, 'Up to date');
+    assert.equal(r.status, want, `${combo.join('|')}: finishing never changes the status`);
+    assert.equal(r.outstanding, (combo[1] === 'followUp') + (combo[2] === 'pending'));
     assert.equal(r.possibleDuplicates, 0);
     assert.equal(r.followUps, combo[1] === 'followUp' ? 1 : 0);
     assert.equal(r.pendingWithReason, combo[2] === 'pending' ? 1 : 0);
@@ -173,11 +176,15 @@ test('finishing needs all three decisions; decisions lock until reopened, then c
   let s = decide(decide(check(initialState()), 'duplicate', 'merge'), 'finance', 'followUp');
   assert.equal(finalize(s), s, 'cannot finish with one left');
   s = finalize(decide(s, 'owner', 'assign', 'Priya'));
-  assert.equal(status(s), 'Up to date');
+  assert.ok(s.finalized);
+  assert.equal(status(s), 'Follow-up pending', 'the invoice follow-up is still open');
   assert.equal(decide(s, 'duplicate', 'separate'), s, 'locked once finished');
   s = reopen(s);
-  assert.equal(status(s), 'Decisions made');
-  s = finalize(decide(s, 'duplicate', 'separate'));
+  assert.ok(!s.finalized);
+  s = finalize(decide(decide(s, 'duplicate', 'separate'), 'finance', 'noInvoiceDue'));
+  assert.equal(status(s), 'Review complete');
+  assert.deepEqual(nums(report(s)), [11, 7, 0, 0, 0]);
+  s = finalize(decide(reopen(s), 'finance', 'followUp'));
   assert.deepEqual(nums(report(s)), [11, 7, 1, 0, 0]);
 });
 
@@ -190,12 +197,21 @@ test('reset restores the original sample, and the source rows are never changed'
   assert.deepEqual(nums(report(initialState())), [11, 7, 0, null, 0]);
 });
 
-test('status: Built by hand → Review required → Decisions made → Up to date', () => {
+test('status: Built by hand → Review required → Review complete, or Follow-up pending while an action is open', () => {
   let s = initialState(); assert.equal(status(s), 'Built by hand');
   s = check(s); assert.equal(status(s), 'Review required');
   s = decide(decide(s, 'duplicate', 'merge'), 'finance', 'noInvoiceDue'); assert.equal(status(s), 'Review required');
-  s = decide(s, 'owner', 'pending', 'Work is on hold'); assert.ok(allDecided(s)); assert.equal(status(s), 'Decisions made');
-  assert.equal(status(finalize(s)), 'Up to date');
+  s = decide(s, 'owner', 'pending', 'Work is on hold'); assert.ok(allDecided(s));
+  assert.equal(status(s), 'Follow-up pending');
+  assert.deepEqual(outstanding(s), [{ issue: 'owner', id: 'W-314', action: 'No owner yet: Work is on hold' }]);
+  assert.equal(report(s).itemsToReview, 0, '0 to review, but the open action stays visible');
+  s = decide(s, 'owner', 'assign', 'Sam'); assert.equal(status(s), 'Review complete'); assert.deepEqual(outstanding(s), []);
+  s = decide(s, 'finance', 'followUp');
+  assert.equal(status(s), 'Follow-up pending');
+  assert.deepEqual(outstanding(s).map((o) => o.action), ['Invoice follow-up']);
+  const all = decide(s, 'owner', 'pending', 'Needs further review');
+  assert.equal(outstanding(all).length, 2);
+  assert.equal(status(finalize(all)), 'Follow-up pending');
 });
 
 // ---- Wording rules for everything the demo will show
@@ -206,4 +222,37 @@ test('demo wording: first person only (no "we"), no repair business, a consequen
   assert.doesNotMatch(text, /quillfern|repair|technician/i);
   for (const issue of Object.values(ISSUES)) for (const [c] of issue.choices) assert.ok(CONSEQUENCE[c], c);
   assert.deepEqual(PREVENTION.map((p) => p.issue), ['duplicate', 'finance', 'owner']);
+});
+
+// ---- The page (Stage 3)
+
+import { readFile } from 'node:fs/promises';
+
+test('the hero snapshot shows the engine’s figures and none of the findings', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const card = html.slice(html.indexOf('class="tz-card ops-card"'), html.indexOf('</figure>'));
+  const h = heroSummary();
+  for (const [k, v] of Object.entries(h)) {
+    const found = [...card.matchAll(new RegExp(`data-hero="${k}">([^<]*)<`, 'g'))].map((m) => m[1]);
+    assert.ok(found.length, `${k} is on the card`);
+    for (const f of found) assert.equal(f, String(v), k);
+  }
+  assert.match(card, /Weekly operations snapshot/i);
+  assert.match(card, /Start the live example/);
+  assert.match(card, /Fictional sample &middot; No real business data/);
+  assert.doesNotMatch(card, /W-3\d\d|duplicate|finance match|No one assigned|Quillfern/i, 'no findings in the hero');
+});
+
+test('the hero keeps the booking CTA first, then the live example', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
+  assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
+  assert.doesNotMatch(hero, /Find Your Rework|assessment/i);
+});
+
+test('no Quillfern left on the homepage or in the demo code', async () => {
+  for (const f of ['../index.html', '../src/demo/ui.js', '../src/demo/data.js', '../src/demo/engine.js', '../src/home.js']) {
+    assert.doesNotMatch(await readFile(new URL(f, import.meta.url), 'utf8'), /quillfern/i, f);
+  }
 });

@@ -78,16 +78,26 @@ export function clearDecision(s, issue) {
 
 export const allDecided = (s) => s.checked && ISSUE_IDS.every((i) => s.decisions[i]);
 
-/** "Finish decisions": only once all three are decided. reopen() goes back to change them. */
+/** "Finish decisions": only once all three are decided; locks them (status unchanged). reopen() unlocks. */
 export function finalize(s) { return allDecided(s) ? { ...s, finalized: true } : s; }
 export function reopen(s) { return { ...s, finalized: false }; }
 
-/** Report status: Built by hand → Review required → Decisions made → Up to date. */
+/** Business actions still open after the review: an invoice follow-up, or an item left pending without an owner.
+ *  Deciding is not doing, so these stay visible until the real work happens (outside the demo). */
+export function outstanding(s) {
+  if (!s.checked) return [];
+  const c = runChecks(); const d = s.decisions; const out = [];
+  if (d.finance?.choice === 'followUp') for (const id of c.missingFinance) out.push({ issue: 'finance', id, action: 'Invoice follow-up' });
+  if (d.owner?.choice === 'pending') for (const id of c.noOwner) out.push({ issue: 'owner', id, action: `No owner yet: ${d.owner.reason}` });
+  return out;
+}
+
+/** Report status: Built by hand → Review required → Review complete, or Follow-up pending when a decision left a
+ *  business action open. Finishing (finalize) only locks the decisions; it never makes pending work look done. */
 export function status(s) {
   if (!s.checked) return 'Built by hand';
-  if (s.finalized) return 'Up to date';
-  if (allDecided(s)) return 'Decisions made';
-  return 'Review required';
+  if (!allDecided(s)) return 'Review required';
+  return outstanding(s).length ? 'Follow-up pending' : 'Review complete';
 }
 
 /** The weekly report, as the page shows it.
@@ -98,7 +108,7 @@ export function report(s) {
   const completed = TRACKER.filter((r) => r.status === 'Complete').length;
   if (!s.checked) {
     return { openWork: TRACKER.filter(isOpen).length, completed, notInvoiced: 0, noOwner: null, itemsToReview: 0,
-      possibleDuplicates: 0, followUps: 0, pendingWithReason: 0, status: status(s) };
+      possibleDuplicates: 0, followUps: 0, pendingWithReason: 0, outstanding: 0, status: status(s) };
   }
   const d = s.decisions;
   const merged = d.duplicate?.choice === 'merge' ? new Set(c.duplicates.map((p) => p[1])) : new Set();
@@ -111,6 +121,7 @@ export function report(s) {
     possibleDuplicates: d.duplicate ? 0 : c.duplicates.length,
     followUps: d.finance?.choice === 'followUp' ? c.missingFinance.length : 0,
     pendingWithReason: d.owner?.choice === 'pending' ? c.noOwner.length : 0,
+    outstanding: outstanding(s).length,
     status: status(s),
   };
 }

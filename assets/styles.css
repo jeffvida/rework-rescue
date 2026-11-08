@@ -2283,13 +2283,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .ops-metrics dt { font-size: 0.82rem; color: var(--muted); font-weight: 600; }
 .ops-metrics dd { margin: 0.15rem 0 0; font-family: var(--display); font-weight: 700; font-size: 1.75rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--ink); }
 .ops-metrics .ops-status dd { display: inline-block; margin-top: 0.35rem; padding: 0.15rem 0.6rem; border-radius: 999px; font-family: var(--sans); font-size: 0.85rem; font-weight: 700; background: var(--warn-bg); border: 1px solid var(--warn-line); color: #5b3a00; }
-.ops-items { margin: 0 0 1.1rem; }
-.ops-items-h { margin: 0 0 0.5rem; font-weight: 700; }
-.ops-items ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
-.ops-items li { position: relative; height: 0.7rem; margin-left: 1.3rem; border-radius: 999px; background: var(--tint); }
-.ops-items li::before { content: ""; position: absolute; left: -1.3rem; top: 50%; width: 0.6rem; height: 0.6rem; margin-top: -0.3rem; border-radius: 50%; border: 2px solid var(--signal); }
-.ops-items li:nth-child(1) { width: 78%; } .ops-items li:nth-child(2) { width: 64%; } .ops-items li:nth-child(3) { width: 70%; }
-.ops-items-note { margin: 0.55rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.ops-items-note { margin: 0 0 1.1rem; font-size: 0.92rem; line-height: 1.45; color: var(--ink); }
 .ops-note { margin: 0.8rem 0 0; font-size: 0.8rem; color: var(--muted); }
 
 /* Demo: report status colours */
@@ -2435,4 +2429,13 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 @media (max-width: 40rem) { :root { --header-h: 0px; } }
 html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @media (max-width: 56rem) { .dm-report { top: var(--header-h); } }
+
+/* ==== Credibility pass (Nov 2026): demo at a glance, experience highlights, location ==== */
+.demo-brief { list-style: none; max-width: 46rem; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.45rem; }
+.demo-brief li { position: relative; padding-left: 1.2rem; }
+.demo-brief li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--teal); }
+.exp-kind { margin: 2.2rem 0 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal); }
+.exp-kind + .exp-list { margin-top: 0.9rem; }
+.exp-close { margin: 1.8rem 0 0; max-width: 46rem; font-size: 1.05rem; color: #fff; }
+.about-where { margin: 1rem 0 0; font-size: 0.92rem; color: var(--muted); }
 

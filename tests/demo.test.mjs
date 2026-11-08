@@ -85,9 +85,13 @@ test('after the check: 11 open (1 possible duplicate), 7 completed, 1 not invoic
   assert.equal(r.status, 'Review required');
 });
 
-test('hero summary comes from the engine: 30 records, 3 sources, 3 to review, review required, no findings', () => {
+test('hero summary comes from the engine: 30 records, 3 sources, 3 to review, review required, issue kinds only', () => {
   const h = heroSummary();
-  assert.deepEqual(h, { sourceRecords: 30, sourcesChecked: 3, itemsToReview: 3, status: 'Review required' });
+  assert.deepEqual(h, { sourceRecords: 30, sourcesChecked: 3, itemsToReview: 3, status: 'Review required',
+    issuesBrief: 'Possible duplicate work, completed work without an invoice match, and an open task without an owner.' });
+  // One phrase per kind of issue the checks actually find, in the engine's order.
+  assert.deepEqual(findings(check(initialState())).map((f) => ISSUES[f.issue].brief),
+    ['possible duplicate work', 'completed work without an invoice match', 'an open task without an owner']);
   assert.equal(h.itemsToReview, findings(check(initialState())).length);
   assert.ok(!JSON.stringify(h).includes('W-'), 'the hero never carries the detailed findings');
 });
@@ -228,7 +232,7 @@ test('demo wording: first person only (no "we"), no repair business, a consequen
 
 import { readFile } from 'node:fs/promises';
 
-test('the hero snapshot shows the engine’s figures and none of the findings', async () => {
+test('the hero snapshot shows the engine’s figures and the kinds of issue, not the findings', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const card = html.slice(html.indexOf('class="tz-card ops-card"'), html.indexOf('</figure>'));
   const h = heroSummary();
@@ -238,9 +242,12 @@ test('the hero snapshot shows the engine’s figures and none of the findings', 
     for (const f of found) assert.equal(f, String(v), k);
   }
   assert.match(card, /Weekly operations snapshot/i);
+  assert.match(card, /Can you trust this week&rsquo;s report\?/);
+  assert.match(card, /Source records checked[\s\S]*Items requiring review[\s\S]*Data sources</);
   assert.match(card, /Start the live example/);
   assert.match(card, /Fictional sample &middot; No real business data/);
-  assert.doesNotMatch(card, /W-3\d\d|duplicate|finance match|No one assigned|Quillfern/i, 'no findings in the hero');
+  // Kinds of issue only: no Work IDs, record details, amounts, people or invoice numbers.
+  assert.doesNotMatch(card, /W-3\d\d|INV-|Alex|Priya|Sam\b|Jordan|Website content|Customer training|Customer feedback|Quillfern/i, 'no detailed findings in the hero');
 });
 
 test('the hero keeps the booking CTA first, then the live example', async () => {
@@ -310,4 +317,39 @@ test('the end of the demo describes proposed improvements, not finished ones', a
   assert.match(ui, /a clearer way for the tracker, completion log and finance register to work together\./);
   assert.match(ui, /What could improve\?/);
   assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean|What improved\?/);
+});
+
+test('the demo intro shows the scenario at a glance, from the engine', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('class="demo-window"'));
+  const h = heroSummary();
+  assert.match(sec, /Can you trust this week&rsquo;s report\?/);
+  assert.match(sec, /Three sources<\/strong> hold the same week/);
+  assert.match(sec, new RegExp(`data-hero="itemsToReview">${h.itemsToReview}<`));
+  assert.ok(sec.includes(`data-hero="issuesBrief">${h.issuesBrief}<`), 'issue kinds match the engine');
+  assert.match(sec, /You review the records first<\/strong>, then decide/);
+  assert.match(sec, /This is a fictional example using made-up data/);
+  assert.doesNotMatch(sec, /W-3\d\d/);
+});
+
+test('page: experience sits right after the live example, marked as previous professional experience', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const order = ['id="samples"', 'id="experience"', 'id="services"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
+  assert.deepEqual([...order].sort((a, b) => a - b), order);
+  const exp = html.slice(order[1], order[2]);
+  for (const t of ['Utility Billing &amp; Data Validation', 'Operational Reporting &amp; Analysis', 'Solar &amp; Energy Performance Analysis', 'Previous professional experience', 'not Rework Rescue client projects']) assert.ok(exp.includes(t), t);
+  assert.match(html, /Based in the Philippines\. Working remotely with businesses and teams across time zones\./);
+});
+
+test('page: no prices, testimonials or client results; service names kept; symptom lists at most 3', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const visible = html.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '');
+  assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
+  for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<h3>${n}</h3>`), n);
+  const lists = [...html.matchAll(/<ul class="check-list svc-build svc-familiar">([\s\S]*?)<\/ul>/g)];
+  assert.equal(lists.length, 3);
+  for (const [, l] of lists) assert.ok((l.match(/<li>/g) || []).length <= 3);
+  assert.match(html, /Simple CRM setup/);
+  assert.match(html, /I don&#39;t automate consequential decisions about people\./);
+  assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
 });

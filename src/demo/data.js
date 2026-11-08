@@ -66,18 +66,21 @@ export const PENDING_REASONS = ['Waiting for information', 'Work is on hold', 'O
 export const ISSUES = {
   duplicate: {
     title: 'Possible duplicate',
+    brief: 'possible duplicate work',
     explain: 'This work appears more than once. Should these records be treated as one item or kept separate?',
     why: 'A duplicate makes the workload look bigger than it is, and two people may end up doing the same work.',
     choices: [['merge', 'Merge these records'], ['separate', 'Keep them separate']],
   },
   finance: {
     title: 'Completed work without a finance match',
+    brief: 'completed work without an invoice match',
     explain: 'This work is marked as complete, but there’s no matching entry in the finance register.',
     why: 'Not every completed item needs an invoice. Some work is internal, under warranty or not billable, so this needs a decision rather than an automatic fix.',
     choices: [['followUp', 'Flag for invoice follow-up'], ['noInvoiceDue', 'Confirm no invoice is due']],
   },
   owner: {
     title: 'No one assigned',
+    brief: 'an open task without an owner',
     explain: 'This item is still open, but nobody is listed as responsible for it.',
     why: 'Work without an owner is easy to miss, and nobody knows who should follow it up.',
     choices: [['assign', 'Assign someone'], ['pending', 'Leave it pending']],

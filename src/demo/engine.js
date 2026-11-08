@@ -130,6 +130,11 @@ export function report(s) {
  *  Summary figures only; the findings themselves are never part of it. */
 export function heroSummary() {
   const counts = sourceCounts();
-  const r = report(check(initialState()));
-  return { sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status };
+  const checked = check(initialState());
+  const r = report(checked);
+  // The kinds of issue found, in the visitor's words (ISSUES[*].brief), without Work IDs or details.
+  const kinds = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ISSUES[k].brief);
+  const list = kinds.length > 2 ? `${kinds.slice(0, -1).join(', ')}, and ${kinds[kinds.length - 1]}` : kinds.join(' and ');
+  const issuesBrief = list ? `${list.charAt(0).toUpperCase()}${list.slice(1)}.` : '';
+  return { sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status, issuesBrief };
 }

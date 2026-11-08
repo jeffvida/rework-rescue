@@ -365,7 +365,11 @@ test('page: no prices, testimonials or client results; service names kept; servi
   for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<h3>${n}</h3>`), n);
   // Services stay short: the problem line per service, no separate symptom lists.
   assert.doesNotMatch(html, /svc-familiar|Does this sound familiar\?/);
-  assert.match(html, /Simple CRM setup/);
+  // Middle option (9 Nov): CRM, websites and booking pages stay, framed as support for records and reporting.
+  assert.match(html, /Customer and enquiry tracking that feeds your reports/);
+  assert.match(html, /Simple pages connected to your forms and records/);
+  assert.match(html, /Booking and request pages connected to your records/);
+  assert.doesNotMatch(html, /Better data\. Simpler workflows\./);
   assert.match(html, /I don&#39;t automate consequential decisions about people\./);
   assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
 });
@@ -394,4 +398,22 @@ test('the final demo screen has no booking box (the strip below the demo carries
   const end = ui.slice(ui.indexOf("<h3 class=\"dm-h\">Checked, decisions made"));
   assert.doesNotMatch(end.slice(0, end.indexOf('}\n')), /dm-ask|Book a free rework review/);
   assert.match(end, /data-act="back"[\s\S]*data-act="restart">Run it again/);
+});
+
+test('How I work shows an example first project, labelled as an illustration, with the handover terms', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
+  assert.match(how, /Example first project &middot; illustration/);
+  assert.match(how, /not a client result/);
+  for (const t of ['Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
+  assert.doesNotMatch(how, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
+});
+
+test('hero says who it is for and what the review is', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const hero = html.slice(0, html.indexOf('id="fit"'));
+  assert.match(hero, /I help small service businesses fix the weekly reports and spreadsheets their teams rebuild by hand/);
+  assert.match(hero, /A 30-minute call about one report or process<span class="cta-micro-sep"> &middot; <\/span><span class="cta-micro-2">Free &middot; No obligation<\/span>/);
+  assert.doesNotMatch(hero, /hero-note/);
 });

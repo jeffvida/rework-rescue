@@ -2499,3 +2499,24 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .demo-after-cta .btn { justify-content: center; }
 }
 
+
+/* ==== Expert-review pass (Nov 2026): example first project in How I work ==== */
+.example-project { max-width: 52rem; margin: 2.4rem 0 0; padding: 1.3rem 1.4rem 1.2rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.example-project-k { margin: 0 0 0.3rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
+.example-project .handover-h { margin: 0 0 0.9rem; }
+.example-project-dl { display: grid; gap: 0.8rem; margin: 0; }
+.example-project-dl > div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 0.2rem 1rem; }
+.example-project-dl dt { font-weight: 700; color: var(--ink); }
+.example-project-dl dd { margin: 0; }
+.example-project .handover-list { columns: 1; }
+.example-project .handover-list li { margin-bottom: 0.35rem; }
+.example-project .handover-note { margin-top: 0.9rem; }
+@media (max-width: 40rem) {
+  .example-project { padding: 1.1rem 1rem; }
+  .example-project-dl > div { grid-template-columns: minmax(0, 1fr); }
+}
+.cta-micro-2 { white-space: nowrap; }
+@media (max-width: 30rem) {
+  .cta-micro-sep { display: none; }
+  .cta-micro-2 { display: block; }
+}

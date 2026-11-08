@@ -1,48 +1,100 @@
-// Live demo data: one week at Quillfern Home Repairs, a clearly invented business. Everything here is fictional.
-// 17 records are in the job list; R-118 is a website request that never left the inbox.
-// The engine (./engine.js) works out every number the page shows from these records; tests/demo.test.mjs checks them.
-//
-// status: 'done' | 'booked' | 'waiting' | 'request'
-// markedInvoiced: what the job list says. invoice: what accounting actually has (null = no invoice).
+// Live demo data: one week for a fictional, unnamed small-business operations team. Everything here is made up.
+// Three sources that share a Work ID:
+//   TRACKER    (18 rows): every piece of work, who owns it, its status and due date.
+//   COMPLETION  (7 rows): one row per completed item, with how it was completed.
+//   FINANCE     (5 rows): one row per invoice raised.
+// Exactly three problems are planted (W-316 duplicates W-311; W-307 was delivered but has no invoice; W-314 has no
+// owner). W-304 is also missing from finance, but it was internal work, so it must NOT be flagged.
+// The engine (./engine.js) works out every number the page shows from these rows; tests/demo.test.mjs checks them.
 
-export const BUSINESS = 'Quillfern Home Repairs';
-export const WEEK = 'Mon 9 Nov 2026';
+export const WEEK = 'Week ending Fri 13 Nov 2026';
 
-export const RECORDS = [
-  { ref: 'J-2039', source: 'Phone', customer: 'L. Ramos', job: 'Leaking tap', address: '22 Elm Rd', status: 'done', when: 'Tue 3 Nov', markedInvoiced: true, invoice: 'INV-3311', inList: true },
-  { ref: 'J-2040', source: 'Email', customer: 'K. Tan', job: 'Light fitting', address: '8 Bay St', status: 'done', when: 'Wed 4 Nov', markedInvoiced: true, invoice: 'INV-3312', inList: true },
-  { ref: 'J-2041', source: 'Phone', customer: 'D. Cruz', job: 'Gutter repair', address: '5 Hill Ave', status: 'done', when: 'Thu 5 Nov', markedInvoiced: true, invoice: null, inList: true },
-  { ref: 'J-2042', source: 'Website', customer: 'P. Lim', job: 'Door lock', address: '17 Oak St', status: 'booked', when: 'Mon 9 Nov 10:00', inList: true },
-  { ref: 'J-2043', source: 'Phone', customer: 'S. Gomez', job: 'Smoke alarms', address: '3 Reef Ct', status: 'booked', when: 'Mon 9 Nov 14:00', inList: true },
-  { ref: 'J-2044', source: 'Email', customer: 'A. Navarro', job: 'Hot water unit', address: '41 Cove Rd', status: 'waiting', reason: 'Part on order, due 12 Nov', inList: true },
-  { ref: 'J-2045', source: 'Website', customer: 'R. Chua', job: 'Fence panel', address: '9 Ridge Ln', status: 'booked', when: 'Tue 10 Nov 09:00', inList: true },
-  { ref: 'J-2046', source: 'Email', customer: 'T. Reyes', job: 'Bathroom reseal', address: '12 Palm St', status: 'waiting', reason: 'Quote sent 4 Nov, with the customer', inList: true },
-  { ref: 'J-2047', source: 'Phone', customer: 'J. Ong', job: 'Ceiling fan', address: '30 Mill Rd', status: 'booked', when: 'Tue 10 Nov 13:00', inList: true },
-  { ref: 'J-2048', source: 'Phone', customer: 'E. Diaz', job: 'Window latch', address: '6 Shore Dr', status: 'waiting', reason: 'Customer away until 16 Nov', inList: true },
-  { ref: 'J-2049', source: 'Phone', customer: 'M. Santos', job: 'Aircon service', address: '27 Lake St', status: 'booked', when: 'Thu 12 Nov 09:00', inList: true },
-  { ref: 'J-2050', source: 'Website', customer: 'F. Garcia', job: 'Tile repair', address: '14 Hill Ave', status: 'booked', when: 'Wed 11 Nov 10:00', inList: true },
-  { ref: 'J-2051', source: 'Website', customer: 'M. Santos', job: 'Aircon service', address: '27 Lake St', status: 'booked', when: 'Thu 12 Nov 09:00', inList: true },
-  { ref: 'J-2053', source: 'Email', customer: 'H. Lee', job: 'Shelving install', address: '2 Park Pl', status: 'booked', when: 'Wed 11 Nov 15:00', inList: true },
-  { ref: 'J-2054', source: 'Phone', customer: 'N. Perez', job: 'Tap replacement', address: '19 Bay St', status: 'booked', when: 'Thu 12 Nov 13:00', inList: true },
-  { ref: 'J-2055', source: 'Website', customer: 'B. Yu', job: 'Deck repair', address: '33 Ridge Ln', status: 'booked', when: 'Fri 13 Nov 09:00', inList: true },
-  { ref: 'J-2056', source: 'Phone', customer: 'C. Mendoza', job: 'Power point', address: '11 Oak St', status: 'booked', when: 'Fri 13 Nov 13:00', inList: true },
-  { ref: 'R-118', source: 'Website form', customer: 'G. Torres', job: 'Water heater service', address: '', status: 'request', inList: false },
+// status: 'Not started' | 'In progress' | 'Complete'. owner '' = nobody assigned.
+export const TRACKER = [
+  { id: 'W-301', work: 'Monthly supplier statement', owner: 'Alex', status: 'Complete', due: 'Mon 9 Nov' },
+  { id: 'W-302', work: 'New customer setup', owner: 'Priya', status: 'Complete', due: 'Tue 10 Nov' },
+  { id: 'W-303', work: 'Service contract renewal', owner: 'Sam', status: 'Complete', due: 'Tue 10 Nov' },
+  { id: 'W-304', work: 'Update the staff rota', owner: 'Jordan', status: 'Complete', due: 'Wed 11 Nov' },
+  { id: 'W-305', work: 'Equipment order for a customer', owner: 'Alex', status: 'Complete', due: 'Wed 11 Nov' },
+  { id: 'W-306', work: 'Quarterly customer review', owner: 'Priya', status: 'Complete', due: 'Thu 12 Nov' },
+  { id: 'W-307', work: 'Customer training session', owner: 'Sam', status: 'Complete', due: 'Thu 12 Nov' },
+  { id: 'W-308', work: 'Monthly sales report', owner: 'Jordan', status: 'In progress', due: 'Fri 13 Nov' },
+  { id: 'W-309', work: 'Follow up overdue payments', owner: 'Alex', status: 'In progress', due: 'Fri 13 Nov' },
+  { id: 'W-310', work: 'Quarterly stock count', owner: 'Priya', status: 'Not started', due: 'Mon 16 Nov' },
+  { id: 'W-311', work: 'Website content update', owner: 'Sam', status: 'In progress', due: 'Tue 17 Nov' },
+  { id: 'W-312', work: 'Supplier price review', owner: 'Jordan', status: 'Not started', due: 'Wed 18 Nov' },
+  { id: 'W-313', work: 'New starter onboarding', owner: 'Priya', status: 'In progress', due: 'Wed 18 Nov' },
+  { id: 'W-314', work: 'Customer feedback survey', owner: '', status: 'Not started', due: 'Fri 13 Nov' },
+  { id: 'W-315', work: 'Insurance renewal paperwork', owner: 'Alex', status: 'Not started', due: 'Thu 19 Nov' },
+  { id: 'W-316', work: 'Website content update', owner: 'Jordan', status: 'Not started', due: 'Tue 17 Nov' },
+  { id: 'W-317', work: 'Office equipment check', owner: 'Sam', status: 'Not started', due: 'Fri 20 Nov' },
+  { id: 'W-318', work: 'Annual pricing update', owner: 'Jordan', status: 'Not started', due: 'Fri 20 Nov' },
 ];
 
-// What happens during the demo (all simulated).
-export const NEW_INVOICE = 'INV-3318';
-export const R118_REPLY = { address: '45 Pine St', ref: 'J-2057', when: 'Wed 11 Nov 13:00' };
-export const TEST_REQUEST = { request: 'R-119', ref: 'J-2058', source: 'Website form', customer: 'Test request', job: 'Gutter cleaning', address: '8 Cedar Rd', when: 'Thu 12 Nov 15:00' };
+// billable: whether the completed work should lead to an invoice (shown to the visitor as the result text).
+export const COMPLETION = [
+  { id: 'W-301', completed: 'Mon 9 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-302', completed: 'Tue 10 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-303', completed: 'Tue 10 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-304', completed: 'Wed 11 Nov', result: 'Internal task, no invoice', billable: false },
+  { id: 'W-305', completed: 'Wed 11 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-306', completed: 'Thu 12 Nov', result: 'Delivered to customer', billable: true },
+  { id: 'W-307', completed: 'Thu 12 Nov', result: 'Delivered to customer', billable: true },
+];
 
-// What each problem costs, and why it happened (made-up figures, like everything here).
-export const HAND_REPORT = 'about 2 hours every Monday';
-export const COSTS = {
-  duplicate: 'Two technicians could go to the same job on Thursday.',
-  invoice: '$480 of finished work hasn\u2019t been billed.',
-  address: 'Waiting four days. The customer may have called someone else.',
+export const FINANCE = [
+  { id: 'W-301', invoice: 'INV-2041', amount: 1250, status: 'Paid' },
+  { id: 'W-302', invoice: 'INV-2042', amount: 640, status: 'Sent' },
+  { id: 'W-303', invoice: 'INV-2043', amount: 2100, status: 'Sent' },
+  { id: 'W-305', invoice: 'INV-2044', amount: 890, status: 'Sent' },
+  { id: 'W-306', invoice: 'INV-2045', amount: 480, status: 'Sent' },
+];
+
+export const SOURCES = [
+  { id: 'tracker', name: 'Operations Tracker', fields: ['Work ID', 'Work', 'Owner', 'Status', 'Due'] },
+  { id: 'completion', name: 'Completion Log', fields: ['Work ID', 'Completed', 'Result'] },
+  { id: 'finance', name: 'Finance Register', fields: ['Work ID', 'Invoice', 'Amount', 'Status'] },
+];
+
+// Fictional team for "Assign someone", and the preset reasons for leaving an item pending (no free text).
+export const TEAM = ['Alex', 'Priya', 'Sam', 'Jordan'];
+export const PENDING_REASONS = ['Waiting for information', 'Work is on hold', 'Owner not yet confirmed', 'Needs further review'];
+
+// The three issues the checks can find, in the visitor's words. First person only, no "we".
+export const ISSUES = {
+  duplicate: {
+    title: 'Possible duplicate',
+    explain: 'This work appears more than once. Should these records be treated as one item or kept separate?',
+    why: 'A duplicate makes the workload look bigger than it is, and two people may end up doing the same work.',
+    choices: [['merge', 'Merge these records'], ['separate', 'Keep them separate']],
+  },
+  finance: {
+    title: 'Completed work without a finance match',
+    explain: 'This work is marked as complete, but there’s no matching entry in the finance register.',
+    why: 'Not every completed item needs an invoice. Some work is internal, under warranty or not billable, so this needs a decision rather than an automatic fix.',
+    choices: [['followUp', 'Flag for invoice follow-up'], ['noInvoiceDue', 'Confirm no invoice is due']],
+  },
+  owner: {
+    title: 'No one assigned',
+    explain: 'This item is still open, but nobody is listed as responsible for it.',
+    why: 'Work without an owner is easy to miss, and nobody knows who should follow it up.',
+    choices: [['assign', 'Assign someone'], ['pending', 'Leave it pending']],
+  },
 };
-export const CAUSES = [
-  { problem: 'Santos booked twice', why: 'Phone and website bookings are stored separately.', fix: 'Every new booking checks the calendar first.' },
-  { problem: 'Cruz not invoiced', why: 'Invoice status depends on a manually updated checkbox.', fix: 'Invoice status is matched against the accounts.' },
-  { problem: 'Torres request incomplete', why: 'The website form does not require an address and sends requests to an inbox.', fix: 'Require an address and send requests directly to the job list.' },
+
+// One-line consequence shown after each choice.
+export const CONSEQUENCE = {
+  merge: 'Merged into one item. Open work goes down by one.',
+  separate: 'Kept as two items. They won’t be flagged again.',
+  followUp: 'Added to the invoice follow-ups. It stays counted as not invoiced until an invoice is raised.',
+  noInvoiceDue: 'Recorded as not billable. It no longer counts as not invoiced.',
+  assign: (who) => `Assigned to ${who}. Every open item now has an owner.`,
+  pending: (reason) => `Left pending: ${reason.toLowerCase()}. It stays visible as open with no owner, with the reason recorded.`,
+};
+
+// Stage 4: how each problem gets prevented next time.
+export const PREVENTION = [
+  { issue: 'duplicate', before: 'New work is added without checking the tracker.', after: 'Check for an existing record before creating a new one.' },
+  { issue: 'finance', before: 'Invoices are matched to completed work by memory.', after: 'Add a completion-to-invoice check.' },
+  { issue: 'owner', before: 'Items can become active with no one responsible.', after: 'Require an owner before an item becomes active.' },
 ];

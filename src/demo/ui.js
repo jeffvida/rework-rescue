@@ -12,11 +12,11 @@
 // The section's static HTML (index.html) is what visitors see without JavaScript; this replaces it.
 
 import { esc } from '../forms.js';
-import { R118_REPLY, TEST_REQUEST, COSTS, CAUSES, HAND_REPORT } from './data.js';
+import { R118_REPLY, TEST_REQUEST, COSTS, CAUSES, HAND_REPORT } from './legacy-data.js';
 import {
   CHECKS, initialState, report, check, confirmMerge, keepBoth, raiseInvoice, markNotBillable, askAddress, receiveReply,
   fixForm, sendTest, decided, freeSlots,
-} from './engine.js';
+} from './legacy-engine.js';
 
 const STAGES = [
   ['Data & Reporting', 'Investigate the report'],

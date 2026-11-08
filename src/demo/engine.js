@@ -1,152 +1,124 @@
-// Live demo engine: the four checks, the visitor's actions and the weekly report. Pure functions, no page code,
-// so tests/demo.test.mjs can check every number the page shows. Actions return a new state; nothing is mutated.
+// Live demo engine: the checks across the three sources, the visitor's decisions and the weekly report.
+// Pure functions, no page code, so tests/demo.test.mjs can check every number the page (and the hero card) shows.
+// The source rows never change. A decision is stored as data and the report is worked out again from the rows plus
+// the decisions, so any decision can be changed or cleared without undoing anything. Reset = initialState().
 
-import { RECORDS, NEW_INVOICE, R118_REPLY, TEST_REQUEST } from './data.js';
+import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES } from './data.js';
 
-export const CHECKS = [
-  { id: 'combine', label: 'Bringing records together from different sources.' },
-  { id: 'duplicates', label: 'Looking for the same visit booked twice.' },
-  { id: 'invoices', label: 'Matching completed jobs to invoices.' },
-  { id: 'bookable', label: 'Checking whether every request has the information needed to book.' },
-];
+const ISSUE_IDS = ['duplicate', 'finance', 'owner'];
 
 export function initialState() {
-  return { records: RECORDS.map((r) => ({ ...r })), checked: false, problems: [], formFixed: false, testSent: false };
+  return { checked: false, decisions: { duplicate: null, finance: null, owner: null }, finalized: false };
 }
 
-const active = (s) => s.records.filter((r) => !r.merged);
-const visitKey = (r) => `${r.customer}|${r.address}|${r.when}`;
+const isOpen = (r) => r.status !== 'Complete';
+const byId = (rows) => new Map(rows.map((r) => [r.id, r]));
 
-/** The three numbers the owner wants, as the report shows them. */
-export function report(s) {
-  const recs = s.checked ? active(s) : s.records.filter((r) => r.inList);
-  // Booked = unique confirmed visits. By hand, every booking entry was counted; once checked, two entries for the
-  // same customer, address and time count as one visit unless the owner confirmed they are separate visits.
-  const bookedRecs = recs.filter((r) => r.status === 'booked');
-  const booked = s.checked
-    ? new Set(bookedRecs.map((r) => (r.confirmedSeparate ? r.ref : visitKey(r)))).size
-    : bookedRecs.length;
-  const waiting = recs.filter((r) => r.status === 'waiting' || r.status === 'request' || r.status === 'asked').length;
-  const notInvoiced = recs.filter((r) => r.status === 'done' && (s.checked ? !r.invoice && !r.notBillable : !r.markedInvoiced)).length;
-  const dup = s.problems.find((p) => p.id === 'duplicate' && !p.done);
-  return { booked, waiting, notInvoiced, likelyDuplicates: dup ? 1 : 0, tag: status(s) };
+/** Rows per source, and the total the hero shows as "source records". */
+export function sourceCounts() {
+  const counts = { tracker: TRACKER.length, completion: COMPLETION.length, finance: FINANCE.length };
+  return { ...counts, total: counts.tracker + counts.completion + counts.finance, sources: SOURCES.length };
 }
 
-/** Report status: Built by hand → Checked (checks ran) → Actions applied (every owner decision carried out, customer
- *  still to reply) → Updated (everything settled, including the customer's simulated reply). */
+/** The three checks on the source rows. They read the data only, so they always find the same things. */
+export function runChecks() {
+  // 1. Possible duplicates: open items with the same work description and due date.
+  const seen = new Map(); const duplicates = [];
+  for (const r of TRACKER.filter(isOpen)) {
+    const key = `${r.work.toLowerCase()}|${r.due}`;
+    if (seen.has(key)) duplicates.push([seen.get(key), r.id]); else seen.set(key, r.id);
+  }
+  // 2. Completed work against finance: matched, expected without an invoice (internal), or missing.
+  const log = byId(COMPLETION); const fin = byId(FINANCE);
+  const finance = TRACKER.filter((r) => r.status === 'Complete').map((r) => {
+    const done = log.get(r.id);
+    const result = fin.has(r.id) ? 'matched' : done && !done.billable ? 'notBillable' : 'missing';
+    return { id: r.id, result };
+  });
+  // 3. Open items with nobody responsible.
+  const noOwner = TRACKER.filter((r) => isOpen(r) && !r.owner.trim()).map((r) => r.id);
+  return { duplicates, finance, missingFinance: finance.filter((f) => f.result === 'missing').map((f) => f.id), noOwner };
+}
+
+/** The issues the visitor sorts out: one per finding, each with the records involved. Empty until checked. */
+export function findings(s) {
+  if (!s.checked) return [];
+  const c = runChecks(); const t = byId(TRACKER); const log = byId(COMPLETION);
+  const out = [];
+  for (const pair of c.duplicates) out.push({ issue: 'duplicate', ids: pair, records: { tracker: pair.map((id) => t.get(id)) } });
+  for (const id of c.missingFinance) out.push({ issue: 'finance', ids: [id], records: { tracker: [t.get(id)], completion: [log.get(id)], finance: [] } });
+  for (const id of c.noOwner) out.push({ issue: 'owner', ids: [id], records: { tracker: [t.get(id)] } });
+  return out.map((f) => ({ ...f, ...ISSUES[f.issue], decision: s.decisions[f.issue] }));
+}
+
+/** Run the checks (Stage 1 → 2). Decisions start empty. */
+export function check(s) {
+  return s.checked ? s : { ...s, checked: true };
+}
+
+/** Make or change a decision. Returns the state unchanged for anything invalid, or once decisions are finished.
+ *  owner: 'assign' needs a TEAM member as detail; 'pending' needs one of PENDING_REASONS. */
+export function decide(s, issue, choice, detail) {
+  if (!s.checked || s.finalized || !ISSUE_IDS.includes(issue)) return s;
+  if (!ISSUES[issue].choices.some(([c]) => c === choice)) return s;
+  let d = { choice };
+  if (issue === 'owner') {
+    if (choice === 'assign' && !TEAM.includes(detail)) return s;
+    if (choice === 'pending' && !PENDING_REASONS.includes(detail)) return s;
+    d = choice === 'assign' ? { choice, member: detail } : { choice, reason: detail };
+  }
+  return { ...s, decisions: { ...s.decisions, [issue]: d } };
+}
+
+/** Clear one decision (back to undecided). */
+export function clearDecision(s, issue) {
+  if (s.finalized || !ISSUE_IDS.includes(issue)) return s;
+  return { ...s, decisions: { ...s.decisions, [issue]: null } };
+}
+
+export const allDecided = (s) => s.checked && ISSUE_IDS.every((i) => s.decisions[i]);
+
+/** "Finish decisions": only once all three are decided. reopen() goes back to change them. */
+export function finalize(s) { return allDecided(s) ? { ...s, finalized: true } : s; }
+export function reopen(s) { return { ...s, finalized: false }; }
+
+/** Report status: Built by hand → Review required → Decisions made → Up to date. */
 export function status(s) {
   if (!s.checked) return 'Built by hand';
-  if (allSorted(s)) return 'Updated';
-  if (decided(s)) return 'Actions applied';
-  return 'Checked';
+  if (s.finalized) return 'Up to date';
+  if (allDecided(s)) return 'Decisions made';
+  return 'Review required';
 }
 
-/** Runs one check on the current records. Returns the records it flags (refs). */
-export function runCheck(s, id) {
-  const recs = active(s);
-  if (id === 'combine') return recs.filter((r) => !r.inList).map((r) => r.ref);
-  if (id === 'duplicates') {
-    const seen = new Map(); const out = [];
-    for (const r of recs.filter((x) => x.status === 'booked' && !x.confirmedSeparate)) {
-      const key = visitKey(r);
-      if (seen.has(key)) out.push(seen.get(key), r.ref); else seen.set(key, r.ref);
-    }
-    return out;
+/** The weekly report, as the page shows it.
+ *  Before the check it is the hand-built report: every tracker row counted, every completed item assumed invoiced,
+ *  owners not checked (noOwner = null). After the check every figure comes from the three sources plus decisions. */
+export function report(s) {
+  const c = runChecks();
+  const completed = TRACKER.filter((r) => r.status === 'Complete').length;
+  if (!s.checked) {
+    return { openWork: TRACKER.filter(isOpen).length, completed, notInvoiced: 0, noOwner: null, itemsToReview: 0,
+      possibleDuplicates: 0, followUps: 0, pendingWithReason: 0, status: status(s) };
   }
-  if (id === 'invoices') return recs.filter((r) => r.status === 'done' && !r.invoice && !r.notBillable).map((r) => r.ref);
-  if (id === 'bookable') return recs.filter((r) => (r.status === 'request' || r.status === 'booked') && (!r.address || !r.job)).map((r) => r.ref);
-  return [];
+  const d = s.decisions;
+  const merged = d.duplicate?.choice === 'merge' ? new Set(c.duplicates.map((p) => p[1])) : new Set();
+  const openWork = TRACKER.filter((r) => isOpen(r) && !merged.has(r.id)).length;
+  const notInvoiced = d.finance?.choice === 'noInvoiceDue' ? 0 : c.missingFinance.length;
+  const noOwner = d.owner?.choice === 'assign' ? 0 : c.noOwner.length;
+  const itemsToReview = findings(s).filter((f) => !f.decision).length;
+  return {
+    openWork, completed, notInvoiced, noOwner, itemsToReview,
+    possibleDuplicates: d.duplicate ? 0 : c.duplicates.length,
+    followUps: d.finance?.choice === 'followUp' ? c.missingFinance.length : 0,
+    pendingWithReason: d.owner?.choice === 'pending' ? c.noOwner.length : 0,
+    status: status(s),
+  };
 }
 
-/** All four checks, turned into the three problems the visitor sorts out. */
-export function check(s) {
-  const found = Object.fromEntries(CHECKS.map((c) => [c.id, runCheck(s, c.id)]));
-  const problems = [];
-  if (found.duplicates.length) problems.push({ id: 'duplicate', refs: found.duplicates, done: false });
-  for (const ref of found.invoices) problems.push({ id: 'invoice', refs: [ref], done: false });
-  const notBookable = new Set([...found.combine, ...found.bookable]);
-  for (const ref of notBookable) problems.push({ id: 'address', refs: [ref], done: false });
-  const flagged = new Set(problems.flatMap((p) => p.refs));
-  return { state: { ...s, checked: true, problems }, found, checkedCount: s.records.length, flaggedCount: flagged.size };
-}
-
-const done = (s, id) => ({ ...s, problems: s.problems.map((p) => (p.id === id ? { ...p, done: true } : p)) });
-const setRecord = (s, ref, patch) => ({ ...s, records: s.records.map((r) => (r.ref === ref ? { ...r, ...patch } : r)) });
-
-/** Confirm merge: the later website booking is folded into the phone booking; one visit stays. */
-export function confirmMerge(s) {
-  const p = s.problems.find((x) => x.id === 'duplicate');
-  if (!p || p.done) return s;
-  return done(setRecord(s, p.refs.at(-1), { merged: true }), 'duplicate');
-}
-
-/** Keep both: the owner says they really are two visits. Both stay booked and won't be flagged again. */
-export function keepBoth(s) {
-  const p = s.problems.find((x) => x.id === 'duplicate');
-  if (!p || p.done) return s;
-  let next = s;
-  for (const ref of p.refs) next = setRecord(next, ref, { confirmedSeparate: true });
-  return done(next, 'duplicate');
-}
-
-/** Not billable (warranty work): the job stops counting as "done, not invoiced" without an invoice. */
-export function markNotBillable(s) {
-  const p = s.problems.find((x) => x.id === 'invoice');
-  if (!p || p.done) return s;
-  return done(setRecord(s, p.refs.at(0), { notBillable: true }), 'invoice');
-}
-
-/** Send the drafted invoice. */
-export function raiseInvoice(s) {
-  const p = s.problems.find((x) => x.id === 'invoice');
-  if (!p || p.done) return s;
-  return done(setRecord(s, p.refs.at(0), { invoice: NEW_INVOICE }), 'invoice');
-}
-
-/** Ask for the address, by the drafted email or by a call from the office (Dana). Both are simulated. */
-export function askAddress(s, via = 'email') {
-  const p = s.problems.find((x) => x.id === 'address');
-  if (!p || p.done) return s;
-  return setRecord(s, p.refs.at(0), { status: 'asked', askedVia: via });
-}
-
-/** The customer confirms (simulated, by its own button): the request gets its address and becomes a booked job. */
-export function receiveReply(s) {
-  const p = s.problems.find((x) => x.id === 'address');
-  if (!p || p.done) return s;
-  const r = s.records.find((x) => x.ref === p.refs.at(0));
-  if (!r || r.status !== 'asked') return s; // nobody asked yet, so nobody can confirm
-  const s2 = setRecord(s, r.ref, { status: 'booked', address: R118_REPLY.address, when: R118_REPLY.when, jobRef: R118_REPLY.ref, inList: true });
-  return done(s2, 'address');
-}
-
-/** The owner's decisions on the review sheet are carried out; the customer still has to confirm. */
-export const decided = (s) => s.checked && s.problems.every((p) => p.done || s.records.find((r) => r.ref === p.refs.at(0))?.status === 'asked');
-export const allSorted = (s) => s.checked && s.problems.every((p) => p.done);
-
-export function fixForm(s) { return allSorted(s) ? { ...s, formFixed: true } : s; }
-
-// The fixed form's preferred-time list: slots on the test day, minus anything already booked.
-export const SLOT_TIMES = ['09:00', '11:00', '13:00', '15:00'];
-export function freeSlots(s, day = TEST_REQUEST.when.slice(0, -6)) {
-  const taken = new Set(active(s).filter((r) => r.status === 'booked' && (r.when || '').startsWith(day)).map((r) => r.when.slice(-5)));
-  return SLOT_TIMES.filter((t) => !taken.has(t)).map((t) => `${day} ${t}`);
-}
-
-/** The visitor's test request through the fixed form. Every field is required and the time must be free.
- *  Returns the state, whether it passed every check, and the problems found (empty when it passed). */
-export function sendTest(s, input = {}) {
-  if (!s.formFixed || s.testSent) return { state: s, passed: false, errors: ['not-ready'] };
-  const req = { name: 'Test request', email: 'test@example.com', job: TEST_REQUEST.job, address: TEST_REQUEST.address, when: TEST_REQUEST.when, ...input };
-  const errors = [];
-  if (!String(req.name || '').trim()) errors.push('name');
-  if (!String(req.email || '').trim()) errors.push('email');
-  if (!String(req.address || '').trim()) errors.push('address');
-  if (!String(req.job || '').trim()) errors.push('job');
-  if (!freeSlots(s).includes(req.when)) errors.push('when');
-  if (errors.length) return { state: s, passed: false, errors };
-  const rec = { ref: TEST_REQUEST.ref, source: TEST_REQUEST.source, customer: req.name.trim(), job: req.job.trim(), address: req.address.trim(), status: 'booked', when: req.when, inList: true };
-  const next = { ...s, testSent: true, records: [...s.records, rec] };
-  const passed = CHECKS.every((c) => !runCheck(next, c.id).includes(rec.ref));
-  return { state: passed ? next : s, passed, errors: passed ? [] : ['check'] };
+/** The hero card: a pre-calculated preview of the sample report after the checks, before any decision.
+ *  Summary figures only; the findings themselves are never part of it. */
+export function heroSummary() {
+  const counts = sourceCounts();
+  const r = report(check(initialState()));
+  return { sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status };
 }

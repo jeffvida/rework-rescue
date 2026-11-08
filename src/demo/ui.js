@@ -262,7 +262,7 @@ export function mountDemo(root) {
         <div class="dm-final" aria-label="Final report"><p class="dm-final-t">This week’s report <span data-tag="${esc(r.status)}">${esc(r.status)}</span></p>
           <p class="dm-final-n"><span><b>${r.openWork}</b> open</span><span><b>${r.completed}</b> completed</span><span><b>${r.notInvoiced}</b> not invoiced</span><span><b>${r.noOwner}</b> with no owner</span><span><b>${r.itemsToReview}</b> to review</span></p>
           ${open.length ? `<p class="dm-final-open"><strong>Still open:</strong> ${open.map((o) => esc(endText(o))).join('; ')}. The review is finished, but ${open.length === 1 ? 'this still needs' : 'these still need'} doing.</p>` : '<p class="dm-final-open">Nothing left open.</p>'}</div>
-        <p class="dm-end-sub">What improved?</p>
+        <p class="dm-end-sub">What could improve?</p>
         <ul class="dm-three">
           <li><a href="#services">Data &amp; Reporting</a>: the report matches what’s in the records.</li>
           <li><a href="#services">Workflows &amp; Processes</a>: every item has a decision, and the same problems are less likely to return.</li>

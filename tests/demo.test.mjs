@@ -308,5 +308,6 @@ test('the end of the demo describes proposed improvements, not finished ones', a
   assert.match(ui, /These improvements could mean less repeated checking, fewer missed tasks and fewer manual corrections\./);
   assert.match(ui, /Checked, decisions made, and improvements identified\./);
   assert.match(ui, /a clearer way for the tracker, completion log and finance register to work together\./);
-  assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean/);
+  assert.match(ui, /What could improve\?/);
+  assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean|What improved\?/);
 });

@@ -339,8 +339,8 @@ test('the demo intro: exact copy, issues from the engine, your role, disclosure'
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('class="demo-window"'));
   const h = heroSummary();
   assert.match(sec, /Can you trust this week&rsquo;s report\?/);
-  assert.ok(sec.includes('Here&rsquo;s a week&rsquo;s worth of work for a small team, recorded in three different places: a work tracker, a completion log, and a finance register.'));
-  assert.ok(sec.includes('At first glance, the report looks fine. Check the records and see whether the numbers tell the same story.'));
+  assert.ok(sec.includes('Here&rsquo;s a week&rsquo;s work recorded across three different business records.'));
+  assert.ok(sec.includes('The report looks fine at first. But can you spot what doesn&rsquo;t add up?'));
   assert.match(sec, new RegExp(`data-hero="itemsToReview">${h.itemsToReview}</span> issues to investigate`));
   const lines = [...sec.matchAll(/data-intro-issue="(\w+)">([^<]*)</g)].map((m) => ({ issue: m[1], brief: m[2] }));
   assert.deepEqual(lines, h.issues.map(({ issue, brief }) => ({ issue, brief })), 'issue lines match the engine');

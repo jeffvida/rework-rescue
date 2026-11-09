@@ -422,3 +422,17 @@ test('availability on the page matches the booking calendar rules', async () => 
     assert.doesNotMatch(html, /teams worldwide|across time zones/, f);
   }
 });
+
+test('Workflows: AI items, and the AI enquiry example keeps the person in control', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const wf = html.slice(html.indexOf('<h3>Workflows &amp; Processes</h3>'), html.indexOf('<h3>Business Tools &amp; Systems</h3>'));
+  for (const t of ['AI that reads your emails and documents', 'AI summaries and quick answers', 'Automatic reminders, notifications and follow-ups', 'Sample &middot; AI simulated', '>You<', 'Approve the reply', 'Nothing'.slice(0, 0)]) assert.ok(wf.includes(t), t);
+  assert.doesNotMatch(wf, /Quote 2031|Approve the quote/);
+  assert.equal((wf.match(/<li><strong>/g) || []).length, 5, 'five items');
+  assert.match(html, /Tools I work with:<\/strong>[^<]*n8n &middot; AI tools/);
+  assert.match(html, /A person reviews anything that matters before it&#39;s sent or changed\./);
+  const privacy = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  assert.match(privacy, /The AI step in the workflow example is simulated; no AI runs on this page\./);
+  const pv = await readFile(new URL('../src/previews.js', import.meta.url), 'utf8');
+  assert.match(pv, /nothing was sent until you approved it/);
+});

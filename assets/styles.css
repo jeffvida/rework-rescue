@@ -2519,3 +2519,12 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .cta-micro-sep { display: none; }
   .cta-micro-2 { display: block; }
 }
+
+/* ==== Workflow preview: AI enquiry (Nov 2026). AI steps are simulated; the visitor approves. ==== */
+.pv-ai { fill: #f6ecd4; stroke: #e2c98f; }
+.pv-log .pv-ai-t { font-size: 9.5px; font-weight: 700; fill: #6b4e0f; }
+.svc-preview-workflow .pv-conn.c2 { stroke: var(--teal); }
+.svc-preview-workflow .pv-conn.c5 { stroke: var(--svc); }
+.is-playing .pv-conn.c5 { animation: pv-conn-draw 0.3s var(--ease-io) 0.7s both; }
+.is-playing .pv-filled { animation: pv-fade 0.3s ease 0.15s both; }
+

@@ -1,302 +1,267 @@
-// The live demo (spec 10 Nov 2026, "management reporting"): one fictional week in three tabs.
-//   Findings            the four findings: what was detected, why it matters, source reference, supporting data,
-//                       possible explanation (AI-drafted, simulated), suggested investigation, reviewer decision, status.
-//   Sources             the original Work Register, Invoice Tracker and Customer Requests. "View source" opens this tab
-//                       with the record highlighted and the reason it was flagged. Viewing never changes a record.
-//   Management Summary  executive summary, performance overview, key findings by classification, business
-//                       implications, AI-assisted recommendations, the departmental action register, the checks, the
-//                       decision log and the publication-readiness check with approval.
-// It shares one state with the hero (./store.js). Nothing leaves the page.
+// The main live demonstration: one connected business workspace (master brief, 10 Nov 2026).
+// A workspace overview stays on top; four views share one dataset and one state (./store.js):
+//   Data       the three source files and the combined records, the checks that ran, and the source behind each item.
+//   Reports    figures calculated from the combined records, filters, a chart, items needing attention, a summary.
+//   Actions    items to check and follow up: source, suggested next step, suggested responsibility, status, decisions.
+//   Workflows  request received → reviewed → assigned → in progress → completed, a sample-request form, reminders.
+// Everything is simulated in the browser: nothing is sent, created or changed anywhere else. Reset starts again.
 
 import { esc } from '../forms.js';
-import { WORK, INVOICES, REQUESTS, SOURCES, STAFF, ISSUES, CATEGORIES, CATEGORY_TERMS } from './data.js';
+import { REQUESTS, TASKS, TRANSACTIONS } from './data.js';
 import {
-  findings, metrics, summary, actionRegister, readiness, status, workingWork, qualityChecks, totalsChecks,
-  ISSUE_IDS, STATUS_LABELS, CLOSED, AI_LABEL, PERIOD,
+  consolidated, checkList, actions, openActions, metrics, summary, overview, board, stageOf, taskFor, fmtDate,
+  SOURCES, STAFF, REQUEST_TYPES, CHANNELS, STAGES, AI_LABEL,
 } from './engine.js';
-import { getState, subscribe, setDecision, publish, reset } from './store.js';
+import { getState, subscribe, decide, assign, setStatus, review, remind, submitRequest, reset } from './store.js';
 
-const TABS = [
-  ['findings', 'Findings', 'What needs checking?'],
-  ['sources', 'Sources', 'The original files'],
-  ['summary', 'Report', 'What it says'],
+const VIEWS = [
+  ['data', 'Data', 'Combine and check'],
+  ['reports', 'Reports', 'See the numbers'],
+  ['actions', 'Actions', 'Follow up'],
+  ['workflows', 'Workflows', 'Keep work moving'],
 ];
-const COLS = {
-  work: [['id', 'Ref'], ['request', 'Request'], ['customer', 'Customer'], ['address', 'Service address'], ['jobType', 'Job type'], ['scheduled', 'Scheduled'], ['due', 'Due'], ['status', 'Status'], ['completed', 'Completed'], ['owner', 'Owner'], ['next', 'Next action']],
-  invoices: [['id', 'Invoice'], ['date', 'Date'], ['customer', 'Customer'], ['work', 'Work ref'], ['request', 'Request ref'], ['status', 'Status']],
-  requests: [['id', 'Ref'], ['received', 'Received'], ['customer', 'Customer'], ['request', 'Request'], ['channel', 'Channel'], ['work', 'Work ref']],
-};
-const ROWS = { work: WORK, invoices: INVOICES, requests: REQUESTS };
-const SRC_OF = (ref) => (ref.startsWith('W-') ? 'work' : ref.startsWith('INV-') ? 'invoices' : 'requests');
+const ROWS = { requests: REQUESTS, tasks: TASKS, transactions: TRANSACTIONS };
+const STATUS_CLASS = { 'Needs checking': 'open', 'Waiting for follow-up': 'unresolved', Assigned: 'disclosed', 'In progress': 'disclosed', Completed: 'resolved' };
 const blank = '<em class="dt-blank">blank</em>';
-const STATUS_CLASS = { investigate: 'open', stale: 'open', action: 'unresolved', resolved: 'resolved', legitimate: 'resolved', disclosed: 'disclosed' };
-const NEEDS_LABEL = { owner: 'Who', next: 'Next step', note: 'Note' };
+const CUSTOMERS = [...new Set(REQUESTS.map((r) => r.customer).filter(Boolean))].sort();
 
 export function mountDemo(root) {
   if (!root) return null;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let tab = 'findings';
-  let sel = ISSUE_IDS[0];
-  let viewing = null; // { ref, issue } when Sources was opened from a finding
-  let confirming = false;
-  let evidenceOpen = false; // remembered while moving between findings
+  let view = 'data';
+  let src = 'combined';          // which table Data shows
+  let focus = null;              // { refs, why } when Data was opened from an item
+  let channel = 'All'; let listStatus = 'All';
+  let note = '';                 // last result message in Workflows
 
   root.innerHTML = `
-    <div class="dt">
+    <div class="dt cw">
+      <div class="cw-over" aria-label="Connected workspace overview"></div>
       <div class="dt-head">
-        <div class="dt-tabs" role="tablist" aria-label="Weekly management report">${TABS.map(([id, name, q]) => `
+        <div class="dt-tabs" role="tablist" aria-label="Workspace views">${VIEWS.map(([id, name, q]) => `
           <button type="button" role="tab" class="dt-tab" id="dt-tab-${id}" aria-controls="dt-p-${id}" data-tab="${id}">
-            <span class="dt-tab-name">${esc(name)}${id === 'findings' ? ' <span class="dt-count" data-count></span>' : ''}</span>
+            <span class="dt-tab-name">${esc(name)}${id === 'actions' ? ' <span class="dt-count" data-count></span>' : ''}</span>
             <span class="dt-tab-q">${esc(q)}</span></button>`).join('')}
         </div>
-        <p class="dt-status"><span class="dt-tag" data-status></span></p>
+        <p class="dt-status"><button type="button" class="dt-link" data-act="reset">Reset the demo</button></p>
       </div>
-      ${TABS.map(([id]) => `<div class="dt-panel" role="tabpanel" id="dt-p-${id}" aria-labelledby="dt-tab-${id}" tabindex="0" hidden></div>`).join('')}
+      ${VIEWS.map(([id]) => `<div class="dt-panel" role="tabpanel" id="dt-p-${id}" aria-labelledby="dt-tab-${id}" tabindex="0" hidden></div>`).join('')}
       <p class="sr-only" aria-live="polite"></p>
     </div>`;
   const live = root.querySelector('.dt > [aria-live]');
   const say = (m) => { live.textContent = ''; setTimeout(() => { live.textContent = m; }, 30); };
   const panel = (id) => root.querySelector(`#dt-p-${id}`);
 
-  // ---- Tables (original values; reviewer changes shown beside them, never instead of them)
-  function cellHtml(src, r, k, work) {
-    const v = r[k];
-    if (src === 'work' && work) {
-      const ch = work.changes.find((c) => c.field === k || (k === 'owner' && c.field === 'owner'));
-      if (k === 'id' && work.excluded) return `${esc(v)} <small class="dt-change">left out of the count (your decision)</small>`;
-      if (k === 'due' && ch) return `${esc(v)} <small class="dt-change">you changed it to ${esc(ch.to)} (${esc(ch.evidence)})</small>`;
-      if (k === 'owner' && ch) return `${blank} <small class="dt-change">you assigned: ${esc(ch.to)}</small>`;
-      if (k === 'id' && work.invoice) return `${esc(v)} <small class="dt-change">you linked ${esc(work.invoice)}</small>`;
-    }
-    return v === '' || v === null || v === undefined ? blank : esc(v);
-  }
-  function table(src, ids = null, mark = [], caption = null) {
-    const rows = ids ? ROWS[src].filter((r) => ids.includes(r.id)) : ROWS[src];
-    const ww = Object.fromEntries(workingWork(getState()).map((w) => [w.id, w]));
-    const meta = SOURCES.find((x) => x.id === src);
-    return `<div class="dt-table-wrap"><table class="dt-table"><caption>${esc(caption || `${meta.name} (${rows.length} records · ${meta.format.toLowerCase()})`)}</caption>
-      <thead><tr>${COLS[src].map(([, l]) => `<th scope="col">${esc(l)}</th>`).join('')}</tr></thead>
-      <tbody>${rows.map((r) => `<tr id="src-${esc(r.id)}"${mark.includes(r.id) ? ' class="is-flag"' : ''}>${COLS[src].map(([k, l]) => `<td data-label="${esc(l)}">${cellHtml(src, r, k, ww[r.id])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  // ---- Overview: the connected workspace, always visible
+  function paintOverview() {
+    const o = overview(getState()); const first = summary(getState())[0];
+    root.querySelector('.cw-over').innerHTML = `
+      <button type="button" class="cw-tile" data-tab="data"><span class="cw-k">Records</span><strong>${o.records}</strong><span>from ${o.sources} sources</span></button>
+      <button type="button" class="cw-tile" data-tab="reports"><span class="cw-k">Requests</span><strong>${o.requests}</strong><span>${o.openRequests} open</span></button>
+      <button type="button" class="cw-tile${o.attention ? ' is-warn' : ''}" data-tab="actions"><span class="cw-k">To check</span><strong>${o.attention}</strong><span>${o.attention === 1 ? 'item' : 'items'}</span></button>
+      <button type="button" class="cw-tile" data-tab="workflows"><span class="cw-k">In progress</span><strong>${o.inProgress}</strong><span>${o.completed} done this week</span></button>
+      <button type="button" class="cw-tile cw-sum" data-tab="reports"><span class="cw-k">Summary <span class="rl-ai">AI-drafted</span></span><span class="cw-sum-t">${esc(first)}</span></button>`;
   }
 
-  // ---- Findings
-  function choiceHtml(f, c) {
-    const on = f.decision === c.value && f.status !== 'stale';
-    const fields = c.needs.map((k) => {
-      const id = `dt-${f.issue}-${c.value}-${k}`;
-      const cur = on ? f[k] || '' : '';
-      if (k === 'owner') return `<label for="${id}">${NEEDS_LABEL[k]} <select id="${id}" data-field="owner"><option value="">Choose…</option>${STAFF.map((p) => `<option${cur === p ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select></label>`;
-      return `<label for="${id}">${NEEDS_LABEL[k]} <input id="${id}" type="text" maxlength="160" data-field="${k}" value="${esc(cur)}" placeholder="${k === 'note' ? (c.value === 'disclose' ? 'What the report should say' : 'Who dealt with it, and how') : 'e.g. Call the customer'}"></label>`;
-    }).join('');
-    return `<div class="dt-opt${on ? ' is-on' : ''}" data-opt="${c.value}">${fields ? `<div class="dt-opt-fields">${fields}</div>` : ''}
-      <button type="button" class="btn ${on ? 'btn-primary' : 'btn-secondary'} dt-choice" data-choice="${c.value}" aria-pressed="${on}"><span>${esc(c.label)}</span></button></div>`;
+  // ---- Tables
+  const cell = (v) => (v === '' || v === null || v === undefined ? blank : esc(v));
+  function sourceTable(id, marks = []) {
+    const meta = SOURCES.find((x) => x.id === id); const rows = id === 'requests' ? [...ROWS.requests, ...getState().added.map((a) => a.request)] : id === 'tasks' ? [...ROWS.tasks, ...getState().added.map((a) => a.task)] : ROWS[id];
+    return `<div class="dt-table-wrap"><table class="dt-table"><caption>${esc(meta.name)}: ${rows.length} rows, as received (${esc(meta.format)})</caption>
+      <thead><tr>${meta.fields.map(([, l]) => `<th scope="col">${esc(l)}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map((r) => `<tr id="src-${esc(r.id)}"${marks.includes(r.id) ? ' class="is-focus"' : ''}>${meta.fields.map(([k, l]) => `<td data-label="${esc(l)}">${cell(r[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   }
-  function refButtons(f) {
-    return Object.entries(f.refs).flatMap(([, ids]) => ids).map((ref) => `<button type="button" class="dt-link dt-src" data-view="${esc(ref)}">See ${esc(ref)} in the file</button>`).join(' ');
-  }
-  function paintFindings() {
-    const s = getState(); const fs = findings(s); const f = fs.find((x) => x.issue === sel) || fs[0];
-    const next = fs.find((x) => !x.closed && x.issue !== f.issue);
-    panel('findings').innerHTML = `
-      <ul class="dt-reg dt-reg-3" aria-label="Findings">
-        <li class="dt-reg-head" aria-hidden="true"><span>What was found</span><span>Type</span><span>Status</span></li>
-        ${fs.map((x) => `<li><button type="button" class="dt-reg-row${x.issue === f.issue ? ' is-on' : ''}" data-sel="${x.issue}" aria-pressed="${x.issue === f.issue}">
-          <span class="dt-reg-issue">${esc(x.title)} <small class="dt-reg-ref">${esc(x.ids.join(' / '))}</small></span>
-          <span class="dt-reg-act">${esc(x.categoryLabel)}</span><span class="dt-reg-st is-${STATUS_CLASS[x.status]}">${esc(x.statusLabel)}</span></button></li>`).join('')}
-      </ul>
-      <div class="dt-detail" tabindex="-1">
-        <h3 class="dt-h">${esc(f.title)} <span class="dt-ids">${esc(f.ids.join(' / '))}</span></h3>
-        <p class="dt-meta"><span class="dt-cat is-${f.category}" title="${esc(f.categoryTerm)}">${esc(f.categoryLabel)}</span> <span class="dt-gate${f.blocking ? ' is-blocking' : ''}">${f.blocking ? 'Must be decided before the report goes out' : 'Shown in the report · doesn’t stop it going out'}</span> <span class="dt-reg-st is-${STATUS_CLASS[f.status]}">${esc(f.statusLabel)}</span></p>
-        <dl class="dt-facts dt-facts-2">
-          <div><dt>What’s wrong</dt><dd>${esc(f.detected)}</dd></div>
-          <div><dt>Why it matters</dt><dd>${esc(f.matters)}</dd></div>
-        </dl>
-        <div class="dt-decide" role="group" aria-labelledby="dt-decide-k">
-          <p class="dt-k" id="dt-decide-k">What do you want to do? <span>Nothing changes until you choose.</span></p>
-          <div class="dt-opts">${f.choices.map((c) => choiceHtml(f, c)).join('')}</div>
-          ${f.consequence ? `<p class="dt-sorted">${esc(f.consequence)}</p>` : ''}
-          <p class="dt-err" data-err hidden></p>
-        </div>
-        <details class="dt-evidence-box"${evidenceOpen ? ' open' : ''}>
-          <summary>Show the evidence</summary>
-          <dl class="dt-facts">
-            <div><dt>Where it’s from</dt><dd>${esc(f.source)} · ${refButtons(f)}</dd></div>
-            <div><dt>What the records show</dt><dd><ul>${f.supporting.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></dd></div>
-            <div><dt>Possible explanation <span class="rl-ai">${esc(AI_LABEL)}</span></dt><dd>${esc(f.ai.replace(/^Possible explanation: /, ''))}</dd></div>
-            <div><dt>How to check</dt><dd><ol>${f.investigate.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></dd></div>
-          </dl>
-          <div class="dt-recs">${table('work', f.refs.work, f.ids, 'The jobs behind this finding (Work Register)')}</div>
-          <p class="dt-intro">Type: ${esc(f.categoryLabel)} (${esc(f.categoryTerm.toLowerCase())}).</p>
-        </details>
-        <p class="dt-next">${next
-          ? `<button type="button" class="dt-link" data-sel="${next.issue}">Next: ${esc(next.title.toLowerCase())} &rarr;</button>`
-          : '<button type="button" class="dt-link" data-tab-go="summary">See the report &rarr;</button>'}</p>
-      </div>`;
+  function combinedTable(marks = []) {
+    const rows = consolidated(getState()); const flagged = new Set(openActions(getState()).flatMap((a) => a.refs));
+    return `<div class="dt-table-wrap"><table class="dt-table"><caption>Combined records: one row per request, dates and references standardised</caption>
+      <thead><tr><th scope="col">Request</th><th scope="col">Received</th><th scope="col">Customer</th><th scope="col">Request type</th><th scope="col">Channel</th><th scope="col">Task</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Linked records</th></tr></thead>
+      <tbody>${rows.map((r) => `<tr id="cmb-${esc(r.ref)}" class="${[marks.includes(r.ref) ? 'is-focus' : '', flagged.has(r.ref) || flagged.has(r.task) ? 'is-flag' : '', r.excluded ? 'is-excluded' : ''].filter(Boolean).join(' ')}">
+        <td data-label="Request">${esc(r.ref)}${r.excluded ? ' <small class="dt-change">counted once (your decision)</small>' : ''}${r.added ? ' <small class="dt-change">sample request</small>' : ''}</td>
+        <td data-label="Received">${esc(fmtDate(r.received))}</td>
+        <td data-label="Customer">${r.customer ? esc(r.customer) : blank}${r.customerNote ? ` <small class="dt-change">${esc(r.customerNote)}</small>` : ''}</td>
+        <td data-label="Request type">${esc(r.type)}</td><td data-label="Channel">${esc(r.channel)}</td>
+        <td data-label="Task">${cell(r.task)}</td><td data-label="Owner">${cell(r.owner)}</td><td data-label="Status">${cell(r.status)}</td>
+        <td data-label="Linked records">${r.records.length ? esc(r.records.join(', ')) : '<span class="dt-muted">none</span>'}</td></tr>`).join('')}</tbody></table></div>`;
   }
 
-  // ---- Sources
-  function paintSources() {
-    const s = getState(); const fs = findings(s);
-    const f = viewing ? fs.find((x) => x.issue === viewing.issue) : null;
-    const marks = f ? Object.values(f.refs).flat() : [];
-    const focusRef = viewing?.ref;
-    const why = f ? `<div class="dt-why" role="note"><p><strong>Showing ${esc(focusRef)}</strong> in the ${esc(SOURCES.find((x) => x.id === SRC_OF(focusRef)).name)}. Flagged as <strong>${esc(f.title.toLowerCase())}</strong>: ${esc(f.detected)}</p>
-        <p><button type="button" class="dt-link" data-back>&larr; Back to the finding</button></p></div>` : '';
-    const checks = [...totalsChecks(s), ...qualityChecks()];
-    panel('sources').innerHTML = `${why}
-      <p class="dt-intro">The three files exactly as they came in. Looking never changes anything; your decisions are shown next to the original values.</p>
-      ${['work', 'invoices', 'requests'].map((src) => table(src, null, marks)).join('')}
-      <h3 class="dt-h">Checks run on these files</h3>
-      <ul class="dt-todo">${checks.map((c) => `<li><span class="dt-todo-b is-${c.pass ? 'resolved' : 'unresolved'}"><span class="dt-todo-t">${esc(c.label)}${c.detail ? ` <small>${esc(c.detail)}</small>` : ''}</span><span class="dt-todo-s">${c.pass ? 'OK' : 'Failed'}</span></span></li>`).join('')}</ul>`;
-    if (focusRef) {
-      const row = panel('sources').querySelector(`#src-${CSS.escape(focusRef)}`);
-      row?.classList.add('is-focus');
-      setTimeout(() => row?.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }), 30);
-    }
+  // ---- Data
+  function paintData() {
+    const s = getState(); const checks = checkList(s);
+    const marks = focus?.refs ?? [];
+    const tabs = [['combined', 'Combined records'], ...SOURCES.map((x) => [x.id, x.name])];
+    panel('data').innerHTML = `
+      ${focus ? `<div class="dt-why" role="note" tabindex="-1"><p><strong>${esc(focus.title)}</strong> · ${esc(focus.why)}</p><p><button type="button" class="dt-link" data-tab="actions">&larr; Back to Actions</button></p></div>` : ''}
+      <p class="dt-intro">Three files come in as they are. They're combined into one list, dates and references are lined up, and the checks set up for this business run. <strong>Checks found items that may need attention.</strong> They only cover the rules that were set up, so they won't catch everything.</p>
+      <ul class="dt-todo cw-checks">${checks.map((c) => `<li><span class="dt-todo-b is-${c.ok ? 'resolved' : 'open'}"><span class="dt-todo-t">${esc(c.label)}</span><span class="dt-todo-s">${c.ok ? 'OK' : 'To check'}</span></span></li>`).join('')}</ul>
+      <div class="cw-seg" role="group" aria-label="Show">${tabs.map(([id, l]) => `<button type="button" class="cw-seg-b" data-src="${id}" aria-pressed="${src === id}">${esc(l)}</button>`).join('')}</div>
+      ${src === 'combined' ? combinedTable(marks) : sourceTable(src, marks)}`;
+    const row = panel('data').querySelector('tr.is-focus');
+    if (row) setTimeout(() => row.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }), 30);
   }
 
-  // ---- Management Summary
-  const LOG = {
-    decision: (e) => `${ISSUES[e.issue].title}: ${label(e.issue, e.to)}${extra(e)}`,
-    changed: (e) => `${ISSUES[e.issue].title}: changed from “${label(e.issue, e.from)}” to “${label(e.issue, e.to)}”${extra(e)}`,
-    cleared: (e) => `${ISSUES[e.issue].title}: decision cleared`,
-    published: (e) => e.reason,
-    'publish-withdrawn': (e) => `Approval withdrawn. ${e.reason}`,
-  };
-  const label = (issue, v) => ISSUES[issue].choices.find((c) => c[0] === v)?.[1] ?? '';
-  const extra = (e) => [e.owner && ` · ${e.owner}`, e.next && ` · “${e.next}”`, e.note && ` · “${e.note}”`].filter(Boolean).join('');
-
-  function publishBlock(s) {
-    const r = readiness(s);
-    const list = (ds) => `<ul>${ds.map((d) => `<li>${esc(d.title)}: ${esc(d.label)}${d.note ? ` (“${esc(d.note)}”)` : ''}</li>`).join('')}</ul>`;
-    if (s.published) return `<div class="dt-released"><p><strong>Approved by you.</strong> Simulated in your browser: nothing was sent or changed.${r.disclosures.length ? ' The report lists what’s still open:' : ''}</p>${r.disclosures.length ? list(r.disclosures) : ''}</div>`;
-    const head = s.changedSincePublish ? '<p><strong>Changed since approval.</strong> A decision changed after you approved it, so the report has been updated and needs approving again.</p>' : '';
-    if (!r.ready) return `<div class="dt-released is-hold">${head}<p><strong>Not ready yet.</strong> One thing must be decided before the report goes out:</p><ul>${r.blockers.map((b) => `<li>${esc(b.text)}</li>`).join('')}</ul>${r.blockers[0]?.issue ? `<p><button type="button" class="dt-link" data-sel-go="${r.blockers[0].issue}">Decide it now &rarr;</button></p>` : ''}</div>`;
-    if (!confirming) return `<div class="dt-released is-ready">${head}<p><strong>Ready to approve.</strong>${r.disclosures.length ? ` The report will list ${r.disclosures.length} ${r.disclosures.length === 1 ? 'thing' : 'things'} still open.` : ' Nothing is left open.'}</p><p><button type="button" class="btn btn-primary" data-act="publish">Approve report</button></p></div>`;
-    return `<div class="dt-released is-ready">${head}<p><strong>Approve this report?</strong> ${r.disclosures.length ? 'It will list these as still open:' : 'Nothing is left open.'}</p>
-      ${r.disclosures.length ? list(r.disclosures) : ''}
-      <p><button type="button" class="btn btn-primary" data-act="approve">Approve report</button> <button type="button" class="dt-link" data-act="cancel">Cancel</button></p></div>`;
-  }
-
-  function paintSummary() {
-    const s = getState(); const m = metrics(s); const sm = summary(s); const fs = findings(s); const reg = actionRegister(s);
-    const pub = !!s.published;
-    const max = Math.max(...m.daily.map((d) => d.completed), 1);
-    const groups = ['integrity', 'reconciliation', 'operational'].map((cat) => [cat, fs.filter((f) => f.category === cat)]);
-    panel('summary').innerHTML = `
-      ${publishBlock(s)}
-      <p class="dt-doc-k">${pub ? 'Approved weekly report' : 'Draft weekly report · not approved yet'} · ${esc(PERIOD.label)} · fictional sample data</p>
-      <h3 class="dt-h">In short <span class="rl-ai">${esc(AI_LABEL)}</span></h3>
-      <div class="dt-exec">${sm.executive.map((x) => `<p>${esc(x)}</p>`).join('')}</div>
-      <h3 class="dt-h">The numbers</h3>
-      <dl class="dt-tiles dt-tiles-5">
-        <div class="dt-tile"><dt>Jobs logged</dt><dd>${m.sourceRecords}</dd><p>${m.recordedCompleted} completed · ${m.recordedOpen} open, as logged</p></div>
-        <div class="dt-tile${m.unique === null ? ' is-check' : ''}"><dt>Jobs after checking</dt><dd>${m.unique === null ? '—' : m.unique}</dd><p>${m.validated ? 'Double entry checked' : m.disclosed ? 'Not confirmed · noted' : 'After the double entry is checked'}</p></div>
-        <div class="dt-tile"><dt>Completed</dt><dd>${m.completed}</dd><p>${m.awaitingInvoice ? `${m.awaitingInvoice} not invoiced` : 'All invoiced'}</p></div>
-        <div class="dt-tile${m.open === null ? ' is-check' : ''}"><dt>Still open</dt><dd>${m.open === null ? '—' : m.open}</dd><p>${m.overdue ? `${m.overdue} late` : 'None late'}</p></div>
-        <div class="dt-tile${m.completionRate === null ? ' is-check' : ''}"><dt>Completion rate</dt><dd>${m.completionRate ?? '—'}</dd><p>${m.completionRate ? `${m.completed} of ${m.unique} jobs` : 'Shown once the job count is checked'}</p></div>
-      </dl>
-      <ul class="dt-bars" aria-label="Jobs completed by day">${m.daily.map((d) => `<li><span class="dt-bar-day">${esc(d.day)}</span><span class="dt-bar-track"><span class="dt-bar" data-w="${Math.round((d.completed / max) * 100)}"></span></span><span class="dt-bar-n">${d.completed}</span></li>`).join('')}</ul>
-      <h3 class="dt-h">What was found</h3>
-      <div class="dt-groups">${groups.map(([cat, list]) => `<div class="dt-group"><p class="dt-group-h"><span class="dt-cat is-${cat}">${esc(CATEGORIES[cat])}</span></p>${list.length ? `<ul>${list.map((f) => `<li><button type="button" class="dt-link" data-sel-go="${f.issue}">${esc(f.title)} · ${esc(f.ids.join(' / '))}</button> <span class="dt-reg-st is-${STATUS_CLASS[f.status]}">${esc(f.statusLabel)}</span></li>`).join('')}</ul>` : '<p>None.</p>'}</div>`).join('')}
-        <div class="dt-group"><p class="dt-group-h"><span class="dt-cat is-insight">${esc(CATEGORIES.insight)}</span></p><p>${esc(sm.insights[0])}</p></div></div>
-      <h3 class="dt-h">What it could mean</h3>
-      ${sm.implications.length ? `<ul class="dt-list">${sm.implications.map((x) => `<li>${esc(x.text)}</li>`).join('')}</ul>` : '<p class="dt-intro">Nothing left open after checking.</p>'}
-      <div class="dt-ai-split">
-        ${sm.facts.length ? `<div><p class="dt-k">Confirmed</p><ul class="dt-list">${sm.facts.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
-        ${sm.potential.length ? `<div><p class="dt-k">Possibly wrong</p><ul class="dt-list">${sm.potential.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
-        ${sm.exceptions.length ? `<div><p class="dt-k">Work to follow up</p><ul class="dt-list">${sm.exceptions.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
-        ${sm.unverified.length ? `<div><p class="dt-k">Not checked yet</p><ul class="dt-list">${sm.unverified.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+  // ---- Reports
+  function paintReports() {
+    const s = getState(); const m = metrics(s, { channel }); const all = metrics(s); const sm = summary(s); const open = openActions(s);
+    const max = Math.max(1, ...m.byDay.map((d) => d.completed));
+    const list = consolidated(s).filter((r) => !r.excluded && (channel === 'All' || r.channel === channel) && (listStatus === 'All' || (listStatus === 'Open' ? r.status !== 'Completed' : r.status === 'Completed')));
+    panel('reports').innerHTML = `
+      <div class="cw-filters">
+        <label>Channel <select data-filter="channel">${['All', ...CHANNELS].map((c) => `<option${c === channel ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+        <label>Requests shown <select data-filter="status">${['All', 'Open', 'Completed'].map((c) => `<option${c === listStatus ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+        <span class="dt-muted">Week of ${esc(fmtDate('2026-11-02'))} – ${esc(fmtDate('2026-11-06'))}</span>
       </div>
-      <h3 class="dt-h">Suggested next steps <span class="rl-ai">${esc(AI_LABEL)}</span></h3>
-      <p class="dt-intro">Suggestions for you to decide on. Nothing has been agreed or sent.</p>
-      <ul class="dt-list">${sm.recommendations.map((r) => `<li><strong>${esc(r.team)}:</strong> ${esc(r.text)}</li>`).join('')}</ul>
-      <h3 class="dt-h">Follow-up list</h3>
-      ${pub ? `<p class="dt-intro">Who could handle each item is a suggestion. Nothing has been sent to anyone.</p>
-      <div class="dt-table-wrap"><table class="dt-table dt-register"><caption>Follow-up list · approved, ${esc(PERIOD.label)}</caption>
-        <thead><tr><th scope="col">Item</th><th scope="col">Who could handle it</th><th scope="col">Next step</th><th scope="col">Status</th></tr></thead>
-        <tbody>${reg.map((r) => `<tr><td data-label="Item">${esc(r.finding)}</td><td data-label="Who could handle it">${esc(r.team)}</td><td data-label="Next step">${esc(r.action)}</td><td data-label="Status">${esc(r.status)}</td></tr>`).join('')}</tbody></table></div>`
-        : '<p class="dt-intro dt-locked">The follow-up list comes with the approved report. Approve the report to see it.</p>'}
-      <h3 class="dt-h">What you decided</h3>
-      ${s.log.length ? `<ol class="dt-log" reversed>${[...s.log].reverse().map((e) => `<li>${esc(LOG[e.type](e))}</li>`).join('')}</ol>` : '<p class="dt-intro">No decisions yet.</p>'}
-      <p class="dt-reset-p">${s.log.length ? '<button type="button" class="dt-link" data-act="reset">Run it again</button>' : ''}</p>`;
-    panel('summary').querySelectorAll('.dt-bar[data-w]').forEach((b) => b.style.setProperty('width', `${b.dataset.w}%`));
+      <dl class="dt-tiles dt-tiles-5">
+        <div class="dt-tile"><dt>Total requests</dt><dd>${m.requests}</dd><p>${m.duplicatePending ? 'One may be a duplicate' : channel === 'All' ? 'Duplicates checked' : esc(channel)}</p></div>
+        <div class="dt-tile"><dt>Open requests</dt><dd>${m.openRequests}</dd><p>${m.unassigned} with no owner</p></div>
+        <div class="dt-tile"><dt>Completed tasks</dt><dd>${m.completed}</dd><p>this week</p></div>
+        <div class="dt-tile${m.overdue ? ' is-check' : ''}"><dt>Outstanding tasks</dt><dd>${m.outstanding}</dd><p>${m.overdue} overdue</p></div>
+        <div class="dt-tile"><dt>Completed on time</dt><dd>${m.onTime === null ? '—' : `${m.onTime}%`}</dd><p>of completed tasks</p></div>
+      </dl>
+      <div class="cw-two">
+        <div><h3 class="dt-h">Tasks completed by day</h3>
+          <ul class="dt-bars" aria-label="Tasks completed by day">${m.byDay.map((d) => `<li><span class="dt-bar-day">${esc(d.day)}</span><span class="dt-bar-track"><span class="dt-bar" data-w="${Math.round((d.completed / max) * 100)}"></span></span><span class="dt-bar-n">${d.completed}</span></li>`).join('')}</ul></div>
+        <div><h3 class="dt-h">Needs attention <span class="dt-muted">(${all.attention})</span></h3>
+          ${open.length ? `<ul class="cw-att">${open.map((a) => `<li><button type="button" class="dt-link" data-go-action="${esc(a.id)}">${esc(a.title)} · ${esc(a.refs[0])}</button> <span class="dt-reg-st is-${STATUS_CLASS[a.status]}">${esc(a.status)}</span></li>`).join('')}</ul>` : '<p class="dt-intro">Nothing waiting right now.</p>'}</div>
+      </div>
+      <h3 class="dt-h">Management summary <span class="rl-ai">${esc(AI_LABEL)}</span></h3>
+      <div class="dt-exec">${sm.map((x) => `<p>${esc(x)}</p>`).join('')}</div>
+      <h3 class="dt-h">Requests (${list.length})</h3>
+      <div class="dt-table-wrap"><table class="dt-table"><caption>Requests${channel !== 'All' ? ` by ${esc(channel.toLowerCase())}` : ''}${listStatus !== 'All' ? `, ${esc(listStatus.toLowerCase())}` : ''}</caption>
+        <thead><tr><th scope="col">Request</th><th scope="col">Customer</th><th scope="col">Request type</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>
+        <tbody>${list.map((r) => `<tr><td data-label="Request">${esc(r.ref)}</td><td data-label="Customer">${r.customer ? esc(r.customer) : '<em class="dt-blank">unknown</em>'}</td><td data-label="Request type">${esc(r.type)}</td><td data-label="Owner">${cell(r.owner)}</td><td data-label="Due">${esc(fmtDate(r.due))}</td><td data-label="Status">${esc(r.status)}</td></tr>`).join('')}</tbody></table></div>`;
+    panel('reports').querySelectorAll('.dt-bar[data-w]').forEach((b) => b.style.setProperty('width', `${b.dataset.w}%`));
   }
 
+  // ---- Actions
+  function taskControls(a) {
+    const t = a.task; const done = t.status === 'Completed';
+    if (done) return '<p class="dt-sorted">Completed.</p>';
+    const reminded = getState().reminders.some((r) => r.task === t.id);
+    return `<div class="cw-ctl">
+      <label>Owner <select data-owner="${esc(t.id)}"><option value="">Nobody yet</option>${STAFF.map((p) => `<option${t.owner === p ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select></label>
+      <label>Status <select data-status="${esc(t.id)}"${t.owner ? '' : ' disabled'}>${['Not started', 'In progress', 'Completed'].map((x) => `<option${t.status === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+      <button type="button" class="btn btn-secondary btn-small" data-remind="${esc(t.id)}"${!t.owner || reminded ? ' disabled' : ''}>${reminded ? 'Reminder prepared' : 'Send a reminder'}</button>
+      ${t.owner ? '' : '<span class="dt-muted">Assign someone first.</span>'}
+    </div>`;
+  }
+  function paintActions() {
+    const s = getState(); const list = actions(s);
+    panel('actions').innerHTML = `
+      <p class="dt-intro">Items the checks and the work tracker flagged. Each shows where it came from, a suggested next step and who could handle it. Who handles it is a suggestion, not a confirmed assignment. Reminders are simulated: nothing is sent.</p>
+      <ul class="cw-actions">${list.map((a) => `<li class="cw-act" id="act-${esc(a.id)}">
+        <div class="cw-act-h"><h3>${esc(a.title)}</h3><span class="dt-reg-st is-${STATUS_CLASS[a.status]}">${esc(a.status)}</span></div>
+        <p>${esc(a.detail)}</p>
+        <dl class="cw-act-dl"><div><dt>Source</dt><dd>${esc(a.source)} · ${a.refs.map((r) => `<button type="button" class="dt-link" data-see="${esc(a.id)}" data-ref="${esc(r)}">${esc(r)}</button>`).join(' ')}</dd></div>
+          <div><dt>Suggested next step</dt><dd>${esc(a.next)}</dd></div><div><dt>Could be handled by</dt><dd>${esc(a.team)}</dd></div></dl>
+        ${a.kind === 'data' ? `<div class="cw-ctl">${a.choices.map(([v, l]) => `<button type="button" class="btn ${a.decision === v ? 'btn-primary' : 'btn-secondary'} btn-small" data-decide="${esc(a.id)}" data-choice="${esc(v)}" aria-pressed="${a.decision === v}">${esc(l)}</button>`).join('')}</div>` : taskControls(a)}
+      </li>`).join('')}</ul>
+      <details class="dt-evidence-box"><summary>What happened (${s.log.length})</summary>
+        ${s.log.length ? `<ol class="dt-log" reversed>${[...s.log].reverse().map((e) => `<li>${esc(e.text)}</li>`).join('')}</ol>` : '<p class="dt-intro">Nothing yet.</p>'}</details>`;
+  }
+
+  // ---- Workflows
+  function cardHtml(r) {
+    const t = r.t; const stage = stageOf(t); const reminded = getState().reminders.some((x) => x.task === t.id);
+    let ctl = '';
+    if (stage === 'Request received') ctl = `<button type="button" class="btn btn-secondary btn-small" data-wf="review" data-task="${esc(t.id)}">Mark reviewed</button>`;
+    else if (stage === 'Reviewed') ctl = `<label class="cw-mini">Assign <select data-owner="${esc(t.id)}"><option value="">Choose…</option>${STAFF.map((p) => `<option>${esc(p)}</option>`).join('')}</select></label>`;
+    else if (stage === 'Assigned') ctl = `<button type="button" class="btn btn-secondary btn-small" data-wf="start" data-task="${esc(t.id)}">Start</button>`;
+    else if (stage === 'In progress') ctl = `<button type="button" class="btn btn-secondary btn-small" data-wf="done" data-task="${esc(t.id)}">Complete</button>`;
+    const remindBtn = ['Assigned', 'In progress'].includes(stage) ? `<button type="button" class="dt-link cw-remind" data-remind="${esc(t.id)}"${reminded ? ' disabled' : ''}>${reminded ? 'Reminder prepared' : 'Remind'}</button>` : '';
+    const late = t.status !== 'Completed' && t.due < '2026-11-06';
+    return `<li class="cw-card${r.added ? ' is-new' : ''}${late ? ' is-late' : ''}"><p class="cw-card-h"><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : '<em class="dt-blank">customer unknown</em>'}</p>
+      <p class="cw-card-m">${esc(r.type)}${t.owner ? ` · ${esc(t.owner)}` : ''}${late ? ' · <span class="cw-late">overdue</span>' : ''}</p>${ctl || remindBtn ? `<div class="cw-card-c">${ctl}${remindBtn}</div>` : ''}</li>`;
+  }
+  function paintWorkflows() {
+    const s = getState(); const cols = board(s); const full = s.added.length >= 5;
+    panel('workflows').innerHTML = `
+      <form class="cw-form" data-form novalidate>
+        <p class="dt-k">Submit a sample request <span>It goes into the Requests Register, creates a task, and shows up in Data, Reports and Actions.</span></p>
+        <div class="cw-form-f">
+          <label>Customer <select name="customer">${CUSTOMERS.map((c) => `<option>${esc(c)}</option>`).join('')}</select></label>
+          <label>Request <select name="type">${REQUEST_TYPES.map((c) => `<option>${esc(c)}</option>`).join('')}</select></label>
+          <label>Channel <select name="channel">${CHANNELS.map((c) => `<option>${esc(c)}</option>`).join('')}</select></label>
+          <button type="submit" class="btn btn-primary btn-small"${full ? ' disabled' : ''}>Submit request</button>
+        </div>
+        ${note ? `<p class="dt-sorted" role="status">${note}</p>` : ''}
+      </form>
+      <ol class="cw-board">${cols.map((c) => `<li class="cw-col${c.stage === 'Completed' ? ' cw-col-done' : ''}"><h3>${esc(c.stage)} <span class="dt-count">${c.items.length}</span></h3>
+        <ul>${c.items.map(cardHtml).join('') || '<li class="cw-empty">Nothing here</li>'}</ul></li>`).join('')}</ol>
+      <p class="dt-intro">Reminders are simulated: they're logged here, and nothing is sent.</p>`;
+  }
+
+  // ---- Shell
   function paintHead() {
-    const s = getState(); const st = status(s);
-    const tag = root.querySelector('[data-status]');
-    tag.textContent = st; tag.dataset.tag = st;
-    const open = findings(s).filter((f) => !CLOSED.includes(f.status)).length;
-    root.querySelector('[data-count]').textContent = open ? `${open} open` : 'reviewed';
-    root.querySelectorAll('.dt-tab').forEach((b) => { const on = b.dataset.tab === tab; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
-    TABS.forEach(([id]) => { panel(id).hidden = id !== tab; });
+    const n = openActions(getState()).length;
+    root.querySelector('[data-count]').textContent = n ? `${n}` : '0';
+    root.querySelectorAll('.dt-tab').forEach((b) => { const on = b.dataset.tab === view; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
+    VIEWS.forEach(([id]) => { panel(id).hidden = id !== view; });
   }
   function paint() {
-    paintHead();
-    if (tab === 'findings') paintFindings();
-    if (tab === 'sources') paintSources();
-    if (tab === 'summary') paintSummary();
+    paintOverview(); paintHead();
+    ({ data: paintData, reports: paintReports, actions: paintActions, workflows: paintWorkflows })[view]();
+  }
+  function show(to, opts = {}) {
+    if (!VIEWS.some(([id]) => id === to)) return;
+    if (to !== view && to !== 'data') focus = null;
+    view = to; paint();
+    if (opts.focusTab) root.querySelector(`#dt-tab-${to}`)?.focus();
   }
 
-  function show(to, issue, focus = false) {
-    if (!TABS.some(([id]) => id === to)) return;
-    tab = to;
-    if (to !== 'sources') viewing = null;
-    if (issue && ISSUE_IDS.includes(issue)) sel = issue;
-    paint();
-    if (focus === 'tab') root.querySelector(`#dt-tab-${to}`)?.focus();
-    else if (focus) (panel(to).querySelector('.dt-detail, .dt-why') || panel(to)).focus({ preventScroll: true });
-  }
-
-  root.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-tab]');
-    if (t) { show(t.dataset.tab); return; }
-    const go = e.target.closest('[data-tab-go]');
-    if (go) { show(go.dataset.tabGo, null, 'tab'); return; }
-    const view = e.target.closest('[data-view]');
-    if (view) { viewing = { ref: view.dataset.view, issue: sel }; tab = 'sources'; paint(); panel('sources').querySelector('.dt-why')?.setAttribute('tabindex', '-1'); panel('sources').querySelector('.dt-why')?.focus({ preventScroll: true }); say(`Sources: ${view.dataset.view} highlighted.`); return; }
-    if (e.target.closest('[data-back]')) { const back = viewing?.issue; show('findings', back, true); return; }
-    const sg = e.target.closest('[data-sel-go]');
-    if (sg) { show('findings', sg.dataset.selGo, true); return; }
-    const pick = e.target.closest('[data-sel]');
-    if (pick) { sel = pick.dataset.sel; paint(); panel('findings').querySelector('.dt-detail')?.focus({ preventScroll: true }); return; }
-    const choice = e.target.closest('[data-choice]');
-    if (choice) {
-      const opt = choice.closest('[data-opt]'); const c = choice.dataset.choice;
-      const details = {}; opt.querySelectorAll('[data-field]').forEach((x) => { details[x.dataset.field] = x.value; });
-      const was = getState().decisions[sel];
-      const toggle = was && !was.invalidated && was.choice === c && !opt.querySelector('[data-field]');
-      const f0 = findings(getState()).find((x) => x.issue === sel);
-      const ok = setDecision(sel, toggle ? null : c, details);
-      const err = panel('findings').querySelector('[data-err]');
-      if (!ok) {
-        const need = f0.choices.find((x) => x.value === c)?.needs ?? [];
-        const msg = need.includes('owner') && !STAFF.includes(details.owner) ? `Choose who: ${STAFF.join(', ')}.` : need.includes('next') && !String(details.next ?? '').trim() ? 'Add the next step.' : need.includes('note') ? (c === 'disclose' ? 'Add the note the report should show.' : 'Add a short note: who dealt with it, and how.') : 'Nothing changed.';
-        if (err) { err.hidden = false; err.textContent = msg; }
-        say(msg); opt.querySelector('[data-field]')?.focus(); return;
-      }
-      const f = findings(getState()).find((x) => x.issue === sel);
-      say(`${f.decision ? f.consequence : 'Decision cleared.'} Status: ${f.statusLabel}. Report: ${status(getState())}.`);
-      panel('findings').querySelector(`[data-choice="${c}"]`)?.focus();
-      return;
-    }
-    const act = e.target.closest('[data-act]');
-    if (act?.dataset.act === 'publish') { confirming = true; paintSummary(); panel('summary').querySelector('[data-act="approve"]')?.focus(); return; }
-    if (act?.dataset.act === 'cancel') { confirming = false; paintSummary(); panel('summary').querySelector('[data-act="publish"]')?.focus(); return; }
-    if (act?.dataset.act === 'approve') { confirming = false; if (publish()) { say('Report approved. Simulated: nothing was sent.'); panel('summary').focus(); } return; }
-    if (act?.dataset.act === 'reset') { reset(); sel = ISSUE_IDS[0]; viewing = null; confirming = false; show('findings', sel, true); say('Started again. 4 things to check.'); }
+  root.addEventListener('submit', (e) => {
+    const f = e.target.closest('[data-form]'); if (!f) return; e.preventDefault();
+    const d = Object.fromEntries(new FormData(f));
+    const before = getState().added.length;
+    submitRequest(d);
+    const a = getState().added[before];
+    note = a ? `${esc(a.request.id)} added to the Requests Register and task ${esc(a.task.id)} created. It's now in <button type="button" class="dt-link" data-tab="data">Data</button>, <button type="button" class="dt-link" data-tab="reports">Reports</button> and <button type="button" class="dt-link" data-tab="actions">Actions</button>.` : 'The sample is limited to five new requests. Reset the demo to start again.';
+    paintWorkflows(); say(note.replace(/<[^>]+>/g, ''));
   });
-  root.addEventListener('toggle', (e) => { if (e.target.matches?.('.dt-evidence-box')) evidenceOpen = e.target.open; }, true);
+  root.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.matches('[data-filter="channel"]')) { channel = t.value; paintReports(); return; }
+    if (t.matches('[data-filter="status"]')) { listStatus = t.value; paintReports(); return; }
+    if (t.matches('[data-owner]') && t.value) { const id = t.dataset.owner; const who = t.value; if (view === 'workflows') note = esc(`${id} assigned to ${who}.`); assign(id, who); say(`${id} assigned to ${who}.`); root.querySelector(`[data-owner="${id}"]`)?.focus(); return; }
+    if (t.matches('[data-status]')) { const id = t.dataset.status; setStatus(id, t.value); say(`${id} marked ${t.value.toLowerCase()}.`); root.querySelector(`[data-status="${id}"]`)?.focus(); }
+  });
+  root.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab]');
+    if (tab) { show(tab.dataset.tab, { focusTab: tab.classList.contains('dt-tab') }); if (!tab.classList.contains('dt-tab')) panel(tab.dataset.tab).focus({ preventScroll: false }); return; }
+    const sg = e.target.closest('[data-src]');
+    if (sg) { src = sg.dataset.src; focus = null; paintData(); return; }
+    const see = e.target.closest('[data-see]');
+    if (see) {
+      const a = actions(getState()).find((x) => x.id === see.dataset.see); const ref = see.dataset.ref;
+      src = ref.startsWith('TX-') ? 'transactions' : ref.startsWith('T-') ? 'tasks' : (a.kind === 'data' ? 'requests' : 'combined');
+      focus = { refs: a.refs.concat(ref), title: `${a.title}: ${ref}`, why: a.detail };
+      view = 'data'; paint(); panel('data').querySelector('.dt-why')?.focus({ preventScroll: true });
+      say(`Data: ${ref} highlighted in the ${src === 'combined' ? 'combined records' : SOURCES.find((x) => x.id === src).name}.`); return;
+    }
+    const ga = e.target.closest('[data-go-action]');
+    if (ga) { show('actions'); const el = panel('actions').querySelector(`#act-${CSS.escape(ga.dataset.goAction)}`); el?.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); el?.querySelector('button, select')?.focus({ preventScroll: true }); return; }
+    const dc = e.target.closest('[data-decide]');
+    if (dc) { const id = dc.dataset.decide; decide(id, dc.dataset.choice); const a = actions(getState()).find((x) => x.id === id); say(`${a.title}: ${a.status}. Figures updated.`); panel('actions').querySelector(`[data-decide="${id}"][data-choice="${dc.dataset.choice}"]`)?.focus(); return; }
+    const rm = e.target.closest('[data-remind]');
+    if (rm) { const id = rm.dataset.remind; const ok = remind(id); const msg = ok ? `Reminder prepared for ${taskOwner(id)} about ${id}. Simulated: nothing was sent.` : 'No reminder needed.'; if (view === 'workflows') { note = esc(msg); paintWorkflows(); } say(msg); return; }
+    const wf = e.target.closest('[data-wf]');
+    if (wf) {
+      const id = wf.dataset.task; const act = wf.dataset.wf;
+      if (act === 'review') review(id); if (act === 'start') setStatus(id, 'In progress'); if (act === 'done') setStatus(id, 'Completed');
+      note = esc(`${id}: ${stageOf(currentTask(id))}.`); paintWorkflows(); say(`${id} moved to ${stageOf(currentTask(id)).toLowerCase()}.`); return;
+    }
+    if (e.target.closest('[data-act="reset"]')) { reset(); view = 'data'; src = 'combined'; focus = null; channel = 'All'; listStatus = 'All'; note = ''; paint(); say('Demo reset to the original records.'); }
+  });
+  const currentTask = (id) => { const s = getState(); const all = [...TASKS, ...s.added.map((a) => a.task)].find((t) => t.id === id); return taskFor(s, all.request); };
+  const taskOwner = (id) => currentTask(id)?.owner ?? '';
   root.querySelector('.dt-tabs').addEventListener('keydown', (e) => {
     const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-    const i = TABS.findIndex(([id]) => id === tab);
-    if (e.key in keys) { e.preventDefault(); show(TABS[(i + keys[e.key] + TABS.length) % TABS.length][0], null, 'tab'); }
-    else if (e.key === 'Home') { e.preventDefault(); show(TABS[0][0], null, 'tab'); }
-    else if (e.key === 'End') { e.preventDefault(); show(TABS[TABS.length - 1][0], null, 'tab'); }
+    const i = VIEWS.findIndex(([id]) => id === view);
+    if (e.key in keys) { e.preventDefault(); show(VIEWS[(i + keys[e.key] + VIEWS.length) % VIEWS.length][0], { focusTab: true }); }
+    else if (e.key === 'Home') { e.preventDefault(); show(VIEWS[0][0], { focusTab: true }); }
+    else if (e.key === 'End') { e.preventDefault(); show(VIEWS[VIEWS.length - 1][0], { focusTab: true }); }
   });
 
-  subscribe(() => { confirming = false; paint(); });
+  subscribe(() => paint());
   paint();
-  return { show: (to, issue) => show(to, issue), get tab() { return tab; } };
+  return { show: (to) => show(to), get tab() { return view; } };
 }

@@ -7,7 +7,7 @@ import { WEEK } from './demo/data.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 import { mountServices } from './services.js';
-import { mountPreviews } from './previews.js';
+import { mountSamples } from './samples.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -51,7 +51,7 @@ export function mountMobileCta() {
 // ---- Start the homepage
 const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
-mountPreviews();
+mountSamples();
 mountServices();
 mountMotion();
 mountBooking();
@@ -69,8 +69,8 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero card: the automated weekly report, sharing one review state with the live example (src/demo/hero.js).
-mountHero(document.getElementById('hero-report'), demo);
+// Hero: the connected workspace illustration, following the same state as the main demo (src/demo/hero.js).
+mountHero(document.getElementById('hero-visual'));
 
 // The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.
 document.querySelectorAll('[data-week]').forEach((el) => { el.textContent = WEEK; });

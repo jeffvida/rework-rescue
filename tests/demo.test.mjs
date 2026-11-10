@@ -1,367 +1,294 @@
-// Management reporting demo tests (spec 10 Nov 2026). Every figure the hero, Findings, Sources, the Management Summary,
-// the published report, the action register and the Data & Reporting output sample show comes from
-// src/demo/engine.js working on src/demo/data.js. Numbered comments map to the spec's acceptance list (14.1–14.20).
+// Tests for the connected-workspace demo, the hero illustration and the three service samples (master brief,
+// 10 Nov 2026). Every figure the hero, Data, Reports, Actions, Workflows and the workspace overview show comes from
+// src/demo/engine.js working on src/demo/data.js; the service samples run on their own small datasets in src/samples.js.
+// Numbered comments refer to the brief's acceptance criteria (18.1–18.31).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import * as DATA from '../src/demo/data.js';
-import { WORK, INVOICES, REQUESTS, SOURCES, ISSUES, STAFF } from '../src/demo/data.js';
+import { REQUESTS, TASKS, TRANSACTIONS, SOURCES, STAFF } from '../src/demo/data.js';
 import {
-  initialState, sourceCounts, runChecks, qualityChecks, totalsChecks, metrics, findings, decide, canDecide, statusOf, basisOf,
-  blockers, disclosures, readiness, publish, status, summary, actionRegister, heroCard, published, workingWork, attentionCount,
-  toIso, dayOf, ISSUE_IDS, STATUS_LABELS, CLOSED, AI_LABEL,
+  initialState, sourceCounts, runChecks, checkList, consolidated, actions, openActions, decide, assign, setStatus, review, remind,
+  submitRequest, stageOf, board, metrics, summary, overview, taskFor, toIso, toRef, dayOf, STAGES, ACTION_STATUSES, AI_LABEL,
 } from '../src/demo/engine.js';
+import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = () => readFile(new URL('../assets/styles.css', import.meta.url), 'utf8');
-const with_ = (...steps) => steps.reduce((s, [i, c, d]) => (c === null || c === undefined ? s : decide(s, i, c, d)), initialState());
-// One full review: duplicate excluded, invoicing outstanding, overdue confirmed, W-1056 assigned to Ana.
-const reviewed = () => with_(['duplicate', 'exclude'], ['invoice', 'outstanding'], ['overdue', 'confirm'], ['owner', 'assign', { owner: 'Ana', next: 'Call the customer' }]);
-const st = (s) => Object.fromEntries(ISSUE_IDS.map((i) => [i, statusOf(s, i)]));
+const src = (f) => readFile(new URL(`../src/${f}`, import.meta.url), 'utf8');
+const sample = (s) => submitRequest(s, { customer: 'Oakline Studio', type: 'Quote request', channel: 'Email' });
 
-// ---- Dataset (14.3, 14.4, 14.5)
+// ---- One shared dataset (18.11, 18.12)
 
-test('three sources: Work Register 18, Invoice Tracker 7, Customer Requests 10; unique references; frozen', () => {
-  assert.deepEqual(sourceCounts(), { work: 18, invoices: 7, requests: 10, total: 35, sources: 3 });
-  assert.deepEqual(SOURCES.map((x) => x.name), ['Work Register', 'Invoice Tracker', 'Customer Requests']);
-  const ids = [...WORK, ...INVOICES, ...REQUESTS].map((r) => r.id);
-  assert.equal(new Set(ids).size, ids.length);
-  for (const a of [WORK, INVOICES, REQUESTS]) { assert.ok(Object.isFrozen(a) && a.every(Object.isFrozen)); }
-  assert.throws(() => { WORK[0].status = 'Open'; });
+test('three industry-neutral sources: Requests Register 12, Work Tracker 12, Records & Transactions 9; frozen originals', () => {
+  assert.deepEqual(sourceCounts(), { requests: 12, tasks: 12, transactions: 9, total: 33, sources: 3 });
+  assert.deepEqual(SOURCES.map((x) => x.name), ['Requests Register', 'Work Tracker', 'Records & Transactions']);
+  for (const a of [REQUESTS, TASKS, TRANSACTIONS]) assert.ok(Object.isFrozen(a) && a.every(Object.isFrozen));
+  assert.throws(() => { TASKS[0].owner = 'X'; });
+  const text = JSON.stringify(DATA);
+  assert.doesNotMatch(text, /\b(we|our|us)\b/i);
+  assert.doesNotMatch(text, /sales|repair|technician|plumb|solar|meter|utility|facilit|maintenance|jobs?\b/i, 'no single industry');
+  assert.doesNotMatch(text, /[$₱€£]/);
 });
 
-test('14.3–14.5: 18 records, 7 recorded completed and 11 open; completions Mon 1, Tue 2, Wed 1, Thu 2, Fri 1 = 7', () => {
-  const m = metrics();
-  assert.deepEqual([m.sourceRecords, m.recordedCompleted, m.recordedOpen], [18, 7, 11]);
-  assert.deepEqual(m.daily.map((d) => [d.day, d.completed]), [['Mon', 1], ['Tue', 2], ['Wed', 1], ['Thu', 2], ['Fri', 1]]);
-  assert.equal(m.dailyTotal, 7);
-  // calculated from the records themselves
-  assert.equal(WORK.filter((w) => w.status === 'Completed').length, 7);
-  for (const d of m.daily) assert.equal(WORK.filter((w) => w.completed && dayOf(w.completed) === d.day).length, d.completed, d.day);
-  assert.equal(m.unique, null, 'unique work items are not claimed before the duplicate is reviewed');
-  assert.equal(m.completionRate, null);
+test('standardising: three date formats and two reference formats line up; originals untouched', () => {
+  assert.equal(toIso('03/11/2026'), '2026-11-03'); assert.equal(toIso('2026-11-03'), '2026-11-03'); assert.equal(toIso('Tue 3 Nov'), '2026-11-03');
+  assert.equal(toIso('Wed 3 Nov'), ''); assert.equal(toRef('R101'), 'R-101'); assert.equal(toRef('R-101'), 'R-101');
+  assert.ok(TRANSACTIONS.every((t) => /^R\d+$/.test(t.request)), 'records keep their own reference format');
 });
 
-test('each source keeps its own date format; consolidation standardises them without changing the originals', () => {
-  assert.equal(toIso('2026-11-03'), '2026-11-03'); assert.equal(toIso('03/11/2026'), '2026-11-03'); assert.equal(toIso('Tue 3 Nov'), '2026-11-03');
-  assert.equal(toIso('31/02/2026'), ''); assert.equal(toIso('Wed 3 Nov'), '', 'wrong weekday is invalid');
-  assert.ok(INVOICES.every((i) => /^\d{2}\/\d{2}\/\d{4}$/.test(i.date)));
-  assert.ok(REQUESTS.every((r) => /^\w{3} \d{1,2} Nov$/.test(r.received)));
-});
-
-// ---- Detection (14.6–14.9) and data quality
-
-test('detection finds exactly the four demonstration findings and nothing else', () => {
-  assert.deepEqual(runChecks(), { duplicates: [['W-1043', 'W-1051']], unmatched: ['W-1047'], overdue: ['W-1055'], unowned: ['W-1056'] });
-  assert.deepEqual(findings().map((f) => [f.issue, f.ids.join('/')]), [['duplicate', 'W-1043/W-1051'], ['invoice', 'W-1047'], ['overdue', 'W-1055'], ['owner', 'W-1056']]);
-});
-
-test('duplicate detection matches on customer, address, job type and scheduled date even though references differ', () => {
-  const [a, b] = ['W-1043', 'W-1051'].map((id) => WORK.find((w) => w.id === id));
-  for (const k of ['customer', 'address', 'jobType', 'scheduled']) assert.equal(a[k], b[k], k);
-  assert.notEqual(a.id, b.id); assert.equal(a.request, b.request);
-});
-
-test('E. data quality: seven checks run on the original sources and all pass; none changes a value', () => {
-  const snap = JSON.stringify([WORK, INVOICES, REQUESTS]);
-  const q = qualityChecks();
-  assert.deepEqual(q.map((c) => c.id), ['required', 'dates', 'ids', 'status', 'customers', 'formats', 'links']);
-  assert.ok(q.every((c) => c.pass));
-  assert.equal(JSON.stringify([WORK, INVOICES, REQUESTS]), snap);
-});
-
-// ---- Classification and statuses (8)
-
-test('every finding has a plain type (technical term kept), a gate type, a suggested team and starts as "To check"', () => {
-  assert.deepEqual(findings().map((f) => f.categoryTerm), ['Data integrity issue', 'Reconciliation issue', 'Operational exception', 'Operational exception']);
-  assert.deepEqual(findings().map((f) => f.title), ['Possible double entry', 'Finished job not invoiced', 'Late job', 'No one assigned']);
-  assert.deepEqual(findings().map((f) => [f.categoryLabel, f.blocking, f.team, f.statusLabel]), [
-    ['Affects the numbers', true, 'Admin', 'To check'],
-    ['Files don’t match', false, 'Finance', 'To check'],
-    ['Work to follow up', false, 'Operations', 'To check'],
-    ['Work to follow up', false, 'Operations', 'To check'],
+test('18.14 checks report only what the configured rules find in these records', () => {
+  assert.deepEqual(runChecks(), { duplicates: [['R-104', 'R-109']], missing: ['R-111'], unmatched: ['TX-309'], badDates: [] });
+  assert.deepEqual(checkList().map((c) => [c.label, c.ok]), [
+    ['Loaded 12 requests, 12 tasks and 9 records from 3 sources', true],
+    ['Dates standardised from 3 different formats', true],
+    ['References matched: 8 of 9 records linked to a request', false],
+    ['Required fields: 1 request with a blank customer', false],
+    ['Possible duplicates: 1 pair to check', false],
   ]);
-  assert.deepEqual(Object.values(STATUS_LABELS).slice(0, 5), ['To check', 'Fixed', 'Confirmed OK', 'Needs action', 'Noted in the report']);
 });
 
-test('each finding shows what, why, source reference, supporting data, AI possible explanation and investigation steps', () => {
-  for (const f of findings()) {
-    for (const k of ['detected', 'matters', 'source', 'ai']) assert.ok(f[k]?.length > 10, `${f.issue} ${k}`);
-    assert.ok(f.supporting.length >= 2 && f.investigate.length >= 2, f.issue);
-    for (const ref of Object.values(f.refs).flat()) assert.ok([...WORK, ...INVOICES, ...REQUESTS].some((r) => r.id === ref), `${f.issue} ref ${ref} exists`);
-    assert.match(f.ai, /^Possible explanation:/); assert.match(f.ai, /\b(may|likely but not confirmed)\b/);
-  }
+test('combined records: one row per request with its task and linked records; unknown values stay unknown', () => {
+  const rows = consolidated();
+  assert.equal(rows.length, 12);
+  const r111 = rows.find((r) => r.ref === 'R-111');
+  assert.deepEqual([r111.customer, r111.customerNote, r111.records], ['', 'unknown: needs confirming', ['TX-307']]);
+  assert.deepEqual(rows.find((r) => r.ref === 'R-102').records, ['TX-302', 'TX-303']);
+  assert.ok(!rows.some((r) => r.records.includes('TX-309')), 'the unmatched record is not attached to anything');
+  for (const r of rows) assert.equal(r.task, TASKS.find((t) => t.request === r.ref).id);
 });
 
-test('opening or viewing a finding never changes its status; only a decision does', () => {
-  const s = initialState(); findings(s); workingWork(s); readiness(s);
-  assert.deepEqual(Object.values(st(s)), ['investigate', 'investigate', 'investigate', 'investigate']);
+// ---- Reports (18.13)
+
+test('report figures are calculated from the combined records', () => {
+  const m = metrics();
+  assert.deepEqual([m.requests, m.duplicatePending, m.openRequests, m.completed, m.outstanding, m.overdue, m.unassigned, m.onTime, m.attention], [12, true, 6, 6, 6, 1, 1, 100, 5]);
+  assert.deepEqual(m.byDay.map((d) => d.completed), [1, 2, 1, 1, 1]);
+  assert.equal(m.completed, TASKS.filter((t) => t.status === 'Completed').length);
+  for (const d of m.byDay) assert.equal(TASKS.filter((t) => t.completed && dayOf(t.completed) === d.day).length, d.completed, d.day);
+  const phone = metrics(initialState(), { channel: 'Phone' });
+  assert.equal(phone.requests, REQUESTS.filter((r) => r.channel === 'Phone').length);
+  assert.equal(metrics().byChannel.reduce((t, c) => t + c.count, 0), 12);
 });
 
-// ---- Reviewer decisions (14.6–14.9, 14.11)
+// ---- Actions and decisions (18.13, 18.16)
 
-test('14.6: confirming the duplicate excludes W-1051 from unique counts, keeps the record and recalculates', () => {
-  const s = with_(['duplicate', 'exclude']);
-  const m = metrics(s);
-  assert.deepEqual([m.sourceRecords, m.unique, m.completed, m.open, m.completionRate], [18, 17, 7, 10, '41%']);
-  assert.equal(workingWork(s).length, 18, 'the record is kept');
-  assert.deepEqual(workingWork(s).filter((w) => w.excluded).map((w) => w.id), ['W-1051']);
-  assert.equal(statusOf(s, 'duplicate'), 'resolved');
-  const sep = metrics(with_(['duplicate', 'separate']));
-  assert.deepEqual([sep.unique, sep.open, sep.completionRate, statusOf(with_(['duplicate', 'separate']), 'duplicate')], [18, 11, '39%', 'legitimate']);
-  const dis = with_(['duplicate', 'disclose', { note: 'Possible duplicate still being checked' }]);
-  assert.deepEqual([metrics(dis).unique, metrics(dis).completionRate, statusOf(dis, 'duplicate')], [18, null, 'disclosed']);
-  assert.equal(canDecide(initialState(), 'duplicate', 'disclose', { note: ' ' }).ok, false, 'a disclosure needs its wording');
+test('actions: five items, each with source, suggested next step, suggested responsibility and a practical status', () => {
+  const a = actions();
+  assert.deepEqual(a.map((x) => [x.id, x.title, x.status]), [
+    ['duplicate', 'Possible duplicate request', 'Needs checking'], ['missing', 'Request with no customer', 'Needs checking'],
+    ['unmatched', 'Record with no matching request', 'Needs checking'], ['T-206', 'Overdue task', 'In progress'], ['T-210', 'Task with no owner', 'Needs checking'],
+  ]);
+  for (const x of a) { assert.ok(x.next && x.team && x.source && x.refs.length, x.id); assert.ok(ACTION_STATUSES.includes(x.status)); }
+  const ids = new Set([...REQUESTS, ...TASKS, ...TRANSACTIONS].map((r) => r.id));
+  for (const ref of a.flatMap((x) => x.refs)) assert.ok(ids.has(ref), ref);
 });
 
-test('14.7: reconciliation — link INV-2107 (resolved), invoicing outstanding (action required) or leave unresolved', () => {
-  const link = with_(['invoice', 'link']);
-  assert.deepEqual([statusOf(link, 'invoice'), runChecks(link).unmatched, metrics(link).awaitingInvoice], ['resolved', [], 0]);
-  assert.equal(INVOICES.find((i) => i.id === 'INV-2107').work, '', 'the invoice record itself is not edited');
-  assert.equal(statusOf(with_(['invoice', 'outstanding']), 'invoice'), 'action');
-  assert.equal(statusOf(with_(['invoice', 'leave']), 'invoice'), 'investigate');
+test('decisions change the shared figures: duplicate counted once, customer filled from its record, record linked', () => {
+  const s = decide(initialState(), 'duplicate', 'same');
+  assert.deepEqual([metrics(s).requests, metrics(s).duplicatePending, consolidated(s).length], [11, false, 12]);
+  assert.ok(consolidated(s).find((r) => r.ref === 'R-109').excluded);
+  assert.ok(!board(s).flatMap((c) => c.items).some((r) => r.ref === 'R-109'));
+  assert.equal(metrics(decide(initialState(), 'duplicate', 'separate')).requests, 12);
+  const f = decide(initialState(), 'missing', 'fill');
+  assert.deepEqual([consolidated(f).find((r) => r.ref === 'R-111').customer, REQUESTS.find((r) => r.id === 'R-111').customer], ['Harbour & Co.', '']);
+  assert.equal(actions(decide(initialState(), 'missing', 'unknown')).find((x) => x.id === 'missing').status, 'Waiting for follow-up');
+  const l = decide(initialState(), 'unmatched', 'link');
+  assert.deepEqual(consolidated(l).find((r) => r.ref === 'R-107').records, ['TX-306', 'TX-308', 'TX-309']);
+  assert.equal(TRANSACTIONS.find((t) => t.id === 'TX-309').request, 'R115', 'the original record is unchanged');
 });
 
-test('14.8: overdue — confirm (action required), correct the due date from R-308 (resolved, original kept), or assign a follow-up', () => {
-  assert.equal(statusOf(with_(['overdue', 'confirm']), 'overdue'), 'action');
-  const fix = with_(['overdue', 'correctDate']);
-  const w = workingWork(fix).find((x) => x.id === 'W-1055');
-  assert.deepEqual([w.due, w.changes[0].from, w.changes[0].evidence, statusOf(fix, 'overdue'), runChecks(fix).overdue], ['2026-11-13', '2026-11-04', 'R-308', 'resolved', []]);
-  assert.equal(WORK.find((x) => x.id === 'W-1055').due, '2026-11-04');
-  assert.equal(canDecide(initialState(), 'overdue', 'assign', {}).ok, false);
-  const a = with_(['overdue', 'assign', { owner: 'Carla' }]);
-  assert.deepEqual([statusOf(a, 'overdue'), runChecks(a).overdue], ['action', ['W-1055']], 'a follow-up does not make it on time');
-});
-
-test('14.9: ownership — assign needs a person and next action; handled needs an explanation; leave = action required', () => {
-  assert.equal(canDecide(initialState(), 'owner', 'assign', { owner: 'Ana' }).ok, false);
-  assert.equal(canDecide(initialState(), 'owner', 'assign', { owner: 'Zed', next: 'x' }).ok, false);
-  assert.equal(canDecide(initialState(), 'owner', 'handled', { note: '' }).ok, false);
-  const a = with_(['owner', 'assign', { owner: 'Ana', next: 'Call the customer' }]);
-  assert.deepEqual([statusOf(a, 'owner'), runChecks(a).unowned], ['resolved', []]);
-  const h = with_(['owner', 'handled', { note: 'Ben called them Thu' }]);
-  assert.deepEqual([statusOf(h, 'owner'), runChecks(h).unowned], ['resolved', []]);
-  assert.equal(statusOf(with_(['owner', 'leave']), 'owner'), 'action');
-  assert.deepEqual(STAFF, ['Ana', 'Ben', 'Carla']);
-});
-
-// ---- Publication gate (14.15–14.18)
-
-test('14.15: the unresolved duplicate blocks publication; publish() is refused and the reason is explained', () => {
+test('task actions: an owner first; status changes update every view; reminders are simulated and logged', () => {
   const s0 = initialState();
-  assert.equal(status(s0), 'Awaiting review');
-  assert.equal(publish(s0), s0);
-  assert.equal(blockers(s0).length, 1);
-  assert.match(blockers(s0)[0].text, /Possible double entry \(W-1043 \/ W-1051\): it changes how many jobs the report counts/);
-  // operational decisions alone never unblock it
-  const ops = with_(['invoice', 'link'], ['overdue', 'correctDate'], ['owner', 'assign', { owner: 'Ben', next: 'Call' }]);
-  assert.equal(readiness(ops).ready, false);
-  assert.equal(published(publish(ops)), null);
+  assert.equal(setStatus(s0, 'T-210', 'In progress'), s0, 'nobody owns it yet');
+  assert.equal(assign(s0, 'T-210', 'Zed'), s0);
+  const a = assign(s0, 'T-210', 'Ana');
+  assert.deepEqual([taskFor(a, 'R-110').owner, actions(a).find((x) => x.id === 'T-210').status, metrics(a).unassigned], ['Ana', 'Assigned', 0]);
+  const done = setStatus(setStatus(a, 'T-210', 'In progress'), 'T-210', 'Completed');
+  const m = metrics(done);
+  assert.deepEqual([m.completed, m.openRequests, m.byDay.at(-1).completed, actions(done).find((x) => x.id === 'T-210').status], [7, 5, 2, 'Completed']);
+  assert.equal(TASKS.find((t) => t.id === 'T-210').status, 'Not started');
+  const r = remind(s0, 'T-206');
+  assert.equal(actions(r).find((x) => x.id === 'T-206').status, 'Waiting for follow-up');
+  assert.match(r.log.at(-1).text, /Reminder prepared for Ben about T-206 \(simulated: nothing was sent\)/);
+  assert.equal(remind(r, 'T-206'), r, 'one reminder');
+  assert.equal(remind(s0, 'T-210'), s0, 'no reminder without an owner');
 });
 
-test('14.16: operational exceptions do not block; they are disclosed in the published report', () => {
-  const s = with_(['duplicate', 'exclude']);
-  assert.equal(status(s), 'Ready to approve');
-  assert.deepEqual(disclosures(s).map((d) => [d.issue, d.label]), [['invoice', 'To check'], ['overdue', 'To check'], ['owner', 'To check']]);
-  const p = publish(s);
-  assert.equal(status(p), 'Approved');
-  assert.deepEqual(published(p).disclosures.map((d) => d.issue), ['invoice', 'overdue', 'owner']);
-  assert.match(p.log.at(-1).reason, /It notes 3 open items/);
-  const dis = publish(with_(['duplicate', 'disclose', { note: 'Possible duplicate still being checked' }]));
-  assert.equal(status(dis), 'Approved', 'a blocking issue may be accepted with an explicit note');
-  assert.equal(published(dis).disclosures[0].note, 'Possible duplicate still being checked');
+// ---- Workflows (18.15)
+
+test('a sample request enters the register, creates a task, and appears in Data, Reports, Actions and Workflows', () => {
+  const s = sample(initialState());
+  assert.deepEqual(s.added.map((a) => [a.request.id, a.task.id, a.task.due, a.task.owner]), [['R-113', 'T-213', '2026-11-10', '']]);
+  assert.ok(consolidated(s).some((r) => r.ref === 'R-113' && r.added));
+  assert.deepEqual([metrics(s).requests, metrics(s).openRequests, sourceCounts(s).total], [13, 7, 35]);
+  assert.deepEqual(actions(s).find((x) => x.id === 'T-213').title, 'New request to review');
+  assert.ok(board(s).find((c) => c.stage === 'Request received').items.some((r) => r.ref === 'R-113'));
+  assert.equal(REQUESTS.length, 12, 'the original register is untouched');
+  assert.equal(submitRequest(initialState(), { customer: '', type: 'Quote request', channel: 'Email' }).added.length, 0);
+  assert.equal(submitRequest(initialState(), { customer: 'X', type: 'Nonsense', channel: 'Email' }).added.length, 0);
+  let many = initialState(); for (let i = 0; i < 7; i++) many = sample(many);
+  assert.equal(many.added.length, 5, 'limited to five sample requests');
 });
 
-test('every automatic totals check passes on every decision path', () => {
-  for (const dup of ['exclude', 'separate', 'disclose']) for (const inv of ['link', 'outstanding', 'leave']) for (const od of ['confirm', 'correctDate']) {
-    const s = with_(['duplicate', dup, { note: 'n' }], ['invoice', inv], ['overdue', od]);
-    assert.ok(totalsChecks(s).every((c) => c.pass), `${dup}/${inv}/${od}`);
-    assert.equal(readiness(s).ready, true);
+test('request to completion: received → reviewed → assigned → in progress → completed', () => {
+  let s = sample(initialState()); const t = () => taskFor(s, 'R-113');
+  const seen = [stageOf(t())];
+  s = review(s, 'T-213'); seen.push(stageOf(t()));
+  s = assign(s, 'T-213', 'Carla'); seen.push(stageOf(t()));
+  s = setStatus(s, 'T-213', 'In progress'); seen.push(stageOf(t()));
+  s = setStatus(s, 'T-213', 'Completed'); seen.push(stageOf(t()));
+  assert.deepEqual(seen, STAGES);
+  assert.deepEqual([metrics(s).requests, metrics(s).completed, metrics(s).openRequests], [13, 7, 6]);
+});
+
+test('18.12 the same records across views: Data, Reports, Workflows and the overview agree on every path', () => {
+  const paths = [initialState(), decide(initialState(), 'duplicate', 'same'), sample(decide(initialState(), 'duplicate', 'same')), setStatus(assign(initialState(), 'T-210', 'Ben'), 'T-210', 'In progress')];
+  for (const s of paths) {
+    const rows = consolidated(s).filter((r) => !r.excluded);
+    const onBoard = board(s).flatMap((c) => c.items.map((r) => r.ref)).sort();
+    assert.deepEqual(onBoard, rows.map((r) => r.ref).sort());
+    const m = metrics(s); const o = overview(s);
+    assert.deepEqual([o.requests, o.openRequests, o.attention], [m.requests, m.openRequests, openActions(s).length]);
+    assert.equal(board(s).find((c) => c.stage === 'Completed').items.length, rows.filter((r) => r.status === 'Completed').length);
   }
 });
 
-test('14.17: the published output equals the approved report: figures, summary and register', () => {
-  const p = publish(reviewed());
-  const out = published(p);
-  assert.deepEqual(out.metrics, metrics(p));
-  assert.deepEqual(out.register, actionRegister(p));
-  assert.deepEqual([out.metrics.unique, out.metrics.completed, out.metrics.open, out.metrics.completionRate], [17, 7, 10, '41%']);
-  assert.equal(published(reviewed()), null, 'nothing is unlocked before publication');
-});
-
-test('14.18: a decision change after publishing withdraws it, recalculates, and needs a new approval', () => {
-  const p = publish(reviewed());
-  const c = decide(p, 'duplicate', 'separate');
-  assert.deepEqual([c.published, status(c), published(c)], [null, 'Changed since approval', null]);
-  assert.equal(metrics(c).unique, 18);
-  assert.equal(c.log.at(-1).type, 'publish-withdrawn');
-  const again = publish(c);
-  assert.equal(status(again), 'Approved');
-  assert.equal(published(again).metrics.unique, 18);
-});
-
-// ---- Audit trail and invalidation
-
-test('the decision log is append-only and frozen; refused actions add nothing', () => {
+test('the log only grows and is frozen; refused actions add nothing; reset is the original state', () => {
   let s = initialState(); const steps = [s];
-  for (const f of [(x) => decide(x, 'duplicate', 'exclude'), (x) => decide(x, 'invoice', 'outstanding'), publish, (x) => decide(x, 'invoice', 'link'), publish]) { s = f(s); steps.push(s); }
-  for (let i = 1; i < steps.length; i++) { steps[i - 1].log.forEach((e, k) => assert.equal(steps[i].log[k], e)); assert.ok(steps[i].log.length > steps[i - 1].log.length); }
-  assert.deepEqual(s.log.map((e) => e.type), ['decision', 'decision', 'published', 'changed', 'publish-withdrawn', 'published']);
+  for (const f of [(x) => decide(x, 'duplicate', 'same'), (x) => assign(x, 'T-210', 'Ana'), (x) => remind(x, 'T-206'), sample]) { s = f(s); steps.push(s); }
+  for (let i = 1; i < steps.length; i++) { steps[i - 1].log.forEach((e, k) => assert.equal(steps[i].log[k], e)); assert.equal(steps[i].log.length, steps[i - 1].log.length + 1); }
   assert.ok(Object.isFrozen(s.log) && s.log.every(Object.isFrozen));
   const s0 = initialState();
-  for (const t of [publish(s0), decide(s0, 'owner', 'assign', {}), decide(s0, 'invoice', 'nope'), decide(s0, 'duplicate', null)]) assert.equal(t, s0);
+  for (const x of [decide(s0, 'duplicate', 'nope'), assign(s0, 'T-999', 'Ana'), setStatus(s0, 'T-201', 'Completed'), review(s0, 'T-201')]) assert.equal(x, s0);
+  assert.deepEqual(initialState(), s0);
 });
 
-test('every decision records the basis it was made on; a stale basis reopens the finding and blocks if material', () => {
-  const s = reviewed();
-  for (const i of ISSUE_IDS) assert.equal(s.decisions[i].basis, basisOf(i));
-  const tampered = { ...s, decisions: { ...s.decisions, duplicate: { ...s.decisions.duplicate, basis: 'old' } } };
-  assert.equal(statusOf(tampered, 'duplicate'), 'stale');
-  assert.equal(readiness(tampered).ready, false);
-});
-
-// ---- Summary, AI and register (14.12–14.14)
-
-test('14.12–14.13: the AI-drafted summary follows the decisions and separates facts, potential issues, exceptions and unverified points', () => {
+test('AI-drafted summary: labelled as simulated, built from the figures, says what is unknown, no overclaiming', () => {
   assert.equal(AI_LABEL, 'AI-drafted · simulated in this demo');
   const s0 = summary();
-  assert.match(s0.potential[0], /W-1043 and W-1051 may be the same job/);
-  assert.ok(!s0.facts.some((x) => /After checking/.test(x)), 'no checked job count stated as fact before review');
-  assert.match(s0.recommendations[0].text, /Check W-1043 and W-1051 against request R-303/);
-  const s1 = summary(reviewed());
-  assert.match(s1.facts.join(' '), /After checking: 17 jobs, 7 completed and 10 open \(41% completed\)/);
-  assert.deepEqual(s1.exceptions, ['W-1047 is finished but not invoiced yet.', 'W-1055 is late.']);
-  assert.deepEqual(s1.recommendations.map((r) => r.team), ['Admin', 'Finance', 'Operations']);
-  assert.match(s1.executive[2], /Needs attention: finished job not invoiced \(W-1047\); late job \(W-1055\)/);
-  const all = JSON.stringify([s0, s1, summary(with_(['invoice', 'link'], ['overdue', 'correctDate']))]);
-  assert.doesNotMatch(all, /\b(caused by|definitely|approved by management)\b/i);
-  // figures in the summary equal the calculated report
-  assert.match(s1.executive[0], new RegExp(`that’s ${metrics(reviewed()).unique} jobs`));
+  assert.match(s0[0], /^12 requests \(one may be a duplicate\) came in this week\. 6 tasks were completed, 100% of them on time, and 6 are still open\./);
+  assert.ok(s0.some((l) => /who it’s for is unknown until someone confirms it/.test(l)));
+  const s1 = summary(decide(decide(decide(initialState(), 'duplicate', 'same'), 'missing', 'fill'), 'unmatched', 'link'));
+  assert.ok(!s1.some((l) => /unknown|couldn’t be matched/.test(l)));
+  assert.match(s1[0], /^11 requests came in this week/);
+  assert.doesNotMatch([...s0, ...s1].join(' '), /every|all errors|100% accurate|guarantee|definitely/i);
 });
 
-test('14.14: the action register matches the findings: suggested team, action, status; the spec’s initial statuses', () => {
-  assert.deepEqual(actionRegister().map((r) => [r.team, r.action, r.status]), [
-    ['Admin', 'Check the two original records', 'To check'],
-    ['Finance', 'Check the invoices', 'Needs action'],
-    ['Operations', 'Find out why and agree the next step', 'Needs action'],
-    ['Operations', 'Assign someone', 'Needs action'],
-  ]);
-  assert.deepEqual(actionRegister(reviewed()).map((r) => r.status), ['Done', 'Needs action', 'Needs action', 'Done']);
-  assert.match(actionRegister(reviewed())[3].action, /assigned to Ana/);
+// ---- Service samples (18.18–18.22)
+
+test('18.18 Data & Reporting sample: three files, three layouts → one refreshed, checked report (flags kept, not removed)', () => {
+  assert.deepEqual(REPORT_FILES.map((f) => f.cols.join('|')), ['Date|Customer|Status', 'created_on|client|state', 'Submitted|Name|Stage']);
+  const r = refreshReport();
+  assert.deepEqual([r.report.rows, r.report.completed, r.report.open, r.report.flagged, r.report.missingDate, r.report.duplicates], [11, 5, 6, 3, 1, 1]);
+  assert.ok(r.rows.every((x) => ['Completed', 'Open'].includes(x.status)), 'statuses standardised');
+  assert.ok(r.rows.filter((x) => x.date).every((x) => /^\d{4}-\d{2}-\d{2}$/.test(x.date)), 'dates standardised');
+  assert.equal(r.rows.length, 11, 'flagged rows are kept');
 });
 
-test('hero card data: source counts stay as received; attention count and status follow the decisions', () => {
-  const c = heroCard();
-  assert.deepEqual([c.status, c.sourceRecords, c.recordedCompleted, c.recordedOpen, c.attention], ['Awaiting review', 18, 7, 11, 4]);
-  const r = heroCard(reviewed());
-  assert.deepEqual([r.status, r.sourceRecords, r.attention, r.byCategory.filter((x) => x.open).map((x) => x.issue)], ['Ready to approve', 18, 2, ['invoice', 'overdue']]);
-  assert.equal(attentionCount(publish(reviewed())), 2, 'disclosed exceptions still require attention after publishing');
+test('18.19 Workflows sample: received → assigned → in progress → completed, a simulated reminder, no skipping', () => {
+  let s = { step: null, req: null, owner: '', reminded: false, log: [] };
+  assert.equal(flow(s, 'start'), s);
+  s = flow(s, 'submit', { type: 'Quote request', from: 'Bayview Co.' }); assert.equal(FLOW_STEPS[s.step], 'Received');
+  assert.equal(flow(s, 'done'), s, 'can’t complete before it’s assigned and started');
+  s = flow(s, 'assign', 'Ana'); assert.equal(FLOW_STEPS[s.step], 'Assigned');
+  s = flow(s, 'remind'); assert.match(s.log.at(-1), /Reminder prepared for Ana: “R-501 is due Tue 10 Nov” \(simulated, nothing sent\)/);
+  s = flow(flow(s, 'start'), 'done'); assert.equal(FLOW_STEPS[s.step], 'Completed');
+  assert.equal(s.log.length, 5);
 });
 
-test('wording: first person only, no trade-specific words, no currency symbols or prices in the data', () => {
-  const text = JSON.stringify(DATA);
-  assert.doesNotMatch(text, /\b(we|we're|we've|we'll|our|us)\b/i);
-  assert.doesNotMatch(text, /quillfern|repair|technician|leak|gutter|plumb/i);
-  assert.doesNotMatch(text, /[$₱€£]|\bprice\b|amount/i);
+test('18.20 Business Tools sample: customers with related requests, records and tasks; a status update changes the overview', () => {
+  assert.equal(CUSTOMERS.length, 5);
+  for (const c of CUSTOMERS) assert.ok(c.requests.length && c.tasks.length, c.name);
+  assert.deepEqual(toolsOverview({}), { customers: 5, open: 3, waiting: 1, done: 2 });
+  assert.deepEqual(toolsOverview({ 'K-4': 'Done' }), { customers: 5, open: 2, waiting: 1, done: 3 });
 });
 
 // ---- The page
 
-test('hero copy: eyebrow, headline, new supporting line, two website actions, personal introduction, booking info', async () => {
+test('18.6–18.7 hero copy: eyebrow, headline, exact supporting text and reassurance, two CTAs, intro, booking info', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
   assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. More real work\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
-  assert.match(hero, /<p class="hero-sub">I turn scattered business data and repetitive tasks into reliable reports and smoother workflows\.<\/p>/);
+  assert.match(hero, /<p class="hero-sub">I turn scattered business data and repetitive tasks into connected workflows, reliable reports and practical business tools\.<\/p>/);
+  assert.match(hero, /<p class="hero-assure">Built around the tools you already use\. Designed around how your business works\.<\/p>/);
   assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how it works'));
   assert.match(hero, /href="#samples" data-demo-check>See how it works/);
-  assert.match(hero, /A 30-minute call about one report or process/); assert.match(hero, /Free &middot; No obligation/);
+  assert.match(hero, /Free &middot; No obligation/);
   assert.match(html, /Jeff Herson Vida<\/a><span class="cred-role">8\+ years in data operations, reporting and process improvement\.<\/span><span class="cred-role">Work directly with me, from understanding the problem to building the solution\.<\/span>/);
 });
 
-test('hero visual: four stages, the report card with the spec’s exact values, two actions, and no detailed findings', async () => {
+test('18.8–18.9 hero visual: three sources into one workspace with data, report, workflow, actions and insight, from the engine', async () => {
   const html = await page();
-  const fig = html.slice(html.indexOf('<figure class="hero-preview hm'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hm')));
-  assert.deepEqual([...fig.matchAll(/<li class="hm-stage" data-stage="\d"><span class="hm-stage-ic">.*?<\/span><strong>(\w+)<\/strong>/g)].map((m) => m[1]), ['Collect', 'Combine', 'Check', 'Explain']);
-  assert.match(fig, /<p class="hm-title">Weekly report<\/p>/);
-  assert.match(fig, /<span data-hero="period">2–6 November 2026<\/span> &middot; Fictional sample data/);
-  assert.match(fig, /<p class="hm-status" data-hr="status" data-state="review">Awaiting review<\/p>/);
-  const c = heroCard();
-  const kpi = [...fig.matchAll(/<dt>([^<]+)<\/dt><dd data-hr="(\w+)">(\d+)<\/dd>/g)].map((m) => [m[1], m[2], Number(m[3])]);
-  assert.deepEqual(kpi, [['Jobs logged', 'sourceRecords', c.sourceRecords], ['Completed', 'recordedCompleted', c.recordedCompleted], ['Still open', 'recordedOpen', c.recordedOpen]]);
-  assert.match(fig, /<p class="hm-chart-t">Jobs completed by day<\/p>/);
-  const bars = [...fig.matchAll(/data-day="(\w+)"><rect class="hm-bar" x="[\d.]+" y="([\d.]+)" width="34" height="([\d.]+)"/g)].map((m) => [m[1], Number(m[3]) / 36]);
-  assert.deepEqual(bars, c.daily.map((d) => [d.day, d.completed]));
-  assert.doesNotMatch(fig, /is-flag|anomal|average/i, 'the chart is a performance overview, not an anomaly claim');
-  assert.match(fig, /<strong data-hr="attention">4<\/strong> <span data-hr="attentionLabel">things to check<\/span>/);
-  assert.doesNotMatch(fig, /W-10\d\d|INV-|R-30/, 'no detailed findings in the hero');
-  assert.match(fig, /data-hr="review"><svg[^>]*>.*?<\/svg>Review the 4 items<\/a>/);
-  assert.match(fig, /data-hr="publish" hidden><svg[^>]*>.*?<\/svg>Approve report<\/button>/);
-  assert.equal((fig.match(/class="btn /g) || []).length, 2, 'no additional primary hero buttons');
-  assert.match(fig, /Simulated in your browser\. Nothing is sent or changed\./);
-  assert.doesNotMatch(fig, /\sstyle="/, 'CSP: no inline style attributes');
-  for (const k of ['hm-flow', 'hm-drop']) assert.match(fig, new RegExp(`class="${k}" aria-hidden="true"`));
+  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
+  assert.deepEqual([...fig.matchAll(/<li class="hw-src">.*?<strong>([^<]+)<\/strong>/g)].map((m) => m[1]), ['Spreadsheet files', 'Business records', 'Requests &amp; tasks']);
+  assert.deepEqual([...fig.matchAll(/<section class="hw-panel hw-(\w+)">/g)].map((m) => m[1]), ['data', 'report', 'flow', 'actions', 'ai']);
+  const o = overview(); const val = (k) => Number(fig.match(new RegExp(`data-hw="${k}">(\\d+)<`))[1]);
+  assert.deepEqual(['records', 'requests', 'openRequests', 'completed', 'attention'].map(val), [o.records, o.requests, o.openRequests, o.completed, o.attention]);
+  for (const c of board()) assert.equal(Number(fig.match(new RegExp(`data-hw-stage="${c.stage}">(\\d+)<`))[1]), c.items.length, c.stage);
+  assert.deepEqual([...fig.matchAll(/data-hw-day="(\w+)" data-v="(\d)"/g)].map((m) => [m[1], Number(m[2])]), metrics().byDay.map((d) => [d.day, d.completed]));
+  assert.match(fig, /Illustration/); assert.match(fig, /An illustration of what I could build around your tools\. Fictional data\./);
+  assert.doesNotMatch(fig, /\sstyle="/); assert.doesNotMatch(fig, /sales|jobs?\b|invoice tracker/i);
 });
 
-test('14.1, 14.2, 14.20: one ordered timeline of about 4–5 s; report after the workflow; reduced motion shows the final frame', async () => {
-  const block = (await css()).slice((await css()).indexOf('/* ---- Hero: workflow + Weekly Management Report'));
-  const start = (sel) => { const m = block.match(new RegExp(`\\.hm-play ${sel.replace(/[.[\]"=]/g, '\\$&')} \\{ animation[^;]*? ([\\d.]+)s both`)); return m ? Number(m[1]) : (sel === '.hm-stage' ? 0 : NaN); };
-  const delay = (sel) => Number(block.match(new RegExp(`\\.hm-play ${sel.replace(/[.[\]"=]/g, '\\$&')} \\{ animation-delay: ([\\d.]+)s`))[1]);
-  const order = [0, delay('.hm-stage[data-stage="2"]'), delay('.hm-stage[data-stage="3"]'), delay('.hm-stage[data-stage="4"]'), start('.hm-drop span'), start('.hm-card'), start('.hm-bar'), start('.hm-attn')];
-  assert.deepEqual(order, [...order].sort((a, b) => a - b), `stages → drop → card → bars → findings: ${order}`);
+test('18.10 hero motion: ordered ~4.5 s timeline, played once, reduced motion shows the finished picture', async () => {
+  const c = await css(); const block = c.slice(c.indexOf('/* ---- Hero: connected workspace illustration'), c.indexOf('/* ---- Main demo: connected workspace'));
+  const at = (sel) => { const m = block.match(new RegExp(`\\.hw-play ${sel.replace(/[.]/g, '\\.')}[^{]*\\{ animation(?:-delay: ([\\d.]+)s;|:[^;]* ([\\d.]+)s both;)`)); return Number(m[1] ?? m[2]); };
+  const order = [at('.hw-lines'), at('.hw-app'), at('.hw-data'), at('.hw-ok'), at('.hw-report'), at('.hw-flow'), at('.hw-actions'), at('.hw-ai')];
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), `sources → lines → workspace → data → checks → report → workflow → actions → insight: ${order}`);
   let end = 0;
-  for (const m of block.matchAll(/\.hm-play [^{]*\{[^}]*animation(?:-delay)?:([^;}]+)/g)) for (const part of m[1].split(',')) { const t = [...part.matchAll(/([\d.]+)s/g)].map((x) => Number(x[1])); if (t.length) end = Math.max(end, t.reduce((x, y) => x + y, 0)); }
-  assert.ok(end >= 4 && end <= 5.2, `timeline ends at ${end}s`);
+  for (const m of block.matchAll(/\.hw-play [^{]*\{[^}]*animation(?:-delay)?:([^;}]+)/g)) for (const part of m[1].split(',')) { const t = [...part.matchAll(/([\d.]+)s/g)].map((x) => Number(x[1])); if (t.length) end = Math.max(end, t.reduce((x, y) => x + y, 0)); }
+  assert.ok(end >= 4 && end <= 5, `ends at ${end}s`);
   assert.doesNotMatch(block, /infinite/);
-  const rm = block.slice(block.indexOf('@media (prefers-reduced-motion: reduce)')).split('\n')[0];
-  assert.ok(rm.includes('animation: none !important') && rm.includes('.hm-wait .hm-card') && rm.includes('opacity: 1'));
-  const js = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /io\.disconnect\(\)/);
-  assert.doesNotMatch(js, /\.style\.|setAttribute\('style'/);
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hw-wait \.hw-sources, \.hw-wait \.hw-lines, \.hw-wait \.hw-app \{ opacity: 1; \} \.hw-play, \.hw-play \* \{ animation: none !important; \} \}/);
+  const js = await src('demo/hero.js'); assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /io\.disconnect\(\)/);
 });
 
-test('hero script: Review opens Findings; Publish runs the readiness check and needs approval; shared state', async () => {
-  const js = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
-  assert.match(js, /goTo\('findings'/); assert.match(js, /readiness\(s\)/); assert.match(js, /Not ready yet\./); assert.match(js, /Approve report/);
-  assert.match(js, /from '\.\/store\.js'/);
-  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
-  assert.match(ui, /\['findings', 'Findings'[\s\S]*\['sources', 'Sources'[\s\S]*\['summary', 'Report'/);
-  for (const t of ['What’s wrong', 'Why it matters', 'What do you want to do?', 'Show the evidence', 'Where it’s from', 'What the records show', 'Possible explanation', 'How to check', 'in the file', 'Back to the finding', 'In short', 'The numbers', 'What was found', 'What it could mean', 'Suggested next steps', 'Follow-up list', 'What you decided', 'Approve report']) assert.ok(ui.includes(t), t);
-  assert.doesNotMatch(ui, /Book a free rework review/);
-});
-
-test('demo intro and no-JavaScript fallback describe the same four findings and figures', async () => {
+test('18.4–18.5, 18.11, 18.17 main demo: heading, intro, illustrative label, four connected views, workspace overview, reset', async () => {
   const html = await page();
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
-  assert.match(sec, /<p class="demo-tagline">Automation does the copying\. Checks catch the mistakes\. AI explains what it found\. You decide\.<\/p>/);
-  assert.match(sec, /jobs, invoices and customer requests from three separate files/);
-  assert.match(sec, /<p class="demo-runs">In your business, this runs in the tools you already use, like Excel, Google Sheets or Power BI\. No new system to learn\.<\/p>/);
-  const st0 = sec.slice(sec.indexOf('class="demo-static"'));
-  for (const t of ['W-1043 / W-1051', 'W-1047', 'INV-2107', 'W-1055', 'R-308', 'W-1056', 'Jobs logged: 18', '7 completed and 11 still open', 'Mon 1, Tue 2, Wed 1, Thu 2, Fri 1', '4 things to check']) assert.ok(st0.includes(t), t);
+  assert.match(sec, /<h2 id="samples-h">A more connected way to work\.<\/h2>/);
+  assert.match(sec, /See how scattered information can become organised data, useful reports and workflows that keep work moving\./);
+  assert.match(sec, /Bring your information together\. Make sense of the numbers\. Keep work moving\./);
+  assert.match(sec, /Illustrative demonstration using fictional business data\./);
+  assert.match(sec, /around your existing tools, such as Excel, Power Query and simple automations, not a product you&rsquo;d have to buy/);
+  const ui = await src('demo/ui.js');
+  assert.match(ui, /\['data', 'Data'[\s\S]*\['reports', 'Reports'[\s\S]*\['actions', 'Actions'[\s\S]*\['workflows', 'Workflows'/);
+  for (const t of ['cw-over', 'Reset the demo', 'Submit a sample request', 'Checks found items that may need attention.', 'Management summary', 'Send a reminder', 'nothing is sent']) assert.ok(ui.includes(t), t);
+  const fb = sec.slice(sec.indexOf('class="demo-static"'));
+  for (const t of ['Requests Register (12 requests)', 'Work Tracker (12 tasks)', 'Records &amp; Transactions (9 records)', 'R-104 / R-109', 'R-111', 'TX-309', '12 requests this week, 6 still open', 'T-206', 'T-210']) assert.ok(fb.includes(t), t);
 });
 
-test('the sample week ends Fri 6 Nov 2026 and the demo window shows it; all work dates are real dates', async () => {
-  assert.equal(DATA.WEEK, 'Week ending Fri 6 Nov 2026');
-  const m = (await page()).match(/<span class="dw-status" data-week>([^<]*)</);
-  assert.equal(m[1], DATA.WEEK);
-  for (const w of WORK) for (const k of ['scheduled', 'due', 'completed']) if (w[k]) assert.ok(toIso(w[k]), `${w.id}.${k}`);
-  for (const w of WORK.filter((x) => x.completed)) assert.ok(w.completed >= '2026-11-02' && w.completed <= '2026-11-06', w.id);
-});
-
-test('Data & Reporting output sample: the engine’s published report after one review path', async () => {
+test('18.2, 18.21–18.22 services: names kept, the brief’s descriptions, how they connect, three distinct samples', async () => {
   const html = await page();
-  const fig = html.slice(html.indexOf('data-pv-figure="output"'), html.indexOf('</figure>', html.indexOf('data-pv-figure="output"')));
-  const p = publish(reviewed()); const m = published(p).metrics;
-  const val = (k) => fig.match(new RegExp(`data-po="${k}">([^<]*)<`))[1];
-  assert.deepEqual([val('sourceRecords'), val('unique'), val('completed'), val('open'), val('completionRate'), val('overdue')].map(String), [m.sourceRecords, m.unique, m.completed, m.open, m.completionRate, m.overdue].map(String));
-  for (const r of published(p).register) assert.match(fig, new RegExp(`data-po-reg="${r.issue}"><strong>${r.team}:</strong> ${r.action.replace(/[()]/g, '\\$&')} &middot; ${r.status}<`), r.issue);
+  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
+  assert.deepEqual([...sec.matchAll(/<h3>([^<]+)<\/h3>\s*<p class="svc-short">/g)].map((m) => m[1]), ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']);
+  for (const t of ['Turn scattered spreadsheets and repetitive reporting tasks into organised, reliable reports that are easier to update and maintain.', 'Make everyday work easier to manage by improving handoffs, responsibilities and follow-ups.', 'Bring disconnected information and everyday processes into practical business tools that make work easier to manage.',
+    'makes information easier to combine, check, update and report.', 'makes work easier to assign, track and follow up.', 'brings related information and processes together into a usable solution.']) assert.ok(sec.includes(t), t);
+  assert.deepEqual([...sec.matchAll(/data-mini="(\w+)">\s*<p class="mini-t">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]), [
+    ['report', 'From scattered files to one reliable report.'], ['workflow', 'From missed requests to clear next steps.'], ['tools', 'From disconnected files to one useful workspace.']]);
+  assert.doesNotMatch(html, /KPI &amp; Operations Reporting|Reporting &amp; Data Automation|Workflow Improvements/);
+  const js = await src('samples.js'); assert.match(js, /mountReport[\s\S]*mountWorkflow[\s\S]*mountTools/);
 });
 
-test('privacy notice: fictional work records, invoices and requests; publishing simulated; nothing stored or sent', async () => {
-  const html = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('<h2>The examples on the homepage</h2>'), html.indexOf('<h2>When you contact me</h2>'));
-  for (const t of ['work records, invoices, requests, addresses and staff names are fictional', 'Approving a report or building the follow-up list there is simulated', 'not in cookies, local storage or session storage', 'no AI runs on this page']) assert.ok(sec.includes(t), t);
+test('18.11 How I work: the reassurance line, the steps and the handover terms stay', async () => {
+  const html = await page();
+  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  assert.match(how, /<p class="how-assure">You keep using the tools you already know\. I improve the process around them\.<\/p>/);
+  assert.match(how, /written scope, price and estimated timeline before anything starts/);
+});
+
+test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, no platform pitch, privacy matches', async () => {
+  const html = await page();
+  const main = html.slice(html.indexOf('<main'), html.indexOf('id="experience"'));
+  assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
+  assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
+  assert.doesNotMatch(html, /subscription|sign up for (the|our) platform/i);
+  const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  for (const t of ['A more connected way to work', 'requests, tasks, records and staff names are fictional', 'Reset the demo', 'no AI runs on this page']) assert.ok(priv.includes(t), t);
+  assert.equal((await page()).match(/<span class="dw-status" data-week>([^<]*)</)[1], DATA.WEEK);
 });
 
 test('problem cards: three, in the customer’s words, each opening its service', async () => {
@@ -373,24 +300,6 @@ test('problem cards: three, in the customer’s words, each opening its service'
     ['svc-workflow', '1', '&ldquo;I&rsquo;m always chasing updates.&rdquo;'],
     ['svc-systems', '2', '&ldquo;Everything is scattered.&rdquo;'],
   ]);
-});
-
-
-test('Workflows preview: the R-205 quote request, AI simulated, nothing sent until you approve', async () => {
-  const html = await page();
-  const wf = html.slice(html.indexOf('<h3>Workflows &amp; Processes</h3>'), html.indexOf('<h3>Business Tools &amp; Systems</h3>'));
-  for (const t of ['AI that reads your emails and documents', 'Sample &middot; AI simulated', '>You<', 'Approve the reply', 'Request R-205', 'Northside Partners']) assert.ok(wf.includes(t), t);
-  assert.equal((wf.match(/<li><strong>/g) || []).length, 5);
-  assert.doesNotMatch(wf, /Sarah|Kitchen|Westside|Enquiry 2031/);
-  const pv = await readFile(new URL('../src/previews.js', import.meta.url), 'utf8');
-  assert.match(pv, /nothing was sent until you approved it/);
-});
-
-test('Business Tools preview: generic booking, no trade examples', async () => {
-  const html = await page();
-  const bt = html.slice(html.indexOf('<h3>Business Tools &amp; Systems</h3>'), html.indexOf('class="svc-choose"'));
-  assert.match(bt, /Intro call/);
-  assert.doesNotMatch(html, /Leaking tap|Gutter repair|Kitchen tap/i);
 });
 
 

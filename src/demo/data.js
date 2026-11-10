@@ -1,6 +1,6 @@
 // Sample data for the hero card, the three-tab example and the Data & Reporting preview.
 // One week for a fictional, unnamed small business. Everything here is made up.
-// Three sources:
+// Three sources (read-only, frozen below):
 //   SALES    (12 rows): every sale recorded this week.
 //   PAYMENTS  (9 rows): every payment received, with the sale it pays.
 //   REQUESTS  (6 rows): customer requests, who owns them and the next action.
@@ -81,36 +81,55 @@ export const RULES = {
   followUpDays: 2,        // flag an open request older than this many working days with no next action
 };
 
-// The four findings, in the visitor's words. First person only, no "we". Outcome per choice:
+// Original records (evidence) behind four rows. A reviewer opens these to investigate; they are not extra data rows,
+// so the 27-record count stays. The phone note and the order email are what a real owner would check.
+export const EVIDENCE = [
+  { id: 'E-101', type: 'Order email', ref: 'S-1043', date: 'Tue 3 Nov', from: 'Greenfield Ltd', text: 'Please go ahead with the order as discussed. Total 860.', amount: 860 },
+  { id: 'E-102', type: 'Phone note', ref: 'S-1051', date: 'Tue 3 Nov', from: 'Greenfield Ltd', text: 'Called to check the order they emailed this morning arrived. Total 860.', amount: 860 },
+  { id: 'E-103', type: 'Order email', ref: 'S-1047', date: 'Wed 4 Nov', from: 'Summit Supplies', text: 'Confirming the order as quoted. Agreed amount: 380.', amount: 380 },
+  { id: 'E-104', type: 'Inbox message', ref: 'R-205', date: 'Mon 2 Nov', from: 'Northside Partners', text: 'Could you send a quote for the order discussed on the phone? Thanks.', amount: null },
+];
+
+// Who a reviewer can make the owner of a follow-up (fictional staff).
+export const STAFF = ['Ana', 'Ben'];
+
+// The four findings, in the visitor's words. First person only, no "we". Each choice: [value, label, outcome].
 //   resolved = an error corrected or a rule satisfied; legitimate = checked and confirmed as genuine;
-//   unresolved = still needs confirming.
+//   unresolved = still needs confirming (blocks sign-off and release).
+// Tuesday's "verify" choice only exists when the recalculation has cleared it: the reviewer still has to look at the
+// recalculated figures and confirm them.
 export const ISSUES = {
   duplicate: {
     title: 'Potential duplicate',
     kind: 'Duplicate check',
     hero: 'Potential duplicate',
-    choices: [['remove', 'Confirm duplicate (remove S-1051)', 'resolved'], ['keep', 'Retain both sales', 'legitimate']],
+    choices: [['exclude', 'Same order: exclude S-1051', 'resolved'], ['separate', 'Two separate orders: keep both', 'legitimate'], ['notSure', 'Not sure yet', 'unresolved']],
     prevent: 'Check for an existing sale before adding a new one.',
   },
   missing: {
     title: 'Sale with no amount',
     kind: 'Missing information · cross-source',
     hero: 'Sale with no amount',
-    choices: [['fullAmount', 'Verify sale amount (380)', 'resolved'], ['partial', 'Identify as partial payment', 'unresolved'], ['unconfirmed', 'Leave unresolved', 'unresolved']],
+    choices: [['confirmFromOrder', 'Order email confirms 380: enter it', 'resolved'], ['cantConfirm', 'Can’t confirm yet', 'unresolved']],
     prevent: 'Make the amount a required field.',
   },
   pattern: {
     title: 'Unusual Tuesday sales',
     kind: 'Historical pattern',
     hero: 'Unusual Tuesday sales',
-    choices: [['legit', 'Confirm legitimate variation', 'legitimate'], ['investigate', 'Investigate further', 'unresolved']],
+    choices: [['genuine', 'Genuine: keep as is', 'legitimate'], ['verifyRecalc', 'I’ve checked the recalculated figures', 'resolved'], ['investigate', 'Investigate further', 'unresolved']],
     prevent: 'Check unusual days against the source records before the report is shared.',
   },
   followUp: {
     title: 'Request with no next action',
     kind: 'Business rule',
     hero: 'Request with no next action',
-    choices: [['assign', 'Assign a next action', 'resolved'], ['handled', 'Mark as handled', 'resolved']],
+    choices: [['assign', 'Assign an owner', 'resolved'], ['handled', 'Already handled (add a note)', 'resolved'], ['leave', 'Leave for now', 'unresolved']],
     prevent: 'Require an owner and a next action when a request is logged.',
   },
 };
+
+// The source records are read-only: nothing on the page can change them. Review decisions are stored separately.
+const freeze = (rows) => { rows.forEach(Object.freeze); return Object.freeze(rows); };
+[SALES, PAYMENTS, REQUESTS, SOURCES, EVIDENCE, STAFF].forEach(freeze);
+Object.values(HISTORY.days).forEach(Object.freeze); Object.freeze(HISTORY.weeks); Object.freeze(HISTORY.days); Object.freeze(HISTORY);

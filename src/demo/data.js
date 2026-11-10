@@ -1,135 +1,152 @@
-// Sample data for the hero card, the three-tab example and the Data & Reporting preview.
-// One week for a fictional, unnamed small business. Everything here is made up.
-// Three sources (read-only, frozen below):
-//   SALES    (12 rows): every sale recorded this week.
-//   PAYMENTS  (9 rows): every payment received, with the sale it pays.
-//   REQUESTS  (6 rows): customer requests, who owns them and the next action.
-//   HISTORY  (fictional demonstration data): daily sales totals for the previous 4 weeks, used only for the
-//            pattern check.
-// Four findings, each from a stated rule:
-//   S-1051 looks like a duplicate of S-1043 (same customer, date and amount; only one payment).
-//   S-1047 has no amount; payment P-307 shows 380 received against it (full amount or part payment: unknown).
-//   Tuesday's sales (2,455) are about 58% above the 4-week Tuesday average (1,550). Partly explained by the
-//   potential duplicate: without S-1051, Tuesday is 1,595 (+3%), inside the range.
-//   R-205 is an open quote request with no owner and no next action after 4 working days.
-// S-1049 and S-1052 are not paid yet. That's normal within the week, so they are NOT flagged.
-// The engine (./engine.js) works out every number the page shows from these rows; tests/demo.test.mjs checks them.
-// Amounts have no currency symbol on purpose: they are sample sales, and nothing on the page should read as a price.
+// The single source of truth for the homepage demonstration (spec 10 Nov 2026, "management reporting").
+// One fictional small service business, one reporting week (Mon 2 – Fri 6 Nov 2026). Everything here is made up.
+// The hero, Findings, Sources, Management Summary, the published report and the departmental action register all
+// read these rows through ./engine.js: no component keeps its own figures.
+//
+// Three sources, each in its own native format (consolidation standardises them; the originals are never changed):
+//   WORK      Work Register, 18 records: 7 recorded as completed (Mon 1, Tue 2, Wed 1, Thu 2, Fri 1), 11 recorded as open.
+//             Dates ISO (2026-11-03).
+//   INVOICES  Invoice Tracker, 7 records. Dates dd/mm/yyyy. Each invoice references a work record or a request.
+//   REQUESTS  Customer Requests, 10 records. Dates "Tue 3 Nov".
+//
+// The four findings the checks produce (each traceable to its rows):
+//   W-1043 / W-1051  same customer, service address, job type and scheduled date, different reference; both point at
+//                    request R-303. W-1043 is completed, W-1051 is still open.
+//   W-1047           completed, but no invoice references it. INV-2107 (same customer) references its request R-307
+//                    instead: a possible match, not a confirmed one.
+//   W-1055           open and past its due date (Wed 4 Nov). Request R-308 asked to move it to Fri 13 Nov.
+//   W-1056           open with no owner and no next action.
+// No job type, address or amount is meant to suggest one trade. There are no prices or money amounts anywhere.
 
-// The sample week: a completed week (Mon 2 – Fri 6 Nov 2026).
 export const WEEK = 'Week ending Fri 6 Nov 2026';
+export const REPORT_DATE = '2026-11-06';
+export const PERIOD = { start: '2026-11-02', end: '2026-11-06', label: '2–6 November 2026' };
 
-// amount null = left blank.
-export const SALES = [
-  { id: 'S-1041', date: 'Mon 2 Nov', customer: 'Bayview Co.', amount: 450, from: 'Email' },
-  { id: 'S-1042', date: 'Mon 2 Nov', customer: 'R. Cruz', amount: 120, from: 'In person' },
-  { id: 'S-1043', date: 'Tue 3 Nov', customer: 'Greenfield Ltd', amount: 860, from: 'Email' },
-  { id: 'S-1044', date: 'Tue 3 Nov', customer: 'M. Tan', amount: 95, from: 'In person' },
-  { id: 'S-1045', date: 'Tue 3 Nov', customer: 'Oakline Studio', amount: 640, from: 'Phone' },
-  { id: 'S-1046', date: 'Wed 4 Nov', customer: 'J. Reyes', amount: 210, from: 'In person' },
-  { id: 'S-1047', date: 'Wed 4 Nov', customer: 'Summit Supplies', amount: null, from: 'Email' },
-  { id: 'S-1048', date: 'Wed 4 Nov', customer: 'K. Patel', amount: 150, from: 'Phone' },
-  { id: 'S-1049', date: 'Thu 5 Nov', customer: 'Riverside Group', amount: 520, from: 'Email' },
-  { id: 'S-1050', date: 'Thu 5 Nov', customer: 'L. Wong', amount: 75, from: 'In person' },
-  { id: 'S-1051', date: 'Tue 3 Nov', customer: 'Greenfield Ltd', amount: 860, from: 'Phone' },
-  { id: 'S-1052', date: 'Fri 6 Nov', customer: 'Harper & Co.', amount: 330, from: 'Email' },
+// status: 'Completed' | 'Open'. completed: ISO date or ''. owner / next: '' = left blank.
+export const WORK = [
+  { id: 'W-1041', request: 'R-301', customer: 'Bayview Co.', address: '12 Harbour Rd', jobType: 'Maintenance', scheduled: '2026-11-02', due: '2026-11-02', status: 'Completed', completed: '2026-11-02', owner: 'Ana', next: 'Done' },
+  { id: 'W-1042', request: 'R-302', customer: 'Oakline Studio', address: '4 Mill Lane', jobType: 'Consultation', scheduled: '2026-11-03', due: '2026-11-03', status: 'Completed', completed: '2026-11-03', owner: 'Ben', next: 'Done' },
+  { id: 'W-1043', request: 'R-303', customer: 'Greenfield Ltd', address: '88 Station St', jobType: 'Installation', scheduled: '2026-11-03', due: '2026-11-03', status: 'Completed', completed: '2026-11-03', owner: 'Ana', next: 'Done' },
+  { id: 'W-1044', request: 'R-304', customer: 'Summit Supplies', address: '3 Quarry Way', jobType: 'Inspection', scheduled: '2026-11-06', due: '2026-11-06', status: 'Completed', completed: '2026-11-06', owner: 'Ben', next: 'Done' },
+  { id: 'W-1045', request: 'R-305', customer: 'Riverside Group', address: '21 Bank St', jobType: 'Maintenance', scheduled: '2026-11-05', due: '2026-11-05', status: 'Completed', completed: '2026-11-05', owner: 'Carla', next: 'Done' },
+  { id: 'W-1046', request: 'R-306', customer: 'Westgate Clinic', address: '9 Elm Rd', jobType: 'Site visit', scheduled: '2026-11-05', due: '2026-11-05', status: 'Completed', completed: '2026-11-05', owner: 'Ana', next: 'Done' },
+  { id: 'W-1047', request: 'R-307', customer: 'Lakeside Cafe', address: '2 Pier Rd', jobType: 'Installation', scheduled: '2026-11-04', due: '2026-11-04', status: 'Completed', completed: '2026-11-04', owner: 'Ben', next: 'Done' },
+  { id: 'W-1048', request: '', customer: 'Harper & Co.', address: '15 King St', jobType: 'Maintenance', scheduled: '2026-11-09', due: '2026-11-09', status: 'Open', completed: '', owner: 'Carla', next: 'Visit booked Mon 9 Nov' },
+  { id: 'W-1049', request: 'R-310', customer: 'Northside Partners', address: '40 North Ave', jobType: 'Consultation', scheduled: '2026-11-06', due: '2026-11-10', status: 'Open', completed: '', owner: 'Ben', next: 'Send summary notes' },
+  { id: 'W-1050', request: '', customer: 'Pinecrest Offices', address: '7 Ridge Rd', jobType: 'Inspection', scheduled: '2026-11-10', due: '2026-11-10', status: 'Open', completed: '', owner: 'Ana', next: 'Confirm site access' },
+  { id: 'W-1051', request: 'R-303', customer: 'Greenfield Ltd', address: '88 Station St', jobType: 'Installation', scheduled: '2026-11-03', due: '2026-11-10', status: 'Open', completed: '', owner: 'Ben', next: 'Book installation' },
+  { id: 'W-1052', request: '', customer: 'Bayview Co.', address: '12 Harbour Rd', jobType: 'Inspection', scheduled: '2026-11-11', due: '2026-11-11', status: 'Open', completed: '', owner: 'Carla', next: 'Confirm date' },
+  { id: 'W-1053', request: '', customer: 'Oakline Studio', address: '4 Mill Lane', jobType: 'Maintenance', scheduled: '2026-11-12', due: '2026-11-12', status: 'Open', completed: '', owner: 'Ana', next: 'Order parts' },
+  { id: 'W-1054', request: '', customer: 'Riverside Group', address: '21 Bank St', jobType: 'Site visit', scheduled: '2026-11-06', due: '2026-11-09', status: 'Open', completed: '', owner: 'Carla', next: 'Write up visit notes' },
+  { id: 'W-1055', request: 'R-308', customer: 'Westgate Clinic', address: '9 Elm Rd', jobType: 'Installation', scheduled: '2026-11-03', due: '2026-11-04', status: 'Open', completed: '', owner: 'Ben', next: 'Installation pending' },
+  { id: 'W-1056', request: 'R-309', customer: 'Summit Supplies', address: '3 Quarry Way', jobType: 'Consultation', scheduled: '2026-11-09', due: '2026-11-09', status: 'Open', completed: '', owner: '', next: '' },
+  { id: 'W-1057', request: '', customer: 'Lakeside Cafe', address: '2 Pier Rd', jobType: 'Maintenance', scheduled: '2026-11-13', due: '2026-11-13', status: 'Open', completed: '', owner: 'Ben', next: 'Schedule visit' },
+  { id: 'W-1058', request: '', customer: 'Pinecrest Offices', address: '7 Ridge Rd', jobType: 'Consultation', scheduled: '2026-11-11', due: '2026-11-11', status: 'Open', completed: '', owner: 'Ana', next: 'Prepare proposal' },
 ];
 
-export const PAYMENTS = [
-  { id: 'P-301', date: 'Mon 2 Nov', sale: 'S-1041', customer: 'Bayview Co.', amount: 450, method: 'Bank transfer' },
-  { id: 'P-302', date: 'Mon 2 Nov', sale: 'S-1042', customer: 'R. Cruz', amount: 120, method: 'Card' },
-  { id: 'P-303', date: 'Wed 4 Nov', sale: 'S-1043', customer: 'Greenfield Ltd', amount: 860, method: 'Bank transfer' },
-  { id: 'P-304', date: 'Tue 3 Nov', sale: 'S-1044', customer: 'M. Tan', amount: 95, method: 'Card' },
-  { id: 'P-305', date: 'Thu 5 Nov', sale: 'S-1045', customer: 'Oakline Studio', amount: 640, method: 'Bank transfer' },
-  { id: 'P-306', date: 'Wed 4 Nov', sale: 'S-1046', customer: 'J. Reyes', amount: 210, method: 'Card' },
-  { id: 'P-307', date: 'Thu 5 Nov', sale: 'S-1047', customer: 'Summit Supplies', amount: 380, method: 'Bank transfer' },
-  { id: 'P-308', date: 'Wed 4 Nov', sale: 'S-1048', customer: 'K. Patel', amount: 150, method: 'Card' },
-  { id: 'P-309', date: 'Thu 5 Nov', sale: 'S-1050', customer: 'L. Wong', amount: 75, method: 'Card' },
+// work / request: the record the invoice references ('' = none). Dates as the tracker keeps them (dd/mm/yyyy).
+export const INVOICES = [
+  { id: 'INV-2101', date: '02/11/2026', customer: 'Bayview Co.', work: 'W-1041', request: '', status: 'Issued' },
+  { id: 'INV-2102', date: '03/11/2026', customer: 'Oakline Studio', work: 'W-1042', request: '', status: 'Issued' },
+  { id: 'INV-2103', date: '03/11/2026', customer: 'Greenfield Ltd', work: 'W-1043', request: '', status: 'Issued' },
+  { id: 'INV-2104', date: '05/11/2026', customer: 'Riverside Group', work: 'W-1045', request: '', status: 'Issued' },
+  { id: 'INV-2105', date: '05/11/2026', customer: 'Westgate Clinic', work: 'W-1046', request: '', status: 'Issued' },
+  { id: 'INV-2106', date: '06/11/2026', customer: 'Summit Supplies', work: 'W-1044', request: '', status: 'Issued' },
+  { id: 'INV-2107', date: '04/11/2026', customer: 'Lakeside Cafe', work: '', request: 'R-307', status: 'Issued' },
 ];
 
-// status: 'Open' | 'Closed'. owner / next '' = left blank.
+// Dates as the request log keeps them ("Tue 3 Nov"). work: the work record raised from the request.
 export const REQUESTS = [
-  { id: 'R-201', received: 'Mon 2 Nov', customer: 'Bayview Co.', request: 'Change to an order', status: 'Closed', owner: 'Ana', next: 'Done' },
-  { id: 'R-202', received: 'Tue 3 Nov', customer: 'M. Tan', request: 'Asked for a quote', status: 'Closed', owner: 'Ben', next: 'Quote sent' },
-  { id: 'R-203', received: 'Tue 3 Nov', customer: 'Greenfield Ltd', request: 'Copy of receipt', status: 'Closed', owner: 'Ana', next: 'Sent' },
-  { id: 'R-204', received: 'Wed 4 Nov', customer: 'K. Patel', request: 'Question about payment', status: 'Open', owner: 'Ben', next: 'Call back Fri' },
-  { id: 'R-205', received: 'Mon 2 Nov', customer: 'Northside Partners', request: 'Asked for a quote', status: 'Open', owner: '', next: '' },
-  { id: 'R-206', received: 'Thu 5 Nov', customer: 'L. Wong', request: 'Change of date', status: 'Open', owner: 'Ana', next: 'Confirm Mon' },
+  { id: 'R-301', received: 'Mon 2 Nov', customer: 'Bayview Co.', request: 'Routine maintenance', channel: 'Email', work: 'W-1041' },
+  { id: 'R-302', received: 'Mon 2 Nov', customer: 'Oakline Studio', request: 'Consultation', channel: 'Phone', work: 'W-1042' },
+  { id: 'R-303', received: 'Mon 2 Nov', customer: 'Greenfield Ltd', request: 'Installation at 88 Station St on Tue 3 Nov', channel: 'Email', work: 'W-1043' },
+  { id: 'R-304', received: 'Tue 3 Nov', customer: 'Summit Supplies', request: 'Site inspection', channel: 'Email', work: 'W-1044' },
+  { id: 'R-305', received: 'Tue 3 Nov', customer: 'Riverside Group', request: 'Maintenance visit', channel: 'Phone', work: 'W-1045' },
+  { id: 'R-306', received: 'Tue 3 Nov', customer: 'Westgate Clinic', request: 'Site visit', channel: 'Email', work: 'W-1046' },
+  { id: 'R-307', received: 'Tue 3 Nov', customer: 'Lakeside Cafe', request: 'Installation', channel: 'Email', work: 'W-1047' },
+  { id: 'R-308', received: 'Wed 4 Nov', customer: 'Westgate Clinic', request: 'Please move the installation to Fri 13 Nov', channel: 'Email', work: 'W-1055' },
+  { id: 'R-309', received: 'Thu 5 Nov', customer: 'Summit Supplies', request: 'Consultation about a second site', channel: 'Phone', work: 'W-1056' },
+  { id: 'R-310', received: 'Thu 5 Nov', customer: 'Northside Partners', request: 'Consultation', channel: 'Email', work: 'W-1049' },
 ];
 
 export const SOURCES = [
-  { id: 'sales', name: 'Sales log', fields: ['Ref', 'Date', 'Customer', 'Amount', 'Entered from'] },
-  { id: 'payments', name: 'Payments received', fields: ['Ref', 'Date', 'Sale ref', 'Customer', 'Amount', 'Method'] },
-  { id: 'requests', name: 'Customer requests', fields: ['Ref', 'Received', 'Customer', 'Request', 'Status', 'Owner', 'Next action'] },
+  { id: 'work', name: 'Work Register', format: 'Dates as 2026-11-03', fields: ['Ref', 'Request', 'Customer', 'Service address', 'Job type', 'Scheduled', 'Due', 'Status', 'Completed', 'Owner', 'Next action'] },
+  { id: 'invoices', name: 'Invoice Tracker', format: 'Dates as 03/11/2026', fields: ['Invoice', 'Date', 'Customer', 'Work ref', 'Request ref', 'Status'] },
+  { id: 'requests', name: 'Customer Requests', format: 'Dates as Tue 3 Nov', fields: ['Ref', 'Received', 'Customer', 'Request', 'Channel', 'Work ref'] },
 ];
 
-// Fictional demonstration data: daily sales totals for the 4 weeks before the sample week (oldest first).
-export const HISTORY = {
-  weeks: ['w/e 9 Oct', 'w/e 16 Oct', 'w/e 23 Oct', 'w/e 30 Oct'],
-  days: {
-    Mon: [640, 590, 610, 640],
-    Tue: [1520, 1610, 1480, 1590],
-    Wed: [540, 600, 520, 580],
-    Thu: [660, 610, 650, 640],
-    Fri: [360, 410, 350, 400],
-  },
-};
+// Fictional staff a reviewer can choose as an owner.
+export const STAFF = ['Ana', 'Ben', 'Carla'];
 
-// Demonstration rules. Configurable per business, not universal standards.
+// Demonstration rules (configurable per business, not universal standards).
 export const RULES = {
-  patternThreshold: 0.4,  // flag a day more than 40% above or below its 4-week average for the same weekday
-  followUpDays: 2,        // flag an open request older than this many working days with no next action
+  duplicateKeys: ['customer', 'address', 'jobType', 'scheduled'],
+  required: { work: ['id', 'customer', 'address', 'jobType', 'scheduled', 'due', 'status'], invoices: ['id', 'date', 'customer', 'status'], requests: ['id', 'received', 'customer', 'request'] },
 };
 
-// Original records (evidence) behind four rows. A reviewer opens these to investigate; they are not extra data rows,
-// so the 27-record count stays. The phone note and the order email are what a real owner would check.
-export const EVIDENCE = [
-  { id: 'E-101', type: 'Order email', ref: 'S-1043', date: 'Tue 3 Nov', from: 'Greenfield Ltd', text: 'Please go ahead with the order as discussed. Total 860.', amount: 860 },
-  { id: 'E-102', type: 'Phone note', ref: 'S-1051', date: 'Tue 3 Nov', from: 'Greenfield Ltd', text: 'Called to check the order they emailed this morning arrived. Total 860.', amount: 860 },
-  { id: 'E-103', type: 'Order email', ref: 'S-1047', date: 'Wed 4 Nov', from: 'Summit Supplies', text: 'Confirming the order as quoted. Agreed amount: 380.', amount: 380 },
-  { id: 'E-104', type: 'Inbox message', ref: 'R-205', date: 'Mon 2 Nov', from: 'Northside Partners', text: 'Could you send a quote for the order discussed on the phone? Thanks.', amount: null },
-];
-
-// Who a reviewer can make the owner of a follow-up (fictional staff).
-export const STAFF = ['Ana', 'Ben'];
-
-// The four findings, in the visitor's words. First person only, no "we". Each choice: [value, label, outcome].
-//   resolved = an error corrected or a rule satisfied; legitimate = checked and confirmed as genuine;
-//   unresolved = still needs confirming (blocks sign-off and release).
-// Tuesday's "verify" choice only exists when the recalculation has cleared it: the reviewer still has to look at the
-// recalculated figures and confirm them.
+// The four findings. Classification, whether the finding can block publication, the suggested team (a recommendation,
+// not confirmed ownership), and the reviewer's choices: [value, label, resulting status].
+//   status: investigate = Needs investigation · resolved = Resolved · legitimate = Confirmed legitimate ·
+//           action = Action required · disclosed = Accepted with disclosure
 export const ISSUES = {
   duplicate: {
-    title: 'Potential duplicate',
-    kind: 'Duplicate check',
-    hero: 'Potential duplicate',
-    choices: [['exclude', 'Same order: exclude S-1051', 'resolved'], ['separate', 'Two separate orders: keep both', 'legitimate'], ['notSure', 'Not sure yet', 'unresolved']],
-    prevent: 'Check for an existing sale before adding a new one.',
+    title: 'Potential duplicate work order',
+    category: 'integrity',
+    blocking: true,
+    team: 'Data/Admin',
+    action: 'Verify original records',
+    choices: [
+      ['exclude', 'Confirm duplicate: exclude W-1051 from unique work items', 'resolved'],
+      ['separate', 'Confirm separate work items: keep both', 'legitimate'],
+      ['disclose', 'Accept with disclosure: publish with the unique count unverified', 'disclosed'],
+    ],
   },
-  missing: {
-    title: 'Sale with no amount',
-    kind: 'Missing information · cross-source',
-    hero: 'Sale with no amount',
-    choices: [['confirmFromOrder', 'Order email confirms 380: enter it', 'resolved'], ['cantConfirm', 'Can’t confirm yet', 'unresolved']],
-    prevent: 'Make the amount a required field.',
+  invoice: {
+    title: 'Completed work without a matching invoice',
+    category: 'reconciliation',
+    blocking: false,
+    team: 'Finance',
+    action: 'Check invoice tracker',
+    choices: [
+      ['link', 'Invoice exists: link INV-2107 to W-1047', 'resolved'],
+      ['outstanding', 'Invoicing is outstanding: add a Finance follow-up', 'action'],
+      ['leave', 'Leave unresolved', 'investigate'],
+    ],
   },
-  pattern: {
-    title: 'Unusual Tuesday sales',
-    kind: 'Historical pattern',
-    hero: 'Unusual Tuesday sales',
-    choices: [['genuine', 'Genuine: keep as is', 'legitimate'], ['verifyRecalc', 'I’ve checked the recalculated figures', 'resolved'], ['investigate', 'Investigate further', 'unresolved']],
-    prevent: 'Check unusual days against the source records before the report is shared.',
+  overdue: {
+    title: 'Overdue open work',
+    category: 'operational',
+    blocking: false,
+    team: 'Operations',
+    action: 'Review delay and next step',
+    choices: [
+      ['confirm', 'Confirm still overdue', 'action'],
+      ['correctDate', 'Due date was incorrect: record Fri 13 Nov from R-308', 'resolved'],
+      ['assign', 'Assign a follow-up', 'action'],
+    ],
   },
-  followUp: {
-    title: 'Request with no next action',
-    kind: 'Business rule',
-    hero: 'Request with no next action',
-    choices: [['assign', 'Assign an owner', 'resolved'], ['handled', 'Already handled (add a note)', 'resolved'], ['leave', 'Leave for now', 'unresolved']],
-    prevent: 'Require an owner and a next action when a request is logged.',
+  owner: {
+    title: 'Open work without an assigned owner',
+    category: 'operational',
+    blocking: false,
+    team: 'Operations',
+    action: 'Assign responsible person',
+    choices: [
+      ['assign', 'Assign an owner and next action', 'resolved'],
+      ['handled', 'Mark as handled (with an explanation)', 'resolved'],
+      ['leave', 'Leave unresolved', 'action'],
+    ],
   },
+};
+
+export const CATEGORIES = {
+  integrity: 'Data integrity issue',
+  reconciliation: 'Reconciliation issue',
+  operational: 'Operational exception',
+  insight: 'Performance insight',
 };
 
 // The source records are read-only: nothing on the page can change them. Review decisions are stored separately.
 const freeze = (rows) => { rows.forEach(Object.freeze); return Object.freeze(rows); };
-[SALES, PAYMENTS, REQUESTS, SOURCES, EVIDENCE, STAFF].forEach(freeze);
-Object.values(HISTORY.days).forEach(Object.freeze); Object.freeze(HISTORY.weeks); Object.freeze(HISTORY.days); Object.freeze(HISTORY);
+[WORK, INVOICES, REQUESTS, SOURCES, STAFF].forEach(freeze);
+Object.freeze(PERIOD); Object.freeze(RULES.duplicateKeys); Object.freeze(RULES.required); Object.freeze(RULES);

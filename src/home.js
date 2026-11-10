@@ -70,7 +70,7 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
 }));
 
 // Hero card: the automated weekly report, sharing one review state with the live example (src/demo/hero.js).
-mountHero(document.getElementById('hero-run'), demo);
+mountHero(document.getElementById('hero-report'), demo);
 
 // The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.
 document.querySelectorAll('[data-week]').forEach((el) => { el.textContent = WEEK; });

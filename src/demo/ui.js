@@ -1,10 +1,10 @@
 // The live example: where the reviewer investigates. One fictional week in three tabs.
-//   Overview: the report as it stands, the AI findings (simulated) and, once released from the hero card, the
-//     report and dashboard showing the effect of the review decisions.
-//   Exceptions: the four findings. Each shows the original records, the rule or comparison that flagged it, what to
+//   Findings: the four findings. Each shows the original records, the rule or comparison that flagged it, what to
 //     check, and the reviewer's options: correct an actual error, confirm a legitimate variation, or leave it unresolved.
 //     Every decision reruns the checks and recalculates the figures (see ./engine.js).
-//   Source records: all rows, plus the 4-week sales history, with flagged rows highlighted.
+//   Sources: all rows, plus the 4-week sales history. The rows behind the selected finding are highlighted.
+//   Summary: the report as it stands, the AI findings (simulated) and, once published from the hero card, the
+//     report and dashboard showing the effect of the review decisions.
 // It shares one state with the hero card (./store.js). Nothing leaves the page.
 
 import { esc } from '../forms.js';
@@ -13,9 +13,9 @@ import { findings, report, outputs, aiFindings, review, sourceCounts, daily, ISS
 import { getState, subscribe, setDecision, reset } from './store.js';
 
 const TABS = [
-  ['overview', 'Overview', 'What’s happening?'],
-  ['exceptions', 'Exceptions', 'What needs attention?'],
-  ['sources', 'Source records', 'Where did the information come from?'],
+  ['findings', 'Findings', 'What needs attention?'],
+  ['sources', 'Sources', 'Where did it come from?'],
+  ['summary', 'Summary', 'What does the report say?'],
 ];
 const FIELDS = {
   sales: [['id', 'Ref'], ['date', 'Date'], ['customer', 'Customer'], ['amount', 'Amount'], ['from', 'Entered from']],
@@ -31,14 +31,20 @@ const blank = '<em class="dt-blank">blank</em>';
 const cell = (k, v) => (v === null || v === '' ? blank : NUMERIC.has(k) ? n(v) : esc(v));
 const sign = (x) => `${x >= 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%`;
 
-// Which rows and cells the first run flagged, so the tables can highlight them.
-const MARK_ROWS = new Set(['S-1043', 'S-1051', 'S-1047', 'P-307', 'R-205']);
-const MARK_CELLS = new Set(['S-1047|amount', 'R-205|owner', 'R-205|next']);
+// Which rows and cells each finding points at, so the tables can highlight them.
+const MARKS = {
+  duplicate: { rows: ['S-1043', 'S-1051', 'P-303'], cells: ['S-1043|amount', 'S-1051|amount'] },
+  missing: { rows: ['S-1047', 'P-307'], cells: ['S-1047|amount', 'P-307|amount'] },
+  pattern: { rows: ['S-1043', 'S-1044', 'S-1045', 'S-1051'], cells: [] },
+  followUp: { rows: ['R-205'], cells: ['R-205|owner', 'R-205|next'] },
+};
+let MARK_ROWS = new Set(); let MARK_CELLS = new Set();
+const markFor = (issue) => { const m = MARKS[issue]; MARK_ROWS = new Set(m.rows); MARK_CELLS = new Set(m.cells); };
 
 export function mountDemo(root) {
   if (!root) return null;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let tab = 'overview';
+  let tab = 'findings';
   let sel = ISSUE_IDS[0];
   const counts = sourceCounts();
 
@@ -47,7 +53,7 @@ export function mountDemo(root) {
       <div class="dt-head">
         <div class="dt-tabs" role="tablist" aria-label="Weekly business report">${TABS.map(([id, name, q]) => `
           <button type="button" role="tab" class="dt-tab" id="dt-tab-${id}" aria-controls="dt-p-${id}" data-tab="${id}">
-            <span class="dt-tab-name">${esc(name)}${id === 'exceptions' ? ' <span class="dt-count" data-count></span>' : ''}</span>
+            <span class="dt-tab-name">${esc(name)}${id === 'findings' ? ' <span class="dt-count" data-count></span>' : ''}</span>
             <span class="dt-tab-q">${esc(q)}</span></button>`).join('')}
         </div>
         <p class="dt-status"><span class="dt-tag" data-status></span></p>
@@ -76,7 +82,7 @@ export function mountDemo(root) {
       <tbody>${rows.map((d) => `<tr${d.flagged ? ' class="is-flag"' : ''}><td data-label="Day">${esc(d.day)}</td><td data-label="This week" class="dt-num">${n(d.total)}</td><td data-label="4-week average" class="dt-num">${n(d.avg)}</td><td data-label="Change" class="dt-num">${sign(d.change)}${d.flagged ? ' <span class="dt-flagmark">outside ±' + Math.round(RULES.patternThreshold * 100) + '%</span>' : ''}</td></tr>`).join('')}</tbody></table></div>`;
   }
 
-  // A small bar chart for the released dashboard: this week against the 4-week average, per day.
+  // A small bar chart for the published dashboard: this week against the 4-week average, per day.
   function dailyBars(rows) {
     const max = Math.max(...rows.map((d) => Math.max(d.total, d.avg)));
     const w = (x) => `${Math.round((x / max) * 100)}`;
@@ -91,19 +97,19 @@ export function mountDemo(root) {
     if (b.classList.contains('dt-bar-avg')) b.style.setProperty('left', `${b.dataset.w}%`); else b.style.setProperty('width', `${b.dataset.w}%`);
   });
 
-  // ---- Overview
-  function paintOverview() {
+  // ---- Summary
+  function paintSummary() {
     const s = getState(); const r = report(s); const out = outputs(s); const fs = findings(s);
     const v = r.review;
     let banner = '';
     if (out) {
-      banner = `<div class="dt-released is-${out.kind}"><p><strong>${out.kind === 'final' ? 'Final report released' : 'Provisional report released'}</strong> · simulated, nothing was sent</p>
-        ${out.unresolved.length ? `<p>Still open or unresolved, and marked as such in this report: ${out.unresolved.map((u) => `${esc(u.title)} (${esc(u.ids.join(', '))})`).join('; ')}.</p>` : ''}</div>`;
-    } else if (s.release === 'hold') {
-      banner = '<div class="dt-released is-hold"><p><strong>On hold.</strong> Nothing has been shared.</p></div>';
+      banner = `<div class="dt-released${out.clean ? '' : ' is-provisional'}"><p><strong>${esc(out.report.label)}</strong> · simulated, nothing was sent</p>
+        ${out.unresolved.length ? `<p>Marked in this report as still needing review: ${out.unresolved.map((u) => `${esc(u.title)} (${esc(u.ids.join(', '))})`).join('; ')}.</p>` : ''}</div>`;
+    } else if (s.changedSincePublish) {
+      banner = '<div class="dt-released is-hold"><p><strong>Changed since publishing.</strong> A decision changed after the report was published, so it needs publishing again from the report card at the top of the page.</p></div>';
     }
     const unknown = r.unknown.length ? ` · ${r.unknown.map((x) => `${esc(x.id)} amount unknown`).join(', ')}` : '';
-    panel('overview').innerHTML = `${banner}
+    panel('summary').innerHTML = `${banner}
       <dl class="dt-tiles">
         <div class="dt-tile"><dt>${r.final ? 'Sales after review' : 'Sales recorded'}</dt><dd>${n(r.salesTotal)}</dd><p>${r.salesCount} sales${r.salesTotal !== r.recordedTotal ? ` · recorded ${n(r.recordedTotal)}` : ''}</p><p class="dt-could">${r.final ? 'Checked' : 'Provisional'}${unknown}</p></div>
         <div class="dt-tile"><dt>Payments received</dt><dd>${n(r.paymentsTotal)}</dd><p>${r.paymentsCount} payments</p></div>
@@ -119,12 +125,12 @@ export function mountDemo(root) {
       <ul class="dt-todo">${fs.map((f) => `<li><button type="button" class="dt-todo-b is-${f.status}" data-open="${f.issue}">
         <span class="dt-todo-t">${esc(f.title)} <span class="dt-ids">${esc(f.ids.join(' and '))}</span></span>
         <span class="dt-todo-s">${STATUS[f.status]} <span aria-hidden="true">&rarr;</span></span></button></li>`).join('')}</ul>
-      ${!out ? '<p class="dt-intro">The report and dashboard unlock when it&rsquo;s released from the approval step on the card at the top of the page.</p>' : ''}
-      <p class="dt-reset-p"><button type="button" class="dt-link" data-act="approval">Go to the approval step &uarr;</button>${Object.values(s.decisions).some(Boolean) || s.release ? ' &middot; <button type="button" class="dt-link" data-act="reset">Run it again</button>' : ''}</p>`;
-    sizeBars(panel('overview'));
+      ${!out ? '<p class="dt-intro">The dashboard unlocks when the report is published from the report card at the top of the page.</p>' : ''}
+      <p class="dt-reset-p"><button type="button" class="dt-link" data-act="approval">Back to the report &uarr;</button>${Object.values(s.decisions).some(Boolean) || s.published || s.changedSincePublish ? ' &middot; <button type="button" class="dt-link" data-act="reset">Run it again</button>' : ''}</p>`;
+    sizeBars(panel('summary'));
   }
 
-  // ---- Exceptions (the investigation)
+  // ---- Findings (the investigation)
   function recordsFor(f) {
     if (f.issue === 'pattern') return `${dailyTable(daily(getState()), 'Daily sales against the 4-week average')}${table('sales', f.records.sales, 'Tuesday’s sales')}`;
     let h = '';
@@ -133,15 +139,16 @@ export function mountDemo(root) {
     if (f.records.requests) h += table('requests', f.records.requests);
     return h;
   }
-  function paintExceptions() {
+  function paintFindings() {
     const s = getState(); const fs = findings(s); const f = fs.find((x) => x.issue === sel) || fs[0];
+    markFor(f.issue);
     const v = review(s);
     const next = fs.find((x) => x.status === 'open' && x.issue !== f.issue);
     const choices = f.byRecheck
       ? `<p class="dt-sorted">${esc(f.consequence)}</p><p class="dt-intro">Nothing to decide: the recheck cleared it.</p>`
       : `<div class="dt-choices">${f.choices.map(([val, label, outcome]) => `<button type="button" class="btn ${f.decision === val ? 'btn-primary' : 'btn-secondary'} dt-choice" data-choice="${val}" aria-pressed="${f.decision === val}"><span>${esc(label)}</span><small>${OUTCOME[outcome]}</small></button>`).join('')}</div>
         ${f.decision ? `<p class="dt-sorted">${esc(f.consequence)}</p>${f.status === 'resolved' ? `<p class="dt-prevent"><strong>To stop it happening again:</strong> ${esc(f.prevent)}</p>` : ''}` : ''}`;
-    panel('exceptions').innerHTML = `
+    panel('findings').innerHTML = `
       <ul class="dt-reg" aria-label="Findings">
         <li class="dt-reg-head" aria-hidden="true"><span>Ref</span><span>Finding</span><span>Check</span><span>Status</span></li>
         ${fs.map((x) => `<li><button type="button" class="dt-reg-row${x.issue === f.issue ? ' is-on' : ''}" data-sel="${x.issue}" aria-pressed="${x.issue === f.issue}">
@@ -150,7 +157,7 @@ export function mountDemo(root) {
       </ul>
       <div class="dt-detail" tabindex="-1">
         <h3 class="dt-h">${esc(f.title)} <span class="dt-ids">${esc(f.ids.join(' and '))}</span> <span class="dt-reg-st is-${f.status}">${STATUS[f.status]}</span></h3>
-        <p class="dt-k">The original records</p>
+        <p class="dt-k">The original records <button type="button" class="dt-link dt-inspect" data-tab-go="sources">View in Sources &rarr;</button></p>
         <div class="dt-recs">${recordsFor(f)}</div>
         <dl class="dt-facts">
           <div><dt>What was detected</dt><dd>${esc(f.why)}</dd></div>
@@ -163,16 +170,18 @@ export function mountDemo(root) {
         </div>
         <p class="dt-next">${next
           ? `<button type="button" class="dt-link" data-sel="${next.issue}">Next: ${esc(next.title.toLowerCase())} &rarr;</button>`
-          : `<button type="button" class="dt-link" data-act="approval">${v.unresolved ? 'Review done, with items unresolved.' : 'All findings reviewed.'} Back to approval &uarr;</button>`}</p>
+          : `<button type="button" class="dt-link" data-act="approval">${v.unresolved ? 'Review done, with items unresolved.' : 'All findings reviewed.'} Back to the report &uarr;</button>`}</p>
       </div>`;
   }
 
-  // ---- Source records
+  // ---- Sources
   function paintSources() {
+    const f = findings(getState()).find((x) => x.issue === sel); markFor(sel);
     panel('sources').innerHTML = `
-      <p class="dt-intro">${counts.total} records from ${counts.sources} sources, plus ${counts.historyWeeks} weeks of daily sales history for the pattern check. Highlighted rows were flagged on the first run; outlined cells are blanks.</p>
+      <p class="dt-intro">${counts.total} records from ${counts.sources} sources, plus ${counts.historyWeeks} weeks of daily sales history for the pattern check. Highlighted: the records behind <strong>${esc(f.title.toLowerCase())}</strong> (${esc(f.ids.join(', '))}). <button type="button" class="dt-link" data-tab-go="findings">Back to the finding &rarr;</button></p>
+      <div class="dt-pick" role="group" aria-label="Highlight the records for a finding">${findings(getState()).map((x) => `<button type="button" class="dt-pick-b" data-mark="${x.issue}" aria-pressed="${x.issue === sel}">${esc(x.title)}</button>`).join('')}</div>
       ${SOURCES.map((src) => table(src.id, ROWS[src.id], `${src.name} (${ROWS[src.id].length} records)`)).join('')}
-      <div class="dt-table-wrap"><table class="dt-table"><caption>Sales history: daily totals, previous 4 weeks (demonstration data)</caption>
+      <div class="dt-table-wrap${sel === 'pattern' ? ' is-flag-wrap' : ''}"><table class="dt-table"><caption>Sales history: daily totals, previous 4 weeks (fictional demonstration data)</caption>
         <thead><tr><th scope="col">Day</th>${HISTORY.weeks.map((w) => `<th scope="col" class="dt-num">${esc(w)}</th>`).join('')}</tr></thead>
         <tbody>${Object.entries(HISTORY.days).map(([d, v]) => `<tr><td data-label="Day">${esc(d)}</td>${v.map((x, i) => `<td data-label="${esc(HISTORY.weeks[i])}" class="dt-num">${n(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
       <p class="dt-intro">S-1049 and S-1052 aren&rsquo;t paid yet. That&rsquo;s normal within the week, so they aren&rsquo;t flagged.</p>`;
@@ -193,9 +202,9 @@ export function mountDemo(root) {
 
   function paint() {
     paintHead();
-    if (tab === 'overview') paintOverview();
-    if (tab === 'exceptions') paintExceptions();
+    if (tab === 'findings') paintFindings();
     if (tab === 'sources') paintSources();
+    if (tab === 'summary') paintSummary();
   }
 
   function show(to, issue, focus = false) {
@@ -207,21 +216,25 @@ export function mountDemo(root) {
     else if (focus) (panel(to).querySelector('.dt-detail') || panel(to)).focus({ preventScroll: true });
   }
   const toApproval = () => {
-    const card = document.getElementById('hero-run');
+    const card = document.getElementById('hero-report');
     if (!card) return;
     card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-    setTimeout(() => card.querySelector('.rl-approve button')?.focus({ preventScroll: true }), reduce ? 0 : 450);
+    setTimeout(() => card.querySelector('.hr-actions button')?.focus({ preventScroll: true }), reduce ? 0 : 450);
   };
 
   root.addEventListener('click', (e) => {
     const t = e.target.closest('[data-tab]');
     if (t) { show(t.dataset.tab); return; }
+    const go = e.target.closest('[data-tab-go]');
+    if (go) { show(go.dataset.tabGo, null, 'tab'); return; }
+    const mark = e.target.closest('[data-mark]');
+    if (mark) { sel = mark.dataset.mark; paint(); panel('sources').querySelector(`[data-mark="${sel}"]`)?.focus(); return; }
     const open = e.target.closest('[data-open]');
-    if (open) { show('exceptions', open.dataset.open, true); return; }
+    if (open) { show('findings', open.dataset.open, true); return; }
     const pick = e.target.closest('[data-sel]');
     if (pick) {
       sel = pick.dataset.sel; paint();
-      const detail = panel('exceptions').querySelector('.dt-detail');
+      const detail = panel('findings').querySelector('.dt-detail');
       detail?.focus({ preventScroll: true });
       if (detail && detail.getBoundingClientRect().top < 0) detail.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
       return;
@@ -232,12 +245,12 @@ export function mountDemo(root) {
       setDecision(sel, was === choice.dataset.choice ? null : choice.dataset.choice); // clicking the chosen one again clears it
       const f = findings(getState()).find((x) => x.issue === sel); const r = report(getState());
       say(`${f.decision ? f.consequence : 'Decision cleared.'} Checks rerun. Sales ${n(r.salesTotal)}. ${r.review.open} open, ${r.review.unresolved} unresolved.`);
-      panel('exceptions').querySelector(`[data-choice="${choice.dataset.choice}"]`)?.focus();
+      panel('findings').querySelector(`[data-choice="${choice.dataset.choice}"]`)?.focus();
       return;
     }
     const act = e.target.closest('[data-act]');
     if (act?.dataset.act === 'approval') { toApproval(); return; }
-    if (act?.dataset.act === 'reset') { reset(); sel = ISSUE_IDS[0]; panel('overview').focus(); say('Example reset. Awaiting review. 4 findings open.'); }
+    if (act?.dataset.act === 'reset') { reset(); sel = ISSUE_IDS[0]; panel('summary').focus(); say('Example reset. Awaiting review. 4 findings open.'); }
   });
   root.querySelector('.dt-tabs').addEventListener('keydown', (e) => {
     const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };

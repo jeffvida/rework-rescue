@@ -10,8 +10,8 @@ import { readFile } from 'node:fs/promises';
 import * as DATA from '../src/demo/data.js';
 import { SALES, PAYMENTS, REQUESTS, SOURCES, HISTORY, RULES, ISSUES } from '../src/demo/data.js';
 import {
-  initialState, sourceCounts, runChecks, findings, decide, setRelease, canApproveFinal, review, status, report, outputs,
-  aiFindings, heroLine, heroSummary, daily, historyAverage, weekRange, workingDaysOpen, ISSUE_IDS,
+  initialState, sourceCounts, runChecks, findings, decide, publish, publishWarning, canApproveFinal, review, status, report, outputs,
+  aiFindings, heroCard, heroSummary, daily, historyAverage, weekRange, workingDaysOpen, ISSUE_IDS,
 } from '../src/demo/engine.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -105,9 +105,9 @@ test('Tuesday: legitimate variation changes no figure; removing S-1051 clears it
 
 test('R-205: a follow-up task only when a next action is assigned, never when marked as handled', () => {
   const base = [['duplicate', 'remove'], ['missing', 'fullAmount']];
-  const assigned = setRelease(with_(...base, ['followUp', 'assign']), 'final');
+  const assigned = publish(with_(...base, ['followUp', 'assign']));
   assert.deepEqual(outputs(assigned).task, { id: 'R-205', owner: 'Ben', text: 'Send the quote to Northside Partners' });
-  const handled = setRelease(with_(...base, ['followUp', 'handled']), 'final');
+  const handled = publish(with_(...base, ['followUp', 'handled']));
   assert.equal(outputs(handled).task, null);
   assert.equal(report(handled).openRequests, 2);
   assert.equal(report(assigned).openRequests, 3);
@@ -139,28 +139,29 @@ test('figures for the main paths: 3,830 final; 4,690 with two genuine sales; sti
   assert.deepEqual([c.salesTotal, c.owed, c.final], [4310, 1710, false]);
 });
 
-test('release rules: final only when nothing is open or unresolved; provisional and hold only before that; any decision re-locks', () => {
+test('publishing: allowed any time; with findings open it warns first and is labelled; a later change unpublishes', () => {
   const s0 = initialState();
-  assert.equal(setRelease(s0, 'final'), s0);
-  const prov = setRelease(s0, 'provisional');
-  assert.equal(prov.release, 'provisional');
-  assert.equal(outputs(prov).report.label, 'Provisional report');
-  assert.equal(outputs(prov).unresolved.length, 4, 'open items are listed in a provisional report');
-  assert.equal(outputs(setRelease(s0, 'hold')), null, 'hold unlocks nothing');
-  assert.equal(outputs(s0), null, 'nothing unlocked before a release');
+  assert.equal(outputs(s0), null, 'nothing unlocked before publishing');
+  assert.equal(status(s0), 'Awaiting review');
+  assert.equal(publishWarning(s0), '4 of 4 findings still need review. The published report will be labelled “Contains unresolved findings”.');
+  const p0 = publish(s0);
+  assert.deepEqual([status(p0), outputs(p0).report.label, outputs(p0).unresolved.length, outputs(p0).clean], ['Published · contains unresolved findings', 'Published report · contains unresolved findings', 4, false]);
   const ready = with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'handled']);
-  assert.equal(status(ready), 'Ready for approval');
-  assert.equal(setRelease(ready, 'provisional'), ready);
-  const fin = setRelease(ready, 'final');
-  assert.deepEqual([status(fin), outputs(fin).report.label, outputs(fin).unresolved.length], ['Final report released', 'Final report', 0]);
-  assert.equal(decide(fin, 'followUp', 'assign').release, null, 'changing a decision locks the outputs again');
+  assert.deepEqual([status(ready), publishWarning(ready)], ['Ready to publish', '']);
+  const fin = publish(ready);
+  assert.deepEqual([status(fin), outputs(fin).report.label, outputs(fin).unresolved.length, outputs(fin).clean], ['Published', 'Published report', 0, true]);
+  const changed = decide(fin, 'followUp', 'assign');
+  assert.deepEqual([changed.published, status(changed), outputs(changed)], [false, 'Changed since publishing', null]);
+  assert.equal(status(publish(changed)), 'Published');
+  assert.equal(decide(fin, 'followUp', 'handled'), fin, 'choosing the same option again changes nothing');
+  assert.equal(status(with_(['missing', 'partial'])), 'Under review');
 });
 
-test('released outputs reflect the decisions: totals, dashboard days and unresolved items differ by path', () => {
-  const p = outputs(setRelease(with_(['duplicate', 'keep'], ['missing', 'partial']), 'provisional'));
+test('published outputs reflect the decisions: totals, dashboard days and unresolved items differ by path', () => {
+  const p = outputs(publish(with_(['duplicate', 'keep'], ['missing', 'partial'])));
   assert.deepEqual([p.report.salesTotal, p.unresolved.map((u) => u.issue)], [4310, ['missing', 'pattern', 'followUp']]);
   assert.equal(p.dashboard.daily.find((d) => d.day === 'Tue').flagged, true);
-  const f = outputs(setRelease(with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'assign']), 'final'));
+  const f = outputs(publish(with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'assign'])));
   assert.deepEqual([f.report.salesTotal, f.dashboard.daily.find((d) => d.day === 'Tue').total, f.dashboard.daily.some((d) => d.flagged)], [3830, 1595, false]);
 });
 
@@ -180,10 +181,15 @@ test('AI findings agree with the figures, keep the duplicate and the missing amo
   assert.doesNotMatch(aiFindings(with_(['duplicate', 'keep'], ['missing', 'unconfirmed'])).join(' '), /after review/);
 });
 
-test('hero line: before review, part-way, and when every finding is resolved', () => {
-  assert.equal(heroLine(), 'Sales recorded: 4,310, provisional. 4 items need investigation, including Tuesday sales 58% above their 4-week average.');
-  assert.equal(heroLine(with_(['duplicate', 'keep'], ['missing', 'partial'])), 'Sales now 4,310, provisional. 2 to review · 1 confirmed legitimate · 1 unresolved.');
-  assert.match(heroLine(with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'assign'])), /^Sales total after review: 3,830 \(recorded 4,310\)/);
+test('hero card data: three figures, the daily chart from the dataset, items to review; it follows the decisions', () => {
+  const c = heroCard();
+  assert.deepEqual([c.status, c.toReview, c.salesTotal, c.salesNote, c.paymentsTotal, c.openRequests], ['Awaiting review', 4, '4,310', 'provisional', '2,980', 3]);
+  assert.deepEqual(c.daily.map((d) => [d.day, d.total, d.avg]), [['Mon', 570, 620], ['Tue', 2455, 1550], ['Wed', 360, 560], ['Thu', 595, 640], ['Fri', 330, 380]]);
+  assert.deepEqual(c.tuesday, { total: '2,455', change: '+58%', flagged: true });
+  // the chart's this-week totals are the sales log itself, day by day
+  for (const d of c.daily) assert.equal(d.total, SALES.filter((x) => x.date.startsWith(d.day) && x.amount !== null).reduce((t, x) => t + x.amount, 0), d.day);
+  const after = heroCard(with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'assign']));
+  assert.deepEqual([after.toReview, after.salesTotal, after.salesNote, after.tuesday], [0, '3,830', 'checked', { total: '1,595', change: '+3%', flagged: false }]);
 });
 
 test('wording: first person only, no trade words, no currency symbols', () => {
@@ -221,46 +227,59 @@ test('the demo window shows the same week as the data', async () => {
 
 // ---- The page
 
-test('hero: headline and approved paragraph kept, booking first, 30-minute claim matches the booking setup', async () => {
+test('hero: headline kept, the new short line, booking first then "See how it works"; 30 minutes matches booking', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
-  assert.ok(hero.includes('Rebuilding the same report every Monday? Chasing updates because nobody knows who&rsquo;s responsible for the next step? I help small businesses fix the reports, spreadsheets and routine tasks their teams keep redoing by hand, so you can trust the numbers and see what needs attention.'));
-  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
+  assert.match(hero, /<p class="hero-sub">I turn scattered data and repetitive tasks into reliable reports and smoother workflows\.<\/p>/);
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how it works'));
   assert.match(hero, /A 30-minute call about one report or process/);
   const { RULES: BOOK } = await import('../src/booking/slots.js');
   assert.equal(BOOK.slotMinutes, 30);
 });
 
-test('hero card: the run log with the engine’s figures, four flags, AI line, approval step and locked outputs', async () => {
+test('hero card: status, items to review, three figures and the daily chart, all from the engine; no findings list', async () => {
   const html = await page();
-  const card = html.slice(html.indexOf('id="hero-run"'), html.indexOf('</figure>', html.indexOf('id="hero-run"')));
-  const h = heroSummary();
-  for (const [k, v] of Object.entries(h)) {
-    if (typeof v === 'object') continue;
-    for (const m of card.matchAll(new RegExp(`data-hero="${k}">([^<]*)<`, 'g'))) assert.equal(m[1], String(v), k);
+  const card = html.slice(html.indexOf('id="hero-report"'), html.indexOf('</figure>', html.indexOf('id="hero-report"')));
+  const c = heroCard();
+  const val = (k) => card.match(new RegExp(`data-hr="${k}"[^>]*>([^<]*)<`))[1];
+  assert.deepEqual([val('status'), val('toReview'), val('salesTotal'), val('salesNote'), val('paymentsTotal'), val('openRequests'), val('tueTotal'), val('tueChange')],
+    [c.status, String(c.toReview), c.salesTotal, c.salesNote, c.paymentsTotal, String(c.openRequests), c.tuesday.total, c.tuesday.change]);
+  // static bars drawn at the chart's own scale from the same totals
+  const svg = card.slice(card.indexOf('<svg'), card.indexOf('</svg>'));
+  const [max, base, h] = ['max', 'base', 'h'].map((k) => Number(svg.match(new RegExp(`data-${k}="([\\d.]+)"`))[1]));
+  for (const d of c.daily) {
+    const m = svg.match(new RegExp(`data-day="${d.day}"><rect class="hr-bar" x="[\\d.]+" y="([\\d.]+)" width="\\d+" height="([\\d.]+)"`));
+    assert.ok(m, d.day);
+    assert.ok(Math.abs(Number(m[2]) - (d.total / max) * h) < 0.2, `${d.day} bar height`);
+    assert.ok(Math.abs(Number(m[1]) - (base - (d.total / max) * h)) < 0.2, `${d.day} bar top`);
   }
-  assert.match(card, /This week&rsquo;s report, checked and ready for your approval\./);
-  assert.match(card, /Weekly report &middot; Every Monday, 7:00&nbsp;AM/);
-  for (const t of ['Collect and consolidate', 'Format and standardise', 'Validate and detect patterns', 'AI findings', 'Your review and approval', 'Deliver']) assert.ok(card.includes(t), t);
-  assert.deepEqual([...card.matchAll(/<li data-flag="(\w+)">([^<]+)<\/li>/g)].map((m) => ({ issue: m[1], title: m[2] })), h.issues);
-  assert.ok(card.includes(`data-rl="summary">${heroLine()}<`), 'static AI line matches the engine');
-  assert.match(card, /Nothing is shared or changed until you decide\./);
-  assert.match(card, /unlock after release/);
-  assert.match(card, /AI &middot; simulated/);
-  assert.match(card, /Fictional sample data/);
-  assert.match(html, /<figcaption class="rl-tagline">Automation does the repetitive work\. Rules check the data\. AI helps explain what needs attention\. You stay in control\.<\/figcaption>/);
+  assert.match(svg, /<g class="hr-col is-flag" data-day="Tue">/);
+  assert.equal((svg.match(/is-flag/g) || []).length, 1, 'only Tuesday is highlighted');
+  assert.doesNotMatch(card, /data-flag=|Potential duplicate|Sale with no amount|Request with no next action|rl-step/, 'no findings list or run log in the hero');
+  assert.match(html, /<figcaption class="hr-note">Simulated in your browser\. Nothing is sent or changed\.<\/figcaption>/);
 });
 
-test('hero script: real buttons for review, provisional, hold and final approval, sharing the example’s state', async () => {
+test('hero script: exactly two actions (Review flagged items, Publish report), a publish warning, shared state', async () => {
   const js = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
-  for (const a of ['review', 'provisional', 'hold', 'final', 'reopen', 'open']) assert.match(js, new RegExp(`data-hero-act="${a}"`), a);
-  for (const t of ['Review flagged items', 'Release as provisional', 'Keep on hold', 'Approve final report']) assert.ok(js.includes(t), t);
+  assert.match(js, /Review flagged items/); assert.match(js, /Publish report/); assert.match(js, /Publish anyway/);
+  assert.doesNotMatch(js, /provisional|on hold/i, 'no provisional or hold workflow');
+  assert.match(js, /publishWarning/);
   assert.match(js, /from '\.\/store\.js'/);
   const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
   assert.match(ui, /from '\.\/store\.js'/);
+  assert.match(ui, /\['findings', 'Findings'[\s\S]*\['sources', 'Sources'[\s\S]*\['summary', 'Summary'/);
   assert.doesNotMatch(ui, /Book a free rework review/, 'booking stays in the strip after the demo');
-  for (const t of ['A flag isn&rsquo;t an error until you say so.', 'What was detected', 'Rule or comparison', 'What to check', 'To stop it happening again:', 'Back to approval']) assert.ok(ui.includes(t), t);
+  for (const t of ['View in Sources', 'What was detected', 'Rule or comparison', 'What to check', 'To stop it happening again:', 'Back to the report']) assert.ok(ui.includes(t), t);
+});
+
+test('decision wording follows the spec', () => {
+  assert.deepEqual(Object.fromEntries(Object.entries(ISSUES).map(([k, v]) => [k, v.choices.map((c) => c[1])])), {
+    duplicate: ['Confirm duplicate (remove S-1051)', 'Retain both sales'],
+    missing: ['Verify sale amount (380)', 'Identify as partial payment', 'Leave unresolved'],
+    pattern: ['Confirm legitimate variation', 'Investigate further'],
+    followUp: ['Assign a next action', 'Mark as handled'],
+  });
 });
 
 test('problem cards: three, in the customer’s words, each opening its service', async () => {
@@ -280,6 +299,7 @@ test('live example intro and no-JavaScript fallback: four findings, history, the
   assert.match(sec, /<h2 id="samples-h">See how the checks work<\/h2>/);
   assert.match(sec, /checked against four weeks of sales history/);
   assert.match(sec, /A flag isn&rsquo;t an error until you say so/);
+  assert.match(sec, /<p class="demo-tagline">Automation does the repetitive work\. Rules check the data\. AI helps explain what needs attention\. You stay in control\.<\/p>/);
   const st = sec.slice(sec.indexOf('class="demo-static"'));
   for (const t of ['S-1043 and S-1051', 'S-1047', 'Unusual Tuesday sales', '2,455', '1,550', '58%', '40%', '1,595', 'R-205', 'demonstration data']) assert.ok(st.includes(t), t);
 });
@@ -287,7 +307,7 @@ test('live example intro and no-JavaScript fallback: four findings, history, the
 test('Data & Reporting output sample: the engine’s final outputs after a full review, with no trend chart', async () => {
   const html = await page();
   const fig = html.slice(html.indexOf('data-pv-figure="output"'), html.indexOf('</figure>', html.indexOf('data-pv-figure="output"')));
-  const s = setRelease(with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'assign']), 'final');
+  const s = publish(with_(['duplicate', 'remove'], ['missing', 'fullAmount'], ['followUp', 'assign']));
   const o = outputs(s); const r = report(s);
   const val = (k) => fig.match(new RegExp(`data-po="${k}">([^<]*)<`))[1];
   assert.deepEqual([val('salesTotal'), val('recordedTotal'), val('paymentsTotal'), val('owed'), val('openRequests')],
@@ -319,7 +339,7 @@ test('Business Tools preview: generic booking, no trade examples', async () => {
 test('privacy notice: fictional data incl. history, simulated release and AI, nothing stored or sent', async () => {
   const html = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   const sec = html.slice(html.indexOf('<h2>The examples on the homepage</h2>'), html.indexOf('<h2>When you contact me</h2>'));
-  for (const t of ['See how the checks work', 'sales history', 'Releasing a report, refreshing the dashboard or creating a follow-up task there is simulated', 'not in cookies, local storage or session storage', 'not connected to any accounting, finance, work-tracking or other business system', 'no AI runs on this page']) assert.ok(sec.includes(t), t);
+  for (const t of ['See how the checks work', 'sales history', 'Publishing a report, refreshing the dashboard or creating a follow-up task there is simulated', 'not in cookies, local storage or session storage', 'not connected to any accounting, finance, work-tracking or other business system', 'no AI runs on this page']) assert.ok(sec.includes(t), t);
 });
 
 test('page: experience sits right after the live example, marked as previous professional experience', async () => {

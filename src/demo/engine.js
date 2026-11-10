@@ -1,4 +1,4 @@
-// Sample engine: collect → consolidate → validate → detect patterns → findings → human review → release.
+// Sample engine: collect → consolidate → validate → detect patterns → findings → human review → publish.
 // Pure functions, no page code, so tests/demo.test.mjs can check every number the hero card, the example and the
 // Data & Reporting sample show. The source rows never change: a review decision is stored as data, and every figure,
 // check, finding and summary line is worked out again from the rows plus the decisions (the "recheck").
@@ -13,7 +13,7 @@ const pct = (x) => `${Math.round(Math.abs(x) * 100)}%`;
 const DUP = ['S-1043', 'S-1051']; const MISSING = 'S-1047'; const REQ = 'R-205';
 
 export function initialState() {
-  return { decisions: { duplicate: null, missing: null, pattern: null, followUp: null }, release: null };
+  return { decisions: { duplicate: null, missing: null, pattern: null, followUp: null }, published: false, changedSincePublish: false };
 }
 
 /** Rows per source, and the history used for the pattern check. */
@@ -148,7 +148,7 @@ function consequence(s, issue, st) {
     unconfirmed: 'Left for the team to confirm. It stays out of the total and is listed as unresolved.',
     legit: 'Confirmed as a legitimate variation. No figures were changed.',
     investigate: 'Kept open for further investigation. It will be listed as unresolved.',
-    assign: 'Assigned to Ben, with the next action “Send the quote”. A follow-up task will be prepared when the report is released.',
+    assign: 'Assigned to Ben, with the next action “Send the quote”. A follow-up task is created when the report is published.',
     handled: 'Marked as already handled. No follow-up task is created.',
   }[d];
 }
@@ -161,33 +161,36 @@ export function review(s) {
 }
 export const canApproveFinal = (s) => { const r = review(s); return r.open === 0 && r.unresolved === 0; };
 
-/** Make, change or clear (null) a review decision. Any change locks the outputs again (release cleared). */
+/** Make, change or clear (null) a review decision. A change after publishing unpublishes the report and marks it
+ *  "Changed since publishing", so a published report never disagrees with the data. */
 export function decide(s, issue, choice) {
   if (!ISSUE_IDS.includes(issue)) return s;
   if (choice !== null && !ISSUES[issue].choices.some(([c]) => c === choice)) return s;
   if (issue === 'pattern' && choice !== null && statusOf(s, 'pattern').byRecheck) return s; // nothing left to decide
-  return { ...s, decisions: { ...s.decisions, [issue]: choice }, release: null };
+  if (s.decisions[issue] === choice) return s;
+  return { ...s, decisions: { ...s.decisions, [issue]: choice }, published: false, changedSincePublish: s.published || s.changedSincePublish };
 }
 
-/** Release decision. 'final' only when every finding is resolved or confirmed legitimate; 'provisional' and 'hold'
- *  only while something is still open or unresolved. null reopens the review. */
-export function setRelease(s, kind) {
-  if (kind === null) return { ...s, release: null };
-  if (kind === 'final' && !canApproveFinal(s)) return s;
-  if ((kind === 'provisional' || kind === 'hold') && canApproveFinal(s)) return s;
-  if (!['final', 'provisional', 'hold'].includes(kind)) return s;
-  return { ...s, release: kind };
+/** Publish the report. Allowed at any time; with findings still open or unresolved, the published report is labelled
+ *  as containing unresolved findings (the page asks the visitor to confirm first). */
+export function publish(s) {
+  return s.published ? s : { ...s, published: true, changedSincePublish: false };
+}
+
+/** What publishing needs the visitor to know first: the number of findings still open or unresolved. */
+export function publishWarning(s) {
+  const r = review(s); const left = r.open + r.unresolved;
+  return left ? `${left} of ${r.total} findings still ${left === 1 ? 'needs' : 'need'} review. The published report will be labelled “Contains unresolved findings”.` : '';
 }
 
 /** The report status shown on the hero card and the example. */
 export function status(s) {
-  if (s.release === 'final') return 'Final report released';
-  if (s.release === 'provisional') return 'Provisional report released';
-  if (s.release === 'hold') return 'On hold';
+  if (s.published) return canApproveFinal(s) ? 'Published' : 'Published · contains unresolved findings';
+  if (s.changedSincePublish) return 'Changed since publishing';
   const r = review(s);
-  if (canApproveFinal(s)) return 'Ready for approval';
+  if (canApproveFinal(s)) return 'Ready to publish';
   if (r.open === r.total) return 'Awaiting review';
-  return r.open ? 'Under review' : 'Reviewed · items unresolved';
+  return 'Under review';
 }
 
 /** The weekly report: every figure from the rows plus the decisions. */
@@ -212,13 +215,13 @@ export function report(s = initialState()) {
   };
 }
 
-/** What a release unlocks: the report, the dashboard and any follow-up task the reviewer authorised. */
+/** What publishing unlocks: the report, the dashboard and any follow-up task the reviewer authorised. */
 export function outputs(s) {
-  if (s.release !== 'final' && s.release !== 'provisional') return null;
-  const r = report(s); const fs = findings(s);
+  if (!s.published) return null;
+  const r = report(s); const fs = findings(s); const clean = canApproveFinal(s);
   return {
-    kind: s.release,
-    report: { label: s.release === 'final' ? 'Final report' : 'Provisional report', salesTotal: r.salesTotal, recordedTotal: r.recordedTotal, salesCount: r.salesCount, paymentsTotal: r.paymentsTotal, owed: r.owed, records: sourceCounts().total },
+    clean,
+    report: { label: clean ? 'Published report' : 'Published report · contains unresolved findings', salesTotal: r.salesTotal, recordedTotal: r.recordedTotal, salesCount: r.salesCount, paymentsTotal: r.paymentsTotal, owed: r.owed, records: sourceCounts().total },
     dashboard: { daily: daily(s), openRequests: r.openRequests, review: r.review },
     unresolved: fs.filter((f) => f.status === 'unresolved' || f.status === 'open').map((f) => ({ issue: f.issue, title: f.title, ids: f.ids })),
     task: s.decisions.followUp === 'assign' ? { id: REQ, owner: 'Ben', text: 'Send the quote to Northside Partners' } : null,
@@ -260,14 +263,26 @@ export function aiFindings(s = initialState()) {
   return lines;
 }
 
+/** The hero card: three figures, the daily chart and the number of items to review, for any state. */
+export function heroCard(s = initialState()) {
+  const r = report(s); const d = daily(s); const tue = d.find((x) => x.day === 'Tue');
+  return {
+    status: status(s), weekRange: weekRange(WEEK),
+    toReview: r.review.open + r.review.unresolved,
+    salesTotal: n(r.salesTotal), salesNote: r.final ? 'checked' : 'provisional',
+    paymentsTotal: n(r.paymentsTotal), openRequests: r.openRequests,
+    daily: d.map((x) => ({ day: x.day, total: x.total, avg: x.avg, change: x.change, flagged: x.flagged })),
+    tuesday: { total: n(tue.total), change: `${tue.change >= 0 ? '+' : '−'}${pct(tue.change)}`, flagged: tue.flagged },
+  };
+}
+
 /** The hero card's figures before any review (the static HTML holds the same values). */
 export function heroSummary() {
-  const c = sourceCounts(); const r = report(); const tue = daily(initialState()).find((x) => x.day === 'Tue');
+  const c = sourceCounts(); const h = heroCard();
   return {
     sourceRecords: c.total, sources: c.sources, historyWeeks: c.historyWeeks,
-    flagged: r.flagged, salesTotal: n(r.salesTotal), status: status(initialState()), weekRange: weekRange(WEEK),
-    tuesday: n(tue.total), tuesdayAvg: n(tue.avg), tuesdayChange: pct(tue.change),
-    issues: findings().map((f) => ({ issue: f.issue, title: f.hero })),
+    status: h.status, weekRange: h.weekRange, toReview: h.toReview, salesTotal: h.salesTotal, salesNote: h.salesNote,
+    paymentsTotal: h.paymentsTotal, openRequests: h.openRequests, tuesday: h.tuesday.total, tuesdayChange: h.tuesday.change,
   };
 }
 
@@ -284,12 +299,3 @@ export function weekRange(label) {
     : `${mon.getUTCDate()} ${name(mon)} – ${end.getUTCDate()} ${name(end)} ${end.getUTCFullYear()}`;
 }
 
-/** The one- or two-sentence AI line on the hero card (the full findings are in the example's Overview). */
-export function heroLine(s = initialState()) {
-  const r = report(s); const v = r.review; const tue0 = daily(initialState()).find((x) => x.day === 'Tue');
-  if (v.open === v.total) return `Sales recorded: ${n(r.salesTotal)}, provisional. ${v.total} items need investigation, including Tuesday sales ${pct(tue0.change)} above their 4-week average.`;
-  if (r.final) return `Sales total after review: ${n(r.salesTotal)} (recorded ${n(r.recordedTotal)}). Every finding is resolved or confirmed legitimate.`;
-  const parts = [['open', 'to review'], ['resolved', 'resolved'], ['legitimate', 'confirmed legitimate'], ['unresolved', 'unresolved']]
-    .filter(([k]) => v[k]).map(([k, l]) => `${v[k]} ${l}`);
-  return `Sales now ${n(r.salesTotal)}, provisional. ${parts.join(' · ')}.`;
-}

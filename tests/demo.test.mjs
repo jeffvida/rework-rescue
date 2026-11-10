@@ -46,63 +46,64 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 
 // ---- The page
 
-test('hero copy (10 Nov late brief): eyebrow, headline unchanged, supporting copy, two CTAs, booking line, credibility', async () => {
+test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting copy, two CTAs, chips, credibility', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
   assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. Better reporting\. Smarter workflows\.<\/p>/);
-  assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
+  assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
   assert.match(hero, /<p class="hero-sub">I connect the tools, workflows and reporting that help your business run more smoothly &mdash; with built-in data checks to keep your information reliable\.<\/p>/);
   assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
-  assert.match(hero, /href="contact\/#contact-form-area">Book a free rework review</);
-  assert.match(hero, /href="#samples" data-demo-check>Explore the live example</);
-  assert.match(hero, /Free &middot; No obligation/);
-  assert.match(hero, /class="cred-strip"/);
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review<\/a>/);
+  assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
+  for (const t of ['30 minutes', 'Free', 'No obligation']) assert.match(hero, new RegExp(`</svg>${t}</li>`), t);
+  assert.match(hero, /class="cred-strip hv-cred"/);
   assert.doesNotMatch(html, /Northstar/, 'the tracker’s business has no name; none is invented');
 });
 
-test('hero visual: one connected transformation, short labels only, no service descriptions repeated from Services', async () => {
+test('hero visual: Capture, Move, See tiles on one route, a weekly operations view, a short checks badge; no service copy repeated', async () => {
   const html = await page();
-  const a = html.indexOf('<figure class="hero-preview tf'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  assert.deepEqual([...fig.matchAll(/<p class="tf-k"><span class="tf-n">(\d\d)<\/span> (\w+)<\/p>/g)].map((m) => [m[1], m[2]]), [['01', 'Capture'], ['02', 'Move'], ['03', 'See']]);
-  assert.equal((fig.match(/class="tf-link /g) || []).length, 2, 'Capture to Move, Move to See');
-  for (const t of ['Business Tools &amp; Systems', 'Workflows &amp; Processes', 'Record information once', 'Move work through the right steps', 'Duplicate records', 'Automation is only useful'])
-    assert.ok(!fig.includes(t), `hero does not repeat the services section: ${t}`);
-  assert.match(fig, /<span class="tf-check-t">Data checks at every stage<\/span>/);
-  assert.match(fig, /<b>R-112<\/b> No owner assigned &middot; flagged for review/);
-  for (const t of ['Assigned to Sam', 'Follow-up sent', 'In progress', 'Completed']) assert.ok(fig.includes(`</span>${t}</li>`), t);
+  const a = html.indexOf('<figure class="hero-preview hv'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  assert.deepEqual([...fig.matchAll(/<b>(\w+)<\/b><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
+    ['Capture', 'Get the right information in.'], ['Move', 'Keep work moving forward.'], ['See', 'Turn work into clear reports.']]);
+  assert.equal((fig.match(/class="hv-arrow"/g) || []).length, 2);
+  assert.match(fig, /<path id="hv-route"/);
+  assert.match(fig, /<b>Built-in data checks<\/b><small>Duplicates &middot; Missing information &middot; Inconsistent records<\/small>/);
+  for (const t of ['Business Tools &amp; Systems', 'Workflows &amp; Processes', 'Record information once', 'Automation is only useful']) assert.ok(!fig.includes(t), `no repeat of the services section: ${t}`);
   assert.match(fig, /Fictional data; not live automation\./);
-  assert.match(fig, /<button type="button" class="tf-pause" hidden aria-pressed="false">Pause animation<\/button>/);
+  assert.match(fig, /class="tf-pause hv-pause" hidden aria-pressed="false">Pause animation<\/button>/);
 });
 
-test('hero story matches the tracker: R-110 and R-112 as recorded, figures end on the tracker’s own numbers', async () => {
+test('hero data matches the tracker: rows are real records, figures end on the tracker’s numbers, story starts the week before', async () => {
   const html = await page();
-  const a = html.indexOf('<figure class="hero-preview tf'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  const r110 = RECORDS.find((r) => r.ref === 'R-110'); const r112 = RECORDS.find((r) => r.ref === 'R-112');
-  assert.deepEqual([r110.customer, r110.task, r110.owner, r110.due, r110.status], ['Brightline Studio', 'Prepare weekly update', 'Sam', '2026-11-06', 'Completed']);
-  assert.ok(fig.includes(`<span>${r110.customer}</span>`) && fig.includes(`<span>${r110.task}</span>`) && fig.includes('Assigned to Sam'));
-  assert.deepEqual([r112.owner, r112.customer], ['Unassigned', 'Northfield Services']);
+  const a = html.indexOf('<figure class="hero-preview hv'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const rows = [...fig.matchAll(/<tr(?: class="is-flag")?><td>(R-\d+)<\/td><td>([^<]+)<\/td><td class="hv-own">([^<]+)<\/td><td><span class="hv-st [\w-]+">([^<]+)<\/span>/g)].map((m) => m.slice(1));
+  const label = { Completed: 'Completed', 'In Progress': 'In progress', 'Not Started': 'Unassigned' };
+  assert.equal(rows.length, 3);
+  for (const [ref, cust, own, st] of rows) {
+    const r = RECORDS.find((x) => x.ref === ref);
+    assert.equal(cust, r.customer, ref); assert.equal(own === '&mdash;' ? 'Unassigned' : own, r.owner, ref);
+    assert.equal(st, r.owner === 'Unassigned' ? 'Unassigned' : label[r.status], ref);
+  }
   const f = heroFigures(RECORDS);
-  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention], [12, 7, 5, 3]);
-  for (const k of ['total', 'completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-tf="${k}">${f[k]}<`), k);
+  assert.deepEqual([f.completed, f.outstanding, f.attention], [7, 5, 3]);
+  for (const k of ['completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-hv="${k}">${f[k]}<`), k);
   const end = {}; for (const st of storyStates(f)) Object.assign(end, st.n || {});
-  assert.deepEqual(end, { total: f.total, completed: f.completed, outstanding: f.outstanding, attention: f.attention });
-  // The week without R-112, and with R-110 still open, gives the story's starting figures.
-  const before = summarise(RECORDS.filter((r) => !['R-110', 'R-112'].includes(r.ref)));
-  assert.deepEqual(storyStates(f)[0].n, { total: before.total, completed: before.completed, outstanding: before.outstanding, attention: before.attention });
-  assert.doesNotMatch(html, /Northstar/);
+  assert.deepEqual(end, { completed: f.completed, outstanding: f.outstanding, attention: f.attention });
+  // Start: the week without R-112, with R-110 still in progress.
+  const before = summarise(RECORDS.filter((r) => r.ref !== 'R-112').map((r) => (r.ref === 'R-110' ? { ...r, status: 'In Progress' } : r)));
+  assert.deepEqual(storyStates(f)[0].n, { completed: before.completed, outstanding: before.outstanding, attention: before.attention });
 });
 
-test('hero motion: story loops only on screen, can be paused, reduced motion shows the finished picture', async () => {
+test('hero motion: story and route dots run only on screen, Pause button, reduced motion shows the finished picture', async () => {
   const c = await css();
-  const block = c.slice(c.indexOf('/* ---- Hero (10–11 Nov 2026)'));
-  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.tf \*, \.tf \{ animation: none !important; transition: none !important; \} \}/);
-  assert.doesNotMatch(block, /infinite/, 'no CSS loops; the JS story stops off screen');
+  const block = c.slice(c.indexOf('/* ---- Hero (11 Nov 2026, mockup v3)'));
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hv, \.hv \* \{ animation: none !important; transition: none !important; \} \.hv-dots \{ display: none; \} \}/);
+  assert.doesNotMatch(block, /infinite/, 'no CSS loops');
   const js = await src('demo/hero.js');
-  assert.match(js, /prefers-reduced-motion: reduce/);
-  assert.match(js, /document\.hidden/); assert.match(js, /IntersectionObserver/);
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /document\.hidden/); assert.match(js, /pauseAnimations/);
   assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/);
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
-  const last = storyStates(heroFigures(RECORDS)).at(-1); assert.ok(last.end && last.at <= 14000, 'loop of about 13 s');
+  const last = storyStates(heroFigures(RECORDS)).at(-1); assert.ok(last.end && last.at <= 12000);
 });
 
 test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {

@@ -1,11 +1,12 @@
-// Hero (10–11 Nov 2026): one connected transformation, Capture -> Move -> See, with a small data-check layer.
-// It tells one short story from the sample week of the Weekly Work & Follow-up Tracker (src/tracker/), the homepage's
-// live example: request R-110 (Brightline Studio, "Prepare weekly update") is captured, assigned to Sam, followed up
-// and completed; the dashboard updates; then R-112 arrives with no owner and the data check flags it. The dashboard
-// ends on exactly the tracker's figures (heroFigures), counting up from the week before those two requests.
-// The HTML is the finished picture (no JavaScript, reduced motion, paused). The story loops (~13 s) only while the hero
-// is on screen and the tab is visible; a Pause button stops it on the finished picture (WCAG 2.2.2). If the visitor
-// edits the tracker, the loop stops and the hero shows the live figures. CSP: CSSOM setProperty only.
+// Hero (11 Nov 2026, mockup v3): Capture -> Move -> See tiles joined by a glowing route, a tilted "Weekly operations"
+// view and a built-in data checks badge. Everything comes from the sample week of the Weekly Work & Follow-up Tracker
+// (src/tracker/), the homepage's live example: the rows are real tracker records and the "This week" figures end on
+// the tracker's own numbers (heroFigures).
+// Story (~11 s loop): the tiles light up in turn; R-110 (Brightline Studio, Sam) goes from In progress to Completed;
+// the figures update; R-112 (Northfield Services) arrives with no owner and the data checks flag it.
+// The HTML is the finished picture (no JavaScript, reduced motion, paused). The story and the dots on the route run only
+// while the hero is on screen and the tab is visible; a Pause button stops both (WCAG 2.2.2). Editing the tracker stops
+// the story and shows the live figures. CSP: no inline style attributes (CSSOM setProperty only).
 
 import { getRecords, subscribe } from '../tracker/store.js';
 import { summarise, receivedByDay } from '../tracker/engine.js';
@@ -14,38 +15,35 @@ import { RECORDS, PERIOD_LABEL } from '../tracker/data.js';
 /** The hero's final figures, all derived from the tracker records (also used by the tests). */
 export function heroFigures(rec = RECORDS) {
   const s = summarise(rec);
-  return { total: s.total, completed: s.completed, outstanding: s.outstanding, attention: s.attention, period: PERIOD_LABEL,
-    followUps: s.followUps.map((x) => ({ ref: x.ref, keys: x.keys })) };
+  return { total: s.total, completed: s.completed, outstanding: s.outstanding, attention: s.attention, period: PERIOD_LABEL };
 }
 
-// Short labels for the See panel's attention list (the tracker shows the full wording).
-export const SHORT = { overdue: 'Overdue', missing: 'Missing details', missingCustomer: 'Missing details', unassigned: 'No owner', duplicate: 'Check duplicate' };
-
-// The record rows shown under Capture, newest first (three at a time).
-const ROW = {
-  'R-112': '<li class="is-flag"><b>R-112</b><span>Northfield Services</span><em>Check</em></li>',
-  'R-110': '<li><b>R-110</b><span>Brightline Studio</span><em class="is-open">Open</em></li>',
-  'R-110done': '<li><b>R-110</b><span>Brightline Studio</span><em>&#10003;</em></li>',
-  'R-109': '<li><b>R-109</b><span>Harbor Works</span><em>&#10003;</em></li>',
-  'R-108': '<li><b>R-108</b><span>Cedar &amp; Co.</span><em class="is-open">Open</em></li>',
+const STATUS = { done: ['is-done', 'Completed'], prog: ['is-prog', 'In progress'], un: ['is-un', 'Unassigned'] };
+const ROWS = {
+  'R-112': ['R-112', 'Northfield Services', '&mdash;', 'un', true],
+  'R-110': ['R-110', 'Brightline Studio', 'Sam', 'prog'],
+  'R-110done': ['R-110', 'Brightline Studio', 'Sam', 'done'],
+  'R-106': ['R-106', 'Northfield Services', 'Ana', 'prog'],
+  'R-109': ['R-109', 'Harbor Works', 'Ana', 'done'],
+};
+const rowHtml = (k) => {
+  const [ref, cust, own, st, flag] = ROWS[k]; const [cls, label] = STATUS[st];
+  return `<tr${flag ? ' class="is-flag"' : ''}><td>${ref}</td><td>${cust}</td><td class="hv-own">${own}</td><td><span class="hv-st ${cls}">${label}</span></td></tr>`;
 };
 
 /**
- * The story as states, each a delta from the finished picture (f = heroFigures of the sample).
- * fill: form fields shown; saved: "Added to records"; rows: Capture list; job: Move card shown; done: steps ticked;
- * flag: data-check flag shown; pulse: figures that just changed. Times are ms from the start of the loop.
+ * The story as states. n: figures shown; tile: tile lit (1 Capture, 2 Move, 3 See); rows: table rows (top first);
+ * without: records not yet received (left out of the chart); flag: data checks badge flags R-112.
  */
 export function storyStates(f) {
   return [
-    { at: 0, fill: 0, saved: false, rows: ['R-109', 'R-108'], job: false, done: 0, flag: false, without: ['R-110', 'R-112'], n: { total: f.total - 2, completed: f.completed - 1, outstanding: f.outstanding - 1, attention: f.attention - 1 } },
-    { at: 700, fill: 1 }, { at: 1100, fill: 2 }, { at: 1500, fill: 3 },
-    { at: 2300, saved: true, rows: ['R-110', 'R-109', 'R-108'], link: 1, without: ['R-112'], n: { total: f.total - 1, outstanding: f.outstanding }, pulse: ['total', 'outstanding'] },
-    { at: 3300, job: true, done: 1 }, { at: 4200, done: 2 }, { at: 5100, done: 3 },
-    { at: 6000, done: 4, rows: ['R-110done', 'R-109', 'R-108'], link: 2 },
-    { at: 6900, n: { completed: f.completed, outstanding: f.outstanding - 1 }, pulse: ['completed', 'outstanding'] },
-    { at: 8300, rows: ['R-112', 'R-110done', 'R-109'], without: [], n: { total: f.total, outstanding: f.outstanding }, pulse: ['total', 'outstanding'] },
-    { at: 9200, flag: true, n: { attention: f.attention }, pulse: ['attention'] },
-    { at: 12800, end: true },
+    { at: 0, tile: 1, rows: ['R-110', 'R-106', 'R-109'], without: ['R-112'], flag: false, n: { completed: f.completed - 1, outstanding: f.outstanding, attention: f.attention - 1 } },
+    { at: 1600, tile: 2 },
+    { at: 2600, rows: ['R-110done', 'R-106', 'R-109'], changed: 0 },
+    { at: 3400, tile: 3, n: { completed: f.completed, outstanding: f.outstanding - 1 }, pulse: ['completed', 'outstanding'] },
+    { at: 5200, tile: 1, rows: ['R-112', 'R-110done', 'R-106'], without: [], changed: 0, n: { outstanding: f.outstanding }, pulse: ['outstanding'] },
+    { at: 6400, flag: true, tile: 0, n: { attention: f.attention }, pulse: ['attention'] },
+    { at: 11000, end: true },
   ];
 }
 
@@ -53,67 +51,61 @@ export function mountHero(fig) {
   if (!fig) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const q = (s) => fig.querySelector(s);
-  const set = (k, v) => fig.querySelectorAll(`[data-tf="${k}"]`).forEach((el) => { el.textContent = String(v); });
+  const set = (k, v) => fig.querySelectorAll(`[data-hv="${k}"]`).forEach((el) => { el.textContent = String(v); });
+  const svg = q('.hv-path');
   const isSample = () => JSON.stringify(getRecords()) === JSON.stringify(RECORDS);
 
-  // Finished picture with the current tracker figures.
-  function paintFinal() {
-    const rec = getRecords(); const f = heroFigures(rec);
-    for (const k of ['total', 'completed', 'outstanding', 'attention', 'period']) set(k, f[k]);
-    paintBars(rec);
-    const att = q('[data-tf-att]');
-    if (att) att.innerHTML = f.followUps.slice(0, 3).map((x) => `<li${x.ref === 'R-112' ? ' class="tf-att-new"' : ''}><b>${x.ref}</b> ${SHORT[x.keys[0]]}</li>`).join('') || '<li>Nothing waiting</li>';
-  }
-  // Bars: requests received per day; the story leaves out the requests it has not captured yet.
   function paintBars(rec) {
     const days = receivedByDay(rec); const max = Math.max(3, ...receivedByDay(RECORDS).map((d) => d.received));
-    for (const d of days) q(`[data-tf-day="${d.day}"] i`)?.style.setProperty('height', `${Math.max(8, Math.round((d.received / max) * 100))}%`);
+    for (const d of days) q(`[data-hv-day="${d.day}"] i`)?.style.setProperty('height', `${Math.max(8, Math.round((d.received / max) * 100))}%`);
+  }
+  function paintFinal() {
+    const rec = getRecords(); const f = heroFigures(rec);
+    for (const k of ['completed', 'outstanding', 'attention', 'period']) set(k, f[k]);
+    paintBars(rec);
   }
   paintFinal();
 
-  if (reduce || typeof IntersectionObserver !== 'function') { subscribe(() => paintFinal()); return; }
+  const dots = (on) => { try { if (svg && svg.pauseAnimations) { if (on) svg.unpauseAnimations(); else svg.pauseAnimations(); } } catch { /* older browsers */ } };
+  if (reduce || typeof IntersectionObserver !== 'function') { dots(false); subscribe(() => paintFinal()); return; }
 
-  const pauseBtn = q('.tf-pause');
-  const rows = q('[data-tf-rows]'); const steps = [...fig.querySelectorAll('[data-tf-steps] li')];
-  const finalRows = rows.innerHTML;
+  const rows = q('[data-hv-rows]'); const finalRows = rows.innerHTML;
+  const tiles = [...fig.querySelectorAll('[data-hv-tile]')];
+  const pauseBtn = q('.hv-pause');
   let timers = []; let onScreen = false; let paused = false; let stopped = false; let running = false;
 
   const clear = () => { timers.forEach(clearTimeout); timers = []; running = false; };
   const showFinal = () => {
-    clear();
-    fig.classList.remove('tf-run', 'tf-fade', 'tf-l1', 'tf-l2');
-    fig.querySelectorAll('.is-pulse, .is-new').forEach((el) => el.classList.remove('is-pulse', 'is-new'));
-    rows.innerHTML = finalRows; delete fig.dataset.done; delete fig.dataset.fill; paintFinal();
+    clear(); dots(false);
+    fig.classList.remove('hv-run', 'hv-fade', 'hv-flag-on');
+    tiles.forEach((t) => t.classList.remove('is-on'));
+    fig.querySelectorAll('.is-pulse').forEach((el) => el.classList.remove('is-pulse'));
+    rows.innerHTML = finalRows; paintFinal();
   };
   const apply = (st) => {
-    if (st.end) { fig.classList.add('tf-fade'); timers.push(setTimeout(() => { fig.classList.remove('tf-fade'); start(); }, 450)); return; }
-    if ('fill' in st) fig.dataset.fill = String(st.fill);
-    if ('saved' in st) fig.classList.toggle('tf-saved-on', st.saved);
-    if ('job' in st) fig.classList.toggle('tf-job-on', st.job);
-    if ('flag' in st) fig.classList.toggle('tf-flag-on', st.flag);
-    if ('done' in st) { fig.dataset.done = String(st.done); steps.forEach((li, i) => li.classList.toggle('is-done', i < st.done)); }
-    if (st.without) paintBars(RECORDS.filter((r) => !st.without.includes(r.ref)));
+    if (st.end) { fig.classList.add('hv-fade'); timers.push(setTimeout(() => { fig.classList.remove('hv-fade'); start(); }, 450)); return; }
+    if ('tile' in st) tiles.forEach((t) => t.classList.toggle('is-on', Number(t.dataset.hvTile) === st.tile));
+    if ('flag' in st) fig.classList.toggle('hv-flag-on', st.flag);
     if (st.rows) {
-      const first = rows.firstElementChild?.querySelector('b')?.textContent;
-      rows.innerHTML = st.rows.map((r) => ROW[r]).join('');
-      const top = rows.firstElementChild; if (top && top.querySelector('b').textContent !== first) top.classList.add('is-new');
+      rows.innerHTML = st.rows.map(rowHtml).join('');
+      if ('changed' in st) rows.children[st.changed]?.classList.add('is-new');
     }
+    if (st.without) paintBars(RECORDS.filter((r) => !st.without.includes(r.ref)));
     if (st.n) for (const [k, v] of Object.entries(st.n)) set(k, v);
-    for (const k of st.pulse || []) fig.querySelectorAll(`[data-tf="${k}"]`).forEach((el) => { el.classList.remove('is-pulse'); void el.offsetWidth; el.classList.add('is-pulse'); });
-    if (st.link) { const c = `tf-l${st.link}`; fig.classList.remove(c); void fig.offsetWidth; fig.classList.add(c); }
+    for (const k of st.pulse || []) fig.querySelectorAll(`[data-hv="${k}"]`).forEach((el) => { el.classList.remove('is-pulse'); void el.offsetWidth; el.classList.add('is-pulse'); });
   };
   function start() {
     clear();
     if (paused || stopped || !onScreen || document.hidden) { showFinal(); return; }
-    running = true; fig.classList.add('tf-run');
-    const f = heroFigures(RECORDS);
-    for (const st of storyStates(f)) timers.push(setTimeout(() => apply(st), st.at));
+    running = true; dots(true); fig.classList.add('hv-run');
+    for (const st of storyStates(heroFigures(RECORDS))) timers.push(setTimeout(() => apply(st), st.at));
   }
   const sync = () => { if (onScreen && !paused && !stopped && !document.hidden) { if (!running) start(); } else showFinal(); };
 
+  dots(false);
   new IntersectionObserver((entries) => { onScreen = entries.some((e) => e.isIntersecting); sync(); }, { threshold: 0.25 }).observe(fig);
   document.addEventListener('visibilitychange', sync);
-  subscribe(() => { if (!isSample()) { stopped = true; if (pauseBtn) pauseBtn.hidden = true; } else stopped = false; showFinal(); sync(); });
+  subscribe(() => { stopped = !isSample(); if (pauseBtn) pauseBtn.hidden = stopped; showFinal(); sync(); });
   if (pauseBtn) {
     pauseBtn.hidden = false;
     pauseBtn.addEventListener('click', () => {

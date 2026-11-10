@@ -398,6 +398,7 @@ test('the demo window shows the same week as the data', async () => {
 test('hero: headline kept, the new short line, booking first then "See how it works"; 30 minutes matches booking', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
+  assert.match(hero, /<p class="eyebrow">For small businesses that run on spreadsheets<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
   assert.match(hero, /<p class="hero-sub">I turn scattered data and repetitive tasks into reliable reports and smoother workflows\.<\/p>/);
   assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how it works'));
@@ -406,15 +407,38 @@ test('hero: headline kept, the new short line, booking first then "See how it wo
   assert.equal(BOOK.slotMinutes, 30);
 });
 
-test('hero card: status, items to review, three figures and the daily chart, all from the engine; no findings list', async () => {
+test('hero visual: the static HTML is the final frame, with every value from the engine and the dataset', async () => {
   const html = await page();
-  const card = html.slice(html.indexOf('id="hero-report"'), html.indexOf('</figure>', html.indexOf('id="hero-report"')));
+  const fig = html.slice(html.indexOf('<figure class="hero-preview hx'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hx')));
   const c = heroCard();
-  const val = (k) => card.match(new RegExp(`data-hr="${k}"[^>]*>([^<]*)<`))[1];
-  assert.deepEqual([val('status'), val('toReview'), val('salesTotal'), val('salesNote'), val('paymentsTotal'), val('openRequests'), val('tueTotal'), val('tueChange')],
-    [c.status, String(c.toReview), c.salesTotal, c.salesNote, c.paymentsTotal, String(c.openRequests), c.tuesday.total, c.tuesday.change]);
-  // static bars drawn at the chart's own scale from the same totals
-  const svg = card.slice(card.indexOf('<svg'), card.indexOf('</svg>'));
+  const val = (k) => fig.match(new RegExp(`data-hr="${k}"[^>]*>([^<]*)<`))[1];
+  assert.deepEqual([val('salesTotal'), val('salesNote'), val('tueTotal'), val('tueChange')], [c.salesTotal, c.salesNote, c.tuesday.total, c.tuesday.change]);
+  // ends on review: the exact status and action the spec approved, with no publishing, approval or release
+  assert.equal(val('status').replace('&middot;', '·'), 'Awaiting your review · 4 items');
+  assert.match(fig, /<a class="btn btn-primary hx-go" href="#samples" data-hr="review">Review the 4 items<\/a>/);
+  assert.doesNotMatch(fig, /publish|approve|approved|release|sign-off|sign off/i);
+  // three recognisable source files, with the dataset's own row counts and rows
+  const files = [...fig.matchAll(/<p class="hx-file-h">.*?<span>([^<]+)<\/span><\/p><p class="hx-file-n">(\d+) rows<\/p>/g)].map((m) => [m[1], Number(m[2])]);
+  const cnt = sourceCounts();
+  assert.deepEqual(files, [['Sales log', cnt.sales], ['Payments received', cnt.payments], ['Customer requests', cnt.requests]]);
+  const rows = [...fig.matchAll(/<li(?: class="hx-target")?>([SPR]-\d+) <span>(\w+)<\/span>(?: <span>(\d+)<\/span>)?/g)].map((m) => m.slice(1));
+  for (const [id, day, amt] of rows) {
+    const r = [...SALES, ...PAYMENTS].find((x) => x.id === id) || REQUESTS.find((x) => x.id === id);
+    assert.ok(r, id);
+    if (r.date) assert.ok(r.date.startsWith(day), `${id} day`);
+    if (amt) assert.equal(r.amount, Number(amt), `${id} amount`);
+    if (r.owner !== undefined && !amt) assert.equal(r.owner, day, `${id} owner`);
+  }
+  assert.match(fig, /<li class="hx-target">S-1051 <span>Tue<\/span> <span>860<\/span><\/li>/, 'the trace target is S-1051');
+  assert.match(fig, /S-1047 <span>Wed<\/span> <span class="hx-blank">blank<\/span>/);
+  assert.match(fig, /R-205 <span class="hx-blank">no owner<\/span>/);
+  // four findings in the engine's order and words; the AI note is labelled and hedged; the source chip names the row
+  assert.deepEqual([...fig.matchAll(/data-hx-f="(\w+)"[^>]*>.*?<span class="hx-f-t">([^<]+)</g)].map((m) => [m[1], m[2]]), findings().map((f) => [f.issue, f.hero]));
+  assert.match(fig, /<p class="hx-ai"><span class="hx-ai-tag">AI-drafted &middot; possible cause<\/span> S-1051 may repeat S-1043/);
+  assert.match(fig, /Source: Sales log &middot; S-1051/);
+  assert.match(fig, /<ol class="hx-rail" aria-hidden="true"><li>Collect<\/li><li>Organise<\/li><li>Check<\/li><li>Explain<\/li><li>Trace<\/li><li>Review<\/li><\/ol>/);
+  // static bars drawn at the chart's own scale from the same totals; only Tuesday highlighted
+  const svg = fig.slice(fig.indexOf('<svg class="hr-chart"'), fig.indexOf('</svg>', fig.indexOf('<svg class="hr-chart"')));
   const [max, base, h] = ['max', 'base', 'h'].map((k) => Number(svg.match(new RegExp(`data-${k}="([\\d.]+)"`))[1]));
   for (const d of c.daily) {
     const m = svg.match(new RegExp(`data-day="${d.day}"><rect class="hr-bar" x="[\\d.]+" y="([\\d.]+)" width="\\d+" height="([\\d.]+)"`));
@@ -422,15 +446,40 @@ test('hero card: status, items to review, three figures and the daily chart, all
     assert.ok(Math.abs(Number(m[2]) - (d.total / max) * h) < 0.2, `${d.day} bar height`);
     assert.ok(Math.abs(Number(m[1]) - (base - (d.total / max) * h)) < 0.2, `${d.day} bar top`);
   }
-  assert.match(svg, /<g class="hr-col is-flag" data-day="Tue">/);
   assert.equal((svg.match(/is-flag/g) || []).length, 1, 'only Tuesday is highlighted');
-  assert.doesNotMatch(card, /data-flag=|Potential duplicate|Sale with no amount|Request with no next action|rl-step/, 'no findings list or run log in the hero');
-  assert.match(html, /<figcaption class="hr-note">Simulated in your browser\. Nothing is sent or changed\.<\/figcaption>/);
+  // accessible: one text alternative; decorative parts hidden; real focusable action; fictional data labelled
+  assert.match(fig, /aria-labelledby="hx-desc"/);
+  assert.match(fig, /<p class="sr-only" id="hx-desc">Three files combined into a weekly report\. Four items flagged, including unusual Tuesday sales\. One traced back to sale S-1051 in the sales log\. The report is awaiting your review\.<\/p>/);
+  for (const k of ['hx-files', 'hx-line', 'hx-rail']) assert.match(fig, new RegExp(`class="${k}" aria-hidden="true"`), k);
+  assert.match(fig, /Fictional sample data &middot; simulated in your browser <button type="button" class="hx-replay" hidden>Replay<\/button>/);
+  assert.doesNotMatch(fig, /\sstyle="/, 'CSP: no inline style attributes');
 });
 
-test('hero script: one action (Review flagged items), no publishing or release in the hero, shared state', async () => {
+test('hero motion: one timeline of about five seconds, played once, with a reduced-motion final frame', async () => {
+  const css = await readFile(new URL('../assets/styles.css', import.meta.url), 'utf8');
+  const block = css.slice(css.indexOf('/* ---- Hero visual (Step B'));
+  let end = 0;
+  for (const m of block.matchAll(/\.hx-play [^{]*\{[^}]*animation(?:-delay)?:([^;}]+)/g)) {
+    for (const part of m[1].split(',')) {
+      const t = [...part.matchAll(/([\d.]+)s/g)].map((x) => Number(x[1]));
+      if (t.length) end = Math.max(end, t.reduce((x, y) => x + y, 0));
+    }
+  }
+  assert.ok(end >= 4.5 && end <= 5.5, `timeline ends at ${end}s`);
+  assert.doesNotMatch(block, /infinite/, 'nothing loops');
+  const rm = block.slice(block.indexOf('@media (prefers-reduced-motion: reduce)')).split('\n')[0];
+  assert.ok(rm.includes('.hx-play, .hx-play * { animation: none !important; }') && rm.includes('.hx-wait .hx-line { opacity: 1; }'), 'reduced motion shows the final frame');
   const js = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
-  assert.match(js, /Review flagged items/);
+  assert.match(js, /prefers-reduced-motion: reduce/);
+  assert.match(js, /io\.disconnect\(\)/, 'plays once when it first comes on screen');
+  assert.match(js, /hx-replay/);
+  assert.doesNotMatch(js, /\.style\.|setAttribute\('style'/, 'CSP: geometry only through SVG attributes');
+});
+
+test('hero script: one action (Review the n items), no publishing or release in the hero, shared state', async () => {
+  const js = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
+  assert.match(js, /`Review the \$\{c\.toReview\}/);
+  assert.match(js, /'Awaiting review': `Awaiting your review · \$\{left\}/);
   assert.doesNotMatch(js, /Publish|publish\(|release\(|signOff\(/, 'the hero cannot publish, sign off or release');
   assert.doesNotMatch(js, /provisional|on hold/i, 'no provisional or hold workflow');
   assert.match(js, /from '\.\/store\.js'/);

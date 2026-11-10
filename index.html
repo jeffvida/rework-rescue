@@ -51,7 +51,7 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">Less rework. More real work.</p>
+          <p class="eyebrow">For small businesses that run on spreadsheets</p>
           <h1 id="hero-title">Less time fixing the numbers. <span class="h1-accent">More time running the business.</span></h1>
           <p class="hero-sub">I turn scattered data and repetitive tasks into reliable reports and smoother workflows.</p>
           <div class="hero-actions">
@@ -64,28 +64,43 @@
             <p><a class="cred-name" href="#about">Jeff Herson Vida</a><span class="cred-role">8+ years in data operations, reporting and process improvement.</span><span class="cred-role">Work directly with me, from understanding the problem to building the solution.</span></p>
           </div>
         </div>
-        <figure class="hero-preview hr-wrap no-print">
-          <div class="tz-card hr-card" id="hero-report">
+        <figure class="hero-preview hx no-print" id="hero-visual" aria-labelledby="hx-desc">
+          <p class="sr-only" id="hx-desc">Three files combined into a weekly report. Four items flagged, including unusual Tuesday sales. One traced back to sale S-1051 in the sales log. The report is awaiting your review.</p>
+          <div class="hx-files" aria-hidden="true">
+            <div class="hx-file hx-file-sales"><p class="hx-file-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 9h16M4 15h16M10 3v18"/></svg><span>Sales log</span></p><p class="hx-file-n">12 rows</p>
+              <ul class="hx-rows"><li>S-1043 <span>Tue</span> <span>860</span></li><li class="hx-target">S-1051 <span>Tue</span> <span>860</span></li><li>S-1047 <span>Wed</span> <span class="hx-blank">blank</span></li></ul></div>
+            <div class="hx-file"><p class="hx-file-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 9h16M4 15h16M10 3v18"/></svg><span>Payments received</span></p><p class="hx-file-n">9 rows</p>
+              <ul class="hx-rows"><li>P-303 <span>Wed</span> <span>860</span></li><li>P-307 <span>Thu</span> <span>380</span></li><li>P-308 <span>Wed</span> <span>150</span></li></ul></div>
+            <div class="hx-file"><p class="hx-file-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 9h16M4 15h16M10 3v18"/></svg><span>Customer requests</span></p><p class="hx-file-n">6 rows</p>
+              <ul class="hx-rows"><li>R-204 <span>Ben</span></li><li>R-205 <span class="hx-blank">no owner</span></li><li>R-206 <span>Ana</span></li></ul></div>
+          </div>
+          <div class="hr-card hx-card" id="hero-report">
             <div class="hr-top">
               <div><p class="hr-title">Weekly report</p><p class="hr-date"><span data-hero="weekRange">2–6 November 2026</span> &middot; fictional sample data</p></div>
-              <p class="hr-status" data-hr="status" data-state="review">Awaiting review</p>
+              <p class="hx-figure"><span class="hx-figure-k">Sales recorded</span> <strong data-hr="salesTotal">4,310</strong> <span class="hx-figure-note" data-hr="salesNote">provisional</span></p>
             </div>
-            <p class="hr-review"><span class="hr-review-n" data-hr="toReview">4</span> <span data-hr="toReviewLabel">items to review</span></p>
-            <dl class="hr-kpis">
-              <div><dt>Sales recorded</dt><dd data-hr="salesTotal">4,310</dd><p data-hr="salesNote">provisional</p></div>
-              <div><dt>Payments</dt><dd data-hr="paymentsTotal">2,980</dd></div>
-              <div><dt>Open requests</dt><dd data-hr="openRequests">3</dd></div>
-            </dl>
+            <div class="hx-body">
             <div class="hr-chart-wrap">
               <p class="hr-chart-k">Daily sales <span><i class="hr-key-avg"></i> 4-week average</span></p>
               <svg class="hr-chart" viewBox="0 0 302 150" role="img" aria-labelledby="hr-chart-t" focusable="false" data-max="2500" data-base="124" data-h="88"><title id="hr-chart-t" data-hr="chartLabel">Daily sales this week against the 4-week average. Tuesday, 2,455, is 58% above its usual level.</title><line class="hr-base" x1="6" x2="296" y1="124" y2="124"/><g class="hr-col" data-day="Mon"><rect class="hr-bar" x="24" y="103.9" width="30" height="20.1" rx="4"/><line class="hr-avg" x1="19" x2="59" y1="102.2" y2="102.2"/><text class="hr-day" x="39.0" y="142" text-anchor="middle">Mon</text></g><g class="hr-col is-flag" data-day="Tue"><rect class="hr-bar" x="82" y="37.6" width="30" height="86.4" rx="4"/><line class="hr-avg" x1="77" x2="117" y1="69.4" y2="69.4"/><text class="hr-day" x="97.0" y="142" text-anchor="middle">Tue</text></g><g class="hr-col" data-day="Wed"><rect class="hr-bar" x="140" y="111.3" width="30" height="12.7" rx="4"/><line class="hr-avg" x1="135" x2="175" y1="104.3" y2="104.3"/><text class="hr-day" x="155.0" y="142" text-anchor="middle">Wed</text></g><g class="hr-col" data-day="Thu"><rect class="hr-bar" x="198" y="103.1" width="30" height="20.9" rx="4"/><line class="hr-avg" x1="193" x2="233" y1="101.5" y2="101.5"/><text class="hr-day" x="213.0" y="142" text-anchor="middle">Thu</text></g><g class="hr-col" data-day="Fri"><rect class="hr-bar" x="256" y="112.4" width="30" height="11.6" rx="4"/><line class="hr-avg" x1="251" x2="291" y1="110.6" y2="110.6"/><text class="hr-day" x="271.0" y="142" text-anchor="middle">Fri</text></g><g class="hr-callout" data-hr="callout"><rect x="21" y="4" width="152" height="22" rx="11"/><text x="97.0" y="19" text-anchor="middle"><tspan data-hr="tueTotal">2,455</tspan> · <tspan data-hr="tueChange">+58%</tspan> vs usual</text></g></svg>
             </div>
-            <div class="hr-actions" data-hr="actions">
-              <a class="btn btn-primary" href="#samples">Review flagged items</a>
+              <ul class="hx-findings" aria-label="Flagged for review">
+                <li class="hx-f" data-hx-f="duplicate"><svg class="hx-f-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="hx-f-t">Potential duplicate</span><span class="hx-f-st" data-hx-st="duplicate">To review</span></li>
+                <li class="hx-f" data-hx-f="missing"><svg class="hx-f-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l9 16H3l9-16z"/><path d="M12 10v4M12 17h.01"/></svg><span class="hx-f-t">Sale with no amount</span><span class="hx-f-st" data-hx-st="missing">To review</span></li>
+                <li class="hx-f" data-hx-f="pattern"><svg class="hx-f-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 20v-6M12 20V8M18 20v-9"/></svg><span class="hx-f-t">Unusual Tuesday sales</span><span class="hx-f-st" data-hx-st="pattern">To review</span></li>
+                <li class="hx-f" data-hx-f="followUp"><svg class="hx-f-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 12h6M9 16h4"/></svg><span class="hx-f-t">Request with no next action</span><span class="hx-f-st" data-hx-st="followUp">To review</span></li>
+              </ul>
             </div>
-            <div class="hr-confirm" data-hr="confirm" hidden></div>
+            <p class="hx-ai"><span class="hx-ai-tag">AI-drafted &middot; possible cause</span> S-1051 may repeat S-1043: same customer, date and amount.</p>
+            <p class="hx-trace"><span class="hx-chip"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 9h16M4 15h16M10 3v18"/></svg>Source: Sales log &middot; S-1051</span></p>
+            <div class="hx-foot">
+              <p class="hx-status" data-hr="status" data-state="review">Awaiting your review &middot; 4 items</p>
+              <a class="btn btn-primary hx-go" href="#samples" data-hr="review">Review the 4 items</a>
+            </div>
           </div>
-          <figcaption class="hr-note">Simulated in your browser. Nothing is sent or changed.</figcaption>
+          <svg class="hx-line" aria-hidden="true" focusable="false"><path pathLength="1" d=""/></svg>
+          <ol class="hx-rail" aria-hidden="true"><li>Collect</li><li>Organise</li><li>Check</li><li>Explain</li><li>Trace</li><li>Review</li></ol>
+          <figcaption class="hr-note hx-note">Fictional sample data &middot; simulated in your browser <button type="button" class="hx-replay" hidden>Replay</button></figcaption>
         </figure>
       </div>
     </section>

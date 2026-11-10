@@ -111,7 +111,7 @@ export function mountDemo(root) {
           <div><dt>Why it matters</dt><dd>${esc(f.matters)}</dd></div>
           <div><dt>Original source</dt><dd>${esc(f.source)} · ${refButtons(f)}</dd></div>
           <div><dt>Supporting data</dt><dd><ul>${f.supporting.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></dd></div>
-          <div><dt>Possible explanation <span class="rl-ai">${esc(AI_LABEL)}</span></dt><dd>${esc(f.ai)}</dd></div>
+          <div><dt>Possible explanation <span class="rl-ai">${esc(AI_LABEL)}</span></dt><dd>${esc(f.ai.replace(/^Possible explanation: /, ""))}</dd></div>
           <div><dt>Suggested investigation</dt><dd><ol>${f.investigate.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></dd></div>
         </dl>
         <div class="dt-recs">${table('work', f.refs.work, f.ids, 'Work Register: the records behind this finding')}</div>

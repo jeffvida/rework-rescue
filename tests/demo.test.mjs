@@ -6,8 +6,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { summarise, byStatus, receivedByDay, heroInsight } from '../src/tracker/engine.js';
-import { SHORT } from '../src/demo/hero.js';
+import { summarise, byStatus, receivedByDay } from '../src/tracker/engine.js';
+import { RECORDS, PERIOD_LABEL } from '../src/tracker/data.js';
+import { heroFigures } from '../src/demo/hero.js';
 import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -45,52 +46,54 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 
 // ---- The page
 
-test('18.6–18.7 hero copy: eyebrow, headline, exact supporting text and reassurance, two CTAs, intro, booking info', async () => {
+test('hero copy (10 Nov late brief): eyebrow, headline unchanged, supporting copy, two CTAs, booking line, credibility', async () => {
   const html = await page();
-  const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
-  assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. More real work\.<\/p>/);
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
+  assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. Better reporting\. Smarter workflows\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
-  assert.match(hero, /<p class="hero-sub">I turn scattered business data and repetitive tasks into connected workflows, reliable reports and practical business tools\.<\/p>/);
-  assert.match(hero, /<p class="hero-assure">Built around the tools you already use\. Designed around how your business works\.<\/p>/);
-  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how it works'));
-  assert.match(hero, /href="#samples" data-demo-check>See how it works/);
+  assert.match(hero, /<p class="hero-sub">I connect the tools, workflows and reporting that help your business run more smoothly &mdash; with built-in data checks to keep your information reliable\.<\/p>/);
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
+  assert.match(hero, /href="contact\/#contact-form-area">Book a free rework review</);
+  assert.match(hero, /href="#samples" data-demo-check>Explore the live example</);
   assert.match(hero, /Free &middot; No obligation/);
-  assert.match(html, /Jeff Herson Vida<\/a><span class="cred-role">8\+ years in data operations, reporting and process improvement\.<\/span><span class="cred-role">Work directly with me, from understanding the problem to building the solution\.<\/span>/);
+  assert.match(hero, /class="cred-strip"/);
+  assert.doesNotMatch(html, /Northstar/, 'the tracker’s business has no name; none is invented');
 });
 
-test('hero on tablets and phones: the reassurance line stays right after the supporting text', async () => {
-  const c = await css();
-  assert.match(c, /\.hero-copy > \.hero-sub, \.hero-copy > \.hero-assure \{ order: 4; \}/);
-});
-
-test('18.8–18.9 hero visual: three sources into one workspace with data, report, workflow, actions and insight, from the engine', async () => {
+test('hero visual: Capture -> Move -> See, connected, checks across all three, See emphasised, figures from the tracker', async () => {
   const html = await page();
-  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
-  assert.deepEqual([...fig.matchAll(/<li class="hw-src">.*?<strong>([^<]+)<\/strong>/g)].map((m) => m[1]), ['Spreadsheet files', 'Business records', 'Requests &amp; tasks']);
-  assert.deepEqual([...fig.matchAll(/<section class="hw-panel hw-(\w+)">/g)].map((m) => m[1]), ['data', 'report', 'flow', 'actions', 'ai']);
-  const o = summarise(); const val = (k) => Number(fig.match(new RegExp(`data-hw="${k}">(\\d+)<`))[1]);
-  assert.deepEqual(['records', 'requests', 'openRequests', 'completed', 'attention'].map(val), [o.total, o.total, o.outstanding, o.completed, o.attention]);
-  for (const c of byStatus()) assert.equal(Number(fig.match(new RegExp(`data-hw-stage="${c.status}">(\\d+)<`))[1]), c.count, c.status);
-  assert.deepEqual([...fig.matchAll(/data-hw-day="(\w+)" data-v="(\d)"/g)].map((m) => [m[1], Number(m[2])]), receivedByDay().map((d) => [d.day, d.received]));
-  assert.deepEqual([...fig.matchAll(/<li>([^<]+) <em>([^<]+)<\/em><\/li>/g)].map((m) => [m[1], m[2]]), o.followUps.map((f) => [f.title, SHORT[f.keys[0]]]));
-  assert.match(fig, new RegExp(`data-hw-insight>${heroInsight().replace(/[.]/g, '\\.')}<`));
-  assert.deepEqual([...fig.matchAll(/data-hw-row="(R-\d+)"><span>R-\d+<\/span><span>([^<]+)<\/span><span class="(hw-ok|hw-flag)">/g)].map((m) => [m[1], m[2], m[3]]),
-    [['R-101', 'Northfield Services', 'hw-ok'], ['R-104', 'Harbor Works', 'hw-flag'], ['R-111', 'No customer', 'hw-flag']]);
-  assert.match(fig, /Illustration/); assert.match(fig, /An illustration of what I could build around your tools\. Fictional data\./);
-  assert.doesNotMatch(fig, /\sstyle="/); assert.doesNotMatch(fig, /sales|jobs?\b|invoice tracker/i);
+  const a = html.indexOf('<figure class="hero-preview cmv'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  assert.deepEqual([...fig.matchAll(/<p class="cmv-k"><span class="cmv-n">(\d\d)<\/span> (\w+)<\/p>\s*<p class="cmv-name">([^<]+)<\/p>\s*<p class="cmv-desc">([^<]+)<\/p>/g)].map((m) => m.slice(1)), [
+    ['01', 'Capture', 'Business Tools &amp; Systems', 'Record information once, in one organised place.'],
+    ['02', 'Move', 'Workflows &amp; Processes', 'Move work through the right steps.'],
+    ['03', 'See', 'Data &amp; Reporting', 'Turn reliable information into clear, useful reports.']]);
+  assert.match(fig, /class="cmv-stage svc-data cmv-core"/);
+  assert.equal((fig.match(/class="cmv-link"/g) || []).length, 2, 'two connections: Capture to Move, Move to See');
+  assert.match(fig, /Built-in data checks across all three stages/);
+  for (const t of ['Duplicate records', 'Missing information', 'Inconsistent records', 'Exceptions flagged for review']) assert.ok(fig.includes(`<li>${t}</li>`), t);
+  for (const t of ['Assign to team', 'Follow-up reminder', 'Update status', 'Work completed']) assert.ok(fig.includes(t), t);
+  // Every figure in the no-JS HTML equals what the tracker engine computes for the sample.
+  const f = heroFigures(RECORDS);
+  assert.deepEqual([f.total, f.completed, f.outstanding, f.overdue, f.attention, f.active], [12, 7, 5, 1, 3, 4]);
+  for (const [k, v] of Object.entries(f)) for (const m of fig.matchAll(new RegExp(`data-cmv="${k}">([^<]+)<`, 'g'))) assert.equal(m[1], String(v), k);
+  assert.equal(f.period, PERIOD_LABEL);
+  assert.deepEqual([...fig.matchAll(/data-cmv-day="(\w+)"/g)].map((m) => m[1]), receivedByDay().map((d) => d.day));
+  const r = RECORDS[0]; assert.match(fig, new RegExp(`data-cmv="customer">${r.customer}<`)); assert.match(fig, new RegExp(`data-cmv="task">${r.task}<`));
+  assert.match(fig, /the movement is illustration, not live automation/);
+  assert.doesNotMatch(fig, /\b18\b/, 'no figures from the mockup that contradict the tracker');
 });
 
-test('18.10 hero motion: ordered ~4.5 s timeline, played once, reduced motion shows the finished picture', async () => {
-  const c = await css(); const block = c.slice(c.indexOf('/* ---- Hero: connected workspace illustration'), c.indexOf('/* ---- Services: how they connect'));
-  const at = (sel) => { const m = block.match(new RegExp(`\\.hw-play ${sel.replace(/[.]/g, '\\.')}[^{]*\\{ animation(?:-delay: ([\\d.]+)s;|:[^;]* ([\\d.]+)s both;)`)); return Number(m[1] ?? m[2]); };
-  const order = [at('.hw-lines'), at('.hw-app'), at('.hw-data'), at('.hw-ok'), at('.hw-report'), at('.hw-flow'), at('.hw-actions'), at('.hw-ai')];
-  assert.deepEqual(order, [...order].sort((a, b) => a - b), `sources → lines → workspace → data → checks → report → workflow → actions → insight: ${order}`);
-  let end = 0;
-  for (const m of block.matchAll(/\.hw-play [^{]*\{[^}]*animation(?:-delay)?:([^;}]+)/g)) for (const part of m[1].split(',')) { const t = [...part.matchAll(/([\d.]+)s/g)].map((x) => Number(x[1])); if (t.length) end = Math.max(end, t.reduce((x, y) => x + y, 0)); }
-  assert.ok(end >= 4 && end <= 5, `ends at ${end}s`);
-  assert.doesNotMatch(block, /infinite/);
-  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hw-wait \.hw-sources, \.hw-wait \.hw-lines, \.hw-wait \.hw-app \{ opacity: 1; \} \.hw-play, \.hw-play \* \{ animation: none !important; \} \}/);
-  const js = await src('demo/hero.js'); assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /io\.disconnect\(\)/);
+test('hero motion: short entrance once, particles only while on screen, reduced motion shows everything still', async () => {
+  const c = await css();
+  const block = c.slice(c.indexOf('/* ---- Hero (10 Nov 2026, late)'));
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.cmv, \.cmv \* \{ animation: none !important; \}/);
+  const delays = [...block.matchAll(/\.cmv-play [^{]*\{[^}]*?([\d.]+)s both/g)].map((m) => Number(m[1]));
+  assert.ok(Math.max(...delays) <= 3.5, 'entrance finishes within about 4 s');
+  assert.match(block, /\.cmv-flow \.cmv-link i \{ animation: cmv-dot 2\.6s/);
+  assert.doesNotMatch(block.replace(/\.cmv-flow[^}]*\}/g, ''), /infinite/, 'only the slow particles repeat');
+  const js = await src('demo/hero.js');
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /classList\.toggle\('cmv-flow', on\)/);
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
 });
 
 test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {

@@ -63,7 +63,7 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero: the connected workspace illustration, following the same state as the tracker (src/demo/hero.js).
+// Hero: Capture -> Move -> See overview, with figures following the tracker's state (src/demo/hero.js).
 mountHero(document.getElementById('hero-visual'));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,

@@ -73,7 +73,7 @@ test('hero: one workspace, Today / With Rework Rescue toggle; Today shows the da
   assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state hidden from screen readers by default');
   assert.match(fig, /AI-assisted summary <small>Sample draft<\/small>/);
   assert.match(fig, /Reviewed by a person before sharing/);
-  assert.match(fig, /on this page the summary is written by simple rules, not AI\./);
+  assert.match(fig, /In a project, an AI tool drafts the summary and a person checks it; here it&rsquo;s a sample written by simple rules\./);
   assert.doesNotMatch(fig, /\b42\b/, 'no figures from the reference images');
 });
 
@@ -118,7 +118,13 @@ test('hero report: Northstar Services, 7 / 5 / 3, action items named by record, 
   const items = actionItems(f);
   assert.deepEqual(items.map((x) => [x.label, x.priority]), [['Follow up R-104 (overdue)', 'High'], ['Assign an owner to R-112', 'High'], ['Complete customer details for R-111', 'Medium']]);
   assert.ok(fig.includes(`<ul data-ws-actions>${actionsHtml(items)}</ul>`));
-  assert.deepEqual(summaryBullets(f, items), ['7 of 12 jobs completed this week.', '5 still open; 3 of them need attention.', 'Next: follow up R-104 and assign an owner to R-112.']);
+  assert.deepEqual(summaryBullets(f, items), ['7 of 12 jobs completed this week.', '5 still outstanding; 3 of these need attention.', 'Next: follow up R-104 and assign an owner to R-112.']);
+  // KPI wording, and the 3 shown as part of the 5.
+  assert.match(fig, /<strong data-ws="completed">7<\/strong>Completed this week<\/p>/);
+  assert.match(fig, /<strong data-ws="outstanding">5<\/strong>Still outstanding<\/p>/);
+  assert.match(fig, /<strong data-ws="attention">3<\/strong>Need attention <small>of the <span data-ws="outstanding">5<\/span> still outstanding<\/small>/);
+  assert.ok(f.attention <= f.outstanding);
+  assert.doesNotMatch(fig, /class="hx-head"/, 'no state label inside the panel; the toggle shows it');
   assert.ok(fig.includes(`<ul data-ws-summary>${summaryHtml(summaryBullets(f, items))}</ul>`));
   assert.ok(html.includes('Northstar Services, a fictional service business'), 'the live example names the same business');
 });

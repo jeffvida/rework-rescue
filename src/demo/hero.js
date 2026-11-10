@@ -79,7 +79,7 @@ export function summaryBullets(f, items = actionItems(f)) {
   const high = items.filter((x) => x.priority === 'High').map((x) => x.short.replace(/^./, (c) => c.toLowerCase()));
   return [
     `${f.completed} of ${f.total} jobs completed this week.`,
-    f.outstanding ? `${f.outstanding} still open${att ? `; ${att} of them need${att === 1 ? 's' : ''} attention` : ''}.` : 'Nothing is still open.',
+    f.outstanding ? `${f.outstanding} still outstanding${att ? `; ${att} of these need${att === 1 ? 's' : ''} attention` : ''}.` : 'Nothing is still outstanding.',
     high.length ? `Next: ${high.join(' and ')}.` : 'Next: share the report.',
   ];
 }
@@ -100,22 +100,10 @@ export function mountHero(fig) {
   let mode = 'after';
 
   const set = (k, v) => fig.querySelectorAll(`[data-ws="${k}"]`).forEach((el) => { el.textContent = String(v); });
-  let counters = [];
-  function countUp(k, v) {
-    fig.querySelectorAll(`[data-ws="${k}"]`).forEach((el) => {
-      const t0 = performance.now(); const dur = 700; const delay = 1300;
-      const step = (now) => {
-        const p = Math.min(1, Math.max(0, (now - t0 - delay) / dur));
-        el.textContent = String(Math.round(v * (1 - (1 - p) ** 3)));
-        if (p < 1) counters.push(requestAnimationFrame(step));
-      };
-      el.textContent = '0'; counters.push(requestAnimationFrame(step));
-    });
-  }
-  function paint(animate = false) {
+  // Figures are always shown final (no count-up), so the tiles never show numbers that don't add up.
+  function paint() {
     const rec = getRecords(); const f = heroFigures(rec);
-    for (const k of ['business', 'period', 'total']) set(k, f[k]);
-    for (const k of ['completed', 'outstanding', 'attention']) (animate ? countUp : set)(k, f[k]);
+    for (const k of ['business', 'period', 'total', 'completed', 'outstanding', 'attention']) set(k, f[k]);
     const checks = dataChecks(rec);
     for (const k of ['capture', 'move', 'see']) { const el = q(`[data-ws-checks="${k}"]`); if (el) el.innerHTML = checksHtml(checks[k]); }
     const items = actionItems(f);
@@ -134,9 +122,8 @@ export function mountHero(fig) {
   addEventListener('resize', placePill);
   document.fonts?.ready?.then(placePill);
 
-  function setMode(m, animate = !reduce) {
+  function setMode(m) {
     mode = m;
-    counters.forEach(cancelAnimationFrame); counters = [];
     fig.classList.toggle('hx-is-today', m === 'today');
     fig.classList.toggle('hx-is-after', m === 'after');
     btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wsMode === m)));
@@ -144,10 +131,10 @@ export function mountHero(fig) {
     // Only the visible state is exposed to screen readers.
     fig.querySelectorAll('.hx-today, .hx-only-today').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'today')));
     fig.querySelectorAll('.hx-after, .hx-only-after').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'after')));
-    paint(m === 'after' && animate);
+    paint();
   }
-  setMode('after', false);
-  subscribe(() => paint(false));
+  setMode('after');
+  subscribe(() => paint());
 
   let manual = false; let paused = false; let onScreen = false; let timer = 0;
   const canPlay = () => !reduce && !manual && !paused && onScreen && !document.hidden;
@@ -175,7 +162,7 @@ export function mountHero(fig) {
   let started = false;
   new IntersectionObserver((entries) => {
     onScreen = entries.some((e) => e.isIntersecting);
-    if (onScreen && !started && canPlay()) { started = true; setMode('today', false); }
+    if (onScreen && !started && canPlay()) { started = true; setMode('today'); }
     if (onScreen) loop(); else clearTimeout(timer);
   }, { threshold: 0.3 }).observe(fig);
   document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else loop(); });

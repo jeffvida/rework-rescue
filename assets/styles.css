@@ -3791,3 +3791,27 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @media (max-width: 40rem) { .hx-c5 { left: 4%; top: 62%; } .hx-c6 { top: 76%; } .hx-sticky { max-width: 60%; } }
 .hx-chk { align-content: start; }
 @media (max-width: 40rem) { .hx-scatter { min-height: 23rem; } .hx-c5 { top: 58%; } .hx-c6 { top: 70%; } .hx-step > ul { align-items: start; } }
+/* Final review pass (11 Nov): KPI wording and grouping, readable small text, AA amber, tag spacing, Today legend,
+   phone layouts for Today's files and the checks. The in-panel state labels were removed (the toggle says it). */
+.hx { --amber: #8a5200; }
+.hx-kpi strong { font-size: 2rem; }
+.hx-kpi small { display: block; font-size: 0.7rem; }
+/* The 3 needing attention are part of the 5 still outstanding: both tiles share a left edge */
+.hx-kpi.is-open, .hx-kpi.is-att { border-left: 3px solid var(--svc-systems); }
+.hx-chk-d { font-size: 0.7rem; }
+.hx-tag { font-size: 0.7rem; margin-left: 0.35rem; }
+.hx-actions em { font-size: 0.68rem; }
+.hx-legend { font-size: 0.72rem; }
+.hx-sec .hx-only-today .hx-legend { color: var(--muted); }
+.hx-legend i.is-flag { background: #d98a1a; }
+@media (max-width: 40rem) {
+  .hx-step > ul { grid-template-columns: minmax(0, 1fr); }
+  /* Today's files: a simple two-column grid, no overlaps */
+  .hx-scatter { position: static; height: auto; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; margin-bottom: 0.7rem; }
+  .hx-card, .hx-c1, .hx-c2, .hx-c3, .hx-c4, .hx-c5, .hx-c6 { position: relative; left: auto; right: auto; top: auto; max-width: none; --fx: 0%; --fy: -60%; }
+  .hx-is-today .hx-card { transform: none; }
+  .hx-card { flex-direction: column; gap: 0.3rem; }
+  .hx-tag { margin-left: 0; }
+  .hx-result { position: static; }
+  .hx-kpi strong { font-size: 1.6rem; }
+}

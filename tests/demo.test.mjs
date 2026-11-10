@@ -63,8 +63,16 @@ test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting
 test('hero visual: Capture, Move, See tiles on one route, a weekly operations view, a short checks badge; no service copy repeated', async () => {
   const html = await page();
   const a = html.indexOf('<figure class="hero-preview hv'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  assert.deepEqual([...fig.matchAll(/<b>(\w+)<\/b><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
-    ['Capture', 'Get the right information in.'], ['Move', 'Keep work moving forward.'], ['See', 'Turn work into clear reports.']]);
+  // Each stage names the problem it replaces and what the customer gets.
+  assert.deepEqual([...fig.matchAll(/<b>(\w+)<\/b><s class="hv-was">([^<]+)<\/s><span class="hv-get">([^<]+)<\/span>/g)].map((m) => m.slice(1)), [
+    ['Capture', 'Customer details in five places', 'One record for every job'],
+    ['Move', 'Chasing people for updates', 'Follow-ups that send themselves'],
+    ['See', 'Rebuilding the Monday report', 'A weekly report that updates itself']]);
+  // Today vs With Rework Rescue: real buttons, the finished view selected by default.
+  assert.match(fig, /<button type="button" class="hv-mode-b" data-hv-mode="before" aria-pressed="false">Today<\/button>/);
+  assert.match(fig, /<button type="button" class="hv-mode-b" data-hv-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
+  assert.match(fig, /<b>Jobs_FINAL_v7\.xlsx<\/b>/);
+  assert.doesNotMatch(fig.slice(fig.indexOf('class="hv-mess"'), fig.indexOf('class="hv-dash"')), /\d+\s?(hours|hrs|%)/i, 'no invented time figures');
   assert.equal((fig.match(/class="hv-arrow"/g) || []).length, 2);
   assert.match(fig, /<path id="hv-route"/);
   assert.match(fig, /<b>Built-in data checks<\/b><small>Duplicates &middot; Missing information &middot; Inconsistent records<\/small>/);
@@ -103,7 +111,9 @@ test('hero motion: story and route dots run only on screen, Pause button, reduce
   assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /document\.hidden/); assert.match(js, /pauseAnimations/);
   assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/);
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
-  const last = storyStates(heroFigures(RECORDS)).at(-1); assert.ok(last.end && last.at <= 12000);
+  const st = storyStates(heroFigures(RECORDS)); assert.equal(st[0].mode, 'before'); assert.ok(st.some((x) => x.mode === 'after'));
+  const last = st.at(-1); assert.ok(last.end && last.at <= 14000);
+  assert.match(js, /data-hv-mode/); assert.match(js, /hv-today/);
 });
 
 test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {

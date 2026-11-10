@@ -70,7 +70,11 @@
           </div>
         </div>
         <figure class="hero-preview hv no-print" id="hero-visual" aria-labelledby="hv-desc">
-          <p class="sr-only" id="hv-desc">An illustration of one connected solution, using the sample week from the live example below. Capture gets the right information in, Move keeps work moving forward and See turns work into clear reports. In the weekly operations view, request R-110 for Brightline Studio is completed by Sam, R-106 for Northfield Services is in progress with Ana, and R-112 for Northfield Services has no owner and is flagged by the built-in data checks. This week: 7 completed, 5 outstanding and 3 needing attention.</p>
+          <p class="sr-only" id="hv-desc">An illustration comparing a typical week today with the same week after the work, using the sample week from the live example below. Today: customer details in five places, chasing people for updates and rebuilding the Monday report by hand from spreadsheets, emails and notes. With Rework Rescue: Capture gives one record for every job, Move sends follow-ups automatically and See gives a weekly report that updates itself. In the weekly operations view, request R-110 for Brightline Studio is completed by Sam, R-106 for Northfield Services is in progress with Ana, and R-112 for Northfield Services has no owner and is flagged by the built-in data checks. This week: 7 completed, 5 outstanding and 3 needing attention.</p>
+          <div class="hv-mode" role="group" aria-label="Compare a typical week today with the same week after the work">
+            <button type="button" class="hv-mode-b" data-hv-mode="before" aria-pressed="false">Today</button>
+            <button type="button" class="hv-mode-b" data-hv-mode="after" aria-pressed="true">With Rework Rescue</button>
+          </div>
           <div class="hv-stage" aria-hidden="true">
             <svg class="hv-path" viewBox="0 0 600 540" preserveAspectRatio="none" focusable="false">
               <defs><linearGradient id="hv-grad" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#f3d58a"/><stop offset="0.55" stop-color="#bfe3c9"/><stop offset="1" stop-color="#8fd6c8"/></linearGradient></defs>
@@ -79,12 +83,18 @@
               <g class="hv-dots"><circle r="4.5"><animateMotion dur="5.5s" repeatCount="indefinite"><mpath href="#hv-route"/></animateMotion></circle><circle r="3.5"><animateMotion dur="5.5s" begin="-2.75s" repeatCount="indefinite"><mpath href="#hv-route"/></animateMotion></circle></g>
             </svg>
             <ol class="hv-tiles">
-              <li class="hv-tile svc-systems" data-hv-tile="1"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/></svg><b>Capture</b><span>Get the right information in.</span></li>
+              <li class="hv-tile svc-systems" data-hv-tile="1"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/></svg><b>Capture</b><s class="hv-was">Customer details in five places</s><span class="hv-get">One record for every job</span></li>
               <li class="hv-arrow"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 7l5 5-5 5"/></svg></li>
-              <li class="hv-tile svc-workflow" data-hv-tile="2"><svg viewBox="0 0 24 24" focusable="false"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3.5" y="16" width="5" height="5" rx="1"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><b>Move</b><span>Keep work moving forward.</span></li>
+              <li class="hv-tile svc-workflow" data-hv-tile="2"><svg viewBox="0 0 24 24" focusable="false"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3.5" y="16" width="5" height="5" rx="1"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><b>Move</b><s class="hv-was">Chasing people for updates</s><span class="hv-get">Follow-ups that send themselves</span></li>
               <li class="hv-arrow"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 7l5 5-5 5"/></svg></li>
-              <li class="hv-tile svc-data" data-hv-tile="3"><svg class="hv-bars-ic" viewBox="0 0 24 24" focusable="false"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8.5" width="4" height="11.5" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg><b>See</b><span>Turn work into clear reports.</span><i class="hv-spark"></i></li>
+              <li class="hv-tile svc-data" data-hv-tile="3"><svg class="hv-bars-ic" viewBox="0 0 24 24" focusable="false"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8.5" width="4" height="11.5" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg><b>See</b><s class="hv-was">Rebuilding the Monday report</s><span class="hv-get">A weekly report that updates itself</span><i class="hv-spark"></i></li>
             </ol>
+            <div class="hv-mess">
+              <p class="hv-m hv-m1"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/></svg><span><b>Jobs_FINAL_v7.xlsx</b>Last updated: Friday?</span></p>
+              <p class="hv-m hv-m2"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span><b>Re: Re: Any update on this?</b>Sent 3 times</span></p>
+              <p class="hv-m hv-m3"><span><b>Who&rsquo;s doing the Northfield job??</b>&mdash; sticky note</span></p>
+              <p class="hv-m hv-m4"><span><b>Monday report</b>Rebuilt by hand, again</span></p>
+            </div>
             <div class="hv-dash">
               <p class="hv-dash-t"><span class="hv-mark"></span>Weekly operations <small>&middot; <span data-hv="period">2–6 November 2026</span></small></p>
               <div class="hv-dash-grid">

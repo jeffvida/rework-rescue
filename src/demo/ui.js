@@ -79,9 +79,8 @@ export function mountDemo(root) {
     const r = report(s); const fs = findings(s); const d = s.decisions;
     // What the sales total would be if the checks still open were confirmed.
     const potential = report({ decisions: { ...d, duplicate: d.duplicate || 'remove', missing: d.missing || 'usePayment' } }).salesTotal;
-    let salesNote = `${r.salesCount} sales`;
-    if (potential !== r.salesTotal && (!d.duplicate || !d.missing)) salesNote += ` · could be <strong>${n(potential)}</strong> once checked`;
-    if (r.missingAmounts) salesNote += ` · ${r.missingAmounts} with no amount`;
+    let salesNote = `${r.salesCount} sales${r.missingAmounts ? ` · ${r.missingAmounts} with no amount` : ''}`;
+    if (potential !== r.salesTotal && (!d.duplicate || !d.missing)) salesNote += `</p><p class="dt-could">Could be <strong>${n(potential)}</strong> once checked`;
     const owed = stillOwed(s);
     panel('overview').innerHTML = `
       <dl class="dt-tiles">

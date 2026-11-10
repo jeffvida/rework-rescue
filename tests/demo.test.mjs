@@ -217,7 +217,7 @@ test('hero card: the engine’s figures, the sheet rows match the data, three is
   assert.match(card, /\+ 7 more rows/); assert.equal(rows.length + 7, SALES.length);
   const lines = [...card.matchAll(/data-hero-issue="(\w+)"><strong>([^<]*)<\/strong> <span>([^<]*)<\/span>/g)].map((m) => ({ issue: m[1], title: m[2], source: m[3] }));
   assert.deepEqual(lines, h.issues);
-  assert.match(card, /Fictional sample data &middot; No real client information/);
+  assert.match(card, /<p class="tz-date">Fictional sample data &middot; <span data-hero="weekRange">/);
   assert.match(card, /data-demo-tab="exceptions">See how these were found/);
 });
 

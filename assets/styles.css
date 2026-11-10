@@ -2532,13 +2532,13 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 /* ---- Hero sheet card (10 Nov redesign): "Can you trust this week's numbers?"
    The finished picture is the base style (no JavaScript, reduced motion, print). src/home.js adds .hs-play once
    on load (and on Replay): the rows come in, a scan runs down the sheet, the flagged rows light up, then the summary. */
-.hs-card { padding: 1.4rem 1.5rem 1.3rem; }
+.hs-card { padding: 1.2rem 1.4rem 1.15rem; }
 .hs-card .tz-title { margin: 0 0 0.2rem; font-size: clamp(1.3rem, 1.05rem + 0.8vw, 1.6rem); line-height: 1.2; }
-.hs-card .tz-date { margin: 0 0 0.9rem; }
+.hs-card .tz-date { margin: 0 0 0.75rem; }
 .hs-sheet { position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
 .hs-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
 .hs-table th { text-align: left; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); background: #eef4f1; padding: 0.4rem 0.55rem; border-bottom: 1px solid var(--line); }
-.hs-table td { padding: 0.38rem 0.55rem; border-bottom: 1px solid #ebe8dd; white-space: nowrap; }
+.hs-table td { padding: 0.32rem 0.55rem; border-bottom: 1px solid #ebe8dd; white-space: nowrap; }
 .hs-table .hs-num { text-align: right; }
 .hs-table .hs-flagcol { width: 1%; padding-left: 0.2rem; text-align: right; }
 .hs-table tfoot td { border-bottom: 0; border-top: 2px solid var(--line); font-weight: 700; background: #f7f6ef; }
@@ -2546,22 +2546,21 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .hs-blank { box-shadow: inset 0 0 0 2px var(--warn-line); background: #fffaf0; }
 .hs-dup td, .hs-miss td { background: var(--warn-bg); }
 .hs-tag { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 999px; background: #fff; border: 1px solid var(--warn-line); color: #5b3a00; font-size: 0.72rem; font-weight: 700; }
-.hs-tabs { display: flex; gap: 0; margin: 0; border-top: 1px solid var(--line); background: #f3f2ea; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
-.hs-tabs span { padding: 0.25rem 0.7rem; border-right: 1px solid var(--line); }
-.hs-tabs .is-on { background: #fff; color: var(--teal-dark); box-shadow: inset 0 2px 0 var(--teal); }
+.hs-tabs { display: flex; gap: 0; margin: 0; border-top: 1px solid var(--line); background: #f3f2ea; font-size: 0.7rem; font-weight: 500; color: #8a9496; pointer-events: none; user-select: none; }
+.hs-tabs span { padding: 0.2rem 0.7rem; }
+.hs-tabs .is-on { color: var(--muted); font-weight: 600; }
 .hs-scan { position: absolute; left: 0; right: 0; top: 1.9rem; height: 2px; background: var(--teal); box-shadow: 0 0 12px 3px rgba(46, 125, 114, 0.35); opacity: 0; pointer-events: none; }
-.hs-result { margin-top: 0.95rem; }
+.hs-result { margin-top: 0.8rem; }
 .hs-result-h { margin: 0 0 0.45rem; font-weight: 700; font-size: 1.02rem; color: var(--ink); }
-.hs-issues { list-style: none; margin: 0 0 0.7rem; padding: 0; display: grid; gap: 0.3rem; }
-.hs-issues li { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; margin: 0; padding: 0.4rem 0.65rem; border-radius: 8px; background: var(--paper); border-left: 3px solid var(--svc-data); font-size: 0.9rem; }
+.hs-issues { list-style: none; margin: 0 0 0.6rem; padding: 0; display: grid; gap: 0.3rem; }
+.hs-issues li { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; margin: 0; padding: 0.32rem 0.65rem; border-radius: 8px; background: var(--paper); border-left: 3px solid var(--svc-data); font-size: 0.9rem; }
 .hs-issues li[data-hero-issue="followUp"] { border-left-color: var(--svc-workflow); }
 .hs-issues li[hidden] { display: none; }
 .hs-issues strong { color: var(--ink); }
 .hs-issues span { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
-.hs-total-line { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--ink); }
+.hs-total-line { margin: 0 0 0.7rem; font-size: 0.95rem; color: var(--ink); }
 .hs-total-line s { color: var(--muted); text-decoration-thickness: 2px; text-decoration-color: var(--warn-line); }
 .hs-total-line strong { font-family: var(--display); font-size: 1.15rem; color: var(--teal-dark); }
-.hs-card .ops-note { margin-bottom: 0.75rem; }
 .hs-actions { display: flex; align-items: center; gap: 0.75rem; }
 .hs-actions .ops-cta { flex: 1; display: flex; justify-content: center; gap: 0.5rem; margin: 0; }
 .hs-replay { flex: none; background: none; border: 0; padding: 0.4rem 0.2rem; font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--teal-dark); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -2754,3 +2753,61 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .is-playing .pva-step:nth-child(4) { animation-delay: 1.05s; }
 .is-playing .pva-step:nth-child(5) { animation-delay: 1.4s; }
 @media (prefers-reduced-motion: reduce) { .is-playing .pva-step { animation: none; } }
+
+/* ---- Review fixes (10 Nov, UI/UX pass) */
+/* 1. Phones and small tablets: the sheet comes straight after the headline, the paragraph and buttons follow. */
+@media (max-width: 52rem) {
+  .hero-grid { gap: 0; }
+  .hero-copy { display: contents; }
+  .hero-copy > .eyebrow { order: 1; }
+  .hero-copy > h1 { order: 2; }
+  .hero-grid > .hero-preview { order: 3; margin: 0.3rem 0 1.6rem; }
+  .hero-copy > .hero-sub { order: 4; }
+  .hero-copy > .hero-actions { order: 5; }
+  .hero-copy > .cred-strip { order: 6; }
+}
+@media (max-width: 40rem) {
+  .hs-card { padding: 1rem 0.9rem 1rem; }
+  .hs-card .tz-title { font-size: 1.2rem; }
+  .hs-tabs { display: none; }
+  .hs-issues li { padding: 0.28rem 0.55rem; font-size: 0.86rem; }
+  .hs-issues li span { display: none; }
+  .hs-total-line { font-size: 0.9rem; }
+}
+/* 2. Phones: table rows become small stacked cards, so no column (Amount included) is cut off. */
+@media (max-width: 40rem) {
+  .dt-table-wrap { overflow: visible; }
+  .dt-table thead { display: none; }
+  .dt-table, .dt-table tbody, .dt-table tr, .dt-table td { display: block; width: 100%; }
+  .dt-table tr { padding: 0.45rem 0.75rem; border-bottom: 1px solid #ebe8dd; }
+  .dt-table tr:last-child { border-bottom: 0; }
+  .dt-table td { display: flex; justify-content: space-between; gap: 1rem; padding: 0.12rem 0; border: 0; white-space: normal; text-align: right; }
+  .dt-table td::before { content: attr(data-label); font-size: 0.78rem; font-weight: 600; color: var(--muted); text-align: left; }
+  .dt-table .dt-num { text-align: right; }
+  .dt-table tr.is-flag { background: var(--warn-bg); }
+  .dt-table tr.is-flag td { background: transparent; }
+  .dt-table td.is-gap { box-shadow: none; background: transparent; }
+  .dt-table td.is-gap .dt-blank { padding: 0 0.35rem; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--warn-line); background: #fffaf0; }
+}
+/* 4. Amber only for flags: the to-check tile, to-do list and decision box go neutral. */
+.dt-tile.is-check { background: #eef4f1; box-shadow: inset 0 0 0 2px var(--warn-line); }
+.dt-tile.is-check dd { color: #8a6516; }
+.dt-todo-b { border: 1px solid var(--line); border-left: 4px solid var(--warn-line); background: #fff; }
+.dt-todo-b:hover { background: var(--paper); }
+.dt-todo-b.is-done { border-left-color: var(--teal); background: var(--paper); }
+.dt-decide { border: 1px solid var(--line); background: var(--paper); }
+/* 6. Sales tile: "could be … once checked" on its own line. */
+.dt-tile p.dt-could { margin-top: 0.15rem; color: var(--ink); font-size: 0.85rem; }
+/* 7. Register: the reference column doesn't wrap. */
+.dt-reg-head, .dt-reg-row { grid-template-columns: 9.5rem 11rem minmax(0, 1fr) 5.5rem; }
+.dt-reg-ref { white-space: nowrap; }
+@media (max-width: 56rem) { .dt-reg-head, .dt-reg-row { grid-template-columns: minmax(0, 1fr) auto; } }
+@media (max-width: 40rem) { .dt-table caption { display: block; width: 100%; box-sizing: border-box; } }
+/* 3. Laptops: the hero card's button stays above the fold on a 768px-high screen. */
+@media (min-width: 52.01rem) {
+  .hero { padding-top: 2.4rem; padding-bottom: 2.6rem; }
+  .hs-table td { padding-top: 0.26rem; padding-bottom: 0.26rem; }
+  .hs-table th { padding-top: 0.32rem; padding-bottom: 0.32rem; }
+  .hs-result-h { margin-bottom: 0.35rem; }
+  .hs-issues { gap: 0.25rem; }
+}

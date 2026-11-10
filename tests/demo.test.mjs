@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { summarise, byStatus, receivedByDay } from '../src/tracker/engine.js';
 import { RECORDS, PERIOD_LABEL, BUSINESS } from '../src/tracker/data.js';
-import { heroFigures, actionItems, summaryBullets } from '../src/demo/hero.js';
+import { heroFigures, actionItems, summaryBullets, dataChecks, checksHtml, actionsHtml, summaryHtml } from '../src/demo/hero.js';
 import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -60,60 +60,72 @@ test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting
   assert.equal((html.match(/Northstar Services/g) || []).length >= 2, true, 'the hero and the live example name the same fictional business');
 });
 
-test('hero visual: one workspace with a Today / With Rework Rescue toggle; both states built from real elements', async () => {
+test('hero: one workspace, Today / With Rework Rescue toggle; Today shows the data issues of each stage and on each source file', async () => {
   const html = await page();
   const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
   assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today<\/button>/);
   assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
-  // Each step: what it is like today, and what the customer gets.
-  const pairs = [...fig.matchAll(/<b>(\w+)<\/b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">([^<]+)<\/span><span class="hx-only-after">([^<]+)<\/span>/g)].map((m) => m.slice(1));
-  assert.deepEqual(pairs, [
-    ['Capture', 'Details in multiple places', 'One organised record per job'],
-    ['Move', 'Chasing people for updates', 'Clear owners, status and follow-ups'],
-    ['See', 'Rebuilding the Monday report', 'A weekly report that updates itself']]);
-  // Today: spreadsheets, versions, email, form, PDF, sticky note, manual report, and the result.
-  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Northfield job?', 'Weekly_Report_FINAL(2).xlsx', 'The result'])
-    assert.ok(fig.includes(t), t);
-  assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state is hidden from screen readers by default');
-  // With Rework Rescue: validation, KPIs, action items, a summary draft labelled honestly.
-  for (const t of ['records checked', 'Action items', 'AI-assisted summary <small>Sample draft</small>', 'Review before sharing']) assert.ok(fig.includes(t), t);
-  assert.match(fig, /An illustration, not real results; on this page the summary is written by simple rules, not AI\./);
-  for (const t of ['Business Tools &amp; Systems', 'Automation is only useful']) assert.ok(!fig.includes(t), `no repeat of the services section: ${t}`);
-  assert.doesNotMatch(fig, /\b42\b|\b8 still\b/, 'no figures from the reference image');
+  assert.match(fig, /Data issues in today&rsquo;s process/);
+  assert.match(fig, /Built-in data checks at every stage/);
+  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Northfield job?', 'Weekly_Report_FINAL(2).xlsx', 'The result']) assert.ok(fig.includes(t), t);
+  assert.deepEqual([...fig.matchAll(/<em class="hx-tag is-(red|amber)">([^<]+)<\/em>/g)].map((m) => [m[2], m[1]]), [
+    ['Duplicates', 'red'], ['Not in the tracker', 'amber'], ['Missing record', 'red'], ['Manual check', 'amber'], ['No owner', 'red'], ['Manual rebuild', 'amber']]);
+  assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state hidden from screen readers by default');
+  assert.match(fig, /AI-assisted summary <small>Sample draft<\/small>/);
+  assert.match(fig, /Reviewed by a person before sharing/);
+  assert.match(fig, /on this page the summary is written by simple rules, not AI\./);
+  assert.doesNotMatch(fig, /\b42\b/, 'no figures from the reference images');
 });
 
-test('hero report matches the tracker: Northstar Services, figures, action items and summary come from the fixture data', async () => {
+test('hero checks: every Today issue has a matching check in the same stage; states come from the records; exceptions stay visible', async () => {
+  const html = await page();
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const c = dataChecks(RECORDS);
+  const steps = fig.split('<li class="hx-step ').slice(1);
+  const names = { capture: 'svc-systems', move: 'svc-workflow', see: 'svc-data' };
+  for (const [k, cls] of Object.entries(names)) {
+    const step = steps.find((x) => x.startsWith(cls));
+    const issues = [...step.matchAll(/<li class="is-(?:red|amber)">([^<]+)<\/li>/g)].map((m) => m[1].replace('&rsquo;', "'"));
+    assert.ok(issues.length >= 3, `${k} shows its issues`);
+    for (const i of issues) assert.ok(c[k].some((x) => x.answers.includes(i)), `${k}: "${i}" has a matching check`);
+    assert.ok(step.includes(`data-ws-checks="${k}">${checksHtml(c[k])}</ul>`), `${k}: the page shows the computed checks`);
+  }
+  const all = Object.values(c).flat();
+  const st = Object.fromEntries(all.map((x) => [x.label, [x.state, x.detail]]));
+  assert.deepEqual(st['Duplicate job references'], ['pass', 'None found']);
+  assert.deepEqual(st['Required fields'], ['flag', '11 of 12 complete · R-111']);
+  assert.deepEqual(st['Assigned owners'], ['action', 'No owner · R-112']);
+  assert.deepEqual(st['Overdue follow-ups'], ['action', 'Overdue · R-104']);
+  assert.deepEqual(st['Completed, not invoiced'], ['none', 'No invoice data in this sample'], 'no invented invoice status');
+  assert.deepEqual(st['KPI calculation'], ['pass', '7 + 5 = 12']);
+  assert.deepEqual(st['Exceptions in the report'], ['flag', '3 shown, not hidden']);
+  for (const s of ['pass', 'flag', 'action']) assert.ok(all.some((x) => x.state === s), `uses the ${s} state`);
+  // Records that need attention are a subset of the open ones (not an extra category).
+  const f = heroFigures(RECORDS);
+  assert.ok(f.followUps.every((x) => RECORDS.find((r) => r.ref === x.ref).status !== 'Completed'));
+  // Fix the records and the checks pass.
+  const fixed = RECORDS.map((r) => ({ ...r, owner: r.ref === 'R-112' ? 'Ana' : r.owner, status: r.ref === 'R-104' ? 'Completed' : r.status, customer: r.ref === 'R-111' ? 'Harbor Works' : r.customer }));
+  assert.ok(Object.values(dataChecks(fixed)).flat().every((x) => x.state === 'pass' || x.state === 'none'));
+});
+
+test('hero report: Northstar Services, 7 / 5 / 3, action items named by record, summary from the same figures', async () => {
   const html = await page();
   const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
   const f = heroFigures(RECORDS);
   assert.equal(BUSINESS, 'Northstar Services');
-  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention, f.unassigned, f.overdue, f.missing], [12, 7, 5, 3, 1, 1, 1]);
+  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention], [12, 7, 5, 3]);
   for (const k of ['business', 'period', 'total', 'completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-ws="${k}">${f[k]}<`), k);
   const items = actionItems(f);
-  assert.deepEqual(items.map((x) => [x.label, x.priority]), [['Assign owners (1)', 'High'], ['Follow up overdue work (1)', 'High'], ['Complete missing details (1)', 'Medium']]);
-  // Records strip: the same jobs as the live example, as recorded.
-  const recs = [...fig.matchAll(/<li(?: class="is-flag")?><b>(R-\d+)<\/b><span>([^<]+)<\/span><span class="hx-own">([^<]+)<\/span><em class="hx-st [\w-]+">([^<]+)<\/em>/g)].map((m) => m.slice(1));
-  assert.equal(recs.length, 3);
-  for (const [ref, cust, own, st] of recs) {
-    const r = RECORDS.find((x) => x.ref === ref);
-    assert.equal(cust, r.customer, ref);
-    assert.equal(own, r.owner === 'Unassigned' ? 'No owner' : r.owner, ref);
-    assert.equal(st, r.owner === 'Unassigned' ? 'Flagged' : ({ Completed: 'Completed', 'In Progress': 'In progress' })[r.status], ref);
-  }
-  const html_items = [...fig.slice(fig.indexOf('data-ws-actions')).matchAll(/<span>([^<]+)<\/span><em[^>]*>(\w+)<\/em>/g)].slice(0, 3).map((m) => [m[1], m[2]]);
-  assert.deepEqual(html_items, items.map((x) => [x.label, x.priority]));
-  const bullets = summaryBullets(f);
-  const html_b = [...fig.slice(fig.indexOf('data-ws-summary')).matchAll(/<li>([^<]+)<\/li>/g)].slice(0, 4).map((m) => m[1]);
-  assert.deepEqual(html_b, bullets);
+  assert.deepEqual(items.map((x) => [x.label, x.priority]), [['Follow up R-104 (overdue)', 'High'], ['Assign an owner to R-112', 'High'], ['Complete customer details for R-111', 'Medium']]);
+  assert.ok(fig.includes(`<ul data-ws-actions>${actionsHtml(items)}</ul>`));
+  assert.deepEqual(summaryBullets(f, items), ['7 of 12 jobs completed this week.', '5 still open; 3 of them need attention.', 'Next: follow up R-104 and assign an owner to R-112.']);
+  assert.ok(fig.includes(`<ul data-ws-summary>${summaryHtml(summaryBullets(f, items))}</ul>`));
   assert.ok(html.includes('Northstar Services, a fictional service business'), 'the live example names the same business');
-  // Edits flow through: complete R-104 and the overdue item disappears.
-  const g = heroFigures(RECORDS.map((r) => (r.ref === 'R-104' ? { ...r, status: 'Completed' } : r)));
-  assert.equal(actionItems(g).some((x) => x.label.startsWith('Follow up overdue')), false);
 });
 
 test('hero motion: autoplay only on screen, Pause button, toggle stops it, reduced motion switches instantly', async () => {
   const c = await css();
-  const block = c.slice(c.indexOf('/* ---- Hero workspace (11 Nov 2026)'));
+  const block = c.slice(c.indexOf('/* ---- Hero workspace (11 Nov 2026, data checks)'));
   assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hx, \.hx \* \{ animation: none !important; transition: none !important; \} \}/);
   assert.doesNotMatch(block, /infinite/, 'no CSS loops');
   const js = await src('demo/hero.js');

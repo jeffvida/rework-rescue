@@ -119,7 +119,7 @@ test('page copy: eyebrow, heading, supporting text, intro, labels and the downlo
   const sec = await section();
   const order = ['<p class="eyebrow">Practical business example</p>', '<h2 id="samples-h">A clearer way to manage the work.</h2>',
     'Keep requests, responsibilities and follow-ups in one simple tracker. See what&rsquo;s completed, what&rsquo;s outstanding and what needs attention.',
-    'Here&rsquo;s a sample from a typical business week.', 'Weekly overview', '2–6 November 2026 &middot; Sample reporting period', 'As at 6 November 2026',
+    'Here&rsquo;s a typical week at Northstar Services, a fictional service business (the same records as the report at the top of the page).', 'Weekly overview', '2–6 November 2026 &middot; Sample reporting period', 'As at 6 November 2026',
     'Work tracker', 'Needs attention', 'Weekly summary', 'Use the same simple tracker with your own business records. Includes automatic counts and a weekly follow-up summary.',
     'Start with the sample, then replace it with your own records.', 'Download the free Excel tracker', 'Sample business data for demonstration purposes.'];
   const at = order.map((t) => sec.indexOf(t));

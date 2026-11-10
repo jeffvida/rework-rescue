@@ -99,7 +99,7 @@ def build(data):
     ws.merge_cells('A2:I2')
     ws.row_dimensions[1].height = 26
     ws.row_dimensions[2].height = 30
-    ws['A3'] = ('Sample business data for demonstration purposes. Type over it or delete it, and add new records in the next empty row. '
+    ws['A3'] = (f"Sample data for {data['BUSINESS']}, a fictional business, for demonstration purposes. Type over it or delete it, and add new records in the next empty row. "
                 'Attention Flag fills in by itself; the dates it uses are on the Weekly Summary sheet.')
     ws['A3'].font = f(9, italic=True, color='475A60')
     ws.merge_cells('A3:I3')
@@ -309,7 +309,7 @@ def build(data):
     end = 22 + FOLLOW
     sm.cell(end, 1, f'=IF(C15>{FOLLOW},"Showing the first {FOLLOW} of "&C15&" items. Filter the Attention Flag column on the Weekly Tracker to see them all.",'
                     f'IF(C15=0,"Nothing needs attention for this period.",""))').font = f(9, italic=True, color='475A60')
-    sm.cell(end + 1, 1, 'Sample business data for demonstration purposes. Rework Rescue · rework-rescue.vercel.app').font = f(8, italic=True, color=GREY)
+    sm.cell(end + 1, 1, f"Sample data for {data['BUSINESS']}, a fictional business. Rework Rescue · rework-rescue.vercel.app").font = f(8, italic=True, color=GREY)
     sm.freeze_panes = 'A3'
     sm.page_setup.orientation = 'portrait'
     sm.page_setup.fitToWidth = 1

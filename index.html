@@ -69,53 +69,65 @@
             <p><a class="cred-name" href="#about">Jeff Herson Vida</a><span class="cred-role">8+ years in data operations, reporting and process improvement.</span></p>
           </div>
         </div>
-        <figure class="hero-preview hv no-print" id="hero-visual" aria-labelledby="hv-desc">
-          <p class="sr-only" id="hv-desc">An illustration comparing a typical week today with the same week after the work, using the sample week from the live example below. Today: customer details in five places, chasing people for updates and rebuilding the Monday report by hand from spreadsheets, emails and notes. With Rework Rescue: Capture gives one record for every job, Move sends follow-ups automatically and See gives a weekly report that updates itself. In the weekly operations view, request R-110 for Brightline Studio is completed by Sam, R-106 for Northfield Services is in progress with Ana, and R-112 for Northfield Services has no owner and is flagged by the built-in data checks. This week: 7 completed, 5 outstanding and 3 needing attention.</p>
-          <div class="hv-mode" role="group" aria-label="Compare a typical week today with the same week after the work">
-            <button type="button" class="hv-mode-b" data-hv-mode="before" aria-pressed="false">Today</button>
-            <button type="button" class="hv-mode-b" data-hv-mode="after" aria-pressed="true">With Rework Rescue</button>
+        <figure class="hero-preview hx no-print" id="hero-visual" aria-labelledby="hx-cap">
+          <div class="hx-toggle" role="group" aria-label="Compare a typical week today with the same week after the work">
+            <button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today</button>
+            <button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue</button>
+            <span class="hx-tg-pill" aria-hidden="true"></span>
           </div>
-          <div class="hv-stage" aria-hidden="true">
-            <svg class="hv-path" viewBox="0 0 600 540" preserveAspectRatio="none" focusable="false">
-              <defs><linearGradient id="hv-grad" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#f3d58a"/><stop offset="0.55" stop-color="#bfe3c9"/><stop offset="1" stop-color="#8fd6c8"/></linearGradient></defs>
-              <path id="hv-route" class="hv-route-glow" d="M110 214 C150 246 250 240 330 236 S505 232 552 212 S588 160 566 146"/>
-              <path class="hv-route" d="M110 214 C150 246 250 240 330 236 S505 232 552 212 S588 160 566 146"/>
-              <g class="hv-dots"><circle r="4.5"><animateMotion dur="5.5s" repeatCount="indefinite"><mpath href="#hv-route"/></animateMotion></circle><circle r="3.5"><animateMotion dur="5.5s" begin="-2.75s" repeatCount="indefinite"><mpath href="#hv-route"/></animateMotion></circle></g>
-            </svg>
-            <ol class="hv-tiles">
-              <li class="hv-tile svc-systems" data-hv-tile="1"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/></svg><b>Capture</b><s class="hv-was">Customer details in five places</s><span class="hv-get">One record for every job</span></li>
-              <li class="hv-arrow"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 7l5 5-5 5"/></svg></li>
-              <li class="hv-tile svc-workflow" data-hv-tile="2"><svg viewBox="0 0 24 24" focusable="false"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3.5" y="16" width="5" height="5" rx="1"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><b>Move</b><s class="hv-was">Chasing people for updates</s><span class="hv-get">Follow-ups that send themselves</span></li>
-              <li class="hv-arrow"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 7l5 5-5 5"/></svg></li>
-              <li class="hv-tile svc-data" data-hv-tile="3"><svg class="hv-bars-ic" viewBox="0 0 24 24" focusable="false"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8.5" width="4" height="11.5" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg><b>See</b><s class="hv-was">Rebuilding the Monday report</s><span class="hv-get">A weekly report that updates itself</span><i class="hv-spark"></i></li>
+          <div class="hx-panel">
+            <p class="hx-head">
+              <span class="hx-only-today" aria-hidden="true"><span class="hx-badge is-today">Today</span> Manual, scattered and time-consuming</span>
+              <span class="hx-only-after"><span class="hx-badge is-after"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>With Rework Rescue</span> Connected, checked and ready to report</span>
+            </p>
+            <ol class="hx-flow" aria-label="Capture, move, see">
+              <li class="hx-step svc-systems"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="hx-ic-doc" d="M6 3h9l4 4v14H6z"/><path class="hx-ic-doc" d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/><ellipse class="hx-ic-db" cx="12" cy="6" rx="7" ry="2.8"/><path class="hx-ic-db" d="M5 6v12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V6M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/></svg><b>Capture</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Details in multiple places</span><span class="hx-only-after">One organised record per job</span></span></li>
+              <li class="hx-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 7l5 5-5 5"/></svg></li>
+              <li class="hx-step svc-workflow"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3.5" y="16" width="5" height="5" rx="1"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><b>Move</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Chasing people for updates</span><span class="hx-only-after">Clear owners, status and follow-ups</span></span></li>
+              <li class="hx-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 7l5 5-5 5"/></svg></li>
+              <li class="hx-step svc-data"><svg class="hx-ic hx-ic-bars" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8.5" width="4" height="11.5" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg><b>See</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Rebuilding the Monday report</span><span class="hx-only-after">A weekly report that updates itself</span></span></li>
             </ol>
-            <div class="hv-mess">
-              <p class="hv-m hv-m1"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/></svg><span><b>Jobs_FINAL_v7.xlsx</b>Last updated: Friday?</span></p>
-              <p class="hv-m hv-m2"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span><b>Re: Re: Any update on this?</b>Sent 3 times</span></p>
-              <p class="hv-m hv-m3"><span><b>Who&rsquo;s doing the Northfield job??</b>&mdash; sticky note</span></p>
-              <p class="hv-m hv-m4"><span><b>Monday report</b>Rebuilt by hand, again</span></p>
-            </div>
-            <div class="hv-dash">
-              <p class="hv-dash-t"><span class="hv-mark"></span>Weekly operations <small>&middot; <span data-hv="period">2–6 November 2026</span></small></p>
-              <div class="hv-dash-grid">
-                <table class="hv-table">
-                  <thead><tr><th>Ref</th><th>Customer</th><th class="hv-own">Owner</th><th>Status</th></tr></thead>
-                  <tbody data-hv-rows>
-                    <tr class="is-flag"><td>R-112</td><td>Northfield Services</td><td class="hv-own">&mdash;</td><td><span class="hv-st is-un">Unassigned</span></td></tr>
-                    <tr><td>R-110</td><td>Brightline Studio</td><td class="hv-own">Sam</td><td><span class="hv-st is-done">Completed</span></td></tr>
-                    <tr><td>R-106</td><td>Northfield Services</td><td class="hv-own">Ana</td><td><span class="hv-st is-prog">In progress</span></td></tr>
-                  </tbody>
-                </table>
-                <div class="hv-week">
-                  <p class="hv-week-t">This week</p>
-                  <p class="hv-kpis"><span class="hv-kpi"><strong data-hv="completed">7</strong>Completed</span><span class="hv-kpi is-open"><strong data-hv="outstanding">5</strong>Outstanding</span><span class="hv-kpi is-att"><strong data-hv="attention">3</strong>Need attention</span></p>
-                  <div class="hv-chart"><span data-hv-day="Mon"><i></i><em>M</em></span><span data-hv-day="Tue"><i></i><em>T</em></span><span data-hv-day="Wed"><i></i><em>W</em></span><span data-hv-day="Thu"><i></i><em>T</em></span><span data-hv-day="Fri"><i></i><em>F</em></span></div>
+            <div class="hx-body">
+              <div class="hx-today" aria-hidden="true">
+                <ul class="hx-scatter">
+                  <li class="hx-card hx-c1"><svg class="hx-file is-xls" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span><b>Job_Tracker_v3.xlsx</b>3 versions in different folders</span></li>
+                  <li class="hx-card hx-c2"><svg class="hx-file is-mail" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span><b>Re: Re: Job update?</b>Sent 3 times</span></li>
+                  <li class="hx-card hx-c3"><svg class="hx-file is-form" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span><b>Service request (form)</b>Not entered in the tracker</span></li>
+                  <li class="hx-card hx-c4"><svg class="hx-file is-pdf" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 15.5h6"/></svg><span><b>Completion records.pdf</b>Checked by hand</span></li>
+                  <li class="hx-card hx-c5 hx-sticky"><span><b>Who&rsquo;s doing the Northfield job?</b></span></li>
+                  <li class="hx-card hx-c6"><svg class="hx-file is-xls" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span><b>Weekly_Report_FINAL(2).xlsx</b>Rebuilt by hand every Monday</span></li>
+                </ul>
+                <p class="hx-result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg><span><b>The result</b>Records that don&rsquo;t match, missed updates and hours rebuilding the weekly report.</span></p>
+              </div>
+              <div class="hx-after">
+                <div class="hx-report">
+                  <p class="hx-rep-head"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span><b><span data-ws="business">Northstar Services</span> &middot; Weekly operations report</b><small data-ws="period">2–6 November 2026</small></span><span class="hx-valid"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6 5.4-5.6"/></svg><span data-ws="total">12</span> records checked</span></p>
+                  <div class="hx-kpis">
+                    <p class="hx-kpi is-done"><strong data-ws="completed">7</strong>Completed</p>
+                    <p class="hx-kpi is-open"><strong data-ws="outstanding">5</strong>Outstanding</p>
+                    <p class="hx-kpi is-att"><strong data-ws="attention">3</strong>Need attention</p>
+                  </div>
+                  <ul class="hx-recs" aria-label="Records">
+                    <li class="is-flag"><b>R-112</b><span>Northfield Services</span><span class="hx-own">No owner</span><em class="hx-st is-flag">Flagged</em></li>
+                    <li><b>R-110</b><span>Brightline Studio</span><span class="hx-own">Sam</span><em class="hx-st is-done">Completed</em></li>
+                    <li><b>R-106</b><span>Northfield Services</span><span class="hx-own">Ana</span><em class="hx-st is-prog">In progress</em></li>
+                  </ul>
+                  <div class="hx-cols">
+                    <div class="hx-actions">
+                      <p class="hx-col-t"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>Action items</p>
+                      <ul data-ws-actions><li><span class="hx-box" aria-hidden="true"></span><span>Assign owners (1)</span><em class="is-high">High</em></li><li><span class="hx-box" aria-hidden="true"></span><span>Follow up overdue work (1)</span><em class="is-high">High</em></li><li><span class="hx-box" aria-hidden="true"></span><span>Complete missing details (1)</span><em>Medium</em></li></ul>
+                    </div>
+                    <div class="hx-sum">
+                      <p class="hx-col-t"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>AI-assisted summary <small>Sample draft</small></p>
+                      <ul data-ws-summary><li>7 jobs completed this week.</li><li>5 still outstanding.</li><li>3 need attention before the weekly update.</li><li>Next step: assign owners.</li></ul>
+                      <p class="hx-review"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>Review before sharing</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="hv-check"><svg viewBox="0 0 24 24" focusable="false"><path class="hv-shield" d="M12 2.6l7.8 3.1v5.8c0 4.8-3.2 8.7-7.8 10.2-4.6-1.5-7.8-5.4-7.8-10.2V5.7z"/><path class="hv-shield-tick" d="M8.4 12.2l2.5 2.5 4.7-4.9"/></svg><span><b>Built-in data checks</b><small>Duplicates &middot; Missing information &middot; Inconsistent records</small></span></div>
           </div>
-          <figcaption class="hv-cap"><span>Illustration using the sample week from the live example below. Fictional data; not live automation.</span> <button type="button" class="tf-pause hv-pause" hidden aria-pressed="false">Pause animation</button></figcaption>
+          <figcaption class="hx-cap" id="hx-cap"><span>Fictional sample data for Northstar Services (2–6 November 2026), the same records as the live example below. An illustration, not real results; on this page the summary is written by simple rules, not AI.</span> <button type="button" class="hx-pause" hidden>Pause animation</button></figcaption>
         </figure>
       </div>
       <svg class="hv-edge" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 46 C260 10 520 6 760 34 C1000 62 1220 70 1440 30 V80 H0 Z"/></svg>
@@ -139,7 +151,7 @@
         <p class="eyebrow">Practical business example</p>
         <h2 id="samples-h">A clearer way to manage the work.</h2>
         <p class="lede">Keep requests, responsibilities and follow-ups in one simple tracker. See what&rsquo;s completed, what&rsquo;s outstanding and what needs attention.</p>
-        <p class="wt-intro">Here&rsquo;s a sample from a typical business week.</p>
+        <p class="wt-intro">Here&rsquo;s a typical week at Northstar Services, a fictional service business (the same records as the report at the top of the page).</p>
         <div id="tracker-app" class="wt"><!-- tracker:start --><div class="wt-block wt-over"><div class="wt-head"><p class="wt-label">Weekly overview</p><p class="wt-period"><span>2–6 November 2026 &middot; Sample reporting period</span> <span>As at 6 November 2026</span></p></div><ul class="wt-figs" data-wt="figures"><li class="wt-fig" data-fig="total"><strong>12</strong><span>Records received</span></li><li class="wt-fig" data-fig="completed"><strong>7</strong><span>Completed</span></li><li class="wt-fig" data-fig="outstanding"><strong>5</strong><span>Still outstanding</span></li><li class="wt-fig is-warn" data-fig="attention"><strong>3</strong><span>Need attention</span></li></ul></div><div class="wt-block wt-track"><div class="wt-head"><div><p class="wt-label">Work tracker</p><p class="wt-hint">The interactive version needs JavaScript.</p></div></div><div class="wt-scroll"><table class="wt-table"><caption class="sr-only">Sample work tracker: 12 records</caption><thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th></tr></thead><tbody data-wt="rows"><tr class="wt-row is-done" data-ref="R-101"><td class="wt-ref">R-101</td><td class="wt-task">Send updated quotation</td><td class="wt-cust">Northfield Services</td><td class="wt-own">Ana</td><td class="wt-due"><span>3 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row is-done" data-ref="R-102"><td class="wt-ref">R-102</td><td class="wt-task">Confirm customer details</td><td class="wt-cust">Lakeside Trading</td><td class="wt-own">Mark</td><td class="wt-due"><span>4 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row is-done" data-ref="R-103"><td class="wt-ref">R-103</td><td class="wt-task">Prepare monthly report</td><td class="wt-cust">Cedar &amp; Co.</td><td class="wt-own">Ana</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row is-flag" data-ref="R-104"><td class="wt-ref">R-104</td><td class="wt-task">Follow up on payment</td><td class="wt-cust">Harbor Works</td><td class="wt-own">Mark</td><td class="wt-due"><span>4 Nov 2026</span> <em class="wt-tag">Overdue</em></td><td class="wt-st">Waiting</td></tr><tr class="wt-row is-done" data-ref="R-105"><td class="wt-ref">R-105</td><td class="wt-task">Update customer records</td><td class="wt-cust">Brightline Studio</td><td class="wt-own">Mark</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row" data-ref="R-106"><td class="wt-ref">R-106</td><td class="wt-task">Schedule service visit</td><td class="wt-cust">Northfield Services</td><td class="wt-own">Ana</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">In Progress</td></tr><tr class="wt-row is-done" data-ref="R-107"><td class="wt-ref">R-107</td><td class="wt-task">Send invoice copy</td><td class="wt-cust">Lakeside Trading</td><td class="wt-own">Mark</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row" data-ref="R-108"><td class="wt-ref">R-108</td><td class="wt-task">Review supplier quote</td><td class="wt-cust">Cedar &amp; Co.</td><td class="wt-own">Sam</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Waiting</td></tr><tr class="wt-row is-done" data-ref="R-109"><td class="wt-ref">R-109</td><td class="wt-task">Confirm delivery date</td><td class="wt-cust">Harbor Works</td><td class="wt-own">Ana</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row is-done" data-ref="R-110"><td class="wt-ref">R-110</td><td class="wt-task">Prepare weekly update</td><td class="wt-cust">Brightline Studio</td><td class="wt-own">Sam</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td></tr><tr class="wt-row is-flag" data-ref="R-111"><td class="wt-ref">R-111</td><td class="wt-task">Check service notes</td><td class="wt-cust"><span class="wt-blank">Blank</span></td><td class="wt-own">Mark</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">In Progress</td></tr><tr class="wt-row is-flag" data-ref="R-112"><td class="wt-ref">R-112</td><td class="wt-task">Confirm outstanding item</td><td class="wt-cust">Northfield Services</td><td class="wt-own">Unassigned</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Not Started</td></tr></tbody></table></div></div><div class="wt-split"><div class="wt-block wt-att"><p class="wt-label" id="wt-att-h">Needs attention</p><ul class="wt-fus" aria-labelledby="wt-att-h" data-wt="followups"><li class="wt-fu" data-fu="R-104"><p class="wt-fu-t">Follow up on payment</p><p class="wt-fu-m"><span class="wt-chip">Overdue</span><span class="wt-sep" aria-hidden="true">·</span><span class="wt-fu-ref">R-104</span></p><p class="wt-fu-n">Due 4 November and still waiting.</p></li><li class="wt-fu" data-fu="R-111"><p class="wt-fu-t">Check service notes</p><p class="wt-fu-m"><span class="wt-chip">Missing customer / area</span><span class="wt-sep" aria-hidden="true">·</span><span class="wt-fu-ref">R-111</span></p><p class="wt-fu-n">Add the missing customer or area details.</p></li><li class="wt-fu" data-fu="R-112"><p class="wt-fu-t">Confirm outstanding item</p><p class="wt-fu-m"><span class="wt-chip">No owner assigned</span><span class="wt-sep" aria-hidden="true">·</span><span class="wt-fu-ref">R-112</span></p><p class="wt-fu-n">Choose someone to take responsibility.</p></li></ul></div><div class="wt-block wt-sum"><p class="wt-label">Weekly summary</p><p class="wt-sum-t" data-wt="summary">12 records were received during the reporting period. 7 are marked as completed, while 5 remain outstanding. 3 records need attention.</p></div></div><!-- tracker:end --></div>
         <div class="wt-download">
           <div class="wt-download-t">

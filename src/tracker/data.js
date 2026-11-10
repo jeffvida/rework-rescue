@@ -1,12 +1,14 @@
 // Weekly Work & Follow-up Tracker: the one set of sample records, options and labels (implementation brief, 10 Nov 2026).
 // This file is the single source for BOTH the website preview (src/tracker/engine.js, ui.js) and the downloadable
 // workbook (tools/build_tracker_xlsx.py reads it through Node). Change the sample here, then rebuild the workbook.
-// Fictional, industry-neutral business. The issues in R-104 (overdue), R-111 (blank Customer / Area) and
+// Fictional business: Northstar Services (BUSINESS), a small service business; the name is shown in the hero report,
+// the live example and the workbook. The issues in R-104 (overdue), R-111 (blank Customer / Area) and
 // R-112 (Unassigned) are deliberate; don't fix them here.
 
 const freeze = (rows) => Object.freeze(rows.map((r) => Object.freeze({ ...r })));
 
 export const PERIOD = Object.freeze({ start: '2026-11-02', end: '2026-11-06', asAt: '2026-11-06' });
+export const BUSINESS = 'Northstar Services';
 export const PERIOD_LABEL = '2–6 November 2026';
 export const AS_AT_LABEL = '6 November 2026';
 

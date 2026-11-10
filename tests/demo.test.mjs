@@ -7,8 +7,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { summarise, byStatus, receivedByDay } from '../src/tracker/engine.js';
-import { RECORDS, PERIOD_LABEL } from '../src/tracker/data.js';
-import { heroFigures, storyStates } from '../src/demo/hero.js';
+import { RECORDS, PERIOD_LABEL, BUSINESS } from '../src/tracker/data.js';
+import { heroFigures, actionItems, summaryBullets } from '../src/demo/hero.js';
 import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -57,63 +57,69 @@ test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting
   assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
   for (const t of ['30 minutes', 'Free', 'No obligation']) assert.match(hero, new RegExp(`</svg>${t}</li>`), t);
   assert.match(hero, /class="cred-strip hv-cred"/);
-  assert.doesNotMatch(html, /Northstar/, 'the tracker’s business has no name; none is invented');
+  assert.equal((html.match(/Northstar Services/g) || []).length >= 2, true, 'the hero and the live example name the same fictional business');
 });
 
-test('hero visual: Capture, Move, See tiles on one route, a weekly operations view, a short checks badge; no service copy repeated', async () => {
+test('hero visual: one workspace with a Today / With Rework Rescue toggle; both states built from real elements', async () => {
   const html = await page();
-  const a = html.indexOf('<figure class="hero-preview hv'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  // Each stage names the problem it replaces and what the customer gets.
-  assert.deepEqual([...fig.matchAll(/<b>(\w+)<\/b><s class="hv-was">([^<]+)<\/s><span class="hv-get">([^<]+)<\/span>/g)].map((m) => m.slice(1)), [
-    ['Capture', 'Customer details in five places', 'One record for every job'],
-    ['Move', 'Chasing people for updates', 'Follow-ups that send themselves'],
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today<\/button>/);
+  assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
+  // Each step: what it is like today, and what the customer gets.
+  const pairs = [...fig.matchAll(/<b>(\w+)<\/b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">([^<]+)<\/span><span class="hx-only-after">([^<]+)<\/span>/g)].map((m) => m.slice(1));
+  assert.deepEqual(pairs, [
+    ['Capture', 'Details in multiple places', 'One organised record per job'],
+    ['Move', 'Chasing people for updates', 'Clear owners, status and follow-ups'],
     ['See', 'Rebuilding the Monday report', 'A weekly report that updates itself']]);
-  // Today vs With Rework Rescue: real buttons, the finished view selected by default.
-  assert.match(fig, /<button type="button" class="hv-mode-b" data-hv-mode="before" aria-pressed="false">Today<\/button>/);
-  assert.match(fig, /<button type="button" class="hv-mode-b" data-hv-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
-  assert.match(fig, /<b>Jobs_FINAL_v7\.xlsx<\/b>/);
-  assert.doesNotMatch(fig.slice(fig.indexOf('class="hv-mess"'), fig.indexOf('class="hv-dash"')), /\d+\s?(hours|hrs|%)/i, 'no invented time figures');
-  assert.equal((fig.match(/class="hv-arrow"/g) || []).length, 2);
-  assert.match(fig, /<path id="hv-route"/);
-  assert.match(fig, /<b>Built-in data checks<\/b><small>Duplicates &middot; Missing information &middot; Inconsistent records<\/small>/);
-  for (const t of ['Business Tools &amp; Systems', 'Workflows &amp; Processes', 'Record information once', 'Automation is only useful']) assert.ok(!fig.includes(t), `no repeat of the services section: ${t}`);
-  assert.match(fig, /Fictional data; not live automation\./);
-  assert.match(fig, /class="tf-pause hv-pause" hidden aria-pressed="false">Pause animation<\/button>/);
+  // Today: spreadsheets, versions, email, form, PDF, sticky note, manual report, and the result.
+  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Northfield job?', 'Weekly_Report_FINAL(2).xlsx', 'The result'])
+    assert.ok(fig.includes(t), t);
+  assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state is hidden from screen readers by default');
+  // With Rework Rescue: validation, KPIs, action items, a summary draft labelled honestly.
+  for (const t of ['records checked', 'Action items', 'AI-assisted summary <small>Sample draft</small>', 'Review before sharing']) assert.ok(fig.includes(t), t);
+  assert.match(fig, /An illustration, not real results; on this page the summary is written by simple rules, not AI\./);
+  for (const t of ['Business Tools &amp; Systems', 'Automation is only useful']) assert.ok(!fig.includes(t), `no repeat of the services section: ${t}`);
+  assert.doesNotMatch(fig, /\b42\b|\b8 still\b/, 'no figures from the reference image');
 });
 
-test('hero data matches the tracker: rows are real records, figures end on the tracker’s numbers, story starts the week before', async () => {
+test('hero report matches the tracker: Northstar Services, figures, action items and summary come from the fixture data', async () => {
   const html = await page();
-  const a = html.indexOf('<figure class="hero-preview hv'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  const rows = [...fig.matchAll(/<tr(?: class="is-flag")?><td>(R-\d+)<\/td><td>([^<]+)<\/td><td class="hv-own">([^<]+)<\/td><td><span class="hv-st [\w-]+">([^<]+)<\/span>/g)].map((m) => m.slice(1));
-  const label = { Completed: 'Completed', 'In Progress': 'In progress', 'Not Started': 'Unassigned' };
-  assert.equal(rows.length, 3);
-  for (const [ref, cust, own, st] of rows) {
-    const r = RECORDS.find((x) => x.ref === ref);
-    assert.equal(cust, r.customer, ref); assert.equal(own === '&mdash;' ? 'Unassigned' : own, r.owner, ref);
-    assert.equal(st, r.owner === 'Unassigned' ? 'Unassigned' : label[r.status], ref);
-  }
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
   const f = heroFigures(RECORDS);
-  assert.deepEqual([f.completed, f.outstanding, f.attention], [7, 5, 3]);
-  for (const k of ['completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-hv="${k}">${f[k]}<`), k);
-  const end = {}; for (const st of storyStates(f)) Object.assign(end, st.n || {});
-  assert.deepEqual(end, { completed: f.completed, outstanding: f.outstanding, attention: f.attention });
-  // Start: the week without R-112, with R-110 still in progress.
-  const before = summarise(RECORDS.filter((r) => r.ref !== 'R-112').map((r) => (r.ref === 'R-110' ? { ...r, status: 'In Progress' } : r)));
-  assert.deepEqual(storyStates(f)[0].n, { completed: before.completed, outstanding: before.outstanding, attention: before.attention });
+  assert.equal(BUSINESS, 'Northstar Services');
+  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention, f.unassigned, f.overdue, f.missing], [12, 7, 5, 3, 1, 1, 1]);
+  for (const k of ['business', 'period', 'total', 'completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-ws="${k}">${f[k]}<`), k);
+  const items = actionItems(f);
+  assert.deepEqual(items.map((x) => [x.label, x.priority]), [['Assign owners (1)', 'High'], ['Follow up overdue work (1)', 'High'], ['Complete missing details (1)', 'Medium']]);
+  // Records strip: the same jobs as the live example, as recorded.
+  const recs = [...fig.matchAll(/<li(?: class="is-flag")?><b>(R-\d+)<\/b><span>([^<]+)<\/span><span class="hx-own">([^<]+)<\/span><em class="hx-st [\w-]+">([^<]+)<\/em>/g)].map((m) => m.slice(1));
+  assert.equal(recs.length, 3);
+  for (const [ref, cust, own, st] of recs) {
+    const r = RECORDS.find((x) => x.ref === ref);
+    assert.equal(cust, r.customer, ref);
+    assert.equal(own, r.owner === 'Unassigned' ? 'No owner' : r.owner, ref);
+    assert.equal(st, r.owner === 'Unassigned' ? 'Flagged' : ({ Completed: 'Completed', 'In Progress': 'In progress' })[r.status], ref);
+  }
+  const html_items = [...fig.slice(fig.indexOf('data-ws-actions')).matchAll(/<span>([^<]+)<\/span><em[^>]*>(\w+)<\/em>/g)].slice(0, 3).map((m) => [m[1], m[2]]);
+  assert.deepEqual(html_items, items.map((x) => [x.label, x.priority]));
+  const bullets = summaryBullets(f);
+  const html_b = [...fig.slice(fig.indexOf('data-ws-summary')).matchAll(/<li>([^<]+)<\/li>/g)].slice(0, 4).map((m) => m[1]);
+  assert.deepEqual(html_b, bullets);
+  assert.ok(html.includes('Northstar Services, a fictional service business'), 'the live example names the same business');
+  // Edits flow through: complete R-104 and the overdue item disappears.
+  const g = heroFigures(RECORDS.map((r) => (r.ref === 'R-104' ? { ...r, status: 'Completed' } : r)));
+  assert.equal(actionItems(g).some((x) => x.label.startsWith('Follow up overdue')), false);
 });
 
-test('hero motion: story and route dots run only on screen, Pause button, reduced motion shows the finished picture', async () => {
+test('hero motion: autoplay only on screen, Pause button, toggle stops it, reduced motion switches instantly', async () => {
   const c = await css();
-  const block = c.slice(c.indexOf('/* ---- Hero (11 Nov 2026, mockup v3)'));
-  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hv, \.hv \* \{ animation: none !important; transition: none !important; \} \.hv-dots \{ display: none; \} \}/);
+  const block = c.slice(c.indexOf('/* ---- Hero workspace (11 Nov 2026)'));
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hx, \.hx \* \{ animation: none !important; transition: none !important; \} \}/);
   assert.doesNotMatch(block, /infinite/, 'no CSS loops');
   const js = await src('demo/hero.js');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /document\.hidden/); assert.match(js, /pauseAnimations/);
-  assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/);
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /document\.hidden/); assert.match(js, /IntersectionObserver/);
+  assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/); assert.match(js, /aria-hidden/);
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
-  const st = storyStates(heroFigures(RECORDS)); assert.equal(st[0].mode, 'before'); assert.ok(st.some((x) => x.mode === 'after'));
-  const last = st.at(-1); assert.ok(last.end && last.at <= 14000);
-  assert.match(js, /data-hv-mode/); assert.match(js, /hv-today/);
 });
 
 test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {

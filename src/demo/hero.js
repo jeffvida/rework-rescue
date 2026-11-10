@@ -1,144 +1,135 @@
-// Hero (11 Nov 2026, mockup v3): Capture -> Move -> See tiles joined by a glowing route, a tilted "Weekly operations"
-// view and a built-in data checks badge. Everything comes from the sample week of the Weekly Work & Follow-up Tracker
-// (src/tracker/), the homepage's live example: the rows are real tracker records and the "This week" figures end on
-// the tracker's own numbers (heroFigures).
-// Story (~11 s loop): the tiles light up in turn; R-110 (Brightline Studio, Sam) goes from In progress to Completed;
-// the figures update; R-112 (Northfield Services) arrives with no owner and the data checks flag it.
-// The HTML is the finished picture (no JavaScript, reduced motion, paused). The story and the dots on the route run only
-// while the hero is on screen and the tab is visible; a Pause button stops both (WCAG 2.2.2). Editing the tracker stops
-// the story and shows the live figures. CSP: no inline style attributes (CSSOM setProperty only).
+// Hero (11 Nov 2026): one workspace, two states. "Today" shows a typical week run from scattered spreadsheets, emails,
+// forms, PDFs and notes; "With Rework Rescue" shows the same week as checked records, clear owners and a weekly report
+// with KPIs, action items and a summary draft. Visitors switch with the toggle (real buttons, aria-pressed).
+// All figures come from the Weekly Work & Follow-up Tracker (src/tracker/), the homepage's live example, for the
+// fictional business Northstar Services; they follow the tracker's state, so edits made there show here too.
+// The HTML is the "With Rework Rescue" state (no JavaScript). With motion allowed, the hero alternates Today (~4 s) and
+// With Rework Rescue (~9 s) while it is on screen and the tab is visible; a Pause button stops it (WCAG 2.2.2), and
+// choosing a state with the toggle stops it too. Reduced motion: no autoplay, no movement; the toggle still works.
+// CSP: no inline style attributes (CSSOM setProperty only).
 
 import { getRecords, subscribe } from '../tracker/store.js';
-import { summarise, receivedByDay } from '../tracker/engine.js';
-import { RECORDS, PERIOD_LABEL } from '../tracker/data.js';
+import { summarise } from '../tracker/engine.js';
+import { RECORDS, PERIOD_LABEL, BUSINESS } from '../tracker/data.js';
 
-/** The hero's final figures, all derived from the tracker records (also used by the tests). */
+/** The report's figures, all derived from the tracker records (also used by the tests). */
 export function heroFigures(rec = RECORDS) {
   const s = summarise(rec);
-  return { total: s.total, completed: s.completed, outstanding: s.outstanding, attention: s.attention, period: PERIOD_LABEL };
+  return { total: s.total, completed: s.completed, outstanding: s.outstanding, attention: s.attention, overdue: s.overdue,
+    unassigned: s.unassigned, missing: s.missing, duplicates: s.duplicates, period: PERIOD_LABEL, business: BUSINESS };
 }
 
-// Today vs With Rework Rescue: the hero opens on the "Today" scene (scattered spreadsheet, emails and notes; each tile
-// shows the problem it replaces), then switches to the organised view. Visitors can switch themselves with the toggle.
-const STATUS = { done: ['is-done', 'Completed'], prog: ['is-prog', 'In progress'], un: ['is-un', 'Unassigned'] };
-const ROWS = {
-  'R-112': ['R-112', 'Northfield Services', '&mdash;', 'un', true],
-  'R-110': ['R-110', 'Brightline Studio', 'Sam', 'prog'],
-  'R-110done': ['R-110', 'Brightline Studio', 'Sam', 'done'],
-  'R-106': ['R-106', 'Northfield Services', 'Ana', 'prog'],
-  'R-109': ['R-109', 'Harbor Works', 'Ana', 'done'],
-};
-const rowHtml = (k) => {
-  const [ref, cust, own, st, flag] = ROWS[k]; const [cls, label] = STATUS[st];
-  return `<tr${flag ? ' class="is-flag"' : ''}><td>${ref}</td><td>${cust}</td><td class="hv-own">${own}</td><td><span class="hv-st ${cls}">${label}</span></td></tr>`;
-};
+/** Action items, most urgent first, from the tracker's own checks (label, count, priority). */
+export function actionItems(f) {
+  const items = [
+    ['Assign owners', f.unassigned, 'High'],
+    ['Follow up overdue work', f.overdue, 'High'],
+    ['Complete missing details', f.missing, 'Medium'],
+    ['Check possible duplicates', f.duplicates, 'Medium'],
+  ].filter(([, n]) => n > 0).map(([label, n, priority]) => ({ label: `${label} (${n})`, priority }));
+  return items.length ? items.slice(0, 3) : [{ label: 'Nothing needs attention this week', priority: '' }];
+}
 
-/**
- * The story as states. n: figures shown; tile: tile lit (1 Capture, 2 Move, 3 See); rows: table rows (top first);
- * without: records not yet received (left out of the chart); flag: data checks badge flags R-112.
- */
-export function storyStates(f) {
-  const T = 3000; // the "Today" scene plays first
+/** The summary draft's bullets (written by simple rules on this page; the caption says so). */
+export function summaryBullets(f, items = actionItems(f)) {
+  const job = (n) => `${n} job${n === 1 ? '' : 's'}`;
   return [
-    { at: 0, mode: 'before', tile: 0, rows: ['R-110', 'R-106', 'R-109'], without: ['R-112'], flag: false, n: { completed: f.completed - 1, outstanding: f.outstanding, attention: f.attention - 1 } },
-    { at: T, mode: 'after', tile: 1 },
-    { at: T + 1600, tile: 2 },
-    { at: T + 2600, rows: ['R-110done', 'R-106', 'R-109'], changed: 0 },
-    { at: T + 3400, tile: 3, n: { completed: f.completed, outstanding: f.outstanding - 1 }, pulse: ['completed', 'outstanding'] },
-    { at: T + 5200, tile: 1, rows: ['R-112', 'R-110done', 'R-106'], without: [], changed: 0, n: { outstanding: f.outstanding }, pulse: ['outstanding'] },
-    { at: T + 6400, flag: true, tile: 0, n: { attention: f.attention }, pulse: ['attention'] },
-    { at: T + 10500, end: true },
+    `${job(f.completed)} completed this week.`,
+    `${f.outstanding} still outstanding.`,
+    f.attention ? `${f.attention} need${f.attention === 1 ? 's' : ''} attention before the weekly update.` : 'Nothing needs attention before the weekly update.',
+    items[0].priority ? `Next step: ${items[0].label.replace(/ \(\d+\)$/, '').replace(/^./, (c) => c.toLowerCase())}.` : 'Next step: share the report.',
   ];
 }
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export function mountHero(fig) {
   if (!fig) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const q = (s) => fig.querySelector(s);
-  const set = (k, v) => fig.querySelectorAll(`[data-hv="${k}"]`).forEach((el) => { el.textContent = String(v); });
-  const svg = q('.hv-path');
-  const isSample = () => JSON.stringify(getRecords()) === JSON.stringify(RECORDS);
+  const btns = [...fig.querySelectorAll('[data-ws-mode]')];
+  const pauseBtn = q('.hx-pause');
+  let mode = 'after';
 
-  function paintBars(rec) {
-    const days = receivedByDay(rec); const max = Math.max(3, ...receivedByDay(RECORDS).map((d) => d.received));
-    for (const d of days) q(`[data-hv-day="${d.day}"] i`)?.style.setProperty('height', `${Math.max(8, Math.round((d.received / max) * 100))}%`);
+  const set = (k, v) => fig.querySelectorAll(`[data-ws="${k}"]`).forEach((el) => { el.textContent = String(v); });
+  let counters = [];
+  function countUp(k, v) {
+    fig.querySelectorAll(`[data-ws="${k}"]`).forEach((el) => {
+      const t0 = performance.now(); const dur = 700; const delay = 450;
+      const step = (now) => {
+        const p = Math.min(1, Math.max(0, (now - t0 - delay) / dur));
+        el.textContent = String(Math.round(v * (1 - (1 - p) ** 3)));
+        if (p < 1) counters.push(requestAnimationFrame(step));
+      };
+      el.textContent = '0'; counters.push(requestAnimationFrame(step));
+    });
   }
-  function paintFinal() {
+  function paint(animate = false) {
     const rec = getRecords(); const f = heroFigures(rec);
-    for (const k of ['completed', 'outstanding', 'attention', 'period']) set(k, f[k]);
-    paintBars(rec);
-  }
-  paintFinal();
-
-  const dots = (on) => { try { if (svg && svg.pauseAnimations) { if (on) svg.unpauseAnimations(); else svg.pauseAnimations(); } } catch { /* older browsers */ } };
-  if (reduce || typeof IntersectionObserver !== 'function') {
-    dots(false); subscribe(() => paintFinal());
-    // No story: the toggle simply switches between the two still pictures.
-    fig.querySelectorAll('[data-hv-mode]').forEach((b, _, all) => b.addEventListener('click', () => {
-      fig.classList.toggle('hv-today', b.dataset.hvMode === 'before');
-      all.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    }));
-    return;
+    for (const k of ['business', 'period', 'total']) set(k, f[k]);
+    for (const k of ['completed', 'outstanding', 'attention']) (animate ? countUp : set)(k, f[k]);
+    const items = actionItems(f);
+    const a = q('[data-ws-actions]');
+    if (a) a.innerHTML = items.map((x) => `<li><span class="hx-box" aria-hidden="true"></span><span>${esc(x.label)}</span>${x.priority ? `<em${x.priority === 'High' ? ' class="is-high"' : ''}>${x.priority}</em>` : ''}</li>`).join('');
+    const sm = q('[data-ws-summary]');
+    if (sm) sm.innerHTML = summaryBullets(f, items).map((t) => `<li>${esc(t)}</li>`).join('');
   }
 
-  const rows = q('[data-hv-rows]'); const finalRows = rows.innerHTML;
-  const tiles = [...fig.querySelectorAll('[data-hv-tile]')];
-  const pauseBtn = q('.hv-pause');
-  const modeBtns = [...fig.querySelectorAll('[data-hv-mode]')];
-  let manual = null; // 'before' | 'after' when the visitor chose a view
-  const setMode = (m) => {
-    fig.classList.toggle('hv-today', m === 'before');
-    modeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.hvMode === m)));
-  };
-  let timers = []; let onScreen = false; let paused = false; let stopped = false; let running = false;
-
-  const clear = () => { timers.forEach(clearTimeout); timers = []; running = false; };
-  const showFinal = () => {
-    clear(); dots(false);
-    fig.classList.remove('hv-run', 'hv-fade', 'hv-flag-on');
-    tiles.forEach((t) => t.classList.remove('is-on'));
-    fig.querySelectorAll('.is-pulse').forEach((el) => el.classList.remove('is-pulse'));
-    rows.innerHTML = finalRows; paintFinal();
-    setMode(manual || 'after');
-  };
-  const apply = (st) => {
-    if (st.end) { fig.classList.add('hv-fade'); timers.push(setTimeout(() => { fig.classList.remove('hv-fade'); start(); }, 450)); return; }
-    if (st.mode) setMode(st.mode);
-    if ('tile' in st) tiles.forEach((t) => t.classList.toggle('is-on', Number(t.dataset.hvTile) === st.tile));
-    if ('flag' in st) fig.classList.toggle('hv-flag-on', st.flag);
-    if (st.rows) {
-      rows.innerHTML = st.rows.map(rowHtml).join('');
-      if ('changed' in st) rows.children[st.changed]?.classList.add('is-new');
-    }
-    if (st.without) paintBars(RECORDS.filter((r) => !st.without.includes(r.ref)));
-    if (st.n) for (const [k, v] of Object.entries(st.n)) set(k, v);
-    for (const k of st.pulse || []) fig.querySelectorAll(`[data-hv="${k}"]`).forEach((el) => { el.classList.remove('is-pulse'); void el.offsetWidth; el.classList.add('is-pulse'); });
-  };
-  function start() {
-    clear();
-    if (paused || manual || stopped || !onScreen || document.hidden) { showFinal(); return; }
-    running = true; dots(true); fig.classList.add('hv-run');
-    for (const st of storyStates(heroFigures(RECORDS))) timers.push(setTimeout(() => apply(st), st.at));
+  // The toggle's sliding highlight follows the pressed button (measured, so it fits either label).
+  const toggle = q('.hx-toggle');
+  function placePill() {
+    const on = btns.find((b) => b.getAttribute('aria-pressed') === 'true');
+    if (!toggle || !on) return;
+    toggle.classList.add('is-js');
+    toggle.style.setProperty('--tg-x', `${on.offsetLeft}px`);
+    toggle.style.setProperty('--tg-w', `${on.offsetWidth}px`);
   }
-  const sync = () => { if (onScreen && !paused && !manual && !stopped && !document.hidden) { if (!running) start(); } else showFinal(); };
+  addEventListener('resize', placePill);
+  document.fonts?.ready?.then(placePill);
 
-  dots(false);
-  new IntersectionObserver((entries) => { onScreen = entries.some((e) => e.isIntersecting); sync(); }, { threshold: 0.25 }).observe(fig);
-  document.addEventListener('visibilitychange', sync);
-  subscribe(() => { stopped = !isSample(); if (pauseBtn) pauseBtn.hidden = stopped; showFinal(); sync(); });
-  // The toggle stops the story and shows the chosen view; Play resumes the story from the start.
-  modeBtns.forEach((b) => b.addEventListener('click', () => {
-    manual = b.dataset.hvMode; paused = true;
-    if (pauseBtn) { pauseBtn.setAttribute('aria-pressed', 'true'); pauseBtn.textContent = 'Play animation'; }
-    sync();
+  function setMode(m, animate = !reduce) {
+    mode = m;
+    counters.forEach(cancelAnimationFrame); counters = [];
+    fig.classList.toggle('hx-is-today', m === 'today');
+    fig.classList.toggle('hx-is-after', m === 'after');
+    btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wsMode === m)));
+    placePill();
+    // Only the visible state is exposed to screen readers.
+    fig.querySelectorAll('.hx-today, .hx-only-today').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'today')));
+    fig.querySelectorAll('.hx-after, .hx-only-after').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'after')));
+    paint(m === 'after' && animate);
+  }
+  setMode('after', false);
+  subscribe(() => paint(false));
+
+  let manual = false; let paused = false; let onScreen = false; let timer = 0;
+  const canPlay = () => !reduce && !manual && !paused && onScreen && !document.hidden;
+  function loop() {
+    clearTimeout(timer);
+    if (!canPlay()) return;
+    timer = setTimeout(() => { setMode(mode === 'today' ? 'after' : 'today'); loop(); }, mode === 'today' ? 4000 : 9000);
+  }
+  btns.forEach((b) => b.addEventListener('click', () => {
+    manual = true; clearTimeout(timer);
+    if (pauseBtn && !pauseBtn.hidden) pauseBtn.textContent = 'Play animation';
+    if (b.dataset.wsMode !== mode) setMode(b.dataset.wsMode);
   }));
+  if (reduce || typeof IntersectionObserver !== 'function') return;
+
   if (pauseBtn) {
     pauseBtn.hidden = false;
     pauseBtn.addEventListener('click', () => {
-      paused = !paused; if (!paused) manual = null;
-      pauseBtn.setAttribute('aria-pressed', String(paused));
+      const play = manual || paused;
+      manual = false; paused = !play;
       pauseBtn.textContent = paused ? 'Play animation' : 'Pause animation';
-      sync();
+      if (play) { setMode('today'); loop(); } else clearTimeout(timer);
     });
   }
+  let started = false;
+  new IntersectionObserver((entries) => {
+    onScreen = entries.some((e) => e.isIntersecting);
+    if (onScreen && !started && canPlay()) { started = true; setMode('today', false); }
+    if (onScreen) loop(); else clearTimeout(timer);
+  }, { threshold: 0.3 }).observe(fig);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else loop(); });
 }

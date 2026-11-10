@@ -11,7 +11,7 @@ const REVEAL = [
   '.hero-copy > *',
   '#fit .fit-eyebrow', '#fit h2', '.pain-bridge',
   '#samples h2', '#samples .lede', '#samples .disclosure',
-  '#services h2', '#services .svc-position', '#services .lede', '#services .svc-areas', '.svc-tabs', '.svc-foot', '.svc-choose',
+  '#services h2', '#services .svc-intro', '.svc-checks', '.example-project', '.svc-foot',
   '.exp-head', '.exp-note',
   '#how h2', '.steps-h', '.steps-row', '.handover-h', '.handover-list', '.handover-note',
   '.about-section .photo-card', '.about-copy',
@@ -21,6 +21,7 @@ const REVEAL = [
 // Groups whose children come in one after another.
 const STAGGER = [
   ['.pain-tiles', 70],
+  ['.svc-layers', 90],
   ['.exp-list', 70],
   ['.about-copy', 35],
   ['.faq-wrap', 30, '.faq-item'],

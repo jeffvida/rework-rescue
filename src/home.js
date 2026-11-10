@@ -5,8 +5,6 @@ import { mountTracker } from './tracker/ui.js';
 import { mountHero } from './demo/hero.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
-import { mountServices } from './services.js';
-import { mountSamples } from './samples.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -51,8 +49,6 @@ export function mountMobileCta() {
 // The main example: the Weekly Work & Follow-up Tracker (src/tracker/), with its downloadable workbook.
 mountTracker(document.getElementById('tracker-app'));
 mountMobileCta();
-mountSamples();
-mountServices();
 mountMotion();
 mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.

@@ -93,16 +93,27 @@ test('18.10 hero motion: ordered ~4.5 s timeline, played once, reduced motion sh
   const js = await src('demo/hero.js'); assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /io\.disconnect\(\)/);
 });
 
-test('18.2, 18.21–18.22 services: names kept, the brief’s descriptions, how they connect, three distinct samples', async () => {
+test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {
   const html = await page();
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
-  assert.deepEqual([...sec.matchAll(/<h3>([^<]+)<\/h3>\s*<p class="svc-short">/g)].map((m) => m[1]), ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']);
-  for (const t of ['Turn scattered spreadsheets and repetitive reporting tasks into organised, reliable reports that are easier to update and maintain.', 'Make everyday work easier to manage by improving handoffs, responsibilities and follow-ups.', 'Bring disconnected information and everyday processes into practical business tools that make work easier to manage.',
-    'makes information easier to combine, check, update and report.', 'makes work easier to assign, track and follow up.', 'brings related information and processes together into a usable solution.']) assert.ok(sec.includes(t), t);
-  assert.deepEqual([...sec.matchAll(/data-mini="(\w+)">\s*<p class="mini-t">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]), [
-    ['report', 'From scattered files to one reliable report.'], ['workflow', 'From missed requests to clear next steps.'], ['tools', 'From disconnected files to one useful workspace.']]);
+  assert.match(sec, /<h2 id="services-h">One connected solution\. Three parts that work together\.<\/h2>/);
+  assert.match(sec, /You don&rsquo;t need to choose a service\. We&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there\./);
+  // Order: Capture, Move, See, with the three service names kept.
+  assert.deepEqual([...sec.matchAll(/<span class="svc-layer-n">(\d\d)<\/span> (\w+)<\/p>\s*<h3>([^<]+)<\/h3>/g)].map((m) => [m[1], m[2], m[3]]), [
+    ['01', 'Capture', 'Business Tools &amp; Systems'], ['02', 'Move', 'Workflows &amp; Processes'], ['03', 'See', 'Data &amp; Reporting']]);
+  assert.deepEqual([...sec.matchAll(/<p class="svc-short">([^<]+)<\/p>/g)].map((m) => m[1]), ['Fix the tools.', 'Fix the steps.', 'Fix the numbers.']);
+  // Data & Reporting keeps the most visual weight.
+  assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
+  assert.match(sec, /Most projects start here/);
+  // Checks band across all three, in the softer wording (no promise that everything checks itself).
+  assert.match(sec, /Automation is only useful when the information behind it can be trusted\./);
+  assert.match(sec, /Built with data checks and clear exceptions, so problems are easier to catch before they affect your reports and workflows\./);
+  assert.doesNotMatch(html, /checks its own data|every workflow I build/i);
+  // Nothing that asks the visitor to pick a service; no per-service mini-demos.
+  assert.doesNotMatch(html, /on its own or combined|Not sure where your problem fits|data-mini=|svc-try|data-svc-go/);
+  const home = await src('home.js'); assert.doesNotMatch(home, /mountServices|mountSamples/);
+  assert.match(sec, /Google Apps Script/);
   assert.doesNotMatch(html, /KPI &amp; Operations Reporting|Reporting &amp; Data Automation|Workflow Improvements/);
-  const js = await src('samples.js'); assert.match(js, /mountReport[\s\S]*mountWorkflow[\s\S]*mountTools/);
 });
 
 test('18.11 How I work: the reassurance line, the steps and the handover terms stay', async () => {
@@ -122,15 +133,16 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   for (const t of ['A clearer way to manage the work', 'customers, requests, tasks and team names are fictional', 'Reset sample', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
 });
 
-test('problem cards: three, in the customer’s words, each opening its service', async () => {
+test('problem cards: three, in the customer’s words, each pointing to its layer of the one solution', async () => {
   const html = await page();
   const fit = html.slice(html.indexOf('id="fit"'), html.indexOf('id="samples"'));
-  const cards = [...fit.matchAll(/<a href="#(svc-\w+)" data-svc-go="(\d)"><strong>([^<]+)<\/strong>/g)].map((m) => [m[1], m[2], m[3]]);
+  const cards = [...fit.matchAll(/<a href="#(svc-\w+)"><strong>([^<]+)<\/strong>[\s\S]*?<em>([^<]+)</g)].map((m) => [m[1], m[2], m[3].trim()]);
   assert.deepEqual(cards, [
-    ['svc-data', '0', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;'],
-    ['svc-workflow', '1', '&ldquo;I&rsquo;m always chasing updates.&rdquo;'],
-    ['svc-systems', '2', '&ldquo;Everything is scattered.&rdquo;'],
+    ['svc-data', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;', 'See &middot; Data &amp; Reporting'],
+    ['svc-workflow', '&ldquo;I&rsquo;m always chasing updates.&rdquo;', 'Move &middot; Workflows &amp; Processes'],
+    ['svc-systems', '&ldquo;Everything is scattered.&rdquo;', 'Capture &middot; Business Tools &amp; Systems'],
   ]);
+  assert.match(fit, /Most weeks it&rsquo;s all three at once, <a href="#services">and that&rsquo;s how I fix them<\/a>\./);
 });
 
 
@@ -151,9 +163,10 @@ test('page: no prices, testimonials or client results; service names kept; servi
   // Services stay short: the problem line per service, no separate symptom lists.
   assert.doesNotMatch(html, /svc-familiar|Does this sound familiar\?/);
   // Middle option (9 Nov): CRM, websites and booking pages stay, framed as support for records and reporting.
-  assert.match(html, /Customer and enquiry tracking that feeds your reports/);
-  assert.match(html, /Simple pages connected to your forms and records/);
-  assert.match(html, /Booking and request pages connected to your records/);
+  assert.match(html, /Simple CRM and customer records/);
+  assert.match(html, /Forms, booking and request pages/);
+  assert.match(html, /Trackers, job registers and operational workbooks/);
+  assert.match(html, /Simple pages connected to your records/);
   assert.doesNotMatch(html, /Better data\. Simpler workflows\./);
   assert.match(html, /I don&#39;t automate consequential decisions about people\./);
   assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
@@ -169,14 +182,20 @@ test('booking after the demo: one strip with the first-project line, using the e
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });
 
-test('How I work shows an example first project, labelled as an illustration, with the handover terms', async () => {
+test('the example first project sits right after the services diagram, labelled as an illustration, growth optional', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
+  const ex = sec.slice(sec.indexOf('class="example-project"'), sec.indexOf('class="svc-foot"'));
+  assert.ok(sec.indexOf('class="svc-checks"') < sec.indexOf('class="example-project"'), 'after the diagram and checks');
+  assert.match(ex, /Where most projects start &middot; illustration/);
+  assert.match(ex, /not a client result/);
+  assert.match(ex, /each step is scoped and agreed separately, and stopping at the report is fine\./);
+  for (const t of ['Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(ex.includes(t), t);
+  assert.doesNotMatch(ex, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
-  assert.match(how, /Example first project &middot; illustration/);
-  assert.match(how, /not a client result/);
-  for (const t of ['Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
-  assert.doesNotMatch(how, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
+  assert.doesNotMatch(how, /example-project/);
+  assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'How I work keeps its four steps');
 });
 
 test('availability on the page matches the booking calendar rules', async () => {

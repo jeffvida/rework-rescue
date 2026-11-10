@@ -1,3 +1,5 @@
+// NOT LOADED since 10 Nov 2026: the services section is now one Capture -> Move -> See diagram (no tabs).
+// Kept in the repo for reference; home.js no longer imports it.
 // "What I help with": on wide screens the three services become a list you can pick from (left)
 // and one panel with that service's details and its sample-data preview (right).
 // On phones, and without JavaScript, the three services stay stacked, each with its preview,

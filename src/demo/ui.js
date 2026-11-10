@@ -1,375 +1,287 @@
-// Live demo: a fictional small team's week, recorded in three places, with the weekly report beside it.
-// Five stages, each tied to one service area:
-//   1 Investigate the report (Data & Reporting): the hand-built report and the three sources; "Check the records".
-//   2 Find what needs attention (Data & Reporting): the three items, revealed one at a time, with their records.
-//   3 Decide what happens next (Workflows & Processes): a choice per item; the report updates; changeable until finished.
-//   4 Improve how the work gets done (Workflows & Processes): three prevention rules, before and after (proposed).
-//   5 See a better way of working (Business Tools & Systems): how the three sources could work together (illustration).
-// Then the final report (with anything still open), the booking ask and "Run it again".
-// Every number comes from ./engine.js. Nothing leaves the page: no real records, emails, invoices or bookings.
-// The section's static HTML (index.html) is what visitors see without JavaScript; this replaces it.
+// The main live demonstration: one connected business workspace (master brief, 10 Nov 2026).
+// A workspace overview stays on top; four views share one dataset and one state (./store.js):
+//   Data       the three source files and the combined records, the checks that ran, and the source behind each item.
+//   Reports    figures calculated from the combined records, filters, a chart, items needing attention, a summary.
+//   Actions    items to check and follow up: source, suggested next step, suggested responsibility, status, decisions.
+//   Workflows  request received → reviewed → assigned → in progress → completed, a sample-request form, reminders.
+// Everything is simulated in the browser: nothing is sent, created or changed anywhere else. Reset starts again.
 
 import { esc } from '../forms.js';
-import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, CONSEQUENCE, PREVENTION } from './data.js';
-import { initialState, sourceCounts, runChecks, findings, check, decide, clearDecision, allDecided, finalize, reopen, report, outstanding } from './engine.js';
+import { REQUESTS, TASKS, TRANSACTIONS } from './data.js';
+import {
+  consolidated, checkList, actions, openActions, metrics, summary, overview, board, stageOf, taskFor, fmtDate,
+  SOURCES, STAFF, REQUEST_TYPES, CHANNELS, STAGES, AI_LABEL,
+} from './engine.js';
+import { getState, subscribe, decide, assign, setStatus, review, remind, submitRequest, reset } from './store.js';
 
-const STAGES = [
-  ['Data & Reporting', 'Investigate the report'],
-  ['Data & Reporting', 'Find what needs attention'],
-  ['Workflows & Processes', 'Decide what happens next'],
-  ['Workflows & Processes', 'Improve how the work gets done'],
-  ['Business Tools & Systems', 'See a better way of working'],
+const VIEWS = [
+  ['data', 'Data', 'Combine and check'],
+  ['reports', 'Reports', 'See the numbers'],
+  ['actions', 'Actions', 'Follow up'],
+  ['workflows', 'Workflows', 'Keep work moving'],
 ];
-// Matches the service colours (see .svc-data / .svc-workflow / .svc-systems in styles.css).
-const SVC_CLASS = ['svc-data', 'svc-data', 'svc-workflow', 'svc-workflow', 'svc-systems'];
-// [key, label, short label for the pinned report on phones]
-const ROWS = [
-  ['openWork', 'Open work', 'Open'], ['completed', 'Completed this week', 'Done'], ['notInvoiced', 'Completed, not invoiced', 'Not invoiced'],
-  ['noOwner', 'Open with no owner', 'No owner'], ['itemsToReview', 'Items to review', 'To review'],
-];
-const CHECKS = [
-  'Bringing the three sources together by Work ID.',
-  'Looking for the same work entered twice.',
-  'Matching completed work to the finance register.',
-  'Checking that every open item has an owner.',
-];
-const FIELDS = {
-  tracker: [['id', 'Work ID'], ['work', 'Work'], ['owner', 'Owner'], ['status', 'Status'], ['due', 'Due']],
-  completion: [['id', 'Work ID'], ['completed', 'Completed'], ['result', 'Result']],
-  finance: [['id', 'Work ID'], ['invoice', 'Invoice'], ['amount', 'Amount'], ['status', 'Status']],
-};
-const ROWS_BY_SOURCE = { tracker: TRACKER, completion: COMPLETION, finance: FINANCE };
-const money = (n) => `$${n.toLocaleString('en-US')}`;
-const cell = (k, v) => (k === 'amount' ? money(v) : k === 'owner' && !v ? '<em>None</em>' : esc(v));
-const sourceName = (id) => SOURCES.find((x) => x.id === id).name;
-
-const BEFORE_AFTER = {
-  before: ['Information is kept separately.', 'People compare records by hand.', 'Missing information is found late.', 'Follow-ups depend on someone remembering to check.'],
-  after: ['Information follows a clearer process.', 'Records are checked the same way every time.', 'Missing details are flagged earlier.', 'Ownership and follow-ups are easy to see.'],
-};
-const WHO = [
-  ['auto', 'The checks', 'Bring the records together, compare them and flag what needs attention.'],
-  ['you', 'You', 'Make the decisions that need your judgment.'],
-  ['team', 'Your team', 'Carries out the follow-ups that need a person.'],
-  ['me', 'Me', 'Map the process, find the causes, and set up the checks and improvements that make the work run better.'],
-];
-
-// How an open action reads in the report ("W-314 No owner yet (work is on hold)") and in the end sentence.
-const lower = (x) => x.charAt(0).toLowerCase() + x.slice(1);
-const openText = (o) => (o.reason ? `${o.action} (${lower(o.reason)})` : o.action);
-const endText = (o) => (o.issue === 'finance' ? `${o.id} needs an invoice follow-up` : `${o.id} has no owner yet (${lower(o.reason)})`);
+const ROWS = { requests: REQUESTS, tasks: TASKS, transactions: TRANSACTIONS };
+const STATUS_CLASS = { 'Needs checking': 'open', 'Waiting for follow-up': 'unresolved', Assigned: 'disclosed', 'In progress': 'disclosed', Completed: 'resolved' };
+const blank = '<em class="dt-blank">blank</em>';
+const CUSTOMERS = [...new Set(REQUESTS.map((r) => r.customer).filter(Boolean))].sort();
 
 export function mountDemo(root) {
   if (!root) return null;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const wait = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
-  const counts = sourceCounts();
-
-  let s = initialState();
-  let at = 0;           // stage index 0–4, or 5 for the end
-  let revealed = 0;     // items shown in stage 2 (one at a time)
-  let ticked = 0;       // checks ticked during "Check the records"
-  let busy = false;
-  let error = '';
-  let shown = report(s);
-  let lines = [];       // "why it changed" lines under the report
+  let view = 'data';
+  let src = 'combined';          // which table Data shows
+  let focus = null;              // { refs, why } when Data was opened from an item
+  let channel = 'All'; let listStatus = 'All';
+  let note = '';                 // last result message in Workflows
 
   root.innerHTML = `
-    <div class="dm dm2">
-      <ol class="dm-strip">${STAGES.map(([svc, step], i) => `<li class="${SVC_CLASS[i]}"><span class="dm-s-svc">${esc(svc)}</span><span class="dm-s-step">${esc(step)}</span></li>`).join('')}</ol>
-      <div class="dm-grid">
-        <div class="dm-main"><div class="dm-stage" tabindex="-1"></div>
-          <details class="dm-all"><summary>See all ${counts.total} records</summary><div class="dm-all-body">${
-            SOURCES.map((src) => recTable(src.id, ROWS_BY_SOURCE[src.id])).join('')}</div></details>
+    <div class="dt cw">
+      <div class="cw-over" aria-label="Connected workspace overview"></div>
+      <div class="dt-head">
+        <div class="dt-tabs" role="tablist" aria-label="Workspace views">${VIEWS.map(([id, name, q]) => `
+          <button type="button" role="tab" class="dt-tab" id="dt-tab-${id}" aria-controls="dt-p-${id}" data-tab="${id}">
+            <span class="dt-tab-name">${esc(name)}${id === 'actions' ? ' <span class="dt-count" data-count></span>' : ''}</span>
+            <span class="dt-tab-q">${esc(q)}</span></button>`).join('')}
         </div>
-        <aside class="dm-report" aria-label="This week’s report">
-          <p class="dm-r-title">This week’s report</p>
-          <p class="dm-r-tag"></p>
-          <dl class="dm-r-rows">${ROWS.map(([k, l, sh]) => `<div class="dm-r-row" data-k="${k}"><dt><span class="dm-l-long">${esc(l)}</span><span class="dm-l-short" aria-hidden="true">${esc(sh)}</span></dt><dd><span class="dm-old"></span><b></b><span class="dm-unit"></span></dd></div>`).join('')}</dl>
-          <div class="dm-open"></div>
-          <div class="dm-last"></div>
-        </aside>
+        <p class="dt-status"><button type="button" class="dt-link" data-act="reset">Reset the demo</button></p>
       </div>
+      ${VIEWS.map(([id]) => `<div class="dt-panel" role="tabpanel" id="dt-p-${id}" aria-labelledby="dt-tab-${id}" tabindex="0" hidden></div>`).join('')}
       <p class="sr-only" aria-live="polite"></p>
     </div>`;
-  const stage = root.querySelector('.dm-stage');
-  const live = root.querySelector('.dm > [aria-live]');
+  const live = root.querySelector('.dt > [aria-live]');
   const say = (m) => { live.textContent = ''; setTimeout(() => { live.textContent = m; }, 30); };
+  const panel = (id) => root.querySelector(`#dt-p-${id}`);
 
-  function recTable(source, rows, { missing } = {}) {
-    const f = FIELDS[source];
-    const body = rows.length
-      ? rows.map((r) => `<tr>${f.map(([k]) => `<td data-label="${esc(f.find((x) => x[0] === k)[1])}">${cell(k, r[k])}</td>`).join('')}</tr>`).join('')
-      : `<tr class="dm-none"><td colspan="${f.length}">No entry for ${esc(missing)}</td></tr>`;
-    return `<div class="dm-table-wrap"><table class="dm-table"><caption>${esc(sourceName(source))}</caption>
-      <thead><tr>${f.map(([, l]) => `<th scope="col">${esc(l)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+  // ---- Overview: the connected workspace, always visible
+  function paintOverview() {
+    const o = overview(getState()); const first = summary(getState())[0];
+    root.querySelector('.cw-over').innerHTML = `
+      <button type="button" class="cw-tile" data-tab="data"><span class="cw-k">Records</span><strong>${o.records}</strong><span>from ${o.sources} sources</span></button>
+      <button type="button" class="cw-tile" data-tab="reports"><span class="cw-k">Requests</span><strong>${o.requests}</strong><span>${o.openRequests} open</span></button>
+      <button type="button" class="cw-tile${o.attention ? ' is-warn' : ''}" data-tab="actions"><span class="cw-k">Open items</span><strong>${o.attention}</strong><span>to check or follow up</span></button>
+      <button type="button" class="cw-tile" data-tab="workflows"><span class="cw-k">In progress</span><strong>${o.inProgress}</strong><span>${o.completed} done this week</span></button>
+      <button type="button" class="cw-tile cw-sum" data-tab="reports"><span class="cw-k">Summary <span class="rl-ai">AI-drafted</span></span><span class="cw-sum-t">${esc(first)}</span></button>`;
   }
 
-  // ---- the report: a changed number counts to its new value and shows its before and after.
-  function tween(el, from, to) {
-    if (reduce || typeof requestAnimationFrame !== 'function' || typeof from !== 'number' || typeof to !== 'number' || from === to) { el.textContent = to ?? '–'; return; }
-    const t0 = performance.now(); const dur = 450;
-    const step = (t) => {
-      const p = Math.min(1, (t - t0) / dur);
-      el.textContent = String(Math.round(from + (to - from) * (1 - (1 - p) ** 3)));
-      if (p < 1 && el._to === to) requestAnimationFrame(step);
+  // ---- Tables
+  const cell = (v) => (v === '' || v === null || v === undefined ? blank : esc(v));
+  function sourceTable(id, marks = []) {
+    const meta = SOURCES.find((x) => x.id === id); const rows = id === 'requests' ? [...ROWS.requests, ...getState().added.map((a) => a.request)] : id === 'tasks' ? [...ROWS.tasks, ...getState().added.map((a) => a.task)] : ROWS[id];
+    return `<div class="dt-table-wrap"><table class="dt-table"><caption>${esc(meta.name)}: ${rows.length} rows, as received (${esc(meta.format)})</caption>
+      <thead><tr>${meta.fields.map(([, l]) => `<th scope="col">${esc(l)}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map((r) => `<tr id="src-${esc(r.id)}"${marks.includes(r.id) ? ' class="is-focus"' : ''}>${meta.fields.map(([k, l]) => `<td data-label="${esc(l)}">${cell(r[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  function combinedTable(marks = []) {
+    const rows = consolidated(getState()); const flagged = new Set(openActions(getState()).flatMap((a) => a.refs));
+    return `<div class="dt-table-wrap"><table class="dt-table"><caption>Combined records: one row per request, dates and references standardised</caption>
+      <thead><tr><th scope="col">Request</th><th scope="col">Received</th><th scope="col">Customer</th><th scope="col">Request type</th><th scope="col">Channel</th><th scope="col">Task</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Linked records</th></tr></thead>
+      <tbody>${rows.map((r) => `<tr id="cmb-${esc(r.ref)}" class="${[marks.includes(r.ref) ? 'is-focus' : '', flagged.has(r.ref) || flagged.has(r.task) ? 'is-flag' : '', r.excluded ? 'is-excluded' : ''].filter(Boolean).join(' ')}">
+        <td data-label="Request">${esc(r.ref)}${r.excluded ? ' <small class="dt-change">counted once (your decision)</small>' : ''}${r.added ? ' <small class="dt-change">sample request</small>' : ''}</td>
+        <td data-label="Received">${esc(fmtDate(r.received))}</td>
+        <td data-label="Customer">${r.customer ? esc(r.customer) : blank}${r.customerNote ? ` <small class="dt-change">${esc(r.customerNote)}</small>` : ''}</td>
+        <td data-label="Request type">${esc(r.type)}</td><td data-label="Channel">${esc(r.channel)}</td>
+        <td data-label="Task">${cell(r.task)}</td><td data-label="Owner">${cell(r.owner)}</td><td data-label="Status">${cell(r.status)}</td>
+        <td data-label="Linked records">${r.records.length ? esc(r.records.join(', ')) : '<span class="dt-muted">none</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+
+  // ---- Data
+  function paintData() {
+    const s = getState(); const checks = checkList(s);
+    const marks = focus?.refs ?? [];
+    const tabs = [['combined', 'Combined records'], ...SOURCES.map((x) => [x.id, x.name])];
+    panel('data').innerHTML = `
+      ${focus ? `<div class="dt-why" role="note" tabindex="-1"><p><strong>${esc(focus.title)}</strong> · ${esc(focus.why)}</p><p><button type="button" class="dt-link" data-tab="actions">&larr; Back to Actions</button></p></div>` : ''}
+      <p class="dt-intro">Three files come in as they are. They're combined into one list, dates and references are lined up, and the checks set up for this business run. <strong>Checks found items that may need attention.</strong> They only cover the rules that were set up, so they won't catch everything.</p>
+      <ul class="dt-todo cw-checks">${checks.map((c) => `<li><span class="dt-todo-b is-${c.ok ? 'resolved' : 'open'}"><span class="dt-todo-t">${esc(c.label)}</span><span class="dt-todo-s">${c.ok ? 'OK' : 'To check'}</span></span></li>`).join('')}</ul>
+      <div class="cw-seg" role="group" aria-label="Show">${tabs.map(([id, l]) => `<button type="button" class="cw-seg-b" data-src="${id}" aria-pressed="${src === id}">${esc(l)}</button>`).join('')}</div>
+      ${src === 'combined' ? combinedTable(marks) : sourceTable(src, marks)}`;
+    const row = panel('data').querySelector('tr.is-focus');
+    if (row) setTimeout(() => row.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }), 30);
+  }
+
+  // ---- Reports
+  function paintReports() {
+    const s = getState(); const m = metrics(s, { channel }); const all = metrics(s); const sm = summary(s); const open = openActions(s);
+    const max = Math.max(1, ...m.byDay.map((d) => d.completed));
+    const list = consolidated(s).filter((r) => !r.excluded && (channel === 'All' || r.channel === channel) && (listStatus === 'All' || (listStatus === 'Open' ? r.status !== 'Completed' : r.status === 'Completed')));
+    panel('reports').innerHTML = `
+      <div class="cw-filters">
+        <label>Channel <select data-filter="channel">${['All', ...CHANNELS].map((c) => `<option${c === channel ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+        <label>Requests shown <select data-filter="status">${['All', 'Open', 'Completed'].map((c) => `<option${c === listStatus ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+        <span class="dt-muted">Week of ${esc(fmtDate('2026-11-02'))} – ${esc(fmtDate('2026-11-06'))}</span>
+      </div>
+      <dl class="dt-tiles dt-tiles-5">
+        <div class="dt-tile"><dt>Total requests</dt><dd>${m.requests}</dd><p>${m.duplicatePending ? 'One may be a duplicate' : channel === 'All' ? 'Duplicates checked' : esc(channel)}</p></div>
+        <div class="dt-tile"><dt>Open requests</dt><dd>${m.openRequests}</dd><p>${m.unassigned} with no owner</p></div>
+        <div class="dt-tile"><dt>Completed tasks</dt><dd>${m.completed}</dd><p>this week</p></div>
+        <div class="dt-tile${m.overdue ? ' is-check' : ''}"><dt>Outstanding tasks</dt><dd>${m.outstanding}</dd><p>${m.overdue} overdue</p></div>
+        <div class="dt-tile"><dt>Completed on time</dt><dd>${m.onTime === null ? '—' : `${m.onTime}%`}</dd><p>of completed tasks</p></div>
+      </dl>
+      <div class="cw-two">
+        <div><h3 class="dt-h">Tasks completed by day</h3>
+          <ul class="dt-bars" aria-label="Tasks completed by day">${m.byDay.map((d) => `<li><span class="dt-bar-day">${esc(d.day)}</span><span class="dt-bar-track"><span class="dt-bar" data-w="${Math.round((d.completed / max) * 100)}"></span></span><span class="dt-bar-n">${d.completed}</span></li>`).join('')}</ul></div>
+        <div><h3 class="dt-h">Needs attention <span class="dt-muted">(${all.attention})</span></h3>
+          ${open.length ? `<ul class="cw-att">${open.map((a) => `<li><button type="button" class="dt-link" data-go-action="${esc(a.id)}">${esc(a.title)} · ${esc(a.refs[0])}</button> <span class="dt-reg-st is-${STATUS_CLASS[a.status]}">${esc(a.status)}</span></li>`).join('')}</ul>` : '<p class="dt-intro">Nothing waiting right now.</p>'}</div>
+      </div>
+      <h3 class="dt-h">Management summary <span class="rl-ai">${esc(AI_LABEL)}</span></h3>
+      <div class="dt-exec">${sm.map((x) => `<p>${esc(x)}</p>`).join('')}</div>
+      <h3 class="dt-h">Requests (${list.length})</h3>
+      <div class="dt-table-wrap"><table class="dt-table"><caption>Requests${channel !== 'All' ? ` by ${esc(channel.toLowerCase())}` : ''}${listStatus !== 'All' ? `, ${esc(listStatus.toLowerCase())}` : ''}</caption>
+        <thead><tr><th scope="col">Request</th><th scope="col">Customer</th><th scope="col">Request type</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>
+        <tbody>${list.map((r) => `<tr><td data-label="Request">${esc(r.ref)}</td><td data-label="Customer">${r.customer ? esc(r.customer) : '<em class="dt-blank">unknown</em>'}</td><td data-label="Request type">${esc(r.type)}</td><td data-label="Owner">${cell(r.owner)}</td><td data-label="Due">${esc(fmtDate(r.due))}</td><td data-label="Status">${esc(r.status)}</td></tr>`).join('')}</tbody></table></div>`;
+    panel('reports').querySelectorAll('.dt-bar[data-w]').forEach((b) => b.style.setProperty('width', `${b.dataset.w}%`));
+  }
+
+  // ---- Actions
+  function taskControls(a) {
+    const t = a.task; const done = t.status === 'Completed';
+    if (done) return '<p class="dt-sorted">Completed.</p>';
+    const reminded = getState().reminders.some((r) => r.task === t.id);
+    return `<div class="cw-ctl">
+      <label>Owner <select data-owner="${esc(t.id)}"><option value="">Nobody yet</option>${STAFF.map((p) => `<option${t.owner === p ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select></label>
+      <label>Status <select data-status="${esc(t.id)}"${t.owner ? '' : ' disabled'}>${['Not started', 'In progress', 'Completed'].map((x) => `<option${t.status === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+      <button type="button" class="btn btn-secondary btn-small" data-remind="${esc(t.id)}"${!t.owner || reminded ? ' disabled' : ''}>${reminded ? 'Reminder prepared' : 'Send a reminder'}</button>
+      ${t.owner ? '' : '<span class="dt-muted">Assign someone first.</span>'}
+    </div>`;
+  }
+  function paintActions() {
+    const s = getState(); const list = actions(s);
+    panel('actions').innerHTML = `
+      <p class="dt-intro">Items the checks and the work tracker flagged. Each shows where it came from, a suggested next step and who could handle it. Who handles it is a suggestion, not a confirmed assignment. Reminders are simulated: nothing is sent.</p>
+      <ul class="cw-actions">${list.map((a) => `<li class="cw-act" id="act-${esc(a.id)}">
+        <div class="cw-act-h"><h3>${esc(a.title)}</h3><span class="dt-reg-st is-${STATUS_CLASS[a.status]}">${esc(a.status)}</span></div>
+        <p>${esc(a.detail)}</p>
+        <dl class="cw-act-dl"><div><dt>Source</dt><dd>${esc(a.source)} · ${a.refs.map((r) => `<button type="button" class="dt-link" data-see="${esc(a.id)}" data-ref="${esc(r)}">${esc(r)}</button>`).join(' ')}</dd></div>
+          <div><dt>Suggested next step</dt><dd>${esc(a.next)}</dd></div><div><dt>Could be handled by</dt><dd>${esc(a.team)}</dd></div></dl>
+        ${a.kind === 'data' ? `<div class="cw-ctl">${a.choices.map(([v, l]) => `<button type="button" class="btn ${a.decision === v ? 'btn-primary' : 'btn-secondary'} btn-small" data-decide="${esc(a.id)}" data-choice="${esc(v)}" aria-pressed="${a.decision === v}">${esc(l)}</button>`).join('')}</div>` : taskControls(a)}
+      </li>`).join('')}</ul>
+      <details class="dt-evidence-box"><summary>What happened (${s.log.length})</summary>
+        ${s.log.length ? `<ol class="dt-log" reversed>${[...s.log].reverse().map((e) => `<li>${esc(e.text)}</li>`).join('')}</ol>` : '<p class="dt-intro">Nothing yet.</p>'}</details>`;
+  }
+
+  // ---- Workflows
+  function cardHtml(r) {
+    const t = r.t; const stage = stageOf(t); const reminded = getState().reminders.some((x) => x.task === t.id);
+    let ctl = '';
+    if (stage === 'Request received') ctl = `<button type="button" class="btn btn-secondary btn-small" data-wf="review" data-task="${esc(t.id)}">Mark reviewed</button>`;
+    else if (stage === 'Reviewed') ctl = `<label class="cw-mini">Assign <select data-owner="${esc(t.id)}"><option value="">Choose…</option>${STAFF.map((p) => `<option>${esc(p)}</option>`).join('')}</select></label>`;
+    else if (stage === 'Assigned') ctl = `<button type="button" class="btn btn-secondary btn-small" data-wf="start" data-task="${esc(t.id)}">Start</button>`;
+    else if (stage === 'In progress') ctl = `<button type="button" class="btn btn-secondary btn-small" data-wf="done" data-task="${esc(t.id)}">Complete</button>`;
+    const remindBtn = ['Assigned', 'In progress'].includes(stage) ? `<button type="button" class="dt-link cw-remind" data-remind="${esc(t.id)}"${reminded ? ' disabled' : ''}>${reminded ? 'Reminder prepared' : 'Remind'}</button>` : '';
+    const late = t.status !== 'Completed' && t.due < '2026-11-06';
+    return `<li class="cw-card${r.added ? ' is-new' : ''}${late ? ' is-late' : ''}"><p class="cw-card-h"><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : '<em class="dt-blank">customer unknown</em>'}</p>
+      <p class="cw-card-m">${esc(r.type)}${t.owner ? ` · ${esc(t.owner)}` : ''}${late ? ' · <span class="cw-late">overdue</span>' : ''}</p>${ctl || remindBtn ? `<div class="cw-card-c">${ctl}${remindBtn}</div>` : ''}</li>`;
+  }
+  // Phones: a compact list with expandable details instead of the five-column board (same data, same controls).
+  const narrowMq = typeof matchMedia === 'function' ? matchMedia('(max-width: 40rem)') : null;
+  const wlOpen = new Set();
+  function listHtml(cols) {
+    const rows = cols.filter((c) => c.stage !== 'Completed').flatMap((c) => c.items);
+    const done = cols.find((c) => c.stage === 'Completed').items;
+    const item = (r) => {
+      const t = r.t; const stage = stageOf(t); const i = STAGES.indexOf(stage); const late = t.status !== 'Completed' && t.due < '2026-11-06';
+      const card = cardHtml(r); const ctl = (card.match(/<div class="cw-card-c">([\s\S]*)<\/div><\/li>$/) || [])[1] || '';
+      return `<li><details class="cw-wl" data-wl="${esc(t.id)}"${wlOpen.has(t.id) ? ' open' : ''}><summary><span class="cw-wl-main"><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : '<em class="dt-blank">customer unknown</em>'}</span><span class="cw-wl-st${late ? ' is-late' : ''}">${esc(stage)}${late ? ' · overdue' : ''}</span></summary>
+        <div class="cw-wl-body"><ol class="cw-wl-steps" aria-label="Progress">${STAGES.map((x, k) => `<li class="${k < i ? 'is-done' : k === i ? 'is-now' : ''}"${k === i ? ' aria-current="step"' : ''}>${esc(x === 'Request received' ? 'Received' : x)}</li>`).join('')}</ol>
+        <p class="cw-wl-m">${esc(r.type)} · ${t.owner ? `Owner: ${esc(t.owner)}` : 'No owner yet'} · due ${esc(fmtDate(t.due))}</p>${ctl ? `<div class="cw-card-c">${ctl}</div>` : ''}</div></details></li>`;
     };
-    el._to = to; requestAnimationFrame(step);
+    return `<ul class="cw-wlist" aria-label="Requests in progress">${rows.map(item).join('')}</ul>
+      <details class="cw-wl cw-wl-done"${wlOpen.has('done') ? ' open' : ''} data-wl="done"><summary><span class="cw-wl-main"><strong>Completed</strong></span><span class="cw-wl-st">${done.length}</span></summary>
+        <ul class="cw-wl-donelist">${done.map((r) => `<li><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : 'customer unknown'} · ${esc(r.type)}</li>`).join('')}</ul></details>`;
   }
-  function unit(k, r) {
-    if (k === 'noOwner' && r.noOwner === null) return 'not checked';
-    if (k === 'openWork' && r.possibleDuplicates) return `incl. ${r.possibleDuplicates} possible duplicate`;
-    if (k === 'notInvoiced' && r.followUps) return 'follow-up set';
-    if (k === 'noOwner' && r.pendingWithReason) return 'reason recorded';
-    return '';
-  }
-  function paintReport(line) {
-    const next = report(s);
-    for (const [k] of ROWS) {
-      const row = root.querySelector(`.dm-r-row[data-k="${k}"]`);
-      const old = row.querySelector('.dm-old');
-      const num = row.querySelector('b');
-      if (next[k] !== shown[k]) {
-        tween(num, shown[k], next[k]);
-        old.textContent = `${shown[k] ?? '–'} → `;
-        row.classList.remove('is-changed'); void row.offsetWidth; row.classList.add('is-changed');
-        clearTimeout(row._t);
-        row._t = setTimeout(() => { old.textContent = ''; row.classList.remove('is-changed'); }, 4000);
-      } else {
-        num._to = next[k]; num.textContent = next[k] ?? '–';
-      }
-      row.querySelector('.dm-unit').textContent = unit(k, next);
-    }
-    const tag = root.querySelector('.dm-r-tag');
-    tag.textContent = next.status;
-    tag.dataset.tag = next.status;
-    const open = outstanding(s);
-    root.querySelector('.dm-open').innerHTML = open.length
-      ? `<p class="dm-open-h">Still open</p><ul>${open.map((o) => `<li><b>${esc(o.id)}</b> <span>${esc(openText(o))}</span></li>`).join('')}</ul>` : '';
-    if (line !== undefined) lines = line === null ? [] : [...lines.slice(-2), line];
-    root.querySelector('.dm-last').innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join('');
-    shown = next;
-  }
+  root.addEventListener('toggle', (e) => { const d = e.target; if (d.matches?.('[data-wl]')) { if (d.open) wlOpen.add(d.dataset.wl); else wlOpen.delete(d.dataset.wl); } }, true);
+  if (narrowMq) (narrowMq.addEventListener ? narrowMq.addEventListener('change', () => { if (view === 'workflows') paintWorkflows(); }) : null);
 
-  function paintStrip() {
-    root.querySelectorAll('.dm-strip li').forEach((li, i) => {
-      li.classList.toggle('is-on', i === at);
-      li.classList.toggle('is-done', i < at || (at === 5));
-      if (i === at) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
-    });
-  }
-
-  // ---- building blocks
-  const btn = (action, label, kind = 'primary') => `<button type="button" class="btn btn-${kind} dm-btn" data-act="${action}">${esc(label)}</button>`;
-  const area = (i, line) => `<p class="dm-svc"><strong>${esc(STAGES[i][0])}.</strong> ${esc(line)}</p>`;
-  const nav = (next) => `<div class="dm-nav">${at > 0 ? '<button type="button" class="dm-link dm-back" data-act="back">&larr; Back</button>' : ''}${next || ''}</div>`;
-  const checksList = () => `<ol class="dm-checks">${CHECKS.map((c, i) => `<li class="${i < ticked ? 'is-done' : ''}">${esc(c)}</li>`).join('')}</ol>`;
-
-  function findingCard(f, i) {
-    let recs = '';
-    if (f.issue === 'duplicate') recs = recTable('tracker', f.records.tracker);
-    if (f.issue === 'finance') recs = `${recTable('tracker', f.records.tracker)}${recTable('completion', f.records.completion)}${recTable('finance', [], { missing: f.ids[0] })}`;
-    if (f.issue === 'owner') recs = recTable('tracker', f.records.tracker);
-    const extra = f.issue === 'finance'
-      ? `<p class="dm-note">${esc(internalNote())}</p>` : '';
-    return `<li class="dm-find2 dm-reveal">
-      <p class="dm-find-label"><span>${i + 1} of 3</span> ${esc(f.title)} <span class="dm-ids">${esc(f.ids.join(' and '))}</span></p>
-      <p>${esc(f.explain)}</p>
-      <div class="dm-recs">${recs}</div>
-      <p class="dm-why"><span>Why it matters:</span> ${esc(f.why)}</p>${extra}</li>`;
-  }
-  function internalNote() {
-    const ok = runChecks().finance.filter((x) => x.result === 'notBillable').map((x) => x.id);
-    return `${ok.join(', ')} also has no finance entry, but the completion log records it as internal work, so it isn’t flagged.`;
-  }
-
-  function decisionCard(f) {
-    const d = s.decisions[f.issue];
-    const name = `dm-d-${f.issue}`;
-    const picked = d?.choice || (f.issue === 'owner' ? pendingPick : '');
-    const radios = f.choices.map(([v, l]) => `<label class="dm-choice"><input type="radio" name="${name}" value="${v}" data-issue="${f.issue}"${picked === v ? ' checked' : ''}> ${esc(l)}</label>`).join('');
-    let detail = '';
-    if (f.issue === 'owner' && picked) {
-      const mode = picked;
-      const opts = mode === 'assign' ? TEAM : PENDING_REASONS;
-      const cur = mode === 'assign' ? d?.member : d?.reason;
-      const label = mode === 'assign' ? 'Team member' : 'Reason';
-      detail = `<label class="dm-detail">${label} <select data-detail="${mode}"><option value="">Choose…</option>${
-        opts.map((o) => `<option${o === cur ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
-    }
-    const consequence = d ? (typeof CONSEQUENCE[d.choice] === 'function' ? CONSEQUENCE[d.choice](d.member || d.reason) : CONSEQUENCE[d.choice]) : '';
-    return `<fieldset class="dm-decide${d ? ' is-decided' : ''}"><legend>${esc(f.title)} <span class="dm-ids">${esc(f.ids.join(' and '))}</span></legend>
-      <p class="dm-explain">${esc(f.explain)}</p>
-      <div class="dm-choices">${radios}</div>${detail}
-      ${consequence ? `<p class="dm-sorted">${esc(consequence)}</p>` : ''}</fieldset>`;
-  }
-  let pendingPick = ''; // owner choice picked but its team member or reason not chosen yet
-
-  function paintStage(focus = false) {
-    paintStrip();
-    let h = '';
-    const r = report(s);
-    if (at === 0) {
-      h = `${area(0, 'First, make sure the numbers tell the same story.')}
-        <h3 class="dm-h">This week’s report was put together by hand.</h3>
-        <p>It shows ${r.openWork} open items, ${r.completed} completed and nothing waiting to be invoiced. The information behind it lives in three places:</p>
-        <ul class="dm-sources">${SOURCES.map((src) => `<li><b>${esc(src.name)}</b><span>${counts[src.id]} records</span><small>${esc(src.fields.join(' · '))}</small></li>`).join('')}</ul>`;
-      if (busy || s.checked) {
-        h += checksList();
-        h += s.checked && !busy ? `<p class="dm-sorted">${counts.total} records from ${counts.sources} sources checked.</p>${nav(btn('next', 'Next: see what needs attention'))}` : '';
-      } else {
-        h += `<p>Bring the three sources together and see whether they agree.</p>${btn('check', 'Check the records')}`;
-      }
-    } else if (at === 1) {
-      const fs = findings(s);
-      h = `${area(1, 'The checks show what doesn’t match or is missing.')}
-        <h3 class="dm-h">${fs.length} items need attention.</h3>
-        <p>${counts.total} records from ${counts.sources} sources were compared. Each item shows the records behind it.</p>
-        <ol class="dm-finds2">${fs.slice(0, revealed).map(findingCard).join('')}</ol>
-        ${nav(revealed < fs.length ? btn('more', `Show the next item (${revealed + 1} of ${fs.length})`) : btn('next', 'Next: decide what happens'))}`;
-    } else if (at === 2) {
-      const fs = findings(s);
-      const n = fs.filter((f) => f.decision).length;
-      h = `${area(2, 'Each item needs a person’s judgment, so you decide.')}
-        <h3 class="dm-h">Decide what happens next.</h3>
-        <p>The report updates as you choose. You can change your mind until you finish.</p>
-        <div class="dm-decisions">${fs.map(decisionCard).join('')}</div>
-        <p class="dm-count">${n} of ${fs.length} decided</p>
-        ${error ? `<p class="dm-err" role="alert">${esc(error)}</p>` : ''}
-        ${nav(btn('finish', 'Finish decisions'))}`;
-    } else if (at === 3) {
-      h = `${area(3, 'Fixing this week is half the job. The other half is stopping it happening again.')}
-        <h3 class="dm-h">Improve how the work gets done.</h3>
-        <ol class="dm-prevent">${PREVENTION.map((p) => `<li class="dm-reveal"><p class="dm-fix-h">${esc(findings(s).find((f) => f.issue === p.issue).title)}</p>
-          <dl><div><dt>Now</dt><dd>${esc(p.before)}</dd></div><div class="dm-fix-to"><dt>Improvement</dt><dd>${esc(p.after)}</dd></div></dl></li>`).join('')}</ol>
-        <p>These improvements could mean less repeated checking, fewer missed tasks and fewer manual corrections.</p>
-        <p class="dm-note">Proposed improvements for this fictional team.</p>
-        <p class="dm-next-note">This week&rsquo;s report is sorted, and these changes could stop the same problems coming back.</p>
-        ${nav(`<a class="btn btn-primary dm-book" href="contact/#contact-form-area">Book a free rework review</a>${btn('next', 'Next: see how your tools could work together →', 'secondary')}`)}`;
-    } else if (at === 4) {
-      const flow = ['Operations Tracker', 'Completion Log', 'Finance Register', 'Clearer operations report'];
-      h = `${area(4, 'Your everyday tools, working together.')}
-        <h3 class="dm-h">See a better way of working.</h3>
-        <ol class="dm-flow" aria-label="How the information could flow">${flow.map((x, i) => `<li class="dm-reveal${i === flow.length - 1 ? ' is-out' : ''}">${esc(x)}</li>`).join('')}</ol>
-        <div class="dm-ba">
-          <div><p class="dm-ba-h">Before</p><ul>${BEFORE_AFTER.before.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
-          <div class="is-after"><p class="dm-ba-h">After</p><ul>${BEFORE_AFTER.after.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+  function paintWorkflows() {
+    const s = getState(); const cols = board(s); const full = s.added.length >= 5; const narrow = !!narrowMq?.matches;
+    panel('workflows').innerHTML = `
+      <form class="cw-form" data-form novalidate>
+        <p class="dt-k">Submit a sample request <span>It goes into the Requests Register, creates a task, and shows up in Data, Reports and Actions.</span></p>
+        <div class="cw-form-f">
+          <label>Customer <select name="customer">${CUSTOMERS.map((c) => `<option>${esc(c)}</option>`).join('')}</select></label>
+          <label>Request <select name="type">${REQUEST_TYPES.map((c) => `<option>${esc(c)}</option>`).join('')}</select></label>
+          <label>Channel <select name="channel">${CHANNELS.map((c) => `<option>${esc(c)}</option>`).join('')}</select></label>
+          <button type="submit" class="btn btn-primary btn-small"${full ? ' disabled' : ''}>Submit request</button>
         </div>
-        <p class="dm-note"><span class="dm-sim">Illustration</span> This shows how the three sources could work together. The page isn’t connected to any real system.</p>
-        ${nav(btn('next', 'See the final report'))}`;
-    } else {
-      const open = outstanding(s);
-      h = `<h3 class="dm-h">Checked, decisions made, and improvements identified.</h3>
-        <div class="dm-final" aria-label="Final report"><p class="dm-final-t">This week’s report <span data-tag="${esc(r.status)}">${esc(r.status)}</span></p>
-          <p class="dm-final-n"><span><b>${r.openWork}</b> open</span><span><b>${r.completed}</b> completed</span><span><b>${r.notInvoiced}</b> not invoiced</span><span><b>${r.noOwner}</b> with no owner</span><span><b>${r.itemsToReview}</b> to review</span></p>
-          ${open.length ? `<p class="dm-final-open"><strong>Still open:</strong> ${open.map((o) => esc(endText(o))).join('; ')}. The review is finished, but ${open.length === 1 ? 'this still needs' : 'these still need'} doing.</p>` : '<p class="dm-final-open">Nothing left open.</p>'}</div>
-        <p class="dm-end-sub">What could improve?</p>
-        <ul class="dm-three">
-          <li><a href="#services">Data &amp; Reporting</a>: the report matches what’s in the records.</li>
-          <li><a href="#services">Workflows &amp; Processes</a>: every item has a decision, and the same problems are less likely to return.</li>
-          <li><a href="#services">Business Tools &amp; Systems</a>: a clearer way for the tracker, completion log and finance register to work together.</li>
-        </ul>
-        <p class="dm-end-sub">Who does what?</p>
-        <ul class="dm-who">${WHO.map(([cls, who, what]) => `<li><span class="dm-role dm-role-${cls}">${esc(who)}</span> <span>${esc(what)}</span></li>`).join('')}</ul>
-        <div class="dm-end-actions"><button type="button" class="dm-link" data-act="back">&larr; Back</button>
-          <button type="button" class="dm-link" data-act="restart">Run it again</button></div>`;
-    }
-    stage.innerHTML = h;
-    stage.querySelectorAll('.dm-h').forEach((el) => el.setAttribute('tabindex', '-1'));
-    if (focus) (stage.querySelector('.dm-h') || stage).focus({ preventScroll: false });
+        ${note ? `<p class="dt-sorted" role="status">${note}</p>` : ''}
+      </form>
+      ${narrow ? listHtml(cols) : `<ol class="cw-board">${cols.map((c) => `<li class="cw-col"><h3>${esc(c.stage)} <span class="dt-count">${c.items.length}</span></h3>
+        <ul>${c.items.map(cardHtml).join('') || '<li class="cw-empty">Nothing here</li>'}</ul></li>`).join('')}</ol>`}
+      <p class="dt-intro">Reminders are simulated: they're logged here, and nothing is sent.</p>`;
   }
 
-  function go(to) {
-    if (to === 2 && s.finalized) s = reopen(s); // coming back to the decisions unlocks them
-    at = to; error = '';
-    paintStage(true);
-    // Back to the progress strip if it is above the screen or under the sticky header (scroll-padding-top in styles.css).
-    const top = root.querySelector('.dm-strip');
-    const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
-    if (top && top.getBoundingClientRect().top < offset) top.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+  // ---- Shell
+  function paintHead() {
+    const n = openActions(getState()).length;
+    root.querySelector('[data-count]').textContent = n ? `${n}` : '0';
+    root.querySelectorAll('.dt-tab').forEach((b) => { const on = b.dataset.tab === view; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
+    VIEWS.forEach(([id]) => { panel(id).hidden = id !== view; });
+  }
+  function paint() {
+    paintOverview(); paintHead();
+    ({ data: paintData, reports: paintReports, actions: paintActions, workflows: paintWorkflows })[view]();
+  }
+  function show(to, opts = {}) {
+    if (!VIEWS.some(([id]) => id === to)) return;
+    if (to !== view && to !== 'data') focus = null;
+    view = to; paint();
+    if (opts.focusTab) root.querySelector(`#dt-tab-${to}`)?.focus();
   }
 
-  // ---- actions
-  async function act(a) {
-    if (busy) return;
-    if (a === 'check' && !s.checked) {
-      busy = true; ticked = 0; paintStage();
-      stage.querySelector('.dm-checks')?.setAttribute('tabindex', '-1');
-      stage.querySelector('.dm-checks')?.focus();
-      for (let i = 1; i <= CHECKS.length; i++) { await wait(250); ticked = i; paintStage(); }
-      s = check(s); busy = false; revealed = 1;
-      paintReport(null);
-      paintReport('Checked against all three sources.');
-      const r = report(s);
-      say(`Checks finished. ${r.itemsToReview} items to review. Completed, not invoiced ${r.notInvoiced}. Open with no owner ${r.noOwner}. Report status: ${r.status}.`);
-      go(1); return;
-    }
-    if (a === 'more' && at === 1) {
-      revealed = Math.min(revealed + 1, findings(s).length); paintStage();
-      const cards = stage.querySelectorAll('.dm-find2');
-      const last = cards[cards.length - 1];
-      last?.setAttribute('tabindex', '-1'); last?.focus({ preventScroll: true });
-      last?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
-      return;
-    }
-    if (a === 'next' && at < 5) { go(at + 1); return; }
-    if (a === 'back' && at > 0) { go(at - 1); return; }
-    if (a === 'finish' && at === 2) {
-      if (!allDecided(s)) { error = 'Choose what happens with every item first.'; paintStage(); stage.querySelector('.dm-decide:not(.is-decided) input')?.focus(); return; }
-      s = finalize(s); paintReport();
-      say(`Decisions finished. Report status: ${report(s).status}.`);
-      go(3); return;
-    }
-    if (a === 'restart') {
-      s = initialState(); at = 0; revealed = 0; ticked = 0; pendingPick = ''; error = '';
-      shown = report(s); paintReport(null); paintReport('Built by hand from the operations tracker.'); paintStage(true);
-      say('Example reset. Report status: Built by hand.');
-    }
-  }
-
-  function decided(issue, line) {
-    paintReport(line);
-    if (error && allDecided(s)) error = '';
-    paintStage();
-    const r = report(s);
-    say(`${line} Report status: ${r.status}. ${r.itemsToReview} to review.`);
-  }
-  const consequenceOf = (d) => (typeof CONSEQUENCE[d.choice] === 'function' ? CONSEQUENCE[d.choice](d.member || d.reason) : CONSEQUENCE[d.choice]);
-
-  root.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-act]');
-    if (b) act(b.dataset.act);
+  root.addEventListener('submit', (e) => {
+    const f = e.target.closest('[data-form]'); if (!f) return; e.preventDefault();
+    const d = Object.fromEntries(new FormData(f));
+    const before = getState().added.length;
+    submitRequest(d);
+    const a = getState().added[before]; if (a) wlOpen.add(a.task.id);
+    note = a ? `${esc(a.request.id)} added to the Requests Register and task ${esc(a.task.id)} created. It's now in <button type="button" class="dt-link" data-tab="data">Data</button>, <button type="button" class="dt-link" data-tab="reports">Reports</button> and <button type="button" class="dt-link" data-tab="actions">Actions</button>.` : 'The sample is limited to five new requests. Reset the demo to start again.';
+    paintWorkflows(); say(note.replace(/<[^>]+>/g, ''));
   });
   root.addEventListener('change', (e) => {
-    if (at !== 2) return;
-    const radio = e.target.closest('input[type="radio"][data-issue]');
-    if (radio) {
-      const issue = radio.dataset.issue;
-      if (issue === 'owner') {
-        // The owner choice needs a team member or a reason before it counts.
-        pendingPick = radio.value;
-        const prev = s.decisions.owner;
-        if (prev && prev.choice !== radio.value) s = clearDecision(s, 'owner');
-        paintReport(); paintStage();
-        stage.querySelector('select[data-detail]')?.focus();
-        return;
-      }
-      s = decide(s, issue, radio.value);
-      decided(issue, consequenceOf(s.decisions[issue]));
-      stage.querySelector(`input[name="dm-d-${issue}"]:checked`)?.focus();
-      return;
+    const t = e.target;
+    if (t.matches('[data-filter="channel"]')) { channel = t.value; paintReports(); return; }
+    if (t.matches('[data-filter="status"]')) { listStatus = t.value; paintReports(); return; }
+    if (t.matches('[data-owner]') && t.value) { const id = t.dataset.owner; const who = t.value; if (view === 'workflows') note = esc(`${id} assigned to ${who}.`); assign(id, who); say(`${id} assigned to ${who}.`); panel(view).querySelector(`[data-owner="${id}"]`)?.focus(); return; }
+    if (t.matches('[data-status]')) { const id = t.dataset.status; setStatus(id, t.value); say(`${id} marked ${t.value.toLowerCase()}.`); panel(view).querySelector(`[data-status="${id}"]`)?.focus(); }
+  });
+  root.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab]');
+    if (tab) { show(tab.dataset.tab, { focusTab: tab.classList.contains('dt-tab') }); if (!tab.classList.contains('dt-tab')) panel(tab.dataset.tab).focus({ preventScroll: false }); return; }
+    const sg = e.target.closest('[data-src]');
+    if (sg) { src = sg.dataset.src; focus = null; paintData(); return; }
+    const see = e.target.closest('[data-see]');
+    if (see) {
+      const a = actions(getState()).find((x) => x.id === see.dataset.see); const ref = see.dataset.ref;
+      src = ref.startsWith('TX-') ? 'transactions' : ref.startsWith('T-') ? 'tasks' : (a.kind === 'data' ? 'requests' : 'combined');
+      focus = { refs: a.refs.concat(ref), title: `${a.title}: ${ref}`, why: a.detail };
+      view = 'data'; paint(); panel('data').querySelector('.dt-why')?.focus({ preventScroll: true });
+      say(`Data: ${ref} highlighted in the ${src === 'combined' ? 'combined records' : SOURCES.find((x) => x.id === src).name}.`); return;
     }
-    const sel = e.target.closest('select[data-detail]');
-    if (sel) {
-      const mode = sel.dataset.detail;
-      if (!sel.value) { s = clearDecision(s, 'owner'); pendingPick = mode; paintReport(); paintStage(); stage.querySelector('select[data-detail]')?.focus(); return; }
-      s = decide(s, 'owner', mode, sel.value); pendingPick = '';
-      decided('owner', consequenceOf(s.decisions.owner));
-      stage.querySelector('select[data-detail]')?.focus();
+    const ga = e.target.closest('[data-go-action]');
+    if (ga) { show('actions'); const el = panel('actions').querySelector(`#act-${CSS.escape(ga.dataset.goAction)}`); el?.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); el?.querySelector('button, select')?.focus({ preventScroll: true }); return; }
+    const dc = e.target.closest('[data-decide]');
+    if (dc) { const id = dc.dataset.decide; decide(id, dc.dataset.choice); const a = actions(getState()).find((x) => x.id === id); say(`${a.title}: ${a.status}. Figures updated.`); panel('actions').querySelector(`[data-decide="${id}"][data-choice="${dc.dataset.choice}"]`)?.focus(); return; }
+    const rm = e.target.closest('[data-remind]');
+    if (rm) { const id = rm.dataset.remind; const ok = remind(id); const msg = ok ? `Reminder prepared for ${taskOwner(id)} about ${id}. Simulated: nothing was sent.` : 'No reminder needed.'; if (view === 'workflows') { note = esc(msg); paintWorkflows(); } say(msg); return; }
+    const wf = e.target.closest('[data-wf]');
+    if (wf) {
+      const id = wf.dataset.task; const act = wf.dataset.wf;
+      if (act === 'review') review(id); if (act === 'start') setStatus(id, 'In progress'); if (act === 'done') setStatus(id, 'Completed');
+      note = esc(`${id}: ${stageOf(currentTask(id))}.`); paintWorkflows(); say(`${id} moved to ${stageOf(currentTask(id)).toLowerCase()}.`); return;
     }
+    if (e.target.closest('[data-act="reset"]')) { reset(); view = 'data'; src = 'combined'; focus = null; channel = 'All'; listStatus = 'All'; note = ''; paint(); say('Demo reset to the original records.'); }
+  });
+  const currentTask = (id) => { const s = getState(); const all = [...TASKS, ...s.added.map((a) => a.task)].find((t) => t.id === id); return taskFor(s, all.request); };
+  const taskOwner = (id) => currentTask(id)?.owner ?? '';
+  root.querySelector('.dt-tabs').addEventListener('keydown', (e) => {
+    const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    const i = VIEWS.findIndex(([id]) => id === view);
+    if (e.key in keys) { e.preventDefault(); show(VIEWS[(i + keys[e.key] + VIEWS.length) % VIEWS.length][0], { focusTab: true }); }
+    else if (e.key === 'Home') { e.preventDefault(); show(VIEWS[0][0], { focusTab: true }); }
+    else if (e.key === 'End') { e.preventDefault(); show(VIEWS[VIEWS.length - 1][0], { focusTab: true }); }
   });
 
-  paintReport('Built by hand from the operations tracker.');
-  paintStage();
-  return { check: () => act('check'), get stage() { return at; } };
+  subscribe(() => paint());
+  paint();
+  return { show: (to) => show(to), get tab() { return view; } };
 }

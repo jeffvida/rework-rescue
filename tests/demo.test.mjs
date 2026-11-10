@@ -1,348 +1,357 @@
-// Live demo tests (three-source sample, Nov 2026).
-// Every number the demo and the hero card show comes from src/demo/engine.js working on src/demo/data.js.
-// These tests pin the source counts, the three planted issues, every decision and combination, reversibility and reset.
+// Tests for the connected-workspace demo, the hero illustration and the three service samples (master brief,
+// 10 Nov 2026). Every figure the hero, Data, Reports, Actions, Workflows and the workspace overview show comes from
+// src/demo/engine.js working on src/demo/data.js; the service samples run on their own small datasets in src/samples.js.
+// Numbered comments refer to the brief's acceptance criteria (18.1–18.31).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as DATA from '../src/demo/data.js';
-import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES, CONSEQUENCE, PREVENTION } from '../src/demo/data.js';
-import {
-  initialState, sourceCounts, runChecks, findings, check, decide, clearDecision, allDecided, finalize, reopen, status, outstanding,
-  report, heroSummary, weekRange,
-} from '../src/demo/engine.js';
-
-const nums = (r) => [r.openWork, r.completed, r.notInvoiced, r.noOwner, r.itemsToReview];
-
-// ---- The sample data itself
-
-test('source counts: tracker 18, completion log 7, finance register 5, 30 records from 3 sources', () => {
-  assert.deepEqual(sourceCounts(), { tracker: 18, completion: 7, finance: 5, total: 30, sources: 3 });
-  assert.deepEqual(SOURCES.map((s) => s.name), ['Operations Tracker', 'Completion Log', 'Finance Register']);
-});
-
-test('the three sources are consistent with each other', () => {
-  const ids = TRACKER.map((r) => r.id);
-  assert.equal(new Set(ids).size, ids.length, 'Work IDs are unique in the tracker');
-  const complete = TRACKER.filter((r) => r.status === 'Complete').map((r) => r.id);
-  assert.deepEqual(COMPLETION.map((c) => c.id), complete, 'one completion row per completed item, and only those');
-  for (const f of FINANCE) {
-    const c = COMPLETION.find((x) => x.id === f.id);
-    assert.ok(c && c.billable, `${f.id}: every invoice belongs to completed, billable work`);
-    assert.ok(f.amount > 0);
-  }
-  assert.equal(new Set(FINANCE.map((f) => f.invoice)).size, FINANCE.length, 'invoice references are unique');
-  for (const r of TRACKER) assert.ok(['Not started', 'In progress', 'Complete'].includes(r.status), r.id);
-});
-
-test('the checks find exactly the three planted issues', () => {
-  const c = runChecks();
-  assert.deepEqual(c.duplicates, [['W-311', 'W-316']]);
-  assert.deepEqual(c.missingFinance, ['W-307']);
-  assert.deepEqual(c.noOwner, ['W-314']);
-  const f = findings(check(initialState()));
-  assert.deepEqual(f.map((x) => [x.issue, x.ids]), [['duplicate', ['W-311', 'W-316']], ['finance', ['W-307']], ['owner', ['W-314']]]);
-});
-
-test('internal work missing from finance (W-304) is recognised and NOT flagged', () => {
-  const c = runChecks();
-  const w304 = c.finance.find((f) => f.id === 'W-304');
-  assert.equal(w304.result, 'notBillable');
-  assert.ok(!c.missingFinance.includes('W-304'));
-  assert.ok(!FINANCE.some((f) => f.id === 'W-304'), 'it really has no finance entry');
-  // Every other completed item is matched.
-  assert.deepEqual(c.finance.filter((f) => f.result === 'matched').map((f) => f.id), ['W-301', 'W-302', 'W-303', 'W-305', 'W-306']);
-});
-
-test('each finding carries the records needed to show it side by side', () => {
-  const [dup, fin, own] = findings(check(initialState()));
-  assert.deepEqual(dup.records.tracker.map((r) => r.work), ['Website content update', 'Website content update']);
-  assert.equal(dup.records.tracker[0].due, dup.records.tracker[1].due);
-  assert.equal(fin.records.completion[0].result, 'Delivered to customer');
-  assert.deepEqual(fin.records.finance, []);
-  assert.equal(own.records.tracker[0].owner, '');
-  for (const f of [dup, fin, own]) assert.ok(f.title && f.explain && f.why && f.choices.length === 2, f.issue);
-});
-
-test('nothing is revealed before the visitor runs the check', () => {
-  const s = initialState();
-  assert.deepEqual(findings(s), []);
-  assert.equal(report(s).itemsToReview, 0);
-  assert.equal(decide(s, 'duplicate', 'merge'), s, 'no decisions before the check');
-});
-
-// ---- Reports and the hero
-
-test('the hand-built report: 11 open, 7 completed, 0 not invoiced, owners not checked', () => {
-  const r = report(initialState());
-  assert.deepEqual(nums(r), [11, 7, 0, null, 0]);
-  assert.equal(r.status, 'Built by hand');
-});
-
-test('after the check: 11 open (1 possible duplicate), 7 completed, 1 not invoiced, 1 with no owner, 3 to review', () => {
-  const r = report(check(initialState()));
-  assert.deepEqual(nums(r), [11, 7, 1, 1, 3]);
-  assert.equal(r.possibleDuplicates, 1);
-  assert.equal(r.status, 'Review required');
-});
-
-test('hero summary comes from the engine: the hand-built week, issue kinds only, no findings', () => {
-  const h = heroSummary();
-  assert.deepEqual({ ...h, issues: undefined }, { sourceRecords: 30, sourcesChecked: 3, itemsToReview: 3, status: 'Review required',
-    workItems: 18, completed: 7, openWork: 11, weekRange: '2–6 November 2026', issues: undefined });
-  // The summary is what the hand-built update says; the issues are what the checks find.
-  assert.equal(h.workItems, TRACKER.length);
-  const shown = report(initialState());
-  assert.equal(h.completed, shown.completed); assert.equal(h.openWork, shown.openWork);
-  assert.equal(h.workItems, h.completed + h.openWork);
-  const found = findings(check(initialState()));
-  assert.equal(h.itemsToReview, found.length);
-  assert.deepEqual(h.issues.map((i) => i.issue), ['duplicate', 'finance', 'owner']);
-  assert.deepEqual(h.issues.map((i) => i.title), ['Possible duplicate task', 'Completed work not invoiced', 'Work without an owner']);
-  assert.ok(!JSON.stringify(h).includes('W-'), 'the hero never carries the detailed findings');
-});
-
-test('week range follows the sample week label', () => {
-  assert.equal(weekRange('Week ending Fri 6 Nov 2026'), '2–6 November 2026');
-  assert.equal(weekRange('Week ending Fri 2 Oct 2026'), '28 September – 2 October 2026');
-});
-
-// ---- Decisions
-
-test('each choice moves the report as described', () => {
-  const s = check(initialState());
-  assert.deepEqual(nums(report(decide(s, 'duplicate', 'merge'))), [10, 7, 1, 1, 2]);
-  assert.deepEqual(nums(report(decide(s, 'duplicate', 'separate'))), [11, 7, 1, 1, 2]);
-  const fu = report(decide(s, 'finance', 'followUp'));
-  assert.deepEqual(nums(fu), [11, 7, 1, 1, 2]); assert.equal(fu.followUps, 1);
-  assert.deepEqual(nums(report(decide(s, 'finance', 'noInvoiceDue'))), [11, 7, 0, 1, 2]);
-  assert.deepEqual(nums(report(decide(s, 'owner', 'assign', 'Priya'))), [11, 7, 1, 0, 2]);
-  const p = report(decide(s, 'owner', 'pending', 'Work is on hold'));
-  assert.deepEqual(nums(p), [11, 7, 1, 1, 2]); assert.equal(p.pendingWithReason, 1);
-});
-
-test('assigning needs a team member and pending needs a preset reason; nothing else is accepted', () => {
-  const s = check(initialState());
-  assert.equal(decide(s, 'owner', 'assign'), s);
-  assert.equal(decide(s, 'owner', 'assign', 'Someone new'), s);
-  assert.equal(decide(s, 'owner', 'pending', 'my own words'), s);
-  assert.equal(decide(s, 'duplicate', 'delete'), s);
-  assert.equal(decide(s, 'nonsense', 'merge'), s);
-  for (const m of TEAM) assert.equal(decide(s, 'owner', 'assign', m).decisions.owner.member, m);
-  for (const r of PENDING_REASONS) assert.equal(decide(s, 'owner', 'pending', r).decisions.owner.reason, r);
-  assert.deepEqual(PENDING_REASONS, ['Waiting for information', 'Work is on hold', 'Owner not yet confirmed', 'Needs further review']);
-});
-
-// All 8 combinations (owner detail varies too, to show it doesn't change the numbers).
-const COMBOS = [];
-for (const dup of ['merge', 'separate']) for (const fin of ['followUp', 'noInvoiceDue']) for (const own of ['assign', 'pending']) COMBOS.push([dup, fin, own]);
-const EXPECTED = {
-  'merge|followUp|assign': [10, 7, 1, 0, 0], 'merge|followUp|pending': [10, 7, 1, 1, 0],
-  'merge|noInvoiceDue|assign': [10, 7, 0, 0, 0], 'merge|noInvoiceDue|pending': [10, 7, 0, 1, 0],
-  'separate|followUp|assign': [11, 7, 1, 0, 0], 'separate|followUp|pending': [11, 7, 1, 1, 0],
-  'separate|noInvoiceDue|assign': [11, 7, 0, 0, 0], 'separate|noInvoiceDue|pending': [11, 7, 0, 1, 0],
-};
-const apply = (s, [dup, fin, own], i = 0) => decide(decide(decide(s, 'duplicate', dup), 'finance', fin), 'owner', own, own === 'assign' ? TEAM[i % 4] : PENDING_REASONS[i % 4]);
-
-test('all eight decision combinations give the expected final report', () => {
-  assert.equal(COMBOS.length, 8);
-  COMBOS.forEach((combo, i) => {
-    const open = combo[1] === 'followUp' || combo[2] === 'pending';
-    const want = open ? 'Follow-up pending' : 'Review complete';
-    let s = apply(check(initialState()), combo, i);
-    assert.equal(status(s), want, combo.join('|'));
-    s = finalize(s);
-    const r = report(s);
-    assert.deepEqual(nums(r), EXPECTED[combo.join('|')], combo.join('|'));
-    assert.equal(r.status, want, `${combo.join('|')}: finishing never changes the status`);
-    assert.equal(r.outstanding, (combo[1] === 'followUp') + (combo[2] === 'pending'));
-    assert.equal(r.possibleDuplicates, 0);
-    assert.equal(r.followUps, combo[1] === 'followUp' ? 1 : 0);
-    assert.equal(r.pendingWithReason, combo[2] === 'pending' ? 1 : 0);
-  });
-});
-
-test('decisions are independent: the order they are made in does not matter', () => {
-  for (const combo of COMBOS) {
-    const [dup, fin, own] = combo; const det = own === 'assign' ? 'Sam' : 'Needs further review';
-    const a = decide(decide(decide(check(initialState()), 'duplicate', dup), 'finance', fin), 'owner', own, det);
-    const b = decide(decide(decide(check(initialState()), 'owner', own, det), 'finance', fin), 'duplicate', dup);
-    assert.deepEqual(report(a), report(b), combo.join('|'));
-  }
-});
-
-test('changing a decision recalculates from the source, with nothing left over from the old choice', () => {
-  const s0 = check(initialState());
-  let s = decide(s0, 'duplicate', 'merge');
-  s = decide(s, 'duplicate', 'separate');
-  assert.deepEqual(report(s), report(decide(s0, 'duplicate', 'separate')));
-  s = decide(decide(s, 'finance', 'noInvoiceDue'), 'finance', 'followUp');
-  s = decide(decide(s, 'owner', 'assign', 'Alex'), 'owner', 'pending', 'Waiting for information');
-  assert.deepEqual(nums(report(s)), [11, 7, 1, 1, 0]);
-  s = decide(s, 'owner', 'assign', 'Jordan');
-  assert.equal(s.decisions.owner.member, 'Jordan'); assert.equal(s.decisions.owner.reason, undefined);
-  // Clearing a decision puts the item back on the review list.
-  const cleared = clearDecision(s, 'finance');
-  assert.equal(report(cleared).itemsToReview, 1);
-  assert.equal(status(cleared), 'Review required');
-});
-
-test('finishing needs all three decisions; decisions lock until reopened, then can change again', () => {
-  let s = decide(decide(check(initialState()), 'duplicate', 'merge'), 'finance', 'followUp');
-  assert.equal(finalize(s), s, 'cannot finish with one left');
-  s = finalize(decide(s, 'owner', 'assign', 'Priya'));
-  assert.ok(s.finalized);
-  assert.equal(status(s), 'Follow-up pending', 'the invoice follow-up is still open');
-  assert.equal(decide(s, 'duplicate', 'separate'), s, 'locked once finished');
-  s = reopen(s);
-  assert.ok(!s.finalized);
-  s = finalize(decide(decide(s, 'duplicate', 'separate'), 'finance', 'noInvoiceDue'));
-  assert.equal(status(s), 'Review complete');
-  assert.deepEqual(nums(report(s)), [11, 7, 0, 0, 0]);
-  s = finalize(decide(reopen(s), 'finance', 'followUp'));
-  assert.deepEqual(nums(report(s)), [11, 7, 1, 0, 0]);
-});
-
-test('reset restores the original sample, and the source rows are never changed', () => {
-  const before = JSON.stringify([TRACKER, COMPLETION, FINANCE]);
-  for (const [i, combo] of COMBOS.entries()) finalize(apply(check(initialState()), combo, i));
-  assert.equal(JSON.stringify([TRACKER, COMPLETION, FINANCE]), before);
-  assert.deepEqual(initialState(), { checked: false, decisions: { duplicate: null, finance: null, owner: null }, finalized: false });
-  assert.deepEqual(report(initialState()), report(initialState()));
-  assert.deepEqual(nums(report(initialState())), [11, 7, 0, null, 0]);
-});
-
-test('status: Built by hand → Review required → Review complete, or Follow-up pending while an action is open', () => {
-  let s = initialState(); assert.equal(status(s), 'Built by hand');
-  s = check(s); assert.equal(status(s), 'Review required');
-  s = decide(decide(s, 'duplicate', 'merge'), 'finance', 'noInvoiceDue'); assert.equal(status(s), 'Review required');
-  s = decide(s, 'owner', 'pending', 'Work is on hold'); assert.ok(allDecided(s));
-  assert.equal(status(s), 'Follow-up pending');
-  assert.deepEqual(outstanding(s), [{ issue: 'owner', id: 'W-314', action: 'No owner yet', reason: 'Work is on hold' }]);
-  assert.equal(report(s).itemsToReview, 0, '0 to review, but the open action stays visible');
-  s = decide(s, 'owner', 'assign', 'Sam'); assert.equal(status(s), 'Review complete'); assert.deepEqual(outstanding(s), []);
-  s = decide(s, 'finance', 'followUp');
-  assert.equal(status(s), 'Follow-up pending');
-  assert.deepEqual(outstanding(s).map((o) => o.action), ['Invoice follow-up']);
-  const all = decide(s, 'owner', 'pending', 'Needs further review');
-  assert.equal(outstanding(all).length, 2);
-  assert.equal(status(finalize(all)), 'Follow-up pending');
-});
-
-// ---- Wording rules for everything the demo will show
-
-test('demo wording: first person only (no "we"), no repair business, a consequence for every choice', () => {
-  const text = JSON.stringify(DATA, (k, v) => (typeof v === 'function' ? v('X') : v));
-  assert.doesNotMatch(text, /\b(we|we're|we've|we'll|our|us)\b/i);
-  assert.doesNotMatch(text, /quillfern|repair|technician/i);
-  for (const issue of Object.values(ISSUES)) for (const [c] of issue.choices) assert.ok(CONSEQUENCE[c], c);
-  assert.deepEqual(PREVENTION.map((p) => p.issue), ['duplicate', 'finance', 'owner']);
-});
-
-// ---- The page (Stage 3)
-
 import { readFile } from 'node:fs/promises';
+import * as DATA from '../src/demo/data.js';
+import { REQUESTS, TASKS, TRANSACTIONS, SOURCES, STAFF } from '../src/demo/data.js';
+import {
+  initialState, sourceCounts, runChecks, checkList, consolidated, actions, openActions, decide, assign, setStatus, review, remind,
+  submitRequest, stageOf, board, metrics, summary, overview, taskFor, toIso, toRef, dayOf, STAGES, ACTION_STATUSES, AI_LABEL, heroInsight,
+} from '../src/demo/engine.js';
+import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
-test('the hero card shows the engine’s figures and issue kinds, not the findings', async () => {
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const card = html.slice(html.indexOf('class="tz-card ops-card"'), html.indexOf('</figure>'));
-  const h = heroSummary();
-  for (const [k, v] of Object.entries(h)) {
-    if (typeof v === 'object') continue;
-    for (const m of card.matchAll(new RegExp(`data-hero="${k}">([^<]*)<`, 'g'))) assert.equal(m[1], String(v), k);
-  }
-  for (const k of ['status', 'weekRange', 'workItems', 'completed', 'openWork', 'itemsToReview']) assert.match(card, new RegExp(`data-hero="${k}"`), `${k} on the card`);
-  const lines = [...card.matchAll(/data-hero-issue="(\w+)">[\s\S]*?<strong>([^<]*)<\/strong> <span>([^<]*)<\/span>/g)].map((m) => ({ issue: m[1], title: m[2], text: m[3] }));
-  assert.deepEqual(lines, h.issues.map(({ issue, title, text }) => ({ issue, title, text })), 'issue lines match the engine');
-  assert.match(card, /Weekly operations report/i);
-  assert.match(card, /Before sharing this week&rsquo;s update&hellip;/);
-  assert.match(card, /Work items[\s\S]*Marked complete[\s\S]*Still open/);
-  assert.match(card, /things to check/);
-  assert.match(card, /Fictional sample data &middot; No real client information/);
-  assert.match(card, /Start the live example/);
-  assert.doesNotMatch(card, /W-3\d\d|INV-|Alex|Priya|Sam\b|Jordan|Website content|Customer training|Customer feedback|Quillfern/i, 'no detailed findings in the hero');
+const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
+const css = () => readFile(new URL('../assets/styles.css', import.meta.url), 'utf8');
+const src = (f) => readFile(new URL(`../src/${f}`, import.meta.url), 'utf8');
+const sample = (s) => submitRequest(s, { customer: 'Oakline Studio', type: 'Quote request', channel: 'Email' });
+
+// ---- One shared dataset (18.11, 18.12)
+
+test('three industry-neutral sources: Requests Register 12, Work Tracker 12, Records & Transactions 9; frozen originals', () => {
+  assert.deepEqual(sourceCounts(), { requests: 12, tasks: 12, transactions: 9, total: 33, sources: 3 });
+  assert.deepEqual(SOURCES.map((x) => x.name), ['Requests Register', 'Work Tracker', 'Records & Transactions']);
+  for (const a of [REQUESTS, TASKS, TRANSACTIONS]) assert.ok(Object.isFrozen(a) && a.every(Object.isFrozen));
+  assert.throws(() => { TASKS[0].owner = 'X'; });
+  const text = JSON.stringify(DATA);
+  assert.doesNotMatch(text, /\b(we|our|us)\b/i);
+  assert.doesNotMatch(text, /sales|repair|technician|plumb|solar|meter|utility|facilit|maintenance|jobs?\b/i, 'no single industry');
+  assert.doesNotMatch(text, /[$₱€£]/);
 });
 
-test('the hero keeps the booking CTA first, then the live example', async () => {
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+test('standardising: three date formats and two reference formats line up; originals untouched', () => {
+  assert.equal(toIso('03/11/2026'), '2026-11-03'); assert.equal(toIso('2026-11-03'), '2026-11-03'); assert.equal(toIso('Tue 3 Nov'), '2026-11-03');
+  assert.equal(toIso('Wed 3 Nov'), ''); assert.equal(toRef('R101'), 'R-101'); assert.equal(toRef('R-101'), 'R-101');
+  assert.ok(TRANSACTIONS.every((t) => /^R\d+$/.test(t.request)), 'records keep their own reference format');
+});
+
+test('18.14 checks report only what the configured rules find in these records', () => {
+  assert.deepEqual(runChecks(), { duplicates: [['R-104', 'R-109']], missing: ['R-111'], unmatched: ['TX-309'], badDates: [] });
+  assert.deepEqual(checkList().map((c) => [c.label, c.ok]), [
+    ['Loaded 12 requests, 12 tasks and 9 records from 3 sources', true],
+    ['Dates standardised from 3 different formats', true],
+    ['References matched: 8 of 9 records linked to a request', false],
+    ['Required fields: 1 request with a blank customer', false],
+    ['Possible duplicates: 1 pair to check', false],
+  ]);
+});
+
+test('combined records: one row per request with its task and linked records; unknown values stay unknown', () => {
+  const rows = consolidated();
+  assert.equal(rows.length, 12);
+  const r111 = rows.find((r) => r.ref === 'R-111');
+  assert.deepEqual([r111.customer, r111.customerNote, r111.records], ['', 'unknown: needs confirming', ['TX-307']]);
+  assert.deepEqual(rows.find((r) => r.ref === 'R-102').records, ['TX-302', 'TX-303']);
+  assert.ok(!rows.some((r) => r.records.includes('TX-309')), 'the unmatched record is not attached to anything');
+  for (const r of rows) assert.equal(r.task, TASKS.find((t) => t.request === r.ref).id);
+});
+
+// ---- Reports (18.13)
+
+test('report figures are calculated from the combined records', () => {
+  const m = metrics();
+  assert.deepEqual([m.requests, m.duplicatePending, m.openRequests, m.completed, m.outstanding, m.overdue, m.unassigned, m.onTime, m.attention], [12, true, 6, 6, 6, 1, 1, 100, 5]);
+  assert.deepEqual(m.byDay.map((d) => d.completed), [1, 2, 1, 1, 1]);
+  assert.equal(m.completed, TASKS.filter((t) => t.status === 'Completed').length);
+  for (const d of m.byDay) assert.equal(TASKS.filter((t) => t.completed && dayOf(t.completed) === d.day).length, d.completed, d.day);
+  const phone = metrics(initialState(), { channel: 'Phone' });
+  assert.equal(phone.requests, REQUESTS.filter((r) => r.channel === 'Phone').length);
+  assert.equal(metrics().byChannel.reduce((t, c) => t + c.count, 0), 12);
+});
+
+// ---- Actions and decisions (18.13, 18.16)
+
+test('actions: five items, each with source, suggested next step, suggested responsibility and a practical status', () => {
+  const a = actions();
+  assert.deepEqual(a.map((x) => [x.id, x.title, x.status]), [
+    ['duplicate', 'Possible duplicate request', 'Needs checking'], ['missing', 'Request with no customer', 'Needs checking'],
+    ['unmatched', 'Record with no matching request', 'Needs checking'], ['T-206', 'Overdue task', 'In progress'], ['T-210', 'Task with no owner', 'Needs checking'],
+  ]);
+  for (const x of a) { assert.ok(x.next && x.team && x.source && x.refs.length, x.id); assert.ok(ACTION_STATUSES.includes(x.status)); }
+  const ids = new Set([...REQUESTS, ...TASKS, ...TRANSACTIONS].map((r) => r.id));
+  for (const ref of a.flatMap((x) => x.refs)) assert.ok(ids.has(ref), ref);
+});
+
+test('decisions change the shared figures: duplicate counted once, customer filled from its record, record linked', () => {
+  const s = decide(initialState(), 'duplicate', 'same');
+  assert.deepEqual([metrics(s).requests, metrics(s).duplicatePending, consolidated(s).length], [11, false, 12]);
+  assert.ok(consolidated(s).find((r) => r.ref === 'R-109').excluded);
+  assert.ok(!board(s).flatMap((c) => c.items).some((r) => r.ref === 'R-109'));
+  assert.equal(metrics(decide(initialState(), 'duplicate', 'separate')).requests, 12);
+  const f = decide(initialState(), 'missing', 'fill');
+  assert.deepEqual([consolidated(f).find((r) => r.ref === 'R-111').customer, REQUESTS.find((r) => r.id === 'R-111').customer], ['Harbour & Co.', '']);
+  assert.equal(actions(decide(initialState(), 'missing', 'unknown')).find((x) => x.id === 'missing').status, 'Waiting for follow-up');
+  const l = decide(initialState(), 'unmatched', 'link');
+  assert.deepEqual(consolidated(l).find((r) => r.ref === 'R-107').records, ['TX-306', 'TX-308', 'TX-309']);
+  assert.equal(TRANSACTIONS.find((t) => t.id === 'TX-309').request, 'R115', 'the original record is unchanged');
+});
+
+test('task actions: an owner first; status changes update every view; reminders are simulated and logged', () => {
+  const s0 = initialState();
+  assert.equal(setStatus(s0, 'T-210', 'In progress'), s0, 'nobody owns it yet');
+  assert.equal(assign(s0, 'T-210', 'Zed'), s0);
+  const a = assign(s0, 'T-210', 'Ana');
+  assert.deepEqual([taskFor(a, 'R-110').owner, actions(a).find((x) => x.id === 'T-210').status, metrics(a).unassigned], ['Ana', 'Assigned', 0]);
+  const done = setStatus(setStatus(a, 'T-210', 'In progress'), 'T-210', 'Completed');
+  const m = metrics(done);
+  assert.deepEqual([m.completed, m.openRequests, m.byDay.at(-1).completed, actions(done).find((x) => x.id === 'T-210').status], [7, 5, 2, 'Completed']);
+  assert.equal(TASKS.find((t) => t.id === 'T-210').status, 'Not started');
+  const r = remind(s0, 'T-206');
+  assert.equal(actions(r).find((x) => x.id === 'T-206').status, 'Waiting for follow-up');
+  assert.match(r.log.at(-1).text, /Reminder prepared for Ben about T-206 \(simulated: nothing was sent\)/);
+  assert.equal(remind(r, 'T-206'), r, 'one reminder');
+  assert.equal(remind(s0, 'T-210'), s0, 'no reminder without an owner');
+});
+
+// ---- Workflows (18.15)
+
+test('a sample request enters the register, creates a task, and appears in Data, Reports, Actions and Workflows', () => {
+  const s = sample(initialState());
+  assert.deepEqual(s.added.map((a) => [a.request.id, a.task.id, a.task.due, a.task.owner]), [['R-113', 'T-213', '2026-11-10', '']]);
+  assert.ok(consolidated(s).some((r) => r.ref === 'R-113' && r.added));
+  assert.deepEqual([metrics(s).requests, metrics(s).openRequests, sourceCounts(s).total], [13, 7, 35]);
+  assert.deepEqual(actions(s).find((x) => x.id === 'T-213').title, 'New request to review');
+  assert.ok(board(s).find((c) => c.stage === 'Request received').items.some((r) => r.ref === 'R-113'));
+  assert.equal(REQUESTS.length, 12, 'the original register is untouched');
+  assert.equal(submitRequest(initialState(), { customer: '', type: 'Quote request', channel: 'Email' }).added.length, 0);
+  assert.equal(submitRequest(initialState(), { customer: 'X', type: 'Nonsense', channel: 'Email' }).added.length, 0);
+  let many = initialState(); for (let i = 0; i < 7; i++) many = sample(many);
+  assert.equal(many.added.length, 5, 'limited to five sample requests');
+});
+
+test('request to completion: received → reviewed → assigned → in progress → completed', () => {
+  let s = sample(initialState()); const t = () => taskFor(s, 'R-113');
+  const seen = [stageOf(t())];
+  s = review(s, 'T-213'); seen.push(stageOf(t()));
+  s = assign(s, 'T-213', 'Carla'); seen.push(stageOf(t()));
+  s = setStatus(s, 'T-213', 'In progress'); seen.push(stageOf(t()));
+  s = setStatus(s, 'T-213', 'Completed'); seen.push(stageOf(t()));
+  assert.deepEqual(seen, STAGES);
+  assert.deepEqual([metrics(s).requests, metrics(s).completed, metrics(s).openRequests], [13, 7, 6]);
+});
+
+test('18.12 the same records across views: Data, Reports, Workflows and the overview agree on every path', () => {
+  const paths = [initialState(), decide(initialState(), 'duplicate', 'same'), sample(decide(initialState(), 'duplicate', 'same')), setStatus(assign(initialState(), 'T-210', 'Ben'), 'T-210', 'In progress')];
+  for (const s of paths) {
+    const rows = consolidated(s).filter((r) => !r.excluded);
+    const onBoard = board(s).flatMap((c) => c.items.map((r) => r.ref)).sort();
+    assert.deepEqual(onBoard, rows.map((r) => r.ref).sort());
+    const m = metrics(s); const o = overview(s);
+    assert.deepEqual([o.requests, o.openRequests, o.attention], [m.requests, m.openRequests, openActions(s).length]);
+    assert.equal(board(s).find((c) => c.stage === 'Completed').items.length, rows.filter((r) => r.status === 'Completed').length);
+  }
+});
+
+test('the log only grows and is frozen; refused actions add nothing; reset is the original state', () => {
+  let s = initialState(); const steps = [s];
+  for (const f of [(x) => decide(x, 'duplicate', 'same'), (x) => assign(x, 'T-210', 'Ana'), (x) => remind(x, 'T-206'), sample]) { s = f(s); steps.push(s); }
+  for (let i = 1; i < steps.length; i++) { steps[i - 1].log.forEach((e, k) => assert.equal(steps[i].log[k], e)); assert.equal(steps[i].log.length, steps[i - 1].log.length + 1); }
+  assert.ok(Object.isFrozen(s.log) && s.log.every(Object.isFrozen));
+  const s0 = initialState();
+  for (const x of [decide(s0, 'duplicate', 'nope'), assign(s0, 'T-999', 'Ana'), setStatus(s0, 'T-201', 'Completed'), review(s0, 'T-201')]) assert.equal(x, s0);
+  assert.deepEqual(initialState(), s0);
+});
+
+test('AI-drafted summary: labelled as simulated, built from the figures, says what is unknown, no overclaiming', () => {
+  assert.equal(AI_LABEL, 'AI-drafted · simulated in this demo');
+  const s0 = summary();
+  assert.match(s0[0], /^12 requests \(one may be a duplicate\) came in this week\. 6 tasks were completed, 100% of them on time, and 6 are still open\./);
+  assert.ok(s0.some((l) => /who it’s for is unknown until someone confirms it/.test(l)));
+  const s1 = summary(decide(decide(decide(initialState(), 'duplicate', 'same'), 'missing', 'fill'), 'unmatched', 'link'));
+  assert.ok(!s1.some((l) => /unknown|couldn’t be matched/.test(l)));
+  assert.match(s1[0], /^11 requests came in this week/);
+  assert.doesNotMatch([...s0, ...s1].join(' '), /every|all errors|100% accurate|guarantee|definitely/i);
+});
+
+test('no stale warnings: each resolved finding clears from the checks, Actions, the combined view and the hero', () => {
+  let s = initialState();
+  assert.deepEqual(checkList(s).map((c) => c.ok), [true, true, false, false, false]);
+  s = decide(s, 'duplicate', 'same');
+  assert.match(checkList(s)[4].label, /R-104 \/ R-109 checked by you \(counted once\)/); assert.equal(checkList(s)[4].ok, true);
+  s = decide(s, 'missing', 'fill');
+  assert.match(checkList(s)[3].label, /filled in by you from TX-307/); assert.equal(checkList(s)[3].ok, true);
+  s = decide(s, 'unmatched', 'link');
+  assert.equal(checkList(s)[2].label, 'References matched: 9 of 9 records linked (TX-309 linked by you)');
+  assert.ok(checkList(s).every((c) => c.ok));
+  assert.deepEqual(openActions(s).map((a) => a.id), ['T-206', 'T-210']);
+  assert.deepEqual(runChecks(s), runChecks(), 'the source rows still contain what they contained: the rules see the same records');
+  // "leave for now" keeps the warning, with the reviewer's note
+  const left = decide(decide(initialState(), 'unmatched', 'leave'), 'missing', 'unknown');
+  assert.match(checkList(left)[2].label, /left unmatched for now/); assert.equal(checkList(left)[2].ok, false);
+  assert.match(checkList(left)[3].label, /left as unknown for now/); assert.equal(checkList(left)[3].ok, false);
+});
+
+test('hero insight follows the figures and never claims more than they show', () => {
+  assert.equal(heroInsight(), '1 task is overdue and 1 has nobody assigned. Check the possible duplicate before sharing the numbers.');
+  let s = decide(initialState(), 'duplicate', 'same');
+  assert.equal(heroInsight(s), '1 task is overdue and 1 has nobody assigned.');
+  s = setStatus(assign(s, 'T-210', 'Ana'), 'T-206', 'Completed');
+  assert.equal(heroInsight(s), 'No overdue or unassigned tasks, and the figures have been checked.');
+  assert.equal(metrics(s).onTime, 86, 'the late completion lowers the on-time rate (6 of 7)');
+});
+
+test('the hero’s static rows, actions list and insight match the engine’s first state', async () => {
+  const html = await page();
+  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
+  const flagged = new Set(openActions().flatMap((a) => a.refs));
+  for (const m of fig.matchAll(/data-hw-row="(R-\d+)">.*?<span class="(hw-ok|hw-flag)">/g)) assert.equal(m[2] === 'hw-flag', flagged.has(m[1]), m[1]);
+  assert.deepEqual([...fig.matchAll(/<li>([^<]+) <em>([^<]+)<\/em><\/li>/g)].map((m) => [m[1], m[2]]), openActions().slice(0, 3).map((a) => [a.title, a.status]));
+  assert.match(fig, new RegExp(`data-hw-insight>${heroInsight().replace(/[.]/g, '\\.')}<`));
+  const js = await src('demo/hero.js'); assert.match(js, /heroInsight\(s\)/); assert.match(js, /openActions\(s\)/);
+});
+
+test('mobile Workflows: a compact list with expandable details replaces the board below 40rem; same data and controls', async () => {
+  const ui = await src('demo/ui.js');
+  assert.match(ui, /matchMedia\('\(max-width: 40rem\)'\)/);
+  assert.match(ui, /narrow \? listHtml\(cols\) : `<ol class="cw-board">/);
+  assert.match(ui, /<details class="cw-wl" data-wl=/);
+  const c = await css(); assert.match(c, /\.cw-wl-steps \{ list-style: none; display: grid; grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+});
+
+// ---- Service samples (18.18–18.22)
+
+test('18.18 Data & Reporting sample: three files, three layouts → one refreshed, checked report (flags kept, not removed)', () => {
+  assert.deepEqual(REPORT_FILES.map((f) => f.cols.join('|')), ['Date|Customer|Status', 'created_on|client|state', 'Submitted|Name|Stage']);
+  const r = refreshReport();
+  assert.deepEqual([r.report.rows, r.report.completed, r.report.open, r.report.flagged, r.report.missingDate, r.report.duplicates], [11, 5, 6, 3, 1, 1]);
+  assert.ok(r.rows.every((x) => ['Completed', 'Open'].includes(x.status)), 'statuses standardised');
+  assert.ok(r.rows.filter((x) => x.date).every((x) => /^\d{4}-\d{2}-\d{2}$/.test(x.date)), 'dates standardised');
+  assert.equal(r.rows.length, 11, 'flagged rows are kept');
+});
+
+test('18.19 Workflows sample: received → assigned → in progress → completed, a simulated reminder, no skipping', () => {
+  let s = { step: null, req: null, owner: '', reminded: false, log: [] };
+  assert.equal(flow(s, 'start'), s);
+  s = flow(s, 'submit', { type: 'Quote request', from: 'Bayview Co.' }); assert.equal(FLOW_STEPS[s.step], 'Received');
+  assert.equal(flow(s, 'done'), s, 'can’t complete before it’s assigned and started');
+  s = flow(s, 'assign', 'Ana'); assert.equal(FLOW_STEPS[s.step], 'Assigned');
+  s = flow(s, 'remind'); assert.match(s.log.at(-1), /Reminder prepared for Ana: “R-501 is due Tue 10 Nov” \(simulated, nothing sent\)/);
+  s = flow(flow(s, 'start'), 'done'); assert.equal(FLOW_STEPS[s.step], 'Completed');
+  assert.equal(s.log.length, 5);
+});
+
+test('18.20 Business Tools sample: customers with related requests, records and tasks; a status update changes the overview', () => {
+  assert.equal(CUSTOMERS.length, 5);
+  for (const c of CUSTOMERS) assert.ok(c.requests.length && c.tasks.length, c.name);
+  assert.deepEqual(toolsOverview({}), { customers: 5, open: 3, waiting: 1, done: 2 });
+  assert.deepEqual(toolsOverview({ 'K-4': 'Done' }), { customers: 5, open: 2, waiting: 1, done: 3 });
+});
+
+// ---- The page
+
+test('18.6–18.7 hero copy: eyebrow, headline, exact supporting text and reassurance, two CTAs, intro, booking info', async () => {
+  const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
+  assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. More real work\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
-  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
-  assert.doesNotMatch(hero, /Find Your Rework|assessment/i);
+  assert.match(hero, /<p class="hero-sub">I turn scattered business data and repetitive tasks into connected workflows, reliable reports and practical business tools\.<\/p>/);
+  assert.match(hero, /<p class="hero-assure">Built around the tools you already use\. Designed around how your business works\.<\/p>/);
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how it works'));
+  assert.match(hero, /href="#samples" data-demo-check>See how it works/);
+  assert.match(hero, /Free &middot; No obligation/);
+  assert.match(html, /Jeff Herson Vida<\/a><span class="cred-role">8\+ years in data operations, reporting and process improvement\.<\/span><span class="cred-role">Work directly with me, from understanding the problem to building the solution\.<\/span>/);
 });
 
-test('no Quillfern left on the homepage or in the demo code', async () => {
-  for (const f of ['../index.html', '../src/demo/ui.js', '../src/demo/data.js', '../src/demo/engine.js', '../src/home.js']) {
-    assert.doesNotMatch(await readFile(new URL(f, import.meta.url), 'utf8'), /quillfern/i, f);
-  }
+test('hero on tablets and phones: the reassurance line stays right after the supporting text', async () => {
+  const c = await css();
+  assert.match(c, /\.hero-copy > \.hero-sub, \.hero-copy > \.hero-assure \{ order: 4; \}/);
 });
 
-test('the privacy notice describes the new simulation, with no Quillfern or test booking form', async () => {
-  const html = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('<h2>The examples on the homepage</h2>'), html.indexOf('<h2>When you contact me</h2>'));
-  assert.doesNotMatch(html, /quillfern|test booking form/i);
-  assert.match(sec, /fictional/);
-  assert.match(sec, /not connected to any accounting, finance, work-tracking or other business system/);
-  assert.match(sec, /not in cookies, local storage or session storage/);
-  assert.match(html, /<h2>When you contact me<\/h2>[\s\S]*Booking a review/, 'booking disclosures still there');
+test('18.8–18.9 hero visual: three sources into one workspace with data, report, workflow, actions and insight, from the engine', async () => {
+  const html = await page();
+  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
+  assert.deepEqual([...fig.matchAll(/<li class="hw-src">.*?<strong>([^<]+)<\/strong>/g)].map((m) => m[1]), ['Spreadsheet files', 'Business records', 'Requests &amp; tasks']);
+  assert.deepEqual([...fig.matchAll(/<section class="hw-panel hw-(\w+)">/g)].map((m) => m[1]), ['data', 'report', 'flow', 'actions', 'ai']);
+  const o = overview(); const val = (k) => Number(fig.match(new RegExp(`data-hw="${k}">(\\d+)<`))[1]);
+  assert.deepEqual(['records', 'requests', 'openRequests', 'completed', 'attention'].map(val), [o.records, o.requests, o.openRequests, o.completed, o.attention]);
+  for (const c of board()) assert.equal(Number(fig.match(new RegExp(`data-hw-stage="${c.stage}">(\\d+)<`))[1]), c.items.length, c.stage);
+  assert.deepEqual([...fig.matchAll(/data-hw-day="(\w+)" data-v="(\d)"/g)].map((m) => [m[1], Number(m[2])]), metrics().byDay.map((d) => [d.day, d.completed]));
+  assert.match(fig, /Illustration/); assert.match(fig, /An illustration of what I could build around your tools\. Fictional data\./);
+  assert.doesNotMatch(fig, /\sstyle="/); assert.doesNotMatch(fig, /sales|jobs?\b|invoice tracker/i);
 });
 
-// ---- The sample week (completed week ending Fri 6 Nov 2026)
-
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const asDate = (label) => { // 'Fri 6 Nov' → Date (2026), checking the weekday matches the date
-  const [dow, d, mon] = label.split(' ');
-  assert.equal(mon, 'Nov', label);
-  const dt = new Date(Date.UTC(2026, 10, Number(d)));
-  assert.equal(DAYS[dt.getUTCDay()], dow, `${label} is a ${DAYS[dt.getUTCDay()]}`);
-  return dt;
-};
-
-test('the sample week is a completed week ending Fri 6 Nov 2026, and every date fits it', () => {
-  assert.equal(DATA.WEEK, 'Week ending Fri 6 Nov 2026');
-  const end = asDate(DATA.WEEK.replace('Week ending ', '').replace(' 2026', ''));
-  const start = new Date(end); start.setUTCDate(end.getUTCDate() - 4); // Monday
-  for (const r of COMPLETION) {
-    const d = asDate(r.completed);
-    assert.ok(d >= start && d <= end, `${r.id} was completed during the sample week`);
-  }
-  for (const r of TRACKER) {
-    const d = asDate(r.due);
-    if (r.status === 'Complete') assert.ok(d >= start && d <= end, `${r.id} was due during the sample week`);
-    else assert.ok(d >= start, `${r.id} is open work due this week or later`);
-  }
-  // Only the week label lives in the code: no other week constants.
-  assert.deepEqual(Object.keys(DATA).filter((k) => /week|date/i.test(k)), ['WEEK']);
+test('18.10 hero motion: ordered ~4.5 s timeline, played once, reduced motion shows the finished picture', async () => {
+  const c = await css(); const block = c.slice(c.indexOf('/* ---- Hero: connected workspace illustration'), c.indexOf('/* ---- Main demo: connected workspace'));
+  const at = (sel) => { const m = block.match(new RegExp(`\\.hw-play ${sel.replace(/[.]/g, '\\.')}[^{]*\\{ animation(?:-delay: ([\\d.]+)s;|:[^;]* ([\\d.]+)s both;)`)); return Number(m[1] ?? m[2]); };
+  const order = [at('.hw-lines'), at('.hw-app'), at('.hw-data'), at('.hw-ok'), at('.hw-report'), at('.hw-flow'), at('.hw-actions'), at('.hw-ai')];
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), `sources → lines → workspace → data → checks → report → workflow → actions → insight: ${order}`);
+  let end = 0;
+  for (const m of block.matchAll(/\.hw-play [^{]*\{[^}]*animation(?:-delay)?:([^;}]+)/g)) for (const part of m[1].split(',')) { const t = [...part.matchAll(/([\d.]+)s/g)].map((x) => Number(x[1])); if (t.length) end = Math.max(end, t.reduce((x, y) => x + y, 0)); }
+  assert.ok(end >= 4 && end <= 5, `ends at ${end}s`);
+  assert.doesNotMatch(block, /infinite/);
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hw-wait \.hw-sources, \.hw-wait \.hw-lines, \.hw-wait \.hw-app \{ opacity: 1; \} \.hw-play, \.hw-play \* \{ animation: none !important; \} \}/);
+  const js = await src('demo/hero.js'); assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /io\.disconnect\(\)/);
 });
 
-test('the demo window shows the same week as the data', async () => {
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const m = html.match(/<span class="dw-status" data-week>([^<]*)</);
-  assert.ok(m, 'the demo title bar has the week');
-  assert.equal(m[1], DATA.WEEK);
-  assert.doesNotMatch(html, /13 Nov/);
+test('18.4–18.5, 18.11, 18.17 main demo: heading, intro, illustrative label, four connected views, workspace overview, reset', async () => {
+  const html = await page();
+  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
+  assert.match(sec, /<h2 id="samples-h">A more connected way to work\.<\/h2>/);
+  assert.match(sec, /See how scattered information can become organised data, useful reports and workflows that keep work moving\./);
+  assert.match(sec, /Bring your information together\. Make sense of the numbers\. Keep work moving\./);
+  assert.match(sec, /Illustrative demonstration using fictional business data\./);
+  assert.match(sec, /around your existing tools, such as Excel, Power Query and simple automations, not a product you&rsquo;d have to buy/);
+  const ui = await src('demo/ui.js');
+  assert.match(ui, /\['data', 'Data'[\s\S]*\['reports', 'Reports'[\s\S]*\['actions', 'Actions'[\s\S]*\['workflows', 'Workflows'/);
+  for (const t of ['cw-over', 'Reset the demo', 'Submit a sample request', 'Checks found items that may need attention.', 'Management summary', 'Send a reminder', 'nothing is sent']) assert.ok(ui.includes(t), t);
+  const fb = sec.slice(sec.indexOf('class="demo-static"'));
+  for (const t of ['Requests Register (12 requests)', 'Work Tracker (12 tasks)', 'Records &amp; Transactions (9 records)', 'R-104 / R-109', 'R-111', 'TX-309', '12 requests this week, 6 still open', 'T-206', 'T-210']) assert.ok(fb.includes(t), t);
 });
 
-test('the end of the demo describes proposed improvements, not finished ones', async () => {
-  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
-  assert.match(ui, /These improvements could mean less repeated checking, fewer missed tasks and fewer manual corrections\./);
-  assert.match(ui, /Checked, decisions made, and improvements identified\./);
-  assert.match(ui, /a clearer way for the tracker, completion log and finance register to work together\./);
-  assert.match(ui, /What could improve\?/);
-  assert.doesNotMatch(ui, /improved at the source|work as one|These changes mean|What improved\?/);
+test('18.2, 18.21–18.22 services: names kept, the brief’s descriptions, how they connect, three distinct samples', async () => {
+  const html = await page();
+  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
+  assert.deepEqual([...sec.matchAll(/<h3>([^<]+)<\/h3>\s*<p class="svc-short">/g)].map((m) => m[1]), ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']);
+  for (const t of ['Turn scattered spreadsheets and repetitive reporting tasks into organised, reliable reports that are easier to update and maintain.', 'Make everyday work easier to manage by improving handoffs, responsibilities and follow-ups.', 'Bring disconnected information and everyday processes into practical business tools that make work easier to manage.',
+    'makes information easier to combine, check, update and report.', 'makes work easier to assign, track and follow up.', 'brings related information and processes together into a usable solution.']) assert.ok(sec.includes(t), t);
+  assert.deepEqual([...sec.matchAll(/data-mini="(\w+)">\s*<p class="mini-t">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]), [
+    ['report', 'From scattered files to one reliable report.'], ['workflow', 'From missed requests to clear next steps.'], ['tools', 'From disconnected files to one useful workspace.']]);
+  assert.doesNotMatch(html, /KPI &amp; Operations Reporting|Reporting &amp; Data Automation|Workflow Improvements/);
+  const js = await src('samples.js'); assert.match(js, /mountReport[\s\S]*mountWorkflow[\s\S]*mountTools/);
 });
 
-test('the demo intro: exact copy, your role, disclosure (no repeat of the hero issues)', async () => {
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('class="demo-window"'));
-  const h = heroSummary();
-  assert.match(sec, /Can you trust this week&rsquo;s report\?/);
-  assert.ok(sec.includes('Here&rsquo;s a week&rsquo;s work recorded across three different business records.'));
-  assert.ok(sec.includes('The report looks fine at first. But can you spot what doesn&rsquo;t add up?'));
-  assert.doesNotMatch(sec, /demo-issues|issues to investigate|data-intro-issue/, 'the hero card already lists the issues');
-  assert.ok(sec.includes('Your role</p><p class="demo-role-t">Check the records. Make the decisions. See what a clearer process could look like.'));
-  assert.ok(sec.includes('This is a fictional example using made-up data. It demonstrates how I approach an operational problem; it isn&#39;t a client project.'));
-  assert.doesNotMatch(sec, /W-3\d\d/);
+test('18.11 How I work: the reassurance line, the steps and the handover terms stay', async () => {
+  const html = await page();
+  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  assert.match(how, /<p class="how-assure">You keep using the tools you already know\. I improve the process around them\.<\/p>/);
+  assert.match(how, /written scope, price and estimated timeline before anything starts/);
 });
+
+test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, no platform pitch, privacy matches', async () => {
+  const html = await page();
+  const main = html.slice(html.indexOf('<main'), html.indexOf('id="experience"'));
+  assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
+  assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
+  assert.doesNotMatch(html, /subscription|sign up for (the|our) platform/i);
+  const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  for (const t of ['A more connected way to work', 'requests, tasks, records and staff names are fictional', 'Reset the demo', 'no AI runs on this page']) assert.ok(priv.includes(t), t);
+  assert.equal((await page()).match(/<span class="dw-status" data-week>([^<]*)</)[1], DATA.WEEK);
+});
+
+test('problem cards: three, in the customer’s words, each opening its service', async () => {
+  const html = await page();
+  const fit = html.slice(html.indexOf('id="fit"'), html.indexOf('id="samples"'));
+  const cards = [...fit.matchAll(/<a href="#(svc-\w+)" data-svc-go="(\d)"><strong>([^<]+)<\/strong>/g)].map((m) => [m[1], m[2], m[3]]);
+  assert.deepEqual(cards, [
+    ['svc-data', '0', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;'],
+    ['svc-workflow', '1', '&ldquo;I&rsquo;m always chasing updates.&rdquo;'],
+    ['svc-systems', '2', '&ldquo;Everything is scattered.&rdquo;'],
+  ]);
+});
+
 
 test('page: experience sits right after the live example, marked as previous professional experience', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -379,22 +388,6 @@ test('booking after the demo: one strip with the first-project line, using the e
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });
 
-test('after Finish decisions, booking sits beside Next, and nothing is called optional', async () => {
-  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
-  const st = ui.slice(ui.indexOf('} else if (at === 3) {'), ui.indexOf('} else if (at === 4) {'));
-  assert.match(st, /This week&rsquo;s report is sorted, and these changes could stop the same problems coming back\./);
-  assert.doesNotMatch(st, /optional|main point/i);
-  assert.match(st, /href="contact\/#contact-form-area">Book a free rework review</);
-  assert.match(st, /btn\('next', 'Next: see how your tools could work together →', 'secondary'\)/);
-});
-
-test('the final demo screen has no booking box (the strip below the demo carries it)', async () => {
-  const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
-  const end = ui.slice(ui.indexOf("<h3 class=\"dm-h\">Checked, decisions made"));
-  assert.doesNotMatch(end.slice(0, end.indexOf('}\n')), /dm-ask|Book a free rework review/);
-  assert.match(end, /data-act="back"[\s\S]*data-act="restart">Run it again/);
-});
-
 test('How I work shows an example first project, labelled as an illustration, with the handover terms', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
@@ -403,14 +396,6 @@ test('How I work shows an example first project, labelled as an illustration, wi
   assert.match(how, /not a client result/);
   for (const t of ['Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
   assert.doesNotMatch(how, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
-});
-
-test('hero says who it is for and what the review is', async () => {
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const hero = html.slice(0, html.indexOf('id="fit"'));
-  assert.match(hero, /I help small service businesses fix the weekly reports and spreadsheets their teams rebuild by hand/);
-  assert.match(hero, /A 30-minute call about one report or process<span class="cta-micro-sep"> &middot; <\/span><span class="cta-micro-2">Free &middot; No obligation<\/span>/);
-  assert.doesNotMatch(hero, /hero-note/);
 });
 
 test('availability on the page matches the booking calendar rules', async () => {
@@ -423,16 +408,3 @@ test('availability on the page matches the booking calendar rules', async () => 
   }
 });
 
-test('Workflows: AI items, and the AI enquiry example keeps the person in control', async () => {
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const wf = html.slice(html.indexOf('<h3>Workflows &amp; Processes</h3>'), html.indexOf('<h3>Business Tools &amp; Systems</h3>'));
-  for (const t of ['AI that reads your emails and documents', 'AI summaries and quick answers', 'Automatic reminders, notifications and follow-ups', 'Sample &middot; AI simulated', '>You<', 'Approve the reply', 'Nothing'.slice(0, 0)]) assert.ok(wf.includes(t), t);
-  assert.doesNotMatch(wf, /Quote 2031|Approve the quote/);
-  assert.equal((wf.match(/<li><strong>/g) || []).length, 5, 'five items');
-  assert.match(html, /Tools I work with:<\/strong>[^<]*n8n &middot; AI tools/);
-  assert.match(html, /A person reviews anything that matters before it&#39;s sent or changed\./);
-  const privacy = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  assert.match(privacy, /The AI step in the workflow example is simulated; no AI runs on this page\./);
-  const pv = await readFile(new URL('../src/previews.js', import.meta.url), 'utf8');
-  assert.match(pv, /nothing was sent until you approved it/);
-});

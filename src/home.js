@@ -2,12 +2,12 @@
 
 import { mountBooking } from './booking/popup.js';
 import { mountDemo } from './demo/ui.js';
-import { heroSummary } from './demo/engine.js';
+import { mountHero } from './demo/hero.js';
 import { WEEK } from './demo/data.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 import { mountServices } from './services.js';
-import { mountPreviews } from './previews.js';
+import { mountSamples } from './samples.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -51,48 +51,26 @@ export function mountMobileCta() {
 // ---- Start the homepage
 const demo = mountDemo(document.getElementById('demo-app'));
 mountMobileCta();
-mountPreviews();
+mountSamples();
 mountServices();
 mountMotion();
 mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// "Explore the live example" and "Start the live example" in the hero: go to the demo. The visitor starts the checks there, after reading the setup.
+// "Explore the live example" in the hero: go to the example (data-demo-tab opens a given tab).
 document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
   if (!demo) return;
   e.preventDefault();
+  if (link.dataset.demoTab) demo.show(link.dataset.demoTab);
   const target = document.getElementById('samples');
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero snapshot card: a preview of the sample report, worked out by the same engine as the live example
-// (heroSummary in ./demo/engine.js). The HTML already holds the same figures for visitors without JavaScript, and
-// tests/demo.test.mjs fails if they ever differ; here the engine's values are written in, so the engine always wins.
-// Summary figures only: the findings themselves appear only once the visitor runs the check in the demo.
-(function heroCard() {
-  const h = heroSummary();
-  document.querySelectorAll('[data-hero]').forEach((el) => {
-    const v = h[el.dataset.hero];
-    if (v !== undefined) el.textContent = String(v);
-  });
-}());
-
-// Hero card issue lines: one per kind of issue the checks find, worded from ISSUES[*].card. Lines the engine
-// doesn't report are hidden, so the card can never list an issue the live example won't find.
-(function heroIssues() {
-  const found = new Map(heroSummary().issues.map((i) => [i.issue, i]));
-  document.querySelectorAll('[data-hero-issue]').forEach((li) => {
-    const i = found.get(li.dataset.heroIssue);
-    li.hidden = !i;
-    if (!i) return;
-    const strong = li.querySelector('strong'); const span = li.querySelector('p span');
-    if (strong) strong.textContent = i.title;
-    if (span) span.textContent = i.text;
-  });
-}());
+// Hero: the connected workspace illustration, following the same state as the main demo (src/demo/hero.js).
+mountHero(document.getElementById('hero-visual'));
 
 // The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.
 document.querySelectorAll('[data-week]').forEach((el) => { el.textContent = WEEK; });

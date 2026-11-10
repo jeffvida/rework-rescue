@@ -1,159 +1,283 @@
-// Live demo engine: the checks across the three sources, the visitor's decisions and the weekly report.
-// Pure functions, no page code, so tests/demo.test.mjs can check every number the page (and the hero card) shows.
-// The source rows never change. A decision is stored as data and the report is worked out again from the rows plus
-// the decisions, so any decision can be changed or cleared without undoing anything. Reset = initialState().
+// Connected workspace engine (master brief, 10 Nov 2026): pure functions over ./data.js plus the visitor's actions.
+//   Data       load three sources → standardise dates and references → consolidate → run the configured checks.
+//   Reports    every figure is calculated from the consolidated records (with optional channel/status filters).
+//   Actions    items to check and follow up: source reference, suggested next step, suggested responsibility, status.
+//   Workflows  request received → reviewed → assigned → in progress → completed; sample requests; simulated reminders.
+// Rules: the source rows are frozen and never edited; every change the visitor makes is stored separately, logged,
+// and applied on top. Checks only report what the configured rules find in these records; they don't claim to find
+// every problem. The AI-drafted text is simulated, built only from calculated figures, and says when something is
+// unknown. Nothing is ever sent anywhere.
 
-import { TRACKER, COMPLETION, FINANCE, SOURCES, TEAM, PENDING_REASONS, ISSUES, WEEK } from './data.js';
+import { REQUESTS, TASKS, TRANSACTIONS, SOURCES, STAFF, RULES, PERIOD, REPORT_DATE, WEEK, TASK_FOR, REQUEST_TYPES, CHANNELS } from './data.js';
 
-const ISSUE_IDS = ['duplicate', 'finance', 'owner'];
+export { STAFF, PERIOD, WEEK, REQUEST_TYPES, CHANNELS, SOURCES };
+export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+export const AI_LABEL = 'AI-drafted · simulated in this demo';
+export const STAGES = ['Request received', 'Reviewed', 'Assigned', 'In progress', 'Completed'];
+export const ACTION_STATUSES = ['Needs checking', 'Waiting for follow-up', 'Assigned', 'In progress', 'Completed'];
+export const n = (x) => x.toLocaleString('en-US');
+const MAX_NEW = 5;
 
+// ---- Standardising: each source keeps its own date and reference format.
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const valid = (y, mo, d) => { const t = new Date(Date.UTC(y, mo - 1, d)); return t.getUTCFullYear() === y && t.getUTCMonth() === mo - 1 && t.getUTCDate() === d ? t.toISOString().slice(0, 10) : ''; };
+export const dayOf = (iso) => DOW[new Date(`${iso}T00:00:00Z`).getUTCDay()];
+export function toIso(v) {
+  if (!v) return '';
+  let m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); if (m) return valid(+m[1], +m[2], +m[3]);
+  m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v); if (m) return valid(+m[3], +m[2], +m[1]);
+  m = /^(\w{3}) (\d{1,2}) (\w{3})$/.exec(v);
+  if (m) { const iso = valid(Number(REPORT_DATE.slice(0, 4)), MON.indexOf(m[3]) + 1, +m[2]); return iso && dayOf(iso) === m[1] ? iso : ''; }
+  return '';
+}
+export const toRef = (v) => { const m = /^R-?(\d+)$/i.exec(String(v).trim()); return m ? `R-${m[1]}` : ''; };
+export const fmtDate = (iso) => (iso ? `${dayOf(iso)} ${Number(iso.slice(8))} ${MON[Number(iso.slice(5, 7)) - 1]}` : '');
+const addWorkingDays = (iso, k) => { const d = new Date(`${iso}T00:00:00Z`); while (k > 0) { d.setUTCDate(d.getUTCDate() + 1); if (![0, 6].includes(d.getUTCDay())) k--; } return d.toISOString().slice(0, 10); };
+
+// ---- State: everything the visitor does, kept apart from the source records.
 export function initialState() {
-  return { checked: false, decisions: { duplicate: null, finance: null, owner: null }, finalized: false };
+  return Object.freeze({
+    decisions: Object.freeze({ duplicate: null, missing: null, unmatched: null }),
+    tasks: Object.freeze({}),       // T-xxx → { owner?, status?, completed?, reviewed? }
+    added: Object.freeze([]),       // sample requests: { request, task }
+    reminders: Object.freeze([]),   // { task, owner, seq }
+    log: Object.freeze([]),
+    seq: 0,
+  });
 }
+const append = (s, e) => { const x = Object.freeze({ seq: s.seq + 1, ...e }); return { log: Object.freeze([...s.log, x]), seq: x.seq }; };
 
-const isOpen = (r) => r.status !== 'Complete';
-const byId = (rows) => new Map(rows.map((r) => [r.id, r]));
+// ---- Sources as they stand (originals + sample requests the visitor added)
+export const allRequests = (s) => [...REQUESTS, ...s.added.map((a) => a.request)];
+export const allTasks = (s) => [...TASKS, ...s.added.map((a) => a.task)];
+export const sourceCounts = (s = initialState()) => ({ requests: allRequests(s).length, tasks: allTasks(s).length, transactions: TRANSACTIONS.length, total: allRequests(s).length + allTasks(s).length + TRANSACTIONS.length, sources: SOURCES.length });
 
-/** Rows per source, and the total the hero shows as "source records". */
-export function sourceCounts() {
-  const counts = { tracker: TRACKER.length, completion: COMPLETION.length, finance: FINANCE.length };
-  return { ...counts, total: counts.tracker + counts.completion + counts.finance, sources: SOURCES.length };
-}
+// ---- Checks (configured rules only)
+const DUP = ['R-104', 'R-109']; const MISSING = 'R-111'; const MISSING_TX = 'TX-307'; const UNMATCHED = 'TX-309'; const LINK_TO = 'R-107';
 
-/** The three checks on the source rows. They read the data only, so they always find the same things. */
-export function runChecks() {
-  // 1. Possible duplicates: open items with the same work description and due date.
+/** Data checks on the source records. They report what the configured rules find; they don't change anything. */
+export function runChecks(s = initialState()) {
+  const reqs = allRequests(s).map((r) => ({ ...r, receivedIso: toIso(r.received) }));
   const seen = new Map(); const duplicates = [];
-  for (const r of TRACKER.filter(isOpen)) {
-    const key = `${r.work.toLowerCase()}|${r.due}`;
+  for (const r of reqs) {
+    if (!r.customer) continue;
+    const key = RULES.duplicateKeys.map((k) => String(k === 'received' ? r.receivedIso : r[k]).toLowerCase()).join('|');
     if (seen.has(key)) duplicates.push([seen.get(key), r.id]); else seen.set(key, r.id);
   }
-  // 2. Completed work against finance: matched, expected without an invoice (internal), or missing.
-  const log = byId(COMPLETION); const fin = byId(FINANCE);
-  const finance = TRACKER.filter((r) => r.status === 'Complete').map((r) => {
-    const done = log.get(r.id);
-    const result = fin.has(r.id) ? 'matched' : done && !done.billable ? 'notBillable' : 'missing';
-    return { id: r.id, result };
+  const missing = reqs.filter((r) => RULES.required.requests.some((k) => !String(r[k] ?? '').trim())).map((r) => r.id);
+  const ids = new Set(reqs.map((r) => r.id));
+  const unmatched = TRANSACTIONS.filter((t) => !ids.has(toRef(t.request))).map((t) => t.id);
+  const badDates = [...reqs.filter((r) => !r.receivedIso).map((r) => r.id), ...TRANSACTIONS.filter((t) => !toIso(t.date)).map((t) => t.id)];
+  return { duplicates, missing, unmatched, badDates };
+}
+
+/** The check list shown in Data: what was loaded, standardised and found, and how each finding stands after the
+ *  reviewer's decisions. A finding the reviewer has resolved is shown as resolved, never left as a stale warning;
+ *  the source rows themselves are unchanged. */
+export function checkList(s = initialState()) {
+  const c = runChecks(s); const k = sourceCounts(s); const d = s.decisions;
+  const linkedBySource = TRANSACTIONS.length - c.unmatched.length;
+  const linked = linkedBySource + (d.unmatched?.choice === 'link' ? 1 : 0);
+  const dupOpen = c.duplicates.length && !d.duplicate;
+  const missOpen = c.missing.length && d.missing?.choice !== 'fill';
+  const refOpen = c.unmatched.length && d.unmatched?.choice !== 'link';
+  return [
+    { id: 'loaded', label: `Loaded ${k.requests} requests, ${k.tasks} tasks and ${k.transactions} records from ${k.sources} sources`, ok: true },
+    { id: 'dates', label: `Dates standardised from ${SOURCES.length} different formats`, ok: !c.badDates.length },
+    { id: 'refs', label: refOpen ? `References matched: ${linked} of ${TRANSACTIONS.length} records linked to a request${d.unmatched?.choice === 'leave' ? ' (TX-309 left unmatched for now)' : ''}` : `References matched: ${linked} of ${TRANSACTIONS.length} records linked (TX-309 linked by you)`, ok: !refOpen },
+    { id: 'required', label: missOpen ? `Required fields: 1 request with a blank customer${d.missing?.choice === 'unknown' ? ' (left as unknown for now)' : ''}` : c.missing.length ? 'Required fields: R-111’s customer filled in by you from TX-307' : 'Required fields: all filled in', ok: !missOpen },
+    { id: 'dupes', label: dupOpen ? `Possible duplicates: ${c.duplicates.length} pair to check` : c.duplicates.length ? `Possible duplicates: R-104 / R-109 checked by you (${d.duplicate.choice === 'same' ? 'counted once' : 'two separate requests'})` : 'Possible duplicates: none found', ok: !dupOpen },
+  ];
+}
+
+/** The hero's short insight line (AI-drafted, simulated), from the same figures as everything else. */
+export function heroInsight(s = initialState()) {
+  const m = metrics(s); const parts = [];
+  const tasks = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+  if (m.overdue && m.unassigned) parts.push(`${tasks(m.overdue, 'task is', 'tasks are')} overdue and ${m.unassigned} ${m.unassigned === 1 ? 'has' : 'have'} nobody assigned.`);
+  else if (m.overdue) parts.push(`${tasks(m.overdue, 'task is', 'tasks are')} overdue.`);
+  else if (m.unassigned) parts.push(`${tasks(m.unassigned, 'task has', 'tasks have')} nobody assigned.`);
+  if (m.duplicatePending) parts.push('Check the possible duplicate before sharing the numbers.');
+  return parts.length ? parts.join(' ') : 'No overdue or unassigned tasks, and the figures have been checked.';
+}
+
+// ---- Consolidated dataset: one row per request, with its task and linked records, standardised.
+export function consolidated(s = initialState()) {
+  const dup = s.decisions.duplicate?.choice; const mis = s.decisions.missing?.choice; const um = s.decisions.unmatched?.choice;
+  return allRequests(s).map((r) => {
+    const t = taskFor(s, r.id);
+    let customer = r.customer; let customerNote = '';
+    if (r.id === MISSING && !customer) { customer = mis === 'fill' ? 'Harbour & Co.' : ''; customerNote = mis === 'fill' ? `from ${MISSING_TX}, filled in by you` : 'unknown: needs confirming'; }
+    const records = TRANSACTIONS.filter((x) => toRef(x.request) === r.id || (um === 'link' && x.id === UNMATCHED && r.id === LINK_TO)).map((x) => x.id);
+    return {
+      ref: r.id, received: toIso(r.received), customer, customerNote, type: r.type, channel: r.channel,
+      task: t?.id ?? '', owner: t?.owner ?? '', due: t?.due ?? '', status: t?.status ?? '', completed: t?.completed ?? '',
+      records, excluded: r.id === DUP[1] && dup === 'same', added: !REQUESTS.some((x) => x.id === r.id),
+    };
   });
-  // 3. Open items with nobody responsible.
-  const noOwner = TRACKER.filter((r) => isOpen(r) && !r.owner.trim()).map((r) => r.id);
-  return { duplicates, finance, missingFinance: finance.filter((f) => f.result === 'missing').map((f) => f.id), noOwner };
 }
-
-/** The issues the visitor sorts out: one per finding, each with the records involved. Empty until checked. */
-export function findings(s) {
-  if (!s.checked) return [];
-  const c = runChecks(); const t = byId(TRACKER); const log = byId(COMPLETION);
-  const out = [];
-  for (const pair of c.duplicates) out.push({ issue: 'duplicate', ids: pair, records: { tracker: pair.map((id) => t.get(id)) } });
-  for (const id of c.missingFinance) out.push({ issue: 'finance', ids: [id], records: { tracker: [t.get(id)], completion: [log.get(id)], finance: [] } });
-  for (const id of c.noOwner) out.push({ issue: 'owner', ids: [id], records: { tracker: [t.get(id)] } });
-  return out.map((f) => ({ ...f, ...ISSUES[f.issue], decision: s.decisions[f.issue] }));
+/** A task as it stands now: the original row with the visitor's changes on top. */
+export function taskFor(s, requestId) {
+  const base = allTasks(s).find((t) => t.request === requestId); if (!base) return null;
+  return { ...base, ...(s.tasks[base.id] || {}) };
 }
+const currentTasks = (s) => allTasks(s).map((t) => ({ ...t, ...(s.tasks[t.id] || {}) }));
 
-/** Run the checks (Stage 1 → 2). Decisions start empty. */
-export function check(s) {
-  return s.checked ? s : { ...s, checked: true };
-}
+// ---- Items to check and follow up (the Actions view)
 
-/** Make or change a decision. Returns the state unchanged for anything invalid, or once decisions are finished.
- *  owner: 'assign' needs a TEAM member as detail; 'pending' needs one of PENDING_REASONS. */
-export function decide(s, issue, choice, detail) {
-  if (!s.checked || s.finalized || !ISSUE_IDS.includes(issue)) return s;
-  if (!ISSUES[issue].choices.some(([c]) => c === choice)) return s;
-  let d = { choice };
-  if (issue === 'owner') {
-    if (choice === 'assign' && !TEAM.includes(detail)) return s;
-    if (choice === 'pending' && !PENDING_REASONS.includes(detail)) return s;
-    d = choice === 'assign' ? { choice, member: detail } : { choice, reason: detail };
+/** Every item that needs attention, with its source, suggested next step, suggested responsibility and status. */
+export function actions(s = initialState()) {
+  const d = s.decisions; const out = [];
+  out.push({
+    id: 'duplicate', kind: 'data', title: 'Possible duplicate request', refs: DUP, source: 'Requests Register',
+    detail: 'R-104 and R-109: same customer (Summit Supplies), same request type and same day, different references.',
+    next: 'Check both requests and count it once if it’s the same request.', team: 'Admin',
+    choices: [['same', 'Same request: count it once'], ['separate', 'Two separate requests: keep both']],
+    decision: d.duplicate?.choice ?? null, status: d.duplicate ? 'Completed' : 'Needs checking',
+  });
+  out.push({
+    id: 'missing', kind: 'data', title: 'Request with no customer', refs: [MISSING, MISSING_TX], source: 'Requests Register',
+    detail: `R-111 has a blank customer. Record ${MISSING_TX}, filed against the same request, names Harbour & Co.`,
+    next: 'Confirm the customer and fill it in.', team: 'Admin',
+    choices: [['fill', `Use Harbour & Co. from ${MISSING_TX}`], ['unknown', 'Leave as unknown for now']],
+    decision: d.missing?.choice ?? null, status: d.missing?.choice === 'fill' ? 'Completed' : d.missing ? 'Waiting for follow-up' : 'Needs checking',
+  });
+  out.push({
+    id: 'unmatched', kind: 'data', title: 'Record with no matching request', refs: [UNMATCHED], source: 'Records & Transactions',
+    detail: 'TX-309 (payment received, Lakeside Cafe) refers to request R115, which isn’t in the Requests Register. Lakeside Cafe’s only request this week is R-107.',
+    next: 'Find the right request and link the record.', team: 'Accounts',
+    choices: [['link', `Link it to ${LINK_TO} (Lakeside Cafe)`], ['leave', 'Leave unmatched for now']],
+    decision: d.unmatched?.choice ?? null, status: d.unmatched?.choice === 'link' ? 'Completed' : d.unmatched ? 'Waiting for follow-up' : 'Needs checking',
+  });
+  const tasks = currentTasks(s); const excluded = new Set(consolidated(s).filter((r) => r.excluded).map((r) => r.ref));
+  const late = TASKS.filter((t) => t.status !== 'Completed' && t.due < REPORT_DATE).map((t) => t.id);
+  const unowned = TASKS.filter((t) => t.status !== 'Completed' && !t.owner).map((t) => t.id);
+  for (const id of [...late, ...unowned, ...s.added.map((a) => a.task.id)]) {
+    const t = tasks.find((x) => x.id === id); if (excluded.has(t.request)) continue;
+    const isNew = s.added.some((a) => a.task.id === id);
+    const req = allRequests(s).find((r) => r.id === t.request);
+    out.push({
+      id, kind: 'task', task: t, refs: [t.request, t.id], source: 'Work Tracker',
+      title: isNew ? 'New request to review' : late.includes(id) ? 'Overdue task' : 'Task with no owner',
+      detail: isNew ? `${t.request} from ${req.customer}: ${req.type.toLowerCase()}, received by ${req.channel.toLowerCase()}.` : late.includes(id) ? `${t.id} (${t.task.toLowerCase()} for ${req.customer}) was due ${fmtDate(t.due)} and is still ${t.status.toLowerCase()}.` : `${t.id} (${t.task.toLowerCase()} for ${req.customer}) has nobody assigned.`,
+      next: isNew ? 'Review it and assign an owner.' : late.includes(id) ? 'Check what’s holding it up and agree a new date.' : 'Assign someone and set the next step.', team: 'Team lead',
+      status: taskActionStatus(s, t),
+    });
   }
-  return { ...s, decisions: { ...s.decisions, [issue]: d } };
-}
-
-/** Clear one decision (back to undecided). */
-export function clearDecision(s, issue) {
-  if (s.finalized || !ISSUE_IDS.includes(issue)) return s;
-  return { ...s, decisions: { ...s.decisions, [issue]: null } };
-}
-
-export const allDecided = (s) => s.checked && ISSUE_IDS.every((i) => s.decisions[i]);
-
-/** "Finish decisions": only once all three are decided; locks them (status unchanged). reopen() unlocks. */
-export function finalize(s) { return allDecided(s) ? { ...s, finalized: true } : s; }
-export function reopen(s) { return { ...s, finalized: false }; }
-
-/** Business actions still open after the review: an invoice follow-up, or an item left pending without an owner.
- *  Deciding is not doing, so these stay visible until the real work happens (outside the demo). */
-export function outstanding(s) {
-  if (!s.checked) return [];
-  const c = runChecks(); const d = s.decisions; const out = [];
-  if (d.finance?.choice === 'followUp') for (const id of c.missingFinance) out.push({ issue: 'finance', id, action: 'Invoice follow-up' });
-  if (d.owner?.choice === 'pending') for (const id of c.noOwner) out.push({ issue: 'owner', id, action: 'No owner yet', reason: d.owner.reason });
   return out;
 }
+function taskActionStatus(s, t) {
+  if (t.status === 'Completed') return 'Completed';
+  if (!t.owner) return 'Needs checking';
+  if (s.reminders.some((r) => r.task === t.id)) return 'Waiting for follow-up';
+  return t.status === 'In progress' ? 'In progress' : 'Assigned';
+}
+export const openActions = (s = initialState()) => actions(s).filter((a) => a.status !== 'Completed');
 
-/** Report status: Built by hand → Review required → Review complete, or Follow-up pending when a decision left a
- *  business action open. Finishing (finalize) only locks the decisions; it never makes pending work look done. */
-export function status(s) {
-  if (!s.checked) return 'Built by hand';
-  if (!allDecided(s)) return 'Review required';
-  return outstanding(s).length ? 'Follow-up pending' : 'Review complete';
+// ---- Visitor actions (each returns a new state, or the same state if refused)
+
+export function decide(s, issue, choice) {
+  const a = actions(s).find((x) => x.id === issue && x.kind === 'data');
+  if (!a || !a.choices.some(([v]) => v === choice) || s.decisions[issue]?.choice === choice) return s;
+  const out = { ...s, decisions: Object.freeze({ ...s.decisions, [issue]: Object.freeze({ choice, seq: s.seq + 1 }) }) };
+  return Object.freeze({ ...out, ...append(out, { type: 'decision', issue, choice, text: `${a.title}: ${a.choices.find(([v]) => v === choice)[1]}` }) });
 }
 
-/** The weekly report, as the page shows it.
- *  Before the check it is the hand-built report: every tracker row counted, every completed item assumed invoiced,
- *  owners not checked (noOwner = null). After the check every figure comes from the three sources plus decisions. */
-export function report(s) {
-  const c = runChecks();
-  const completed = TRACKER.filter((r) => r.status === 'Complete').length;
-  if (!s.checked) {
-    return { openWork: TRACKER.filter(isOpen).length, completed, notInvoiced: 0, noOwner: null, itemsToReview: 0,
-      possibleDuplicates: 0, followUps: 0, pendingWithReason: 0, outstanding: 0, status: status(s) };
-  }
-  const d = s.decisions;
-  const merged = d.duplicate?.choice === 'merge' ? new Set(c.duplicates.map((p) => p[1])) : new Set();
-  const openWork = TRACKER.filter((r) => isOpen(r) && !merged.has(r.id)).length;
-  const notInvoiced = d.finance?.choice === 'noInvoiceDue' ? 0 : c.missingFinance.length;
-  const noOwner = d.owner?.choice === 'assign' ? 0 : c.noOwner.length;
-  const itemsToReview = findings(s).filter((f) => !f.decision).length;
+const editTask = (s, id, patch, text) => {
+  const prev = s.tasks[id] || {};
+  const out = { ...s, tasks: Object.freeze({ ...s.tasks, [id]: Object.freeze({ ...prev, ...patch }) }) };
+  return Object.freeze({ ...out, ...append(out, { type: 'task', task: id, text }) });
+};
+const findTask = (s, id) => currentTasks(s).find((t) => t.id === id);
+
+/** Assign an owner (from the fictional staff list). */
+export function assign(s, id, owner) {
+  const t = findTask(s, id); if (!t || !STAFF.includes(owner) || t.owner === owner || t.status === 'Completed') return s;
+  return editTask(s, id, { owner, reviewed: true }, `${id} assigned to ${owner}`);
+}
+/** Move a task along: Not started → In progress → Completed (completed on the report date). */
+export function setStatus(s, id, status) {
+  const t = findTask(s, id); if (!t || t.status === status || !['Not started', 'In progress', 'Completed'].includes(status)) return s;
+  if (status !== 'Not started' && !t.owner) return s; // someone has to own it first
+  return editTask(s, id, { status, completed: status === 'Completed' ? REPORT_DATE : '', reviewed: true }, `${id} marked ${status.toLowerCase()}`);
+}
+/** Mark a new request as reviewed. */
+export function review(s, id) {
+  const t = findTask(s, id); if (!t || t.reviewed !== false) return s;
+  return editTask(s, id, { reviewed: true }, `${t.request} reviewed`);
+}
+/** A simulated reminder: logged, never sent. */
+export function remind(s, id) {
+  const t = findTask(s, id); if (!t || !t.owner || t.status === 'Completed' || s.reminders.some((r) => r.task === id)) return s;
+  const out = { ...s, reminders: Object.freeze([...s.reminders, Object.freeze({ task: id, owner: t.owner, seq: s.seq + 1 })]) };
+  return Object.freeze({ ...out, ...append(out, { type: 'reminder', task: id, text: `Reminder prepared for ${t.owner} about ${id} (simulated: nothing was sent)` }) });
+}
+/** A sample request from the Workflows form: it enters the Requests Register and creates its task. */
+export function submitRequest(s, { customer, type, channel }) {
+  if (!customer || !String(customer).trim() || !REQUEST_TYPES.includes(type) || !CHANNELS.includes(channel) || s.added.length >= MAX_NEW) return s;
+  const num = 101 + allRequests(s).length; const tnum = 201 + allTasks(s).length;
+  const request = Object.freeze({ id: `R-${num}`, received: '06/11/2026', customer: String(customer).trim().slice(0, 40), type, channel });
+  const task = Object.freeze({ id: `T-${tnum}`, request: request.id, task: TASK_FOR[type], owner: '', due: addWorkingDays(REPORT_DATE, RULES.dueDays), status: 'Not started', completed: '', reviewed: false });
+  const out = { ...s, added: Object.freeze([...s.added, Object.freeze({ request, task })]) };
+  return Object.freeze({ ...out, ...append(out, { type: 'request', task: task.id, text: `${request.id} received from ${request.customer} (${type.toLowerCase()}); task ${task.id} created` }) });
+}
+
+// ---- Workflow board
+export function stageOf(t) {
+  if (t.status === 'Completed') return 'Completed';
+  if (t.status === 'In progress') return 'In progress';
+  if (t.reviewed === false) return 'Request received';
+  return t.owner ? 'Assigned' : 'Reviewed';
+}
+export function board(s = initialState()) {
+  const rows = consolidated(s).filter((r) => !r.excluded);
+  return STAGES.map((stage) => ({ stage, items: rows.map((r) => ({ ...r, t: taskFor(s, r.ref) })).filter((r) => r.t && stageOf(r.t) === stage) }));
+}
+
+// ---- Report figures (calculated from the consolidated records)
+export function metrics(s = initialState(), { channel = 'All' } = {}) {
+  const rows = consolidated(s).filter((r) => !r.excluded && (channel === 'All' || r.channel === channel));
+  const done = rows.filter((r) => r.status === 'Completed');
+  const doneInPeriod = done.filter((r) => r.completed >= PERIOD.start && r.completed <= PERIOD.end);
+  const open = rows.filter((r) => r.status !== 'Completed');
+  const dupOpen = !s.decisions.duplicate && channel === 'All';
   return {
-    openWork, completed, notInvoiced, noOwner, itemsToReview,
-    possibleDuplicates: d.duplicate ? 0 : c.duplicates.length,
-    followUps: d.finance?.choice === 'followUp' ? c.missingFinance.length : 0,
-    pendingWithReason: d.owner?.choice === 'pending' ? c.noOwner.length : 0,
-    outstanding: outstanding(s).length,
-    status: status(s),
+    requests: rows.length,
+    duplicatePending: dupOpen,
+    openRequests: open.length,
+    completed: doneInPeriod.length,
+    outstanding: open.length,
+    overdue: open.filter((r) => r.due && r.due < REPORT_DATE).length,
+    unassigned: open.filter((r) => !r.owner).length,
+    onTime: done.length ? Math.round((done.filter((r) => r.completed <= r.due).length / done.length) * 100) : null,
+    byDay: DAYS.map((day) => ({ day, completed: doneInPeriod.filter((r) => dayOf(r.completed) === day).length })),
+    byChannel: CHANNELS.map((c) => ({ channel: c, count: rows.filter((r) => r.channel === c).length })),
+    attention: openActions(s).length,
   };
 }
 
-/** The hero card: a pre-calculated preview of the sample report after the checks, before any decision.
- *  Summary figures only; the findings themselves are never part of it. */
-export function heroSummary() {
-  const counts = sourceCounts();
-  const start = initialState();
-  const shown = report(start); // what the hand-built update says before anyone checks it
-  const checked = check(start);
-  const r = report(checked);
-  // The kinds of issue the checks find, for the hero card (ISSUES[*].card).
-  // Kind of problem only: no Work IDs or record details.
-  const issues = [...new Set(findings(checked).map((f) => f.issue))].map((k) => ({
-    issue: k, title: ISSUES[k].card[0], text: ISSUES[k].card[1],
-  }));
+/** The management summary (AI-drafted, simulated): only figures the engine calculated; unknowns said plainly. */
+export function summary(s = initialState()) {
+  const m = metrics(s); const open = openActions(s);
+  const lines = [];
+  lines.push(`${m.requests} requests ${m.duplicatePending ? '(one may be a duplicate) ' : ''}came in this week. ${m.completed} tasks were completed${m.onTime !== null ? `, ${m.onTime}% of them on time` : ''}, and ${m.outstanding} are still open.`);
+  if (m.overdue) lines.push(`${m.overdue} open ${m.overdue === 1 ? 'task is' : 'tasks are'} past the due date.`);
+  if (m.unassigned) lines.push(`${m.unassigned} open ${m.unassigned === 1 ? 'task has' : 'tasks have'} nobody assigned.`);
+  if (s.decisions.missing?.choice !== 'fill') lines.push('One request has no customer recorded, so who it’s for is unknown until someone confirms it.');
+  if (s.decisions.unmatched?.choice !== 'link') lines.push('One payment record couldn’t be matched to a request, so it isn’t counted against any request yet.');
+  lines.push(open.length ? `Suggested focus: ${open.slice(0, 3).map((a) => a.next.replace(/\.$/, '').toLowerCase()).join('; ')}.` : 'Nothing is waiting for attention right now.');
+  return lines;
+}
+
+/** The connected workspace overview (always visible above the four views, and in the hero). */
+export function overview(s = initialState()) {
+  const m = metrics(s); const k = sourceCounts(s); const b = board(s);
   return {
-    sourceRecords: counts.total, sourcesChecked: counts.sources, itemsToReview: r.itemsToReview, status: r.status,
-    workItems: TRACKER.length, completed: shown.completed, openWork: shown.openWork, weekRange: weekRange(WEEK), issues,
+    records: k.total, sources: k.sources, requests: m.requests, openRequests: m.openRequests, completed: m.completed,
+    attention: m.attention, inProgress: b.find((x) => x.stage === 'In progress').items.length, onTime: m.onTime,
   };
 }
 
-/** 'Week ending Fri 6 Nov 2026' → '2–6 November 2026' (Monday to Friday; spans months if needed). */
-export function weekRange(label) {
-  const m = /(\d{1,2}) (\w{3}) (\d{4})$/.exec(label);
-  if (!m) return '';
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const end = new Date(Date.UTC(Number(m[3]), months.findIndex((x) => x.startsWith(m[2])), Number(m[1])));
-  const mon = new Date(end); mon.setUTCDate(end.getUTCDate() - 4);
-  const name = (d) => months[d.getUTCMonth()];
-  return mon.getUTCMonth() === end.getUTCMonth()
-    ? `${mon.getUTCDate()}–${end.getUTCDate()} ${name(end)} ${end.getUTCFullYear()}`
-    : `${mon.getUTCDate()} ${name(mon)} – ${end.getUTCDate()} ${name(end)} ${end.getUTCFullYear()}`;
-}
+/** Reset is handled by the store (initialState); kept here for the static-fallback figures. */
+export const FIRST = overview();

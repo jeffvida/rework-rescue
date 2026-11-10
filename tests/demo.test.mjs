@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { summarise, byStatus, receivedByDay } from '../src/tracker/engine.js';
 import { RECORDS, PERIOD_LABEL } from '../src/tracker/data.js';
-import { heroFigures } from '../src/demo/hero.js';
+import { heroFigures, storyStates } from '../src/demo/hero.js';
 import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -60,40 +60,49 @@ test('hero copy (10 Nov late brief): eyebrow, headline unchanged, supporting cop
   assert.doesNotMatch(html, /Northstar/, 'the tracker’s business has no name; none is invented');
 });
 
-test('hero visual: Capture -> Move -> See, connected, checks across all three, See emphasised, figures from the tracker', async () => {
+test('hero visual: one connected transformation, short labels only, no service descriptions repeated from Services', async () => {
   const html = await page();
-  const a = html.indexOf('<figure class="hero-preview cmv'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  assert.deepEqual([...fig.matchAll(/<p class="cmv-k"><span class="cmv-n">(\d\d)<\/span> (\w+)<\/p>\s*<p class="cmv-name">([^<]+)<\/p>\s*<p class="cmv-desc">([^<]+)<\/p>/g)].map((m) => m.slice(1)), [
-    ['01', 'Capture', 'Business Tools &amp; Systems', 'Record information once, in one organised place.'],
-    ['02', 'Move', 'Workflows &amp; Processes', 'Move work through the right steps.'],
-    ['03', 'See', 'Data &amp; Reporting', 'Turn reliable information into clear, useful reports.']]);
-  assert.match(fig, /class="cmv-stage svc-data cmv-core"/);
-  assert.equal((fig.match(/class="cmv-link"/g) || []).length, 2, 'two connections: Capture to Move, Move to See');
-  assert.match(fig, /Built-in data checks across all three stages/);
-  for (const t of ['Duplicate records', 'Missing information', 'Inconsistent records', 'Exceptions flagged for review']) assert.ok(fig.includes(`<li>${t}</li>`), t);
-  for (const t of ['Assign to team', 'Follow-up reminder', 'Update status', 'Work completed']) assert.ok(fig.includes(t), t);
-  // Every figure in the no-JS HTML equals what the tracker engine computes for the sample.
-  const f = heroFigures(RECORDS);
-  assert.deepEqual([f.total, f.completed, f.outstanding, f.overdue, f.attention, f.active], [12, 7, 5, 1, 3, 4]);
-  for (const [k, v] of Object.entries(f)) for (const m of fig.matchAll(new RegExp(`data-cmv="${k}">([^<]+)<`, 'g'))) assert.equal(m[1], String(v), k);
-  assert.equal(f.period, PERIOD_LABEL);
-  assert.deepEqual([...fig.matchAll(/data-cmv-day="(\w+)"/g)].map((m) => m[1]), receivedByDay().map((d) => d.day));
-  const r = RECORDS[0]; assert.match(fig, new RegExp(`data-cmv="customer">${r.customer}<`)); assert.match(fig, new RegExp(`data-cmv="task">${r.task}<`));
-  assert.match(fig, /the movement is illustration, not live automation/);
-  assert.doesNotMatch(fig, /\b18\b/, 'no figures from the mockup that contradict the tracker');
+  const a = html.indexOf('<figure class="hero-preview tf'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  assert.deepEqual([...fig.matchAll(/<p class="tf-k"><span class="tf-n">(\d\d)<\/span> (\w+)<\/p>/g)].map((m) => [m[1], m[2]]), [['01', 'Capture'], ['02', 'Move'], ['03', 'See']]);
+  assert.equal((fig.match(/class="tf-link /g) || []).length, 2, 'Capture to Move, Move to See');
+  for (const t of ['Business Tools &amp; Systems', 'Workflows &amp; Processes', 'Record information once', 'Move work through the right steps', 'Duplicate records', 'Automation is only useful'])
+    assert.ok(!fig.includes(t), `hero does not repeat the services section: ${t}`);
+  assert.match(fig, /<span class="tf-check-t">Data checks at every stage<\/span>/);
+  assert.match(fig, /<b>R-112<\/b> No owner assigned &middot; flagged for review/);
+  for (const t of ['Assigned to Sam', 'Follow-up sent', 'In progress', 'Completed']) assert.ok(fig.includes(`</span>${t}</li>`), t);
+  assert.match(fig, /Fictional data; not live automation\./);
+  assert.match(fig, /<button type="button" class="tf-pause" hidden aria-pressed="false">Pause animation<\/button>/);
 });
 
-test('hero motion: short entrance once, particles only while on screen, reduced motion shows everything still', async () => {
+test('hero story matches the tracker: R-110 and R-112 as recorded, figures end on the tracker’s own numbers', async () => {
+  const html = await page();
+  const a = html.indexOf('<figure class="hero-preview tf'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const r110 = RECORDS.find((r) => r.ref === 'R-110'); const r112 = RECORDS.find((r) => r.ref === 'R-112');
+  assert.deepEqual([r110.customer, r110.task, r110.owner, r110.due, r110.status], ['Brightline Studio', 'Prepare weekly update', 'Sam', '2026-11-06', 'Completed']);
+  assert.ok(fig.includes(`<span>${r110.customer}</span>`) && fig.includes(`<span>${r110.task}</span>`) && fig.includes('Assigned to Sam'));
+  assert.deepEqual([r112.owner, r112.customer], ['Unassigned', 'Northfield Services']);
+  const f = heroFigures(RECORDS);
+  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention], [12, 7, 5, 3]);
+  for (const k of ['total', 'completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-tf="${k}">${f[k]}<`), k);
+  const end = {}; for (const st of storyStates(f)) Object.assign(end, st.n || {});
+  assert.deepEqual(end, { total: f.total, completed: f.completed, outstanding: f.outstanding, attention: f.attention });
+  // The week without R-112, and with R-110 still open, gives the story's starting figures.
+  const before = summarise(RECORDS.filter((r) => !['R-110', 'R-112'].includes(r.ref)));
+  assert.deepEqual(storyStates(f)[0].n, { total: before.total, completed: before.completed, outstanding: before.outstanding, attention: before.attention });
+  assert.doesNotMatch(html, /Northstar/);
+});
+
+test('hero motion: story loops only on screen, can be paused, reduced motion shows the finished picture', async () => {
   const c = await css();
-  const block = c.slice(c.indexOf('/* ---- Hero (10 Nov 2026, late)'));
-  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.cmv, \.cmv \* \{ animation: none !important; \}/);
-  const delays = [...block.matchAll(/\.cmv-play [^{]*\{[^}]*?([\d.]+)s both/g)].map((m) => Number(m[1]));
-  assert.ok(Math.max(...delays) <= 3.5, 'entrance finishes within about 4 s');
-  assert.match(block, /\.cmv-flow \.cmv-link i \{ animation: cmv-dot 2\.6s/);
-  assert.doesNotMatch(block.replace(/\.cmv-flow[^}]*\}/g, ''), /infinite/, 'only the slow particles repeat');
+  const block = c.slice(c.indexOf('/* ---- Hero (10–11 Nov 2026)'));
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.tf \*, \.tf \{ animation: none !important; transition: none !important; \} \}/);
+  assert.doesNotMatch(block, /infinite/, 'no CSS loops; the JS story stops off screen');
   const js = await src('demo/hero.js');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /classList\.toggle\('cmv-flow', on\)/);
+  assert.match(js, /prefers-reduced-motion: reduce/);
+  assert.match(js, /document\.hidden/); assert.match(js, /IntersectionObserver/);
+  assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/);
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
+  const last = storyStates(heroFigures(RECORDS)).at(-1); assert.ok(last.end && last.at <= 14000, 'loop of about 13 s');
 });
 
 test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {

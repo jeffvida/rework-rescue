@@ -73,14 +73,16 @@ test('E. data quality: seven checks run on the original sources and all pass; no
 
 // ---- Classification and statuses (8)
 
-test('every finding has a classification, a gate type, a suggested team and starts as "Needs investigation"', () => {
+test('every finding has a plain type (technical term kept), a gate type, a suggested team and starts as "To check"', () => {
+  assert.deepEqual(findings().map((f) => f.categoryTerm), ['Data integrity issue', 'Reconciliation issue', 'Operational exception', 'Operational exception']);
+  assert.deepEqual(findings().map((f) => f.title), ['Possible double entry', 'Finished job not invoiced', 'Late job', 'No one assigned']);
   assert.deepEqual(findings().map((f) => [f.categoryLabel, f.blocking, f.team, f.statusLabel]), [
-    ['Data integrity issue', true, 'Data/Admin', 'Needs investigation'],
-    ['Reconciliation issue', false, 'Finance', 'Needs investigation'],
-    ['Operational exception', false, 'Operations', 'Needs investigation'],
-    ['Operational exception', false, 'Operations', 'Needs investigation'],
+    ['Affects the numbers', true, 'Admin', 'To check'],
+    ['Files don’t match', false, 'Finance', 'To check'],
+    ['Work to follow up', false, 'Operations', 'To check'],
+    ['Work to follow up', false, 'Operations', 'To check'],
   ]);
-  assert.deepEqual(Object.values(STATUS_LABELS).slice(0, 5), ['Needs investigation', 'Resolved', 'Confirmed legitimate', 'Action required', 'Accepted with disclosure']);
+  assert.deepEqual(Object.values(STATUS_LABELS).slice(0, 5), ['To check', 'Fixed', 'Confirmed OK', 'Needs action', 'Noted in the report']);
 });
 
 test('each finding shows what, why, source reference, supporting data, AI possible explanation and investigation steps', () => {
@@ -148,10 +150,10 @@ test('14.9: ownership — assign needs a person and next action; handled needs a
 
 test('14.15: the unresolved duplicate blocks publication; publish() is refused and the reason is explained', () => {
   const s0 = initialState();
-  assert.equal(status(s0), 'Review required');
+  assert.equal(status(s0), 'Awaiting review');
   assert.equal(publish(s0), s0);
   assert.equal(blockers(s0).length, 1);
-  assert.match(blockers(s0)[0].text, /Potential duplicate work order \(W-1043 \/ W-1051\): affects the unique work-item count/);
+  assert.match(blockers(s0)[0].text, /Possible double entry \(W-1043 \/ W-1051\): it changes how many jobs the report counts/);
   // operational decisions alone never unblock it
   const ops = with_(['invoice', 'link'], ['overdue', 'correctDate'], ['owner', 'assign', { owner: 'Ben', next: 'Call' }]);
   assert.equal(readiness(ops).ready, false);
@@ -160,14 +162,14 @@ test('14.15: the unresolved duplicate blocks publication; publish() is refused a
 
 test('14.16: operational exceptions do not block; they are disclosed in the published report', () => {
   const s = with_(['duplicate', 'exclude']);
-  assert.equal(status(s), 'Ready for approval');
-  assert.deepEqual(disclosures(s).map((d) => [d.issue, d.label]), [['invoice', 'Needs investigation'], ['overdue', 'Needs investigation'], ['owner', 'Needs investigation']]);
+  assert.equal(status(s), 'Ready to approve');
+  assert.deepEqual(disclosures(s).map((d) => [d.issue, d.label]), [['invoice', 'To check'], ['overdue', 'To check'], ['owner', 'To check']]);
   const p = publish(s);
-  assert.equal(status(p), 'Published');
+  assert.equal(status(p), 'Approved');
   assert.deepEqual(published(p).disclosures.map((d) => d.issue), ['invoice', 'overdue', 'owner']);
-  assert.match(p.log.at(-1).reason, /with 3 disclosed items/);
+  assert.match(p.log.at(-1).reason, /It notes 3 open items/);
   const dis = publish(with_(['duplicate', 'disclose', { note: 'Possible duplicate still being checked' }]));
-  assert.equal(status(dis), 'Published', 'a blocking issue may be accepted with an explicit disclosure');
+  assert.equal(status(dis), 'Approved', 'a blocking issue may be accepted with an explicit note');
   assert.equal(published(dis).disclosures[0].note, 'Possible duplicate still being checked');
 });
 
@@ -191,11 +193,11 @@ test('14.17: the published output equals the approved report: figures, summary a
 test('14.18: a decision change after publishing withdraws it, recalculates, and needs a new approval', () => {
   const p = publish(reviewed());
   const c = decide(p, 'duplicate', 'separate');
-  assert.deepEqual([c.published, status(c), published(c)], [null, 'Changed since publishing', null]);
+  assert.deepEqual([c.published, status(c), published(c)], [null, 'Changed since approval', null]);
   assert.equal(metrics(c).unique, 18);
   assert.equal(c.log.at(-1).type, 'publish-withdrawn');
   const again = publish(c);
-  assert.equal(status(again), 'Published');
+  assert.equal(status(again), 'Approved');
   assert.equal(published(again).metrics.unique, 18);
 });
 
@@ -224,36 +226,36 @@ test('every decision records the basis it was made on; a stale basis reopens the
 test('14.12–14.13: the AI-drafted summary follows the decisions and separates facts, potential issues, exceptions and unverified points', () => {
   assert.equal(AI_LABEL, 'AI-drafted · simulated in this demo');
   const s0 = summary();
-  assert.match(s0.potential[0], /W-1043 and W-1051 may be the same work/);
-  assert.ok(!s0.facts.some((x) => /unique/.test(x)), 'no unique count stated as fact before review');
-  assert.match(s0.recommendations[0].text, /Reconcile W-1043 and W-1051/);
+  assert.match(s0.potential[0], /W-1043 and W-1051 may be the same job/);
+  assert.ok(!s0.facts.some((x) => /After checking/.test(x)), 'no checked job count stated as fact before review');
+  assert.match(s0.recommendations[0].text, /Check W-1043 and W-1051 against request R-303/);
   const s1 = summary(reviewed());
-  assert.match(s1.facts.join(' '), /17 unique work items, 7 completed and 10 open \(41% completion rate\)/);
-  assert.deepEqual(s1.exceptions, ['W-1047 is completed and awaiting invoicing.', 'W-1055 is open and past its due date.']);
-  assert.deepEqual(s1.recommendations.map((r) => r.team), ['Data/Admin', 'Finance', 'Operations']);
-  assert.match(s1.executive[2], /Needs management attention: completed work without a matching invoice \(W-1047\); overdue open work \(W-1055\)/);
+  assert.match(s1.facts.join(' '), /After checking: 17 jobs, 7 completed and 10 open \(41% completed\)/);
+  assert.deepEqual(s1.exceptions, ['W-1047 is finished but not invoiced yet.', 'W-1055 is late.']);
+  assert.deepEqual(s1.recommendations.map((r) => r.team), ['Admin', 'Finance', 'Operations']);
+  assert.match(s1.executive[2], /Needs attention: finished job not invoiced \(W-1047\); late job \(W-1055\)/);
   const all = JSON.stringify([s0, s1, summary(with_(['invoice', 'link'], ['overdue', 'correctDate']))]);
   assert.doesNotMatch(all, /\b(caused by|definitely|approved by management)\b/i);
   // figures in the summary equal the calculated report
-  assert.match(s1.executive[0], new RegExp(`${metrics(reviewed()).unique} unique work items`));
+  assert.match(s1.executive[0], new RegExp(`that’s ${metrics(reviewed()).unique} jobs`));
 });
 
 test('14.14: the action register matches the findings: suggested team, action, status; the spec’s initial statuses', () => {
   assert.deepEqual(actionRegister().map((r) => [r.team, r.action, r.status]), [
-    ['Data/Admin', 'Verify original records', 'Needs review'],
-    ['Finance', 'Check invoice tracker', 'Action required'],
-    ['Operations', 'Review delay and next step', 'Action required'],
-    ['Operations', 'Assign responsible person', 'Action required'],
+    ['Admin', 'Check the two original records', 'To check'],
+    ['Finance', 'Check the invoices', 'Needs action'],
+    ['Operations', 'Find out why and agree the next step', 'Needs action'],
+    ['Operations', 'Assign someone', 'Needs action'],
   ]);
-  assert.deepEqual(actionRegister(reviewed()).map((r) => r.status), ['Done', 'Action required', 'Action required', 'Done']);
+  assert.deepEqual(actionRegister(reviewed()).map((r) => r.status), ['Done', 'Needs action', 'Needs action', 'Done']);
   assert.match(actionRegister(reviewed())[3].action, /assigned to Ana/);
 });
 
 test('hero card data: source counts stay as received; attention count and status follow the decisions', () => {
   const c = heroCard();
-  assert.deepEqual([c.status, c.sourceRecords, c.recordedCompleted, c.recordedOpen, c.attention], ['Review required', 18, 7, 11, 4]);
+  assert.deepEqual([c.status, c.sourceRecords, c.recordedCompleted, c.recordedOpen, c.attention], ['Awaiting review', 18, 7, 11, 4]);
   const r = heroCard(reviewed());
-  assert.deepEqual([r.status, r.sourceRecords, r.attention, r.byCategory.filter((x) => x.open).map((x) => x.issue)], ['Ready for approval', 18, 2, ['invoice', 'overdue']]);
+  assert.deepEqual([r.status, r.sourceRecords, r.attention, r.byCategory.filter((x) => x.open).map((x) => x.issue)], ['Ready to approve', 18, 2, ['invoice', 'overdue']]);
   assert.equal(attentionCount(publish(reviewed())), 2, 'disclosed exceptions still require attention after publishing');
 });
 
@@ -281,21 +283,21 @@ test('hero copy: eyebrow, headline, new supporting line, two website actions, pe
 test('hero visual: four stages, the report card with the spec’s exact values, two actions, and no detailed findings', async () => {
   const html = await page();
   const fig = html.slice(html.indexOf('<figure class="hero-preview hm'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hm')));
-  assert.deepEqual([...fig.matchAll(/<li class="hm-stage" data-stage="\d"><span class="hm-stage-ic">.*?<\/span><strong>(\w+)<\/strong>/g)].map((m) => m[1]), ['Collect', 'Consolidate', 'Validate', 'Analyse']);
-  assert.match(fig, /<p class="hm-title">Weekly Management Report<\/p>/);
-  assert.match(fig, /Reporting period: <span data-hero="period">2–6 November 2026<\/span> &middot; Fictional sample data/);
+  assert.deepEqual([...fig.matchAll(/<li class="hm-stage" data-stage="\d"><span class="hm-stage-ic">.*?<\/span><strong>(\w+)<\/strong>/g)].map((m) => m[1]), ['Collect', 'Combine', 'Check', 'Explain']);
+  assert.match(fig, /<p class="hm-title">Weekly report<\/p>/);
+  assert.match(fig, /<span data-hero="period">2–6 November 2026<\/span> &middot; Fictional sample data/);
   assert.match(fig, /<p class="hm-status" data-hr="status" data-state="review">Awaiting review<\/p>/);
   const c = heroCard();
   const kpi = [...fig.matchAll(/<dt>([^<]+)<\/dt><dd data-hr="(\w+)">(\d+)<\/dd>/g)].map((m) => [m[1], m[2], Number(m[3])]);
-  assert.deepEqual(kpi, [['Source records received', 'sourceRecords', c.sourceRecords], ['Recorded as completed', 'recordedCompleted', c.recordedCompleted], ['Recorded as open', 'recordedOpen', c.recordedOpen]]);
-  assert.match(fig, /<p class="hm-chart-t">Work completed by day<\/p>/);
+  assert.deepEqual(kpi, [['Jobs logged', 'sourceRecords', c.sourceRecords], ['Completed', 'recordedCompleted', c.recordedCompleted], ['Still open', 'recordedOpen', c.recordedOpen]]);
+  assert.match(fig, /<p class="hm-chart-t">Jobs completed by day<\/p>/);
   const bars = [...fig.matchAll(/data-day="(\w+)"><rect class="hm-bar" x="[\d.]+" y="([\d.]+)" width="34" height="([\d.]+)"/g)].map((m) => [m[1], Number(m[3]) / 36]);
   assert.deepEqual(bars, c.daily.map((d) => [d.day, d.completed]));
   assert.doesNotMatch(fig, /is-flag|anomal|average/i, 'the chart is a performance overview, not an anomaly claim');
-  assert.match(fig, /<strong data-hr="attention">4<\/strong> <span data-hr="attentionLabel">items requiring attention<\/span>/);
+  assert.match(fig, /<strong data-hr="attention">4<\/strong> <span data-hr="attentionLabel">things to check<\/span>/);
   assert.doesNotMatch(fig, /W-10\d\d|INV-|R-30/, 'no detailed findings in the hero');
-  assert.match(fig, /data-hr="review"><svg[^>]*>.*?<\/svg>Review flagged items<\/a>/);
-  assert.match(fig, /data-hr="publish" hidden><svg[^>]*>.*?<\/svg>Publish report<\/button>/);
+  assert.match(fig, /data-hr="review"><svg[^>]*>.*?<\/svg>Review the 4 items<\/a>/);
+  assert.match(fig, /data-hr="publish" hidden><svg[^>]*>.*?<\/svg>Approve report<\/button>/);
   assert.equal((fig.match(/class="btn /g) || []).length, 2, 'no additional primary hero buttons');
   assert.match(fig, /Simulated in your browser\. Nothing is sent or changed\./);
   assert.doesNotMatch(fig, /\sstyle="/, 'CSP: no inline style attributes');
@@ -321,21 +323,22 @@ test('14.1, 14.2, 14.20: one ordered timeline of about 4–5 s; report after the
 
 test('hero script: Review opens Findings; Publish runs the readiness check and needs approval; shared state', async () => {
   const js = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
-  assert.match(js, /goTo\('findings'/); assert.match(js, /readiness\(s\)/); assert.match(js, /Not ready to publish\./); assert.match(js, /Approve and publish/);
+  assert.match(js, /goTo\('findings'/); assert.match(js, /readiness\(s\)/); assert.match(js, /Not ready yet\./); assert.match(js, /Approve report/);
   assert.match(js, /from '\.\/store\.js'/);
   const ui = await readFile(new URL('../src/demo/ui.js', import.meta.url), 'utf8');
-  assert.match(ui, /\['findings', 'Findings'[\s\S]*\['sources', 'Sources'[\s\S]*\['summary', 'Management Summary'/);
-  for (const t of ['What was detected', 'Why it matters', 'Original source', 'Supporting data', 'Possible explanation', 'Suggested investigation', 'Reviewer decision', 'View source', 'Back to the finding', 'A. Executive summary', 'B. Performance overview', 'C. Key findings', 'D. Business implications', 'E. Recommendations', 'F. Departmental action register', 'Decision log', 'Approve and publish']) assert.ok(ui.includes(t), t);
+  assert.match(ui, /\['findings', 'Findings'[\s\S]*\['sources', 'Sources'[\s\S]*\['summary', 'Report'/);
+  for (const t of ['What’s wrong', 'Why it matters', 'What do you want to do?', 'Show the evidence', 'Where it’s from', 'What the records show', 'Possible explanation', 'How to check', 'in the file', 'Back to the finding', 'In short', 'The numbers', 'What was found', 'What it could mean', 'Suggested next steps', 'Follow-up list', 'What you decided', 'Approve report']) assert.ok(ui.includes(t), t);
   assert.doesNotMatch(ui, /Book a free rework review/);
 });
 
 test('demo intro and no-JavaScript fallback describe the same four findings and figures', async () => {
   const html = await page();
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
-  assert.match(sec, /<p class="demo-tagline">Automation handles the repetitive work\. Validation checks the numbers\. AI helps explain what needs attention\. You stay in control\.<\/p>/);
-  assert.match(sec, /Work Register \(18\), an Invoice Tracker \(7\) and Customer Requests \(10\)/);
+  assert.match(sec, /<p class="demo-tagline">Automation does the copying\. Checks catch the mistakes\. AI explains what it found\. You decide\.<\/p>/);
+  assert.match(sec, /jobs, invoices and customer requests from three separate files/);
+  assert.match(sec, /<p class="demo-runs">In your business, this runs in the tools you already use, like Excel, Google Sheets or Power BI\. No new system to learn\.<\/p>/);
   const st0 = sec.slice(sec.indexOf('class="demo-static"'));
-  for (const t of ['W-1043 / W-1051', 'W-1047', 'INV-2107', 'W-1055', 'R-308', 'W-1056', 'Source records received: 18', '7 recorded as completed and 11 as open', 'Mon 1, Tue 2, Wed 1, Thu 2, Fri 1', '4 items require attention']) assert.ok(st0.includes(t), t);
+  for (const t of ['W-1043 / W-1051', 'W-1047', 'INV-2107', 'W-1055', 'R-308', 'W-1056', 'Jobs logged: 18', '7 completed and 11 still open', 'Mon 1, Tue 2, Wed 1, Thu 2, Fri 1', '4 things to check']) assert.ok(st0.includes(t), t);
 });
 
 test('the sample week ends Fri 6 Nov 2026 and the demo window shows it; all work dates are real dates', async () => {
@@ -358,7 +361,7 @@ test('Data & Reporting output sample: the engine’s published report after one 
 test('privacy notice: fictional work records, invoices and requests; publishing simulated; nothing stored or sent', async () => {
   const html = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   const sec = html.slice(html.indexOf('<h2>The examples on the homepage</h2>'), html.indexOf('<h2>When you contact me</h2>'));
-  for (const t of ['work records, invoices, requests, addresses and staff names are fictional', 'Publishing a report or building the action register there is simulated', 'not in cookies, local storage or session storage', 'no AI runs on this page']) assert.ok(sec.includes(t), t);
+  for (const t of ['work records, invoices, requests, addresses and staff names are fictional', 'Approving a report or building the follow-up list there is simulated', 'not in cookies, local storage or session storage', 'no AI runs on this page']) assert.ok(sec.includes(t), t);
 });
 
 test('problem cards: three, in the customer’s words, each opening its service', async () => {

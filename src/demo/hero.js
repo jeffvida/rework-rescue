@@ -1,9 +1,9 @@
-// Hero (spec 10 Nov 2026, "management reporting"): a four-stage workflow (Collect → Consolidate → Validate →
-// Analyse) feeding a Weekly Management Report card with the initial source-record counts, work completed by day,
-// the number of items requiring attention and two actions:
-//   Review flagged items → scrolls to the demo and opens Findings at the first open finding.
-//   Publish report       → runs the publication-readiness check: explains blocking issues, or asks for approval and
-//                          lists what will be disclosed. Approving publishes (simulated, nothing is sent).
+// Hero (spec 10 Nov 2026, simplified wording): a four-stage workflow (Collect → Combine → Check →
+// Explain) feeding a Weekly report card with the jobs as logged, jobs completed by day, the number of things to check
+// and two actions:
+//   Review the n items → scrolls to the demo and opens Findings at the first open finding.
+//   Approve report     → runs the readiness check: says what must be decided first, or asks for approval and lists
+//                        what the report will show as still open. Approving is simulated: nothing is sent.
 // Everything comes from the shared state (./store.js) and the engine, so the hero, Findings, Sources and the
 // Management Summary always agree. Motion: one ~4.8 s CSS timeline, played once on screen, with Replay; reduced motion
 // and no JavaScript show the final frame. CSP: no inline style attributes.
@@ -12,8 +12,10 @@ import { esc } from '../forms.js';
 import { getState, subscribe, publish } from './store.js';
 import { heroCard, readiness, findings, CLOSED } from './engine.js';
 
-const STATUS_TEXT = { 'Review required': 'Awaiting review', 'Ready for approval': 'Ready for approval', Published: 'Published', 'Changed since publishing': 'Changed since publishing' };
-const STATE = { 'Review required': 'review', 'Ready for approval': 'ready', Published: 'done', 'Changed since publishing': 'changed' };
+const STATUS_TEXT = { 'Awaiting review': 'Awaiting review', 'Ready to approve': 'Ready to approve', Approved: 'Approved', 'Changed since approval': 'Changed since approval' };
+const STATE = { 'Awaiting review': 'review', 'Ready to approve': 'ready', Approved: 'done', 'Changed since approval': 'changed' };
+const SEND = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg>';
+const LENS = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>';
 
 export function mountHero(card, demo) {
   if (!card) return;
@@ -41,20 +43,20 @@ export function mountHero(card, demo) {
     if (!panel) { check.innerHTML = ''; return; }
     if (panel === 'done' || r.published) {
       check.dataset.kind = 'done';
-      check.innerHTML = '<p><strong>Published.</strong> The final management report and the departmental action register are unlocked in the Management Summary.</p><p><button type="button" class="dt-link" data-hm="summary">View the published report &rarr;</button></p>';
+      check.innerHTML = '<p><strong>Approved.</strong> The final report and the follow-up list are ready in the Report tab below. Nothing was sent.</p><p><button type="button" class="dt-link" data-hm="summary">See the approved report &rarr;</button></p>';
       return;
     }
     if (!r.ready) {
       check.dataset.kind = 'blocked';
-      check.innerHTML = `<p><strong>Not ready to publish.</strong> ${r.blockers.length === 1 ? 'One blocking check needs' : `${r.blockers.length} blocking checks need`} a reviewer decision first:</p>
+      check.innerHTML = `<p><strong>Not ready yet.</strong> ${r.blockers.length === 1 ? 'One thing needs' : `${r.blockers.length} things need`} your decision first:</p>
         <ul>${r.blockers.map((b) => `<li>${esc(b.text)}</li>`).join('')}</ul>
-        <p><button type="button" class="dt-link" data-hm="review">Review flagged items &rarr;</button> <button type="button" class="dt-link" data-hm="close">Close</button></p>`;
+        <p><button type="button" class="dt-link" data-hm="review">Decide it now &rarr;</button> <button type="button" class="dt-link" data-hm="close">Close</button></p>`;
       return;
     }
     check.dataset.kind = 'ready';
-    check.innerHTML = `<p><strong>Ready for approval.</strong> ${r.disclosures.length ? `The published report will disclose ${r.disclosures.length === 1 ? 'this item' : `these ${r.disclosures.length} items`}:` : 'Nothing is left to disclose.'}</p>
+    check.innerHTML = `<p><strong>Ready to approve.</strong> ${r.disclosures.length ? `The report will list ${r.disclosures.length === 1 ? 'this as still open' : `these ${r.disclosures.length} as still open`}:` : 'Nothing is left open.'}</p>
       ${r.disclosures.length ? `<ul>${r.disclosures.map((d) => `<li>${esc(d.title)}: ${esc(d.label)}${d.note ? ` (“${esc(d.note)}”)` : ''}</li>`).join('')}</ul>` : ''}
-      <p class="hm-check-actions"><button type="button" class="btn btn-primary btn-small" data-hm="approve">Approve and publish</button> <button type="button" class="dt-link" data-hm="close">Cancel</button></p>`;
+      <p class="hm-check-actions"><button type="button" class="btn btn-primary btn-small" data-hm="approve">Approve report</button> <button type="button" class="dt-link" data-hm="close">Cancel</button></p>`;
   }
 
   function paint() {
@@ -63,11 +65,12 @@ export function mountHero(card, demo) {
     st.textContent = preparing ? 'Preparing' : STATUS_TEXT[c.status];
     st.dataset.state = preparing ? 'preparing' : STATE[c.status];
     q('attention').textContent = String(c.attention);
-    q('attentionLabel').textContent = c.attention === 1 ? 'item requiring attention' : 'items requiring attention';
+    q('attentionLabel').textContent = c.attention === 1 ? 'thing to check' : 'things to check';
     card.querySelector('.hm-attn').classList.toggle('is-clear', !c.attention);
     for (const x of c.byCategory) card.querySelector(`[data-hm-c="${x.issue}"]`)?.classList.toggle('is-closed', !x.open);
-    pub.textContent = '';
-    pub.insertAdjacentHTML('beforeend', `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg>${s.published ? 'View published report' : 'Publish report'}`);
+    pub.innerHTML = `${SEND}${s.published ? 'See the approved report' : 'Approve report'}`;
+    const open = findings(s).filter((f) => !CLOSED.includes(f.status)).length;
+    q('review').innerHTML = `${LENS}${open ? `Review the ${open} ${open === 1 ? 'item' : 'items'}` : 'See the report'}`;
     for (const d of c.daily) {
       const g = svg.querySelector(`[data-day="${d.day}"]`); if (!g) continue;
       const h = d.completed * UNIT; const bar = g.querySelector('.hm-bar');

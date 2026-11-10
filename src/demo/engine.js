@@ -15,22 +15,22 @@
 //     confirmed facts, potential discrepancies, operational exceptions, unverified points and recommendations.
 //   - Every decision, change, invalidation and publication is appended to a frozen log.
 
-import { WORK, INVOICES, REQUESTS, SOURCES, RULES, ISSUES, CATEGORIES, STAFF, PERIOD, REPORT_DATE, WEEK } from './data.js';
+import { WORK, INVOICES, REQUESTS, SOURCES, RULES, ISSUES, CATEGORIES, CATEGORY_TERMS, STAFF, PERIOD, REPORT_DATE, WEEK } from './data.js';
 
 export const ISSUE_IDS = ['duplicate', 'invoice', 'overdue', 'owner'];
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 export const AI_LABEL = 'AI-drafted · simulated in this demo';
 export const STATUS_LABELS = {
-  investigate: 'Needs investigation',
-  resolved: 'Resolved',
-  legitimate: 'Confirmed legitimate',
-  action: 'Action required',
-  disclosed: 'Accepted with disclosure',
-  stale: 'Needs investigation (data changed)',
+  investigate: 'To check',
+  resolved: 'Fixed',
+  legitimate: 'Confirmed OK',
+  action: 'Needs action',
+  disclosed: 'Noted in the report',
+  stale: 'Check again (records changed)',
 };
 /** Statuses with nothing left for anyone to do. */
 export const CLOSED = ['resolved', 'legitimate', 'disclosed'];
-export { CATEGORIES, STAFF, PERIOD, WEEK };
+export { CATEGORIES, CATEGORY_TERMS, STAFF, PERIOD, WEEK };
 export const n = (x) => x.toLocaleString('en-US');
 const pct = (a, b) => `${Math.round((a / b) * 100)}%`;
 const DUP = ['W-1043', 'W-1051']; const NOINV = 'W-1047'; const CANDIDATE = 'INV-2107'; const LATE = 'W-1055'; const UNOWNED = 'W-1056';
@@ -116,26 +116,26 @@ export function qualityChecks() {
   const out = [];
   const missing = [];
   for (const [src, rows] of [['work', WORK], ['invoices', INVOICES], ['requests', REQUESTS]]) for (const r of rows) for (const k of RULES.required[src]) if (!String(r[k] ?? '').trim()) missing.push(`${r.id}.${k}`);
-  out.push({ id: 'required', label: 'Required values present', pass: !missing.length, detail: missing.length ? `Missing: ${missing.join(', ')}` : 'All required fields filled in all 3 sources' });
+  out.push({ id: 'required', label: 'Nothing required is missing', pass: !missing.length, detail: missing.length ? `Missing: ${missing.join(', ')}` : 'All required fields filled in all 3 sources' });
   const badDates = [...WORK.flatMap((w) => [['scheduled', w.scheduled], ['due', w.due], ['completed', w.completed]].filter(([, v]) => v && !toIso(v)).map(([k]) => `${w.id}.${k}`)), ...INVOICES.filter((i) => !toIso(i.date)).map((i) => i.id), ...REQUESTS.filter((r) => !toIso(r.received)).map((r) => r.id)];
-  out.push({ id: 'dates', label: 'Valid dates', pass: !badDates.length, detail: badDates.length ? `Invalid: ${badDates.join(', ')}` : 'Every date is a real calendar date' });
+  out.push({ id: 'dates', label: 'All dates are real dates', pass: !badDates.length, detail: badDates.length ? `Invalid: ${badDates.join(', ')}` : 'Every date is a real calendar date' });
   const ids = [...WORK, ...INVOICES, ...REQUESTS].map((r) => r.id); const dupIds = ids.filter((x, i) => ids.indexOf(x) !== i);
-  out.push({ id: 'ids', label: 'Unique identifiers', pass: !dupIds.length, detail: dupIds.length ? `Repeated: ${dupIds.join(', ')}` : `${ids.length} references, none repeated` });
+  out.push({ id: 'ids', label: 'No reference used twice', pass: !dupIds.length, detail: dupIds.length ? `Repeated: ${dupIds.join(', ')}` : `${ids.length} references, none repeated` });
   const conflict = WORK.filter((w) => (w.status === 'Completed') !== Boolean(w.completed) || !['Completed', 'Open'].includes(w.status)).map((w) => w.id);
-  out.push({ id: 'status', label: 'Consistent statuses', pass: !conflict.length, detail: conflict.length ? `Conflicting: ${conflict.join(', ')}` : 'Completed records have a completion date; open records do not' });
+  out.push({ id: 'status', label: 'Statuses match completion dates', pass: !conflict.length, detail: conflict.length ? `Conflicting: ${conflict.join(', ')}` : 'Completed records have a completion date; open records do not' });
   const badCust = [
     ...WORK.filter((w) => w.request && REQUESTS.find((r) => r.id === w.request)?.customer !== w.customer).map((w) => w.id),
     ...INVOICES.filter((i) => { const ref = i.work ? WORK.find((w) => w.id === i.work) : REQUESTS.find((r) => r.id === i.request); return !ref || ref.customer !== i.customer; }).map((i) => i.id),
   ];
-  out.push({ id: 'customers', label: 'Customer references agree', pass: !badCust.length, detail: badCust.length ? `Mismatch: ${badCust.join(', ')}` : 'Linked records name the same customer' });
+  out.push({ id: 'customers', label: 'Linked records name the same customer', pass: !badCust.length, detail: badCust.length ? `Mismatch: ${badCust.join(', ')}` : 'Linked records name the same customer' });
   const formats = SOURCES.map((x) => x.format);
-  out.push({ id: 'formats', label: 'Source formats standardised', pass: true, detail: `${formats.length} date formats standardised (${formats.map((f) => f.replace('Dates as ', '')).join(' · ')}); originals kept` });
+  out.push({ id: 'formats', label: 'Date formats lined up', pass: true, detail: `${formats.length} date formats standardised (${formats.map((f) => f.replace('Dates as ', '')).join(' · ')}); originals kept` });
   const orphan = [
     ...WORK.filter((w) => w.request && !REQUESTS.some((r) => r.id === w.request)).map((w) => w.id),
     ...REQUESTS.filter((r) => r.work && !WORK.some((w) => w.id === r.work)).map((r) => r.id),
     ...INVOICES.filter((i) => !(i.work && WORK.some((w) => w.id === i.work)) && !(i.request && REQUESTS.some((r) => r.id === i.request))).map((i) => i.id),
   ];
-  out.push({ id: 'links', label: 'Relationships between sources', pass: !orphan.length, detail: orphan.length ? `Broken links: ${orphan.join(', ')}` : 'Every link points at an existing record' });
+  out.push({ id: 'links', label: 'Every link points to a real record', pass: !orphan.length, detail: orphan.length ? `Broken links: ${orphan.join(', ')}` : 'Every link points at an existing record' });
   return out;
 }
 
@@ -170,10 +170,10 @@ export function metrics(s = initialState()) {
 export function totalsChecks(s = initialState()) {
   const m = metrics(s);
   return [
-    { id: 'received', label: `${m.sourceRecords} of ${WORK.length} work records received and counted`, pass: m.sourceRecords === WORK.length },
-    { id: 'split', label: 'Recorded completed + open = records received', pass: m.recordedCompleted + m.recordedOpen === m.sourceRecords },
-    { id: 'daily', label: 'Daily completions add up to the completed total', pass: m.dailyTotal === m.completed },
-    { id: 'unique', label: 'Unique completed + open = unique work items', pass: m.unique === null || m.completed + m.open === m.unique },
+    { id: 'received', label: `${m.sourceRecords} of ${WORK.length} jobs counted`, pass: m.sourceRecords === WORK.length },
+    { id: 'split', label: 'Completed + open = jobs logged', pass: m.recordedCompleted + m.recordedOpen === m.sourceRecords },
+    { id: 'daily', label: 'Daily totals add up', pass: m.dailyTotal === m.completed },
+    { id: 'unique', label: 'Job count after checking adds up', pass: m.unique === null || m.completed + m.open === m.unique },
   ];
 }
 
@@ -240,7 +240,7 @@ export function decide(s, issue, choice, details = {}) {
   const next = choice === null ? null : Object.freeze({ choice, ...extra, basis: basisOf(issue), seq: s.seq + 1 });
   let out = { ...s, decisions: Object.freeze({ ...s.decisions, [issue]: next }) };
   out = { ...out, ...append(out, { type: choice === null ? 'cleared' : prev ? 'changed' : 'decision', issue, from: prev?.choice ?? null, to: choice, ...extra }) };
-  if (out.published) out = { ...out, published: null, changedSincePublish: true, ...append(out, { type: 'publish-withdrawn', reason: 'A review decision changed after publishing. The report was recalculated and needs approval again.' }) };
+  if (out.published) out = { ...out, published: null, changedSincePublish: true, ...append(out, { type: 'publish-withdrawn', reason: 'A decision changed after you approved it. The report was updated and needs approving again.' }) };
   return Object.freeze(out);
 }
 
@@ -249,10 +249,10 @@ export function blockers(s = initialState()) {
   const out = [];
   for (const issue of ISSUE_IDS) {
     const st = statusOf(s, issue);
-    if (ISSUES[issue].blocking && ['investigate', 'stale'].includes(st)) out.push({ issue, text: `${ISSUES[issue].title} (${findingIds(issue).join(' / ')}): affects the unique work-item count. Resolve it, confirm it, or accept it with a disclosure.` });
-    if (st === 'stale' && !ISSUES[issue].blocking) out.push({ issue, text: `${ISSUES[issue].title}: the records it was based on changed. Review it again.` });
+    if (ISSUES[issue].blocking && ['investigate', 'stale'].includes(st)) out.push({ issue, text: `${ISSUES[issue].title} (${findingIds(issue).join(' / ')}): it changes how many jobs the report counts. Decide whether it’s one job or two, or send the report with a note.` });
+    if (st === 'stale' && !ISSUES[issue].blocking) out.push({ issue, text: `${ISSUES[issue].title}: the records changed since you decided. Check it again.` });
   }
-  for (const c of [...totalsChecks(s), ...qualityChecks()]) if (!c.pass) out.push({ issue: null, text: `${c.label}: failed.${c.detail ? ` ${c.detail}` : ''}` });
+  for (const c of [...totalsChecks(s), ...qualityChecks()]) if (!c.pass) out.push({ issue: null, text: `Check failed: ${c.label}.${c.detail ? ` ${c.detail}` : ''}` });
   return out;
 }
 
@@ -274,14 +274,14 @@ export function publish(s) {
   if (!readiness(s).ready) return s;
   const basis = JSON.stringify({ d: ISSUE_IDS.map((i) => [i, s.decisions[i]?.choice ?? null]), m: metrics(s) });
   const disc = disclosures(s).map((d) => d.title);
-  return Object.freeze({ ...s, published: Object.freeze({ seq: s.seq + 1, basis }), changedSincePublish: false, ...append(s, { type: 'published', reason: disc.length ? `Approved and published with ${disc.length} disclosed ${disc.length === 1 ? 'item' : 'items'}: ${disc.join('; ')}.` : 'Approved and published. Nothing left to disclose.' }) });
+  return Object.freeze({ ...s, published: Object.freeze({ seq: s.seq + 1, basis }), changedSincePublish: false, ...append(s, { type: 'published', reason: disc.length ? `You approved the report. It notes ${disc.length} open ${disc.length === 1 ? 'item' : 'items'}: ${disc.join('; ')}.` : 'You approved the report. Nothing left open.' }) });
 }
 
-/** Publication state: Review required → Ready for approval → Published (or Changed since publishing). */
+/** Report state: Awaiting review → Ready to approve → Approved (or Changed since approval). */
 export function status(s = initialState()) {
-  if (s.published) return 'Published';
-  if (s.changedSincePublish) return 'Changed since publishing';
-  return blockers(s).length ? 'Review required' : 'Ready for approval';
+  if (s.published) return 'Approved';
+  if (s.changedSincePublish) return 'Changed since approval';
+  return blockers(s).length ? 'Awaiting review' : 'Ready to approve';
 }
 
 // ---- Findings
@@ -297,45 +297,45 @@ export function findings(s = initialState()) {
   const list = [
     {
       issue: 'duplicate', ids: DUP,
-      detected: `${a.id} and ${b.id} have the same customer (${a.customer}), service address (${a.address}), job type (${a.jobType}) and scheduled date (${fmtDate(a.scheduled)}), with different references.`,
-      matters: `If they describe the same work, the report counts it twice: 18 records would overstate unique work by one, and ${b.id} would show as open work that may already be done.`,
+      detected: `${a.id} and ${b.id} look like the same job: same customer, address, job type and date (${a.customer}, ${fmtDate(a.scheduled)}), but two references.`,
+      matters: `If it’s one job, the report counts it twice and shows it as still open.`,
       source: 'Work Register', refs: { work: DUP, requests: ['R-303'], invoices: ['INV-2103'] },
-      supporting: [`Both records point at request R-303 (“${R('R-303').request}”).`, `${a.id} is completed and invoiced (INV-2103). ${b.id} is still open (“${b.next}”, ${b.owner}).`],
-      investigate: ['Open request R-303 and both work records.', `Check whether ${b.id} was raised separately by the customer or entered twice.`],
-      ai: `Possible explanation: ${b.id} may have been entered again from the same request. This has not been verified.`,
+      supporting: [`Both come from the same customer request, R-303 (“${R('R-303').request}”).`, `${a.id} is done and invoiced (INV-2103). ${b.id} is still open (“${b.next}”, ${b.owner}).`],
+      investigate: ['Look at request R-303 and both records.', `Ask whether the customer booked a second job, or ${b.id} was typed in twice.`],
+      ai: `Possible explanation: ${b.id} may have been typed in again from the same request. Not confirmed.`,
     },
     {
       issue: 'invoice', ids: [NOINV],
-      detected: `${ni.id} (${ni.customer}) is recorded as completed on ${fmtDate(ni.completed)}, but no invoice in the Invoice Tracker references it.`,
-      matters: 'Completed work without a matching invoice may delay billing. It may also already be invoiced under a different reference.',
+      detected: `${ni.id} (${ni.customer}) was finished on ${fmtDate(ni.completed)}, but no invoice mentions it.`,
+      matters: 'It may not have been billed yet. Or it was billed under a different reference.',
       source: 'Work Register × Invoice Tracker', refs: { work: [NOINV], invoices: [CANDIDATE], requests: ['R-307'] },
-      supporting: [`Possible match: ${CANDIDATE} (${I(CANDIDATE).customer}, ${I(CANDIDATE).date}) references request R-307, the request behind ${ni.id}, but no work reference.`, 'All other completed work has an invoice that references it.'],
-      investigate: [`Check whether ${CANDIDATE} covers ${ni.id}.`, 'If it does not, confirm with Finance whether invoicing is outstanding.'],
-      ai: `Possible explanation: ${CANDIDATE} may have been raised against the request rather than the work record. A match is likely but not confirmed.`,
+      supporting: [`Possible match: ${CANDIDATE} (${I(CANDIDATE).customer}, ${I(CANDIDATE).date}) mentions the customer’s request R-307, not the job.`, 'Every other finished job has an invoice that mentions it.'],
+      investigate: [`Check whether ${CANDIDATE} is for ${ni.id}.`, 'If not, ask Finance whether it still needs invoicing.'],
+      ai: `Possible explanation: ${CANDIDATE} may have been raised against the request instead of the job. Likely, but not confirmed.`,
     },
     {
       issue: 'overdue', ids: [LATE],
-      detected: `${late.id} (${late.customer}, ${late.jobType}) is open and was due on ${fmtDate(toIso(late.due))}, before the report date (${fmtDate(REPORT_DATE)}).`,
-      matters: 'Overdue work may affect a service commitment to the customer. This is an operational exception, not necessarily a data error.',
+      detected: `${late.id} (${late.customer}, ${late.jobType}) was due ${fmtDate(toIso(late.due))} and is still open.`,
+      matters: 'The customer may be waiting. This is a work issue, not a mistake in the data.',
       source: 'Work Register', refs: { work: [LATE], requests: [MOVE_REQUEST] },
-      supporting: [`Request ${MOVE_REQUEST} (${R(MOVE_REQUEST).received}): “${R(MOVE_REQUEST).request}”.`, `Current owner: ${late.owner}. Next action: “${late.next}”.`],
-      investigate: [`Read request ${MOVE_REQUEST} and check whether the due date should have changed.`, 'If it is genuinely late, agree the next step with Operations.'],
-      ai: `Possible explanation: the customer’s request to move the date (${MOVE_REQUEST}) may not have been reflected in the Work Register.`,
+      supporting: [`The customer wrote on ${R(MOVE_REQUEST).received} (${MOVE_REQUEST}): “${R(MOVE_REQUEST).request}”.`, `Owner: ${late.owner}. Next step: “${late.next}”.`],
+      investigate: [`Read ${MOVE_REQUEST} and check whether the due date should have changed.`, 'If it really is late, agree the next step.'],
+      ai: `Possible explanation: the customer’s request to move the date (${MOVE_REQUEST}) may not have been copied into the Work Register.`,
     },
     {
       issue: 'owner', ids: [UNOWNED],
-      detected: `${un.id} (${un.customer}, ${un.jobType}, due ${fmtDate(toIso(un.due))}) is open with no owner and no next action.`,
-      matters: 'Work without an owner may not be picked up, which can delay the response to the customer.',
+      detected: `${un.id} (${un.customer}, ${un.jobType}, due ${fmtDate(toIso(un.due))}) has no one assigned and no next step.`,
+      matters: 'Without an owner, it may not get picked up.',
       source: 'Work Register', refs: { work: [UNOWNED], requests: ['R-309'] },
-      supporting: [`Raised from request R-309 (${R('R-309').channel}, ${R('R-309').received}): “${R('R-309').request}”.`, 'Every other open work record has an owner and a next action.'],
-      investigate: ['Check whether anyone has already contacted the customer.', 'Decide who should own it and what happens next.'],
-      ai: 'Possible explanation: requests taken by phone may be logged without an owner. This has not been verified.',
+      supporting: [`It came from a ${R('R-309').channel.toLowerCase()} request on ${R('R-309').received} (R-309): “${R('R-309').request}”.`, 'Every other open job has someone assigned.'],
+      investigate: ['Check whether anyone has already called the customer.', 'Decide who takes it and what happens next.'],
+      ai: 'Possible explanation: phone requests may be logged without an owner. Not confirmed.',
     },
   ];
   return list.map((f) => {
     const i = ISSUES[f.issue]; const st = statusOf(s, f.issue); const d = s.decisions[f.issue];
     return {
-      ...f, title: i.title, category: i.category, categoryLabel: CATEGORIES[i.category], blocking: i.blocking, team: i.team, action: i.action,
+      ...f, title: i.title, category: i.category, categoryLabel: CATEGORIES[i.category], categoryTerm: CATEGORY_TERMS[i.category], blocking: i.blocking, team: i.team, action: i.action,
       choices: choicesFor(s, f.issue),
       decision: d?.choice ?? null, owner: d?.owner ?? null, next: d?.next ?? null, note: d?.note ?? null,
       status: st, statusLabel: STATUS_LABELS[st], closed: CLOSED.includes(st),
@@ -349,16 +349,16 @@ function consequence(s, issue) {
   if (statusOf(s, issue) === 'stale') return 'The records this decision was based on changed. Please review it again.';
   const m = metrics(s);
   return {
-    exclude: `W-1051 excluded from unique work items (its record is kept). Recalculated: ${m.unique} unique work items, ${m.completed} completed, ${m.open} open (${m.completionRate} completion).`,
-    separate: `Both kept as separate work. Recalculated: ${m.unique} unique work items, ${m.completed} completed, ${m.open} open (${m.completionRate} completion).`,
-    disclose: `Accepted with disclosure: “${d.note}”. The report will show 18 records with the unique count marked unverified.`,
-    link: 'INV-2107 linked to W-1047 by the reviewer. The invoice record itself is unchanged.',
-    outstanding: 'Recorded as awaiting invoicing. A Finance follow-up will appear in the action register.',
-    leave: issue === 'owner' ? 'Left open. It will be disclosed in the report as action required.' : 'Left unresolved. It will be disclosed in the report as needing investigation.',
-    confirm: 'Confirmed as still overdue. It will be disclosed in the report with an Operations follow-up.',
-    correctDate: 'Due date recorded as Fri 13 Nov from request R-308 (original Wed 4 Nov kept). W-1055 is no longer overdue.',
-    assign: issue === 'owner' ? `Assigned to ${d.owner}: “${d.next}”.` : `Follow-up assigned to ${d.owner}. Still overdue, so it stays in the report as action required.`,
-    handled: `Marked as handled: “${d.note}”.`,
+    exclude: `Counted once. W-1051 stays in the file but is left out of the count. Now: ${m.unique} jobs, ${m.completed} completed, ${m.open} open (${m.completionRate}).`,
+    separate: `Kept as two jobs. Now: ${m.unique} jobs, ${m.completed} completed, ${m.open} open (${m.completionRate}).`,
+    disclose: `The report will go out with your note: “${d.note}”. The job count is marked as not yet confirmed.`,
+    link: 'INV-2107 is now linked to W-1047. The invoice itself is unchanged.',
+    outstanding: 'Marked as not invoiced yet. It goes on the follow-up list for Finance.',
+    leave: issue === 'owner' ? 'Left open. The report will list it as needing action.' : 'Left to check later. The report will list it as still to check.',
+    confirm: 'Marked as late. The report will list it with a follow-up for Operations.',
+    correctDate: 'Due date changed to Fri 13 Nov, from the customer’s request R-308 (the original Wed 4 Nov is kept). It’s no longer late.',
+    assign: issue === 'owner' ? `Assigned to ${d.owner}: “${d.next}”.` : `Follow-up given to ${d.owner}. It’s still late, so the report lists it as needing action.`,
+    handled: `Marked as already dealt with: “${d.note}”.`,
   }[d.choice];
 }
 
@@ -371,44 +371,44 @@ export function summary(s = initialState()) {
   const m = metrics(s); const fs = findings(s); const by = Object.fromEntries(fs.map((f) => [f.issue, f]));
   const st = (i) => by[i].status; const d = (i) => s.decisions[i];
   const facts = [
-    `${m.sourceRecords} work records were received for ${PERIOD.label}: ${m.recordedCompleted} recorded as completed and ${m.recordedOpen} as open.`,
+    `${m.sourceRecords} jobs were logged for ${PERIOD.label}: ${m.recordedCompleted} completed and ${m.recordedOpen} still open.`,
     `Completions per day: ${m.daily.map((x) => `${x.day} ${x.completed}`).join(', ')} (${m.dailyTotal} in total).`,
   ];
-  if (m.validated) facts.push(`After review: ${m.unique} unique work items, ${m.completed} completed and ${m.open} open (${m.completionRate} completion rate).`);
-  if (st('invoice') === 'resolved') facts.push('W-1047 is invoiced: the reviewer linked INV-2107.');
-  if (st('overdue') === 'resolved') facts.push('W-1055 is not overdue: its due date was corrected to Fri 13 Nov from request R-308.');
-  if (st('owner') === 'resolved') facts.push(d('owner').choice === 'assign' ? `W-1056 is assigned to ${d('owner').owner}: “${d('owner').next}”.` : `W-1056 was marked as handled: “${d('owner').note}”.`);
+  if (m.validated) facts.push(`After checking: ${m.unique} jobs, ${m.completed} completed and ${m.open} open (${m.completionRate} completed).`);
+  if (st('invoice') === 'resolved') facts.push('W-1047 is invoiced on INV-2107 (you linked them).');
+  if (st('overdue') === 'resolved') facts.push('W-1055 isn’t late: its due date is Fri 13 Nov, from the customer’s request R-308.');
+  if (st('owner') === 'resolved') facts.push(d('owner').choice === 'assign' ? `W-1056 is assigned to ${d('owner').owner}: “${d('owner').next}”.` : `W-1056 was already dealt with: “${d('owner').note}”.`);
   const potential = [];
-  if (['investigate', 'stale'].includes(st('duplicate'))) potential.push('W-1043 and W-1051 may be the same work. Unique work volume is not confirmed until this is reviewed.');
-  if (['investigate', 'stale'].includes(st('invoice'))) potential.push('W-1047 has no matching invoice. INV-2107 may cover it; this is not confirmed.');
+  if (['investigate', 'stale'].includes(st('duplicate'))) potential.push('W-1043 and W-1051 may be the same job, so the job count isn’t confirmed yet.');
+  if (['investigate', 'stale'].includes(st('invoice'))) potential.push('W-1047 has no invoice. INV-2107 may be for it; not confirmed.');
   const exceptions = [];
-  if (st('invoice') === 'action') exceptions.push('W-1047 is completed and awaiting invoicing.');
-  if (st('overdue') !== 'resolved') exceptions.push(`W-1055 is open and past its due date${d('overdue')?.choice === 'assign' ? ` (follow-up: ${d('overdue').owner})` : ''}.`);
-  if (st('owner') !== 'resolved') exceptions.push('W-1056 is open without an owner or next action.');
+  if (st('invoice') === 'action') exceptions.push('W-1047 is finished but not invoiced yet.');
+  if (st('overdue') !== 'resolved') exceptions.push(`W-1055 is late${d('overdue')?.choice === 'assign' ? ` (follow-up: ${d('overdue').owner})` : ''}.`);
+  if (st('owner') !== 'resolved') exceptions.push('W-1056 has no one assigned.');
   const unverified = [];
-  if (st('duplicate') === 'disclosed') unverified.push(`Unique work volume is unverified: W-1043 and W-1051 may be the same work. Reviewer’s disclosure: “${d('duplicate').note}”.`);
-  if (st('overdue') !== 'resolved') unverified.push('Whether W-1055 has affected the customer has not been checked.');
+  if (st('duplicate') === 'disclosed') unverified.push(`The job count isn’t confirmed: W-1043 and W-1051 may be the same job. Your note: “${d('duplicate').note}”.`);
+  if (st('overdue') !== 'resolved') unverified.push('Whether the late job has affected the customer hasn’t been checked.');
   const recommendations = [];
-  if (['investigate', 'stale'].includes(st('duplicate'))) recommendations.push({ team: 'Data/Admin', text: 'Reconcile W-1043 and W-1051 against request R-303 before confirming unique work volume.' });
-  if (st('duplicate') === 'disclosed') recommendations.push({ team: 'Data/Admin', text: 'Confirm whether W-1051 duplicates W-1043 before the next report.' });
-  if (st('duplicate') === 'resolved') recommendations.push({ team: 'Data/Admin', text: 'Close W-1051 in the Work Register and check for an existing record before raising new work from a request.' });
-  if (['investigate', 'stale'].includes(st('invoice'))) recommendations.push({ team: 'Finance', text: 'Check whether INV-2107 covers W-1047; if not, raise the invoice.' });
-  if (st('invoice') === 'action') recommendations.push({ team: 'Finance', text: 'Raise the invoice for W-1047 (Lakeside Cafe).' });
-  if (st('invoice') === 'resolved') recommendations.push({ team: 'Finance', text: 'Add the work reference to INV-2107 so it matches automatically next time.' });
-  if (st('overdue') === 'resolved') recommendations.push({ team: 'Operations', text: 'Update W-1055’s due date to Fri 13 Nov in the Work Register.' });
-  else recommendations.push({ team: 'Operations', text: `Review the delay on W-1055 and agree the next step with Westgate Clinic${d('overdue')?.choice === 'assign' ? ` (follow-up: ${d('overdue').owner})` : ''}.` });
-  if (st('owner') !== 'resolved') recommendations.push({ team: 'Operations', text: 'Assign a responsible person and next action to W-1056.' });
+  if (['investigate', 'stale'].includes(st('duplicate'))) recommendations.push({ team: 'Admin', text: 'Check W-1043 and W-1051 against request R-303 before trusting the job count.' });
+  if (st('duplicate') === 'disclosed') recommendations.push({ team: 'Admin', text: 'Confirm whether W-1051 is a double entry before next week’s report.' });
+  if (st('duplicate') === 'resolved') recommendations.push({ team: 'Admin', text: 'Close W-1051 in the Work Register, and check for an existing job before adding a new one.' });
+  if (['investigate', 'stale'].includes(st('invoice'))) recommendations.push({ team: 'Finance', text: 'Check whether INV-2107 is for W-1047; if not, invoice it.' });
+  if (st('invoice') === 'action') recommendations.push({ team: 'Finance', text: 'Invoice W-1047 (Lakeside Cafe).' });
+  if (st('invoice') === 'resolved') recommendations.push({ team: 'Finance', text: 'Add the job reference to INV-2107 so it matches automatically next time.' });
+  if (st('overdue') === 'resolved') recommendations.push({ team: 'Operations', text: 'Change W-1055’s due date to Fri 13 Nov in the Work Register.' });
+  else recommendations.push({ team: 'Operations', text: `Find out why W-1055 is late and agree the next step with Westgate Clinic${d('overdue')?.choice === 'assign' ? ` (follow-up: ${d('overdue').owner})` : ''}.` });
+  if (st('owner') !== 'resolved') recommendations.push({ team: 'Operations', text: 'Give W-1056 an owner and a next step.' });
   const implications = fs.map((f) => ({ issue: f.issue, text: implication(f) })).filter((x) => x.text);
   const good = [
-    `Completions were spread across the week (${Math.min(...m.daily.map((x) => x.completed))}–${Math.max(...m.daily.map((x) => x.completed))} a day).`,
-    `${m.completed - m.awaitingInvoice} of ${m.completed} completed items have a matching invoice.`,
-    `${qualityChecks().filter((c) => c.pass).length} of ${qualityChecks().length} data quality checks passed.`,
+    `Work was finished steadily through the week (${Math.min(...m.daily.map((x) => x.completed))}–${Math.max(...m.daily.map((x) => x.completed))} a day).`,
+    `${m.completed - m.awaitingInvoice} of ${m.completed} finished jobs are invoiced.`,
+    `${qualityChecks().filter((c) => c.pass).length} of ${qualityChecks().length} data checks passed.`,
   ];
   const attention = fs.filter((f) => !f.closed).map((f) => `${f.title.toLowerCase()} (${f.ids.join(' / ')})`);
   const executive = [
-    `What happened: ${facts[0]}${m.validated ? ` After review there are ${m.unique} unique work items and ${m.completed} were completed (${m.completionRate}).` : ''}`,
-    `Performing well: ${good.join(' ')}`,
-    attention.length ? `Needs management attention: ${attention.join('; ')}.` : 'Needs management attention: nothing open after review.',
+    `What happened: ${facts[0]}${m.validated ? ` After checking, that’s ${m.unique} jobs, ${m.completed} of them completed (${m.completionRate}).` : ''}`,
+    `Going well: ${good.join(' ')}`,
+    attention.length ? `Needs attention: ${attention.join('; ')}.` : 'Needs attention: nothing left open.',
   ];
   return { executive, facts, potential, exceptions, unverified, recommendations, implications, insights: insights(m) };
 }
@@ -416,17 +416,17 @@ export function summary(s = initialState()) {
 function implication(f) {
   if (f.status === 'resolved' || f.status === 'legitimate') return '';
   return {
-    duplicate: f.status === 'disclosed' ? 'The unique work count may be overstated by one item; the published report says so.' : 'Duplicate records can overstate workload and open work until they are reconciled.',
-    invoice: f.status === 'action' ? 'Billing for W-1047 is delayed until it is invoiced.' : 'If W-1047 has not been invoiced, billing may be delayed.',
-    overdue: 'Overdue work may affect a service commitment to Westgate Clinic.',
-    owner: 'Unassigned work may delay the response to Summit Supplies.',
+    duplicate: f.status === 'disclosed' ? 'The job count may be one too high; the report says so.' : 'A double entry makes the week look busier than it was, and leaves a job showing as open.',
+    invoice: f.status === 'action' ? 'Payment for W-1047 is delayed until it’s invoiced.' : 'If W-1047 hasn’t been invoiced, payment may be delayed.',
+    overdue: 'Westgate Clinic may be waiting on a late job.',
+    owner: 'Summit Supplies may wait longer for a reply.',
   }[f.issue];
 }
 
 /** Performance insights: only when a pattern is supported by the data. This week there is none to flag. */
 function insights(m) {
   const vals = m.daily.map((d) => d.completed);
-  return [`No performance insight flagged: completions were steady at ${Math.min(...vals)}–${Math.max(...vals)} a day, and one week is not enough history to call a trend.`];
+  return [`Nothing unusual: ${Math.min(...vals)}–${Math.max(...vals)} jobs finished a day, and one week isn’t enough to call a trend.`];
 }
 
 /** Departmental action register: suggested teams are recommendations, not confirmed ownership. Nothing is sent. */
@@ -434,12 +434,12 @@ export function actionRegister(s = initialState()) {
   return findings(s).map((f) => {
     const d = s.decisions[f.issue];
     const regStatus = {
-      investigate: f.blocking ? 'Needs review' : 'Action required',
-      stale: 'Needs review',
+      investigate: f.blocking ? 'To check' : 'Needs action',
+      stale: 'To check',
       resolved: 'Done',
-      legitimate: 'No action needed',
-      action: 'Action required',
-      disclosed: 'Disclosed in report',
+      legitimate: 'Nothing to do',
+      action: 'Needs action',
+      disclosed: 'Noted in the report',
     }[f.status];
     const assigned = d?.owner ? ` (assigned to ${d.owner})` : '';
     return { issue: f.issue, finding: `${f.title} · ${f.ids.join(' / ')}`, team: f.team, action: `${f.action}${assigned}`, status: regStatus };
@@ -453,7 +453,7 @@ export function heroCard(s = initialState()) {
     status: status(s), period: PERIOD.label,
     sourceRecords: m.sourceRecords, recordedCompleted: m.recordedCompleted, recordedOpen: m.recordedOpen,
     daily: m.daily, attention: attentionCount(s),
-    byCategory: [['duplicate', 'Duplicate'], ['invoice', 'Missing invoice'], ['overdue', 'Overdue'], ['owner', 'Unassigned']].map(([i, label]) => ({ issue: i, label, open: !CLOSED.includes(statusOf(s, i)) })),
+    byCategory: [['duplicate', 'Double entry'], ['invoice', 'Not invoiced'], ['overdue', 'Late'], ['owner', 'Unassigned']].map(([i, label]) => ({ issue: i, label, open: !CLOSED.includes(statusOf(s, i)) })),
   };
 }
 

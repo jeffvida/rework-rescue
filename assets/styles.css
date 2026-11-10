@@ -3220,3 +3220,15 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .dt-group .dt-link, .dt-src { text-align: left; display: inline; }
 #dt-p-summary .dt-h { margin-top: 1.5rem; }
 .hero-grid:has(.hm) .hero-explore { white-space: nowrap; }
+/* Simplified checking (plain labels, evidence on request) */
+.dt-reg-3 .dt-reg-head, .dt-reg-3 .dt-reg-row { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) 7.5rem; }
+.dt-reg-ref { display: block; margin-top: 0.1rem; font-size: 0.75rem; font-weight: 500; color: var(--muted); }
+@media (max-width: 56rem) { .dt-reg-3 .dt-reg-head, .dt-reg-3 .dt-reg-row { grid-template-columns: minmax(0, 1fr) auto; } .dt-reg-3 .dt-reg-act { grid-column: 1; grid-row: 2; font-size: 0.8rem; color: var(--muted); } }
+.dt-facts-2 { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.dt-evidence-box { margin: 1rem 0 0; border: 1px solid #ece9df; border-radius: 12px; background: #fff; }
+.dt-evidence-box > summary { cursor: pointer; padding: 0.75rem 1rem; min-height: 2.75rem; font-weight: 700; color: var(--teal-dark); list-style-position: inside; }
+.dt-evidence-box[open] > summary { border-bottom: 1px solid #ece9df; }
+.dt-evidence-box > :not(summary) { margin-left: 1rem; margin-right: 1rem; }
+.dt-evidence-box > :last-child { margin-bottom: 1rem; }
+.dt-evidence-box .dt-facts { margin-top: 0.9rem; }
+.demo-runs { margin: 0 0 1rem; padding: 0.7rem 1rem; border-radius: 12px; background: #eef4f1; border-left: 3px solid var(--teal); font-weight: 600; color: var(--teal-dark); }

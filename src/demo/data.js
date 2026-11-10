@@ -84,62 +84,70 @@ export const RULES = {
   required: { work: ['id', 'customer', 'address', 'jobType', 'scheduled', 'due', 'status'], invoices: ['id', 'date', 'customer', 'status'], requests: ['id', 'received', 'customer', 'request'] },
 };
 
-// The four findings. Classification, whether the finding can block publication, the suggested team (a recommendation,
-// not confirmed ownership), and the reviewer's choices: [value, label, resulting status].
-//   status: investigate = Needs investigation · resolved = Resolved · legitimate = Confirmed legitimate ·
-//           action = Action required · disclosed = Accepted with disclosure
+// The four findings, in plain words. Type (plain label, with the technical classification kept for reference), whether
+// the finding can stop the report going out, who could handle it (a suggestion, not confirmed ownership), and the
+// reviewer's choices: [value, label, resulting status].
+//   status: investigate = To check · resolved = Fixed · legitimate = Confirmed OK · action = Needs action ·
+//           disclosed = Noted in the report
 export const ISSUES = {
   duplicate: {
-    title: 'Potential duplicate work order',
+    title: 'Possible double entry',
     category: 'integrity',
     blocking: true,
-    team: 'Data/Admin',
-    action: 'Verify original records',
+    team: 'Admin',
+    action: 'Check the two original records',
     choices: [
-      ['exclude', 'Confirm duplicate: exclude W-1051 from unique work items', 'resolved'],
-      ['separate', 'Confirm separate work items: keep both', 'legitimate'],
-      ['disclose', 'Accept with disclosure: publish with the unique count unverified', 'disclosed'],
+      ['exclude', 'Same job: count it once', 'resolved'],
+      ['separate', 'Two different jobs: keep both', 'legitimate'],
+      ['disclose', 'Not sure yet: send the report with a note', 'disclosed'],
     ],
   },
   invoice: {
-    title: 'Completed work without a matching invoice',
+    title: 'Finished job not invoiced',
     category: 'reconciliation',
     blocking: false,
     team: 'Finance',
-    action: 'Check invoice tracker',
+    action: 'Check the invoices',
     choices: [
-      ['link', 'Invoice exists: link INV-2107 to W-1047', 'resolved'],
-      ['outstanding', 'Invoicing is outstanding: add a Finance follow-up', 'action'],
-      ['leave', 'Leave unresolved', 'investigate'],
+      ['link', 'It’s on invoice INV-2107: link them', 'resolved'],
+      ['outstanding', 'Not invoiced yet: add a follow-up', 'action'],
+      ['leave', 'Check later', 'investigate'],
     ],
   },
   overdue: {
-    title: 'Overdue open work',
+    title: 'Late job',
     category: 'operational',
     blocking: false,
     team: 'Operations',
-    action: 'Review delay and next step',
+    action: 'Find out why and agree the next step',
     choices: [
-      ['confirm', 'Confirm still overdue', 'action'],
-      ['correctDate', 'Due date was incorrect: record Fri 13 Nov from R-308', 'resolved'],
-      ['assign', 'Assign a follow-up', 'action'],
+      ['confirm', 'Yes, it’s late', 'action'],
+      ['correctDate', 'The date was wrong: change it to Fri 13 Nov', 'resolved'],
+      ['assign', 'Give someone the follow-up', 'action'],
     ],
   },
   owner: {
-    title: 'Open work without an assigned owner',
+    title: 'No one assigned',
     category: 'operational',
     blocking: false,
     team: 'Operations',
-    action: 'Assign responsible person',
+    action: 'Assign someone',
     choices: [
-      ['assign', 'Assign an owner and next action', 'resolved'],
-      ['handled', 'Mark as handled (with an explanation)', 'resolved'],
-      ['leave', 'Leave unresolved', 'action'],
+      ['assign', 'Assign someone', 'resolved'],
+      ['handled', 'Already dealt with', 'resolved'],
+      ['leave', 'Leave for now', 'action'],
     ],
   },
 };
 
+// Plain labels first; the technical classification stays available for anyone who wants it.
 export const CATEGORIES = {
+  integrity: 'Affects the numbers',
+  reconciliation: 'Files don’t match',
+  operational: 'Work to follow up',
+  insight: 'Trend',
+};
+export const CATEGORY_TERMS = {
   integrity: 'Data integrity issue',
   reconciliation: 'Reconciliation issue',
   operational: 'Operational exception',
@@ -149,4 +157,5 @@ export const CATEGORIES = {
 // The source records are read-only: nothing on the page can change them. Review decisions are stored separately.
 const freeze = (rows) => { rows.forEach(Object.freeze); return Object.freeze(rows); };
 [WORK, INVOICES, REQUESTS, SOURCES, STAFF].forEach(freeze);
+Object.freeze(CATEGORIES); Object.freeze(CATEGORY_TERMS);
 Object.freeze(PERIOD); Object.freeze(RULES.duplicateKeys); Object.freeze(RULES.required); Object.freeze(RULES);

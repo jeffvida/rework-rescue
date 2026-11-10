@@ -123,6 +123,21 @@ export function mountServices() {
   if (mq) (mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply));
   apply();
 
+  // "Sound familiar?" cards (data-svc-go): open that service. Wide screens select its tab; phones scroll to it.
+  const openService = (i) => {
+    if (!items[i]) return;
+    if (wrap.classList.contains('is-tabbed')) select(i, false);
+    const target = wrap.classList.contains('is-tabbed') ? wrap : items[i];
+    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  };
+  document.querySelectorAll('[data-svc-go]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    openService(Number(a.dataset.svcGo));
+    history.replaceState(null, '', a.getAttribute('href'));
+  }));
+  const fromHash = items.findIndex((li) => `#${li.id}` === location.hash);
+  if (fromHash > 0 && wrap.classList.contains('is-tabbed')) select(fromHash, false);
+
   if (motionOK) {
     // Desktop: the panel on show makes its entrance when the services first come on screen.
     const wideIo = new IntersectionObserver((entries) => {

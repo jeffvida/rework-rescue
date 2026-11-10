@@ -53,7 +53,7 @@
         <div class="hero-copy">
           <p class="eyebrow">Less rework. More real work.</p>
           <h1 id="hero-title">Less time fixing the numbers. <span class="h1-accent">More time running the business.</span></h1>
-          <p class="hero-sub">I help small service businesses fix the weekly reports and spreadsheets their teams rebuild by hand, so you can trust the numbers and stop checking them twice.</p>
+          <p class="hero-sub">Rebuilding the same report every Monday? Chasing updates because nobody knows who&rsquo;s responsible for the next step? I help small businesses fix the reports, spreadsheets and routine tasks their teams keep redoing by hand, so you can trust the numbers and see what needs attention.</p>
           <div class="hero-actions">
             <div class="hero-cta-main"><a class="btn btn-primary btn-large" href="contact/#contact-form-area">Book a free rework review</a>
             <p class="cta-micro">A 30-minute call about one report or process<span class="cta-micro-sep"> &middot; </span><span class="cta-micro-2">Free &middot; No obligation</span></p></div>
@@ -65,26 +65,43 @@
           </div>
         </div>
         <figure class="hero-preview teaser no-print">
-          <div class="tz-card ops-card">
+          <div class="tz-card hs-card" id="hero-sheet">
             <div class="ops-top">
-              <p class="ops-eyebrow">Weekly operations report</p>
+              <p class="ops-eyebrow">Weekly business report</p>
               <p class="ops-flag"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.2M12 17h.01"/></svg><span data-hero="status">Review required</span></p>
             </div>
-            <p class="tz-title">Before sharing this week&rsquo;s update&hellip;</p>
+            <p class="tz-title">Can you trust this week&rsquo;s numbers?</p>
             <p class="tz-date">Illustrative sample &middot; <span data-hero="weekRange">2–6 November 2026</span></p>
-            <dl class="ops-sum">
-              <div class="ops-sum-work"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 12.5l2.3 2.3 4.7-4.7"/></svg><dd data-hero="workItems">18</dd><dt>Work items</dt></div>
-              <div class="ops-sum-done"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.2 2.6 2.6 5-5"/></svg><dd data-hero="completed">7</dd><dt>Marked complete</dt></div>
-              <div class="ops-sum-open"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 4 8.5 4.5L12 13 3.5 8.5 12 4Z"/><path d="m3.5 12.5 8.5 4.5 8.5-4.5"/><path d="m3.5 16 8.5 4.5 8.5-4.5"/></svg><dd data-hero="openWork">11</dd><dt>Still open</dt></div>
-            </dl>
-            <p class="ops-check-h"><span data-hero="itemsToReview">3</span> things to check</p>
-            <ul class="ops-checks">
-              <li data-hero-issue="duplicate"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg><p><strong>Possible duplicate task</strong> <span>Two records may describe the same work.</span></p></li>
-              <li data-hero-issue="finance"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3v-17Z"/><path d="M9 8h6M9 11.5h6M9 15h4"/></svg><p><strong>Completed work not invoiced</strong> <span>One completed item has no matching invoice.</span></p></li>
-              <li data-hero-issue="owner"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.9-3.7 3.9-5.8 7.5-5.8s6.6 2.1 7.5 5.8"/></svg><p><strong>Work without an owner</strong> <span>One open task needs someone responsible.</span></p></li>
-            </ul>
-            <p class="ops-note"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg>Fictional sample data &middot; No real client information</p>
-            <a class="btn btn-primary tz-btn ops-cta" href="#samples" data-demo-check>Start the live example <span aria-hidden="true">&rarr;</span></a>
+            <div class="hs-sheet" role="img" aria-label="A sample sales log. Two Greenfield Ltd sales on Tuesday for 860 are flagged as a potential duplicate, and a Summit Supplies sale is flagged because its amount is blank.">
+              <table class="hs-table" aria-hidden="true">
+                <thead><tr><th>Ref</th><th>Date</th><th>Customer</th><th class="hs-num">Amount</th><th class="hs-flagcol"><span class="sr-only">Check</span></th></tr></thead>
+                <tbody>
+                  <tr class="hs-row hs-dup"><td>S-1043</td><td>Tue 3</td><td>Greenfield Ltd</td><td class="hs-num">860</td><td class="hs-flagcol"><span class="hs-tag">Duplicate?</span></td></tr>
+                  <tr class="hs-row"><td>S-1044</td><td>Tue 3</td><td>M. Tan</td><td class="hs-num">95</td><td class="hs-flagcol"></td></tr>
+                  <tr class="hs-row"><td>S-1046</td><td>Wed 4</td><td>J. Reyes</td><td class="hs-num">210</td><td class="hs-flagcol"></td></tr>
+                  <tr class="hs-row hs-miss"><td>S-1047</td><td>Wed 4</td><td>Summit Supplies</td><td class="hs-num hs-blank"></td><td class="hs-flagcol"><span class="hs-tag">No amount</span></td></tr>
+                  <tr class="hs-row hs-more"><td colspan="5">+ 7 more rows</td></tr>
+                  <tr class="hs-row hs-dup"><td>S-1051</td><td>Tue 3</td><td>Greenfield Ltd</td><td class="hs-num">860</td><td class="hs-flagcol"><span class="hs-tag">Duplicate?</span></td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="3">Total (<span data-hero="sales">12</span> sales)</td><td class="hs-num hs-total" data-hero="salesTotal">4,310</td><td class="hs-flagcol"></td></tr></tfoot>
+              </table>
+              <span class="hs-scan" aria-hidden="true"></span>
+              <p class="hs-tabs" aria-hidden="true"><span class="is-on">Sales log</span><span>Payments</span><span>Requests</span></p>
+            </div>
+            <div class="hs-result">
+              <p class="hs-result-h"><span data-hero="toCheck">3</span> things to check before you share it</p>
+              <ul class="hs-issues">
+                <li data-hero-issue="duplicate"><strong>Potential duplicate to review</strong> <span>Sales log</span></li>
+                <li data-hero-issue="missing"><strong>Sale with no amount</strong> <span>Sales log + Payments</span></li>
+                <li data-hero-issue="followUp"><strong>Quote request with no next action</strong> <span>Customer requests</span></li>
+              </ul>
+              <p class="hs-total-line">Sales total <s data-hero="salesTotal">4,310</s> <span aria-hidden="true">&rarr;</span><span class="sr-only">, which</span> could be <strong data-hero="confirmedTotal">3,830</strong> once checked</p>
+              <p class="ops-note"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg>Fictional sample data &middot; No real client information</p>
+              <div class="hs-actions">
+                <a class="btn btn-primary tz-btn ops-cta" href="#samples" data-demo-check data-demo-tab="exceptions">See how these were found <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="hs-replay" hidden>Replay</button>
+              </div>
+            </div>
           </div>
         </figure>
       </div>
@@ -94,10 +111,10 @@
       <div class="container">
         <p class="eyebrow fit-eyebrow">Sound familiar?</p>
         <h2 id="fit-h">Good people shouldn&rsquo;t have to fight their own processes.</h2>
-        <ul class="pain-tiles">
-          <li><strong>Reports that take too long, or that nobody fully trusts.</strong> The same numbers get rebuilt, checked and corrected every week or month.</li>
-          <li><strong>Work that gets stuck between people.</strong> Repetitive tasks, follow-ups and manual handoffs eat the day.</li>
-          <li><strong>Tools that don&#39;t talk to each other.</strong> Your spreadsheets, job system and invoices each hold part of the picture.</li>
+        <ul class="pain-tiles pain-cards">
+          <li class="svc-data"><a href="#svc-data" data-svc-go="0"><strong>&ldquo;I&rsquo;m always rebuilding reports.&rdquo;</strong> <span>The same report gets copied together every Monday, and there&rsquo;s still a column nobody quite trusts.</span> <em>Data &amp; Reporting <span aria-hidden="true">&rarr;</span></em></a></li>
+          <li class="svc-workflow"><a href="#svc-workflow" data-svc-go="1"><strong>&ldquo;I&rsquo;m always chasing updates.&rdquo;</strong> <span>Requests sit open because nobody knows who owns the next step.</span> <em>Workflows &amp; Processes <span aria-hidden="true">&rarr;</span></em></a></li>
+          <li class="svc-systems"><a href="#svc-systems" data-svc-go="2"><strong>&ldquo;Everything is scattered.&rdquo;</strong> <span>Sales, payments and requests live in different files, so nothing lines up without copying.</span> <em>Business Tools &amp; Systems <span aria-hidden="true">&rarr;</span></em></a></li>
         </ul>
         <p class="pain-bridge">Most weeks it&rsquo;s all three at once. <a href="#samples">The example below</a> shows one week, and what fixing each looks like.</p>
       </div>
@@ -105,27 +122,24 @@
 
     <section class="section demo-section" id="samples" aria-labelledby="samples-h">
       <div class="container">
-        <h2 id="samples-h">Can you trust this week&rsquo;s report?</h2>
-        <p class="lede">Here&rsquo;s a week&rsquo;s work recorded across three different business records.</p>
-        <p class="lede">The report looks fine at first. But can you spot what doesn&rsquo;t add up?</p>
-        <div class="demo-intro">
-          <div class="demo-role">
-            <svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 12.5l2.3 2.3 4.7-4.7"/></svg>
-            <div><p class="demo-role-k">Your role</p><p class="demo-role-t">Check the records. Make the decisions. See what a clearer process could look like.</p></div>
-          </div>
-        </div>
-        <p class="disclosure demo-disclosure"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg><span>This is a fictional example using made-up data. It demonstrates how I approach an operational problem; it isn&#39;t a client project.</span></p>
+        <h2 id="samples-h">See how the checks work</h2>
+        <p class="lede">One fictional week: 27 records across a sales log, payments received and customer requests.</p>
+        <p class="lede">The checks found three things. Select one to see the records behind it, then decide what happens. The report flags it. You decide.</p>
+        <p class="disclosure demo-disclosure"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg><span>This is a fictional example using made-up data. It demonstrates how I approach a reporting problem; it isn&#39;t a client project.</span></p>
         <div class="demo-window">
-        <div class="demo-window-bar" aria-hidden="true"><span class="dw-dots"><i></i><i></i><i></i></span><span class="dw-title">Weekly operations review</span><span class="dw-sub">Fictional team</span><span class="dw-status" data-week>Week ending Fri 6 Nov 2026</span></div>
+        <div class="demo-window-bar" aria-hidden="true"><span class="dw-dots"><i></i><i></i><i></i></span><span class="dw-title">Weekly business report</span><span class="dw-sub">Fictional business</span><span class="dw-status" data-week>Week ending Fri 6 Nov 2026</span></div>
         <div id="demo-app" class="demo-app">
           <div class="demo-static">
-            <ol class="steps-list">
-              <li><h3>Investigate the report</h3><p>The hand-built report shows 11 open items, 7 completed and nothing waiting to be invoiced. Behind it are 30 records in three places: an operations tracker (18), a completion log (7) and a finance register (5).</p></li>
-              <li><h3>Find what needs attention</h3><p>Checking the three sources against each other finds 3 items: work entered twice, completed work with no finance match, and an open item with nobody assigned. One more completed item has no invoice, but it was internal work, so it isn&#39;t flagged.</p></li>
-              <li><h3>Decide what happens next</h3><p>Each item needs a person&#39;s judgment: merge or keep separate, follow up the invoice or confirm none is due, assign someone or leave it pending with a reason.</p></li>
-              <li><h3>Improve how the work gets done</h3><p>Proposed improvements: check for an existing record before creating a new one, add a completion-to-invoice check, and require an owner before an item becomes active.</p></li>
-              <li><h3>See a better way of working</h3><p>An illustration of the tracker, completion log and finance register working together to produce a clearer operations report.</p></li>
+            <h3>Overview: what&rsquo;s happening?</h3>
+            <p>Sales recorded: 4,310 across 12 sales. Payments received: 2,980 across 9 payments. Open customer requests: 3. Things to check: 3.</p>
+            <h3>Exceptions: what needs attention?</h3>
+            <ol>
+              <li><strong>Potential duplicate (S-1043 and S-1051).</strong> Same customer, same date, same amount, different reference, and only one payment. To stop it happening again: check for an existing sale before adding a new one.</li>
+              <li><strong>Missing information (S-1047).</strong> The sale has no amount, so the total leaves it out. Payment P-307 shows 380 was paid against it. To stop it happening again: make the amount a required field.</li>
+              <li><strong>Outstanding follow-up (R-205).</strong> A quote request open for 4 working days with no owner and no next action. To stop it happening again: require an owner and a next action when a request is logged.</li>
             </ol>
+            <h3>Source records: where did the information come from?</h3>
+            <p>A sales log (12 records), payments received (9) and customer requests (6).</p>
             <p>The interactive version of this example needs JavaScript.</p>
           </div>
         </div>
@@ -162,7 +176,7 @@
         <h2 id="services-h">What I can help you improve</h2>
         <p class="svc-areas">Most of my work starts with a report someone doesn&rsquo;t trust. If the cause is how work is recorded or handed between people, I fix that too.</p>
         <ol class="svc-flow">
-          <li class="svc-step svc-data">
+          <li class="svc-step svc-data" id="svc-data">
             <h3>Data &amp; Reporting</h3>
             <p class="svc-short">Fix the numbers.</p>
             <p class="svc-when">Your reports take too long to prepare, your numbers don&#39;t match, or you&#39;re spending too much time checking spreadsheets instead of using the information.</p>
@@ -174,27 +188,26 @@
             </details>
             <details class="svc-try">
               <summary>Try an example</summary>
-              <figure class="svc-preview svc-preview-data" data-pv-figure="data">
-                <svg viewBox="0 0 360 220" role="img" aria-label="Sample weekly report: six weeks of jobs as bars, two totals, and three job rows that the checks review; one is flagged as a duplicate." focusable="false">
-                  <rect class="pv-frame" x="0.5" y="0.5" width="359" height="219" rx="12"/>
-                  <text class="pv-title" x="18" y="30">Weekly report</text><rect class="pv-tag" x="262" y="14" width="84" height="22" rx="11"/><text class="pv-tag-t" x="304" y="29" text-anchor="middle">Sample data</text>
-                  <line class="pv-axis" x1="18" x2="160" y1="122" y2="122"/>
-                  <rect class="pv-bar" x="20" y="94" width="16" height="28" rx="3"/><rect class="pv-bar" x="44" y="82" width="16" height="40" rx="3"/><rect class="pv-bar" x="68" y="88" width="16" height="34" rx="3"/><rect class="pv-bar" x="92" y="70" width="16" height="52" rx="3"/><rect class="pv-bar" x="116" y="76" width="16" height="46" rx="3"/><rect class="pv-bar pv-bar-now" x="140" y="62" width="16" height="60" rx="3"/>
-                  <rect class="pv-kpi" x="178" y="54" width="78" height="68" rx="8"/><text class="pv-kpi-l" x="190" y="76">Booked</text><text class="pv-kpi-n" x="190" y="108" data-pv-kpi="12" data-pv-kpi-to="11">11</text><text class="pv-kpi-d" x="246" y="108" text-anchor="end" aria-hidden="true">&minus;1</text>
-                  <rect class="pv-kpi" x="266" y="54" width="78" height="68" rx="8"/><text class="pv-kpi-l" x="278" y="76">Waiting</text><text class="pv-kpi-n" x="278" y="108">3</text>
-                  <g class="pv-row"><rect x="18" y="138" width="326" height="20" rx="5"/><text x="28" y="152">Job 1042</text><text class="pv-pending" x="334" y="152" text-anchor="end">Not checked</text><text class="pv-ok" x="334" y="152" text-anchor="end">Checked</text></g>
-                  <g class="pv-row"><rect x="18" y="162" width="326" height="20" rx="5"/><text x="28" y="176">Job 1043</text><text class="pv-pending" x="334" y="176" text-anchor="end">Not checked</text><text class="pv-ok" x="334" y="176" text-anchor="end">Checked</text></g>
-                  <rect class="pv-scan" x="18" y="138" width="326" height="20" rx="5"/>
-                  <g class="pv-row pv-row-flag"><rect x="18" y="186" width="326" height="20" rx="5"/><text x="28" y="200">Job 1044</text><text class="pv-pending" x="334" y="200" text-anchor="end">Not checked</text><text class="pv-flag" x="334" y="200" text-anchor="end">Duplicate</text></g>
-                </svg>
+              <figure class="svc-preview svc-preview-auto" data-pv-figure="data">
+                <div class="pva" role="group" aria-label="Sample automated weekly report: the data comes in, the checks run, the dashboard updates and AI drafts a summary that waits for your approval.">
+                  <div class="pva-top"><p class="pva-title">Weekly report, automated</p><span class="pva-tag">Sample &middot; AI simulated</span></div>
+                  <ol class="pva-steps">
+                    <li class="pva-step"><span class="pva-n" aria-hidden="true">1</span><div><p class="pva-k">Data comes in</p><p class="pva-chips"><span>Sales log &middot; <b data-pva="sales">12</b></span><span>Payments &middot; <b data-pva="payments">9</b></span><span>Requests &middot; <b data-pva="requests">6</b></span></p></div></li>
+                    <li class="pva-step"><span class="pva-n" aria-hidden="true">2</span><div><p class="pva-k">Checks run</p><ul class="pva-checks"><li class="is-ok">Every payment matched to a sale</li><li class="is-warn">1 potential duplicate</li><li class="is-warn">1 sale with no amount</li><li class="is-warn">1 request with no next action</li></ul></div></li>
+                    <li class="pva-step"><span class="pva-n" aria-hidden="true">3</span><div><p class="pva-k">Dashboard updates</p><dl class="pva-kpis"><div><dt>Sales</dt><dd data-pva="salesTotal">4,310</dd></div><div><dt>Payments</dt><dd data-pva="paymentsTotal">2,980</dd></div><div><dt>Open requests</dt><dd data-pva="openRequests">3</dd></div></dl></div></li>
+                    <li class="pva-step"><span class="pva-n" aria-hidden="true">4</span><div><p class="pva-k"><span class="pva-ai">AI</span> Summary drafted</p><div class="pva-sum" data-pva-summary><p>Sales recorded: 4,310 across 12 sales.</p><p>Two items need checking before this total is final: a potential duplicate (S-1051, 860) and a sale with no amount (S-1047; payment shows 380).</p><p>Payments received: 2,980.</p><p>One quote request (Northside Partners) has no next action.</p></div></div></li>
+                    <li class="pva-step pva-you-step"><span class="pva-n" aria-hidden="true">5</span><div><p class="pva-k"><span class="pva-you">You</span> Review, then share</p><p class="pva-wait">Waiting for you to approve or edit the draft. Nothing is shared until you do.</p><p class="pva-shared">Approved. Report and summary shared with the team.</p></div></li>
+                  </ol>
+                </div>
                 <div class="pv-controls" data-pv="data" hidden>
-                  <span class="pv-try">Try it</span> <button type="button" class="pv-btn" data-pv-go>Run the checks</button>
+                  <span class="pv-try">Try it</span> <button type="button" class="pv-btn" data-pv-go>Approve &amp; share</button>
                   <p class="pv-result" aria-live="polite"></p>
                 </div>
+                <p class="svc-preview-note">The same fictional week as the example above, once the weekly run is automated.</p>
               </figure>
             </details>
           </li>
-          <li class="svc-step svc-workflow">
+          <li class="svc-step svc-workflow" id="svc-workflow">
             <h3>Workflows &amp; Processes</h3>
             <p class="svc-short">Fix the steps.</p>
             <p class="svc-when">Your team repeats the same tasks, chases people for updates, or retypes information from emails and forms.</p>
@@ -207,22 +220,22 @@
             <details class="svc-try">
               <summary>Try an example</summary>
               <figure class="svc-preview svc-preview-workflow" data-pv-figure="workflow">
-                <svg viewBox="0 0 360 246" role="img" aria-label="Sample new enquiry: AI reads the email, adds the details and drafts a reply, you are notified, and nothing is sent until you approve it." focusable="false">
+                <svg viewBox="0 0 360 246" role="img" aria-label="Sample quote request from Northside Partners: AI reads the email, logs it with an owner and a next action and drafts a reply, you are notified, and nothing is sent until you approve it." focusable="false">
                   <rect class="pv-frame" x="0.5" y="0.5" width="359" height="245" rx="12"/>
-                  <text class="pv-title" x="18" y="30">New enquiry</text><rect class="pv-tag" x="214" y="14" width="132" height="22" rx="11"/><text class="pv-tag-t" x="280" y="29" text-anchor="middle">Sample &middot; AI simulated</text>
+                  <text class="pv-title" x="18" y="30">New quote request</text><rect class="pv-tag" x="214" y="14" width="132" height="22" rx="11"/><text class="pv-tag-t" x="280" y="29" text-anchor="middle">Sample &middot; AI simulated</text>
                   <rect class="pv-card" x="18" y="50" width="118" height="176" rx="10"/>
-                  <text class="pv-card-id" x="30" y="74">Enquiry 2031</text>
-                  <text class="pv-card-t pv-filled" x="30" y="94">Sarah L.</text>
-                  <text class="pv-card-m pv-filled" x="30" y="110">Kitchen tap leak</text>
-                  <text class="pv-card-m pv-filled" x="30" y="124">Westside</text>
-                  <text class="pv-card-m pv-filled" x="30" y="138">Needed this week</text>
+                  <text class="pv-card-id" x="30" y="74">Request R-205</text>
+                  <text class="pv-card-t pv-filled" x="30" y="94">Northside Partners</text>
+                  <text class="pv-card-m pv-filled" x="30" y="110">Asked for a quote</text>
+                  <text class="pv-card-m pv-filled" x="30" y="124">Owner: set</text>
+                  <text class="pv-card-m pv-filled" x="30" y="138">Next: send quote</text>
                   <line class="pv-grid" x1="30" x2="124" y1="150" y2="150"/>
                   <text class="pv-card-m" x="30" y="170">Status</text>
                   <g class="pv-st pv-st-a"><rect x="30" y="180" width="60" height="22" rx="11"/><text x="60" y="195" text-anchor="middle">Drafted</text></g>
                   <g class="pv-st pv-st-b"><rect x="30" y="180" width="44" height="22" rx="11"/><text x="52" y="195" text-anchor="middle">Sent</text></g>
                   <g class="pv-st pv-st-c"><rect x="30" y="180" width="94" height="22" rx="11"/><text x="77" y="195" text-anchor="middle">Follow-up set</text></g>
                   <text class="pv-log-h" x="150" y="66">Activity</text>
-                  <g class="pv-log"><rect class="pv-ai" x="150" y="78" width="36" height="16" rx="8"/><text class="pv-ai-t" x="168" y="90" text-anchor="middle">AI</text><text x="194" y="90">Email read, added to tracker</text></g>
+                  <g class="pv-log"><rect class="pv-ai" x="150" y="78" width="36" height="16" rx="8"/><text class="pv-ai-t" x="168" y="90" text-anchor="middle">AI</text><text x="194" y="90">Email read, logged with owner</text></g>
                   <g class="pv-log"><rect class="pv-ai" x="150" y="104" width="36" height="16" rx="8"/><text class="pv-ai-t" x="168" y="116" text-anchor="middle">AI</text><text x="194" y="116">Summary and reply drafted</text></g>
                   <g class="pv-log"><rect class="pv-auto" x="150" y="130" width="36" height="16" rx="8"/><text class="pv-auto-t" x="168" y="142" text-anchor="middle">Auto</text><text x="194" y="142">You&rsquo;re notified to review</text></g>
                   <g class="pv-log pv-log-you"><rect class="pv-you-bg" x="144" y="152" width="204" height="24" rx="6"/><rect class="pv-you" x="150" y="156" width="36" height="16" rx="8"/><text class="pv-you-t" x="168" y="168" text-anchor="middle">You</text><text x="194" y="168">Approve the reply</text></g>
@@ -235,10 +248,11 @@
                   <span class="pv-try">Try it</span> <button type="button" class="pv-btn" data-pv-go>Approve the reply</button>
                   <p class="pv-result" aria-live="polite"></p>
                 </div>
+                <p class="svc-preview-note">The quote request that stalled in the example above, handled so it can&rsquo;t sit without an owner.</p>
               </figure>
             </details>
           </li>
-          <li class="svc-step svc-systems">
+          <li class="svc-step svc-systems" id="svc-systems">
             <h3>Business Tools &amp; Systems</h3>
             <p class="svc-short">Fix the tools.</p>
             <p class="svc-when">The tools behind your reporting and everyday operations don&#39;t share information the way they should, so records are scattered and have to be pieced together by hand.</p>
@@ -251,7 +265,7 @@
             <details class="svc-try">
               <summary>Try an example</summary>
               <figure class="svc-preview svc-preview-systems" data-pv-figure="systems">
-                <svg viewBox="0 0 360 220" role="img" aria-label="Sample website booking: the calendar is checked first, the form offers only the free times, and the chosen time is logged in the job sheet and booked into the calendar." focusable="false">
+                <svg viewBox="0 0 360 220" role="img" aria-label="Sample website booking: the calendar is checked first, the form offers only the free times, and the chosen time is logged in the bookings sheet and booked into the calendar." focusable="false">
                   <rect class="pv-frame" x="0.5" y="0.5" width="359" height="219" rx="12"/>
                   <text class="pv-title" x="18" y="30">Website booking</text><rect class="pv-tag" x="262" y="14" width="84" height="22" rx="11"/><text class="pv-tag-t" x="304" y="29" text-anchor="middle">Sample data</text>
                   <rect class="pv-box" x="18" y="48" width="100" height="132" rx="8"/>
@@ -259,18 +273,18 @@
                   <text class="pv-time" x="26" y="84">9:00</text><rect class="pv-busy" x="60" y="73" width="50" height="16" rx="3"/><text class="pv-busy-t" x="85" y="85" text-anchor="middle">Busy</text><text class="pv-time" x="26" y="106">10:00</text><rect class="pv-free" x="60" y="95" width="50" height="16" rx="3"/><g class="pv-booked pv-on" data-pv-slot="10:00"><rect x="60" y="95" width="50" height="16" rx="3"/><text x="85" y="107" text-anchor="middle">Booked</text></g><text class="pv-time" x="26" y="128">11:00</text><rect class="pv-busy" x="60" y="117" width="50" height="16" rx="3"/><text class="pv-busy-t" x="85" y="129" text-anchor="middle">Busy</text><text class="pv-time" x="26" y="150">13:00</text><rect class="pv-free" x="60" y="139" width="50" height="16" rx="3"/><g class="pv-booked" data-pv-slot="13:00"><rect x="60" y="139" width="50" height="16" rx="3"/><text x="85" y="151" text-anchor="middle">Booked</text></g><text class="pv-time" x="26" y="172">14:00</text><rect class="pv-free" x="60" y="161" width="50" height="16" rx="3"/><g class="pv-booked" data-pv-slot="14:00"><rect x="60" y="161" width="50" height="16" rx="3"/><text x="85" y="173" text-anchor="middle">Booked</text></g>
                   <rect class="pv-box" x="130" y="48" width="100" height="132" rx="8"/>
                   <text class="pv-panel-h" x="140" y="64">Booking form</text>
-                  <rect class="pv-field" x="140" y="72" width="80" height="18" rx="3"/><text class="pv-field-t" x="146" y="85">Leaking tap</text>
+                  <rect class="pv-field" x="140" y="72" width="80" height="18" rx="3"/><text class="pv-field-t" x="146" y="85">Intro call</text>
                   <text class="pv-time" x="140" y="106">Free times</text>
                   <g class="pv-chip pv-on" data-pv-chip="10:00"><rect x="140" y="112" width="38" height="18" rx="9"/><text x="159" y="125" text-anchor="middle">10:00</text></g>
                   <g class="pv-chip" data-pv-chip="13:00"><rect x="182" y="112" width="38" height="18" rx="9"/><text x="201" y="125" text-anchor="middle">13:00</text></g>
                   <g class="pv-chip" data-pv-chip="14:00"><rect x="140" y="134" width="38" height="18" rx="9"/><text x="159" y="147" text-anchor="middle">14:00</text></g>
                   <rect class="pv-send" x="140" y="158" width="46" height="16" rx="8"/><text class="pv-send-t" x="163" y="170" text-anchor="middle">Book</text>
                   <rect class="pv-box" x="242" y="48" width="100" height="132" rx="8"/>
-                  <text class="pv-panel-h" x="252" y="64">Job sheet</text>
+                  <text class="pv-panel-h" x="252" y="64">Bookings</text>
                   <line class="pv-grid" x1="242" x2="342" y1="72" y2="72"/>
-                  <text class="pv-row-old" x="252" y="88">Mon 9:00</text><text class="pv-row-old" x="252" y="100">Gutter repair</text>
+                  <text class="pv-row-old" x="252" y="88">Mon 9:00</text><text class="pv-row-old" x="252" y="100">Supplier call</text>
                   <line class="pv-grid" x1="242" x2="342" y1="108" y2="108"/>
-                  <g class="pv-sheet-new"><rect x="243" y="109" width="98" height="40"/><text class="pv-row-new" x="252" y="125" data-pv-newtime>Tue 10:00</text><text class="pv-row-new" x="252" y="139">Leaking tap</text><rect class="pv-new-pill" x="304" y="115" width="30" height="14" rx="7"/><text class="pv-new-t" x="319" y="125" text-anchor="middle">New</text></g>
+                  <g class="pv-sheet-new"><rect x="243" y="109" width="98" height="40"/><text class="pv-row-new" x="252" y="125" data-pv-newtime>Tue 10:00</text><text class="pv-row-new" x="252" y="139">Intro call</text><rect class="pv-new-pill" x="304" y="115" width="30" height="14" rx="7"/><text class="pv-new-t" x="319" y="125" text-anchor="middle">New</text></g>
                   <path class="pv-link l1" d="M119 103 H128"/><path class="pv-link l2" d="M231 128 H240"/>
                   <circle class="pv-dot pv-dot-cal" cx="163" cy="166" r="4"/><circle class="pv-dot pv-dot-sheet" cx="163" cy="166" r="4"/>
                   <text class="pv-step-c" x="68" y="198" text-anchor="middle">1 Checks calendar</text><text class="pv-step-c" x="180" y="198" text-anchor="middle">2 Free times only</text><text class="pv-step-c" x="292" y="198" text-anchor="middle">3 Logged, booked</text>

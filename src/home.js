@@ -58,40 +58,54 @@ mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// "Explore the live example" and "Start the live example" in the hero: go to the demo. The visitor starts the checks there, after reading the setup.
+// "Explore the live example" and "See how these were found" in the hero: go to the example (the second one opens its Exceptions tab).
 document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
   if (!demo) return;
   e.preventDefault();
+  if (link.dataset.demoTab) demo.show(link.dataset.demoTab);
   const target = document.getElementById('samples');
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero snapshot card: a preview of the sample report, worked out by the same engine as the live example
-// (heroSummary in ./demo/engine.js). The HTML already holds the same figures for visitors without JavaScript, and
-// tests/demo.test.mjs fails if they ever differ; here the engine's values are written in, so the engine always wins.
-// Summary figures only: the findings themselves appear only once the visitor runs the check in the demo.
+// Hero sheet card: the sample sales log, the three things the checks find, and what the total could be.
+// Every figure comes from the same engine as the three-tab example (heroSummary in ./demo/engine.js). The HTML already
+// holds the same figures for visitors without JavaScript, and tests/demo.test.mjs fails if they ever differ.
 (function heroCard() {
   const h = heroSummary();
   document.querySelectorAll('[data-hero]').forEach((el) => {
     const v = h[el.dataset.hero];
     if (v !== undefined) el.textContent = String(v);
   });
-}());
-
-// Hero card issue lines: one per kind of issue the checks find, worded from ISSUES[*].card. Lines the engine
-// doesn't report are hidden, so the card can never list an issue the live example won't find.
-(function heroIssues() {
-  const found = new Map(heroSummary().issues.map((i) => [i.issue, i]));
+  const found = new Map(h.issues.map((i) => [i.issue, i]));
   document.querySelectorAll('[data-hero-issue]').forEach((li) => {
     const i = found.get(li.dataset.heroIssue);
     li.hidden = !i;
     if (!i) return;
-    const strong = li.querySelector('strong'); const span = li.querySelector('p span');
-    if (strong) strong.textContent = i.title;
-    if (span) span.textContent = i.text;
+    li.querySelector('strong').textContent = i.title;
+    li.querySelector('span').textContent = i.source;
   });
+}());
+
+// The hero sheet plays once on load: rows in, a scan down the sheet, the flagged rows light up, then the summary.
+// With reduced motion (or no JavaScript) the finished picture simply shows. "Replay" runs it again.
+(function heroPlay() {
+  const card = document.getElementById('hero-sheet');
+  if (!card) return;
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  const replay = card.querySelector('.hs-replay');
+  const play = () => {
+    card.classList.remove('hs-play');
+    void card.offsetWidth; // restart the CSS animations
+    card.classList.add('hs-play');
+  };
+  play();
+  if (replay) {
+    setTimeout(() => { replay.hidden = false; }, 3500);
+    replay.addEventListener('click', play);
+  }
 }());
 
 // The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.

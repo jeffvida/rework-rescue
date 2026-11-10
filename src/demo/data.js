@@ -1,105 +1,108 @@
-// Live demo data: one week for a fictional, unnamed small-business operations team. Everything here is made up.
-// Three sources that share a Work ID:
-//   TRACKER    (18 rows): every piece of work, who owns it, its status and due date.
-//   COMPLETION  (7 rows): one row per completed item, with how it was completed.
-//   FINANCE     (5 rows): one row per invoice raised.
-// Exactly three problems are planted (W-316 duplicates W-311; W-307 was delivered but has no invoice; W-314 has no
-// owner). W-304 is also missing from finance, but it was internal work, so it must NOT be flagged.
+// Sample data for the hero card, the three-tab example and the Data & Reporting preview.
+// One week for a fictional, unnamed small business. Everything here is made up.
+// Three sources:
+//   SALES    (12 rows): every sale recorded this week.
+//   PAYMENTS  (9 rows): every payment received, with the sale it pays.
+//   REQUESTS  (6 rows): customer requests, who owns them and the next action.
+// Exactly three things are planted, each found by a stated rule (see CHECKS):
+//   S-1051 looks like a duplicate of S-1043 (same customer, date and amount; only one payment).
+//   S-1047 has no amount (payment P-307 shows 380 was paid against it).
+//   R-205 is an open quote request with no owner and no next action after 4 working days.
+// S-1049 and S-1052 are not paid yet. That's normal within the week, so they are NOT flagged.
 // The engine (./engine.js) works out every number the page shows from these rows; tests/demo.test.mjs checks them.
+// Amounts have no currency symbol on purpose: they are sample sales, and nothing on the page should read as a price.
 
-// The sample week: a completed week (Mon 2 – Fri 6 Nov 2026). Work due after it is still open.
-// The demo window's title bar in index.html shows this label; home.js writes it in and tests/demo.test.mjs pins the HTML to it.
+// The sample week: a completed week (Mon 2 – Fri 6 Nov 2026).
 export const WEEK = 'Week ending Fri 6 Nov 2026';
 
-// status: 'Not started' | 'In progress' | 'Complete'. owner '' = nobody assigned.
-export const TRACKER = [
-  { id: 'W-301', work: 'Monthly supplier statement', owner: 'Alex', status: 'Complete', due: 'Mon 2 Nov' },
-  { id: 'W-302', work: 'New customer setup', owner: 'Priya', status: 'Complete', due: 'Tue 3 Nov' },
-  { id: 'W-303', work: 'Service contract renewal', owner: 'Sam', status: 'Complete', due: 'Tue 3 Nov' },
-  { id: 'W-304', work: 'Update the staff rota', owner: 'Jordan', status: 'Complete', due: 'Wed 4 Nov' },
-  { id: 'W-305', work: 'Equipment order for a customer', owner: 'Alex', status: 'Complete', due: 'Wed 4 Nov' },
-  { id: 'W-306', work: 'Quarterly customer review', owner: 'Priya', status: 'Complete', due: 'Thu 5 Nov' },
-  { id: 'W-307', work: 'Customer training session', owner: 'Sam', status: 'Complete', due: 'Thu 5 Nov' },
-  { id: 'W-308', work: 'Monthly sales report', owner: 'Jordan', status: 'In progress', due: 'Fri 6 Nov' },
-  { id: 'W-309', work: 'Follow up overdue payments', owner: 'Alex', status: 'In progress', due: 'Fri 6 Nov' },
-  { id: 'W-310', work: 'Quarterly stock count', owner: 'Priya', status: 'Not started', due: 'Mon 9 Nov' },
-  { id: 'W-311', work: 'Website content update', owner: 'Sam', status: 'In progress', due: 'Tue 10 Nov' },
-  { id: 'W-312', work: 'Supplier price review', owner: 'Jordan', status: 'Not started', due: 'Wed 11 Nov' },
-  { id: 'W-313', work: 'New starter onboarding', owner: 'Priya', status: 'In progress', due: 'Wed 11 Nov' },
-  { id: 'W-314', work: 'Customer feedback survey', owner: '', status: 'Not started', due: 'Fri 6 Nov' },
-  { id: 'W-315', work: 'Insurance renewal paperwork', owner: 'Alex', status: 'Not started', due: 'Thu 12 Nov' },
-  { id: 'W-316', work: 'Website content update', owner: 'Jordan', status: 'Not started', due: 'Tue 10 Nov' },
-  { id: 'W-317', work: 'Office equipment check', owner: 'Sam', status: 'Not started', due: 'Fri 13 Nov' },
-  { id: 'W-318', work: 'Annual pricing update', owner: 'Jordan', status: 'Not started', due: 'Fri 13 Nov' },
+// amount null = left blank.
+export const SALES = [
+  { id: 'S-1041', date: 'Mon 2 Nov', customer: 'Bayview Co.', amount: 450, from: 'Email' },
+  { id: 'S-1042', date: 'Mon 2 Nov', customer: 'R. Cruz', amount: 120, from: 'In person' },
+  { id: 'S-1043', date: 'Tue 3 Nov', customer: 'Greenfield Ltd', amount: 860, from: 'Email' },
+  { id: 'S-1044', date: 'Tue 3 Nov', customer: 'M. Tan', amount: 95, from: 'In person' },
+  { id: 'S-1045', date: 'Tue 3 Nov', customer: 'Oakline Studio', amount: 640, from: 'Phone' },
+  { id: 'S-1046', date: 'Wed 4 Nov', customer: 'J. Reyes', amount: 210, from: 'In person' },
+  { id: 'S-1047', date: 'Wed 4 Nov', customer: 'Summit Supplies', amount: null, from: 'Email' },
+  { id: 'S-1048', date: 'Wed 4 Nov', customer: 'K. Patel', amount: 150, from: 'Phone' },
+  { id: 'S-1049', date: 'Thu 5 Nov', customer: 'Riverside Group', amount: 520, from: 'Email' },
+  { id: 'S-1050', date: 'Thu 5 Nov', customer: 'L. Wong', amount: 75, from: 'In person' },
+  { id: 'S-1051', date: 'Tue 3 Nov', customer: 'Greenfield Ltd', amount: 860, from: 'Phone' },
+  { id: 'S-1052', date: 'Fri 6 Nov', customer: 'Harper & Co.', amount: 330, from: 'Email' },
 ];
 
-// billable: whether the completed work should lead to an invoice (shown to the visitor as the result text).
-export const COMPLETION = [
-  { id: 'W-301', completed: 'Mon 2 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-302', completed: 'Tue 3 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-303', completed: 'Tue 3 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-304', completed: 'Wed 4 Nov', result: 'Internal task, no invoice', billable: false },
-  { id: 'W-305', completed: 'Wed 4 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-306', completed: 'Thu 5 Nov', result: 'Delivered to customer', billable: true },
-  { id: 'W-307', completed: 'Thu 5 Nov', result: 'Delivered to customer', billable: true },
+export const PAYMENTS = [
+  { id: 'P-301', date: 'Mon 2 Nov', sale: 'S-1041', customer: 'Bayview Co.', amount: 450, method: 'Bank transfer' },
+  { id: 'P-302', date: 'Mon 2 Nov', sale: 'S-1042', customer: 'R. Cruz', amount: 120, method: 'Card' },
+  { id: 'P-303', date: 'Wed 4 Nov', sale: 'S-1043', customer: 'Greenfield Ltd', amount: 860, method: 'Bank transfer' },
+  { id: 'P-304', date: 'Tue 3 Nov', sale: 'S-1044', customer: 'M. Tan', amount: 95, method: 'Card' },
+  { id: 'P-305', date: 'Thu 5 Nov', sale: 'S-1045', customer: 'Oakline Studio', amount: 640, method: 'Bank transfer' },
+  { id: 'P-306', date: 'Wed 4 Nov', sale: 'S-1046', customer: 'J. Reyes', amount: 210, method: 'Card' },
+  { id: 'P-307', date: 'Thu 5 Nov', sale: 'S-1047', customer: 'Summit Supplies', amount: 380, method: 'Bank transfer' },
+  { id: 'P-308', date: 'Wed 4 Nov', sale: 'S-1048', customer: 'K. Patel', amount: 150, method: 'Card' },
+  { id: 'P-309', date: 'Thu 5 Nov', sale: 'S-1050', customer: 'L. Wong', amount: 75, method: 'Card' },
 ];
 
-export const FINANCE = [
-  { id: 'W-301', invoice: 'INV-2041', amount: 1250, status: 'Paid' },
-  { id: 'W-302', invoice: 'INV-2042', amount: 640, status: 'Sent' },
-  { id: 'W-303', invoice: 'INV-2043', amount: 2100, status: 'Sent' },
-  { id: 'W-305', invoice: 'INV-2044', amount: 890, status: 'Sent' },
-  { id: 'W-306', invoice: 'INV-2045', amount: 480, status: 'Sent' },
+// status: 'Open' | 'Closed'. owner / next '' = left blank.
+export const REQUESTS = [
+  { id: 'R-201', received: 'Mon 2 Nov', customer: 'Bayview Co.', request: 'Change to an order', status: 'Closed', owner: 'Ana', next: 'Done' },
+  { id: 'R-202', received: 'Tue 3 Nov', customer: 'M. Tan', request: 'Asked for a quote', status: 'Closed', owner: 'Ben', next: 'Quote sent' },
+  { id: 'R-203', received: 'Tue 3 Nov', customer: 'Greenfield Ltd', request: 'Copy of receipt', status: 'Closed', owner: 'Ana', next: 'Sent' },
+  { id: 'R-204', received: 'Wed 4 Nov', customer: 'K. Patel', request: 'Question about payment', status: 'Open', owner: 'Ben', next: 'Call back Fri' },
+  { id: 'R-205', received: 'Mon 2 Nov', customer: 'Northside Partners', request: 'Asked for a quote', status: 'Open', owner: '', next: '' },
+  { id: 'R-206', received: 'Thu 5 Nov', customer: 'L. Wong', request: 'Change of date', status: 'Open', owner: 'Ana', next: 'Confirm Mon' },
 ];
 
 export const SOURCES = [
-  { id: 'tracker', name: 'Operations Tracker', fields: ['Work ID', 'Work', 'Owner', 'Status', 'Due'] },
-  { id: 'completion', name: 'Completion Log', fields: ['Work ID', 'Completed', 'Result'] },
-  { id: 'finance', name: 'Finance Register', fields: ['Work ID', 'Invoice', 'Amount', 'Status'] },
+  { id: 'sales', name: 'Sales log', file: 'Sales log.xlsx', fields: ['Ref', 'Date', 'Customer', 'Amount', 'Entered from'] },
+  { id: 'payments', name: 'Payments received', file: 'Payments.xlsx', fields: ['Ref', 'Date', 'Sale ref', 'Customer', 'Amount', 'Method'] },
+  { id: 'requests', name: 'Customer requests', file: 'Requests sheet', fields: ['Ref', 'Received', 'Customer', 'Request', 'Status', 'Owner', 'Next action'] },
 ];
 
-// Fictional team for "Assign someone", and the preset reasons for leaving an item pending (no free text).
-export const TEAM = ['Alex', 'Priya', 'Sam', 'Jordan'];
-export const PENDING_REASONS = ['Waiting for information', 'Work is on hold', 'Owner not yet confirmed', 'Needs further review'];
+// The rule each check applies, in plain words. A request is followed up if it is open longer than this
+// many working days with no next action recorded.
+export const FOLLOW_UP_DAYS = 2;
 
-// The three issues the checks can find, in the visitor's words. First person only, no "we".
+// The three kinds of finding, in the visitor's words. First person only, no "we".
 export const ISSUES = {
   duplicate: {
-    title: 'Possible duplicate',
-    card: ['Possible duplicate task', 'Two records may describe the same work.'],
-    explain: 'This work appears more than once. Should these records be treated as one item or kept separate?',
-    why: 'A duplicate makes the workload look bigger than it is, and two people may end up doing the same work.',
-    choices: [['merge', 'Merge these records'], ['separate', 'Keep them separate']],
+    title: 'Potential duplicate',
+    hero: 'Potential duplicate to review',
+    source: 'Sales log',
+    rule: 'Same customer, same date, same amount, different reference.',
+    why: (f) => `One entry came in by email and one by phone, and only one payment exists. If they’re the same sale, the total is ${f.amount.toLocaleString('en-US')} too high.`,
+    action: 'Confirm with the team, then remove one entry if it’s the same sale.',
+    choices: [['remove', (f) => `Same sale, remove ${f.ids[1]}`], ['keep', () => 'Two separate sales, keep both']],
+    prevent: 'Check for an existing sale before adding a new one.',
   },
-  finance: {
-    title: 'Completed work without a finance match',
-    card: ['Completed work not invoiced', 'One completed item has no matching invoice.'],
-    explain: 'This work is marked as complete, but there’s no matching entry in the finance register.',
-    why: 'Not every completed item needs an invoice. Some work is internal, under warranty or not billable, so this needs a decision rather than an automatic fix.',
-    choices: [['followUp', 'Flag for invoice follow-up'], ['noInvoiceDue', 'Confirm no invoice is due']],
+  missing: {
+    title: 'Missing information',
+    hero: 'Sale with no amount',
+    source: 'Sales log + Payments',
+    rule: 'Every sale needs an amount.',
+    why: (f) => `The total leaves this sale out. Payment ${f.payment.id} shows ${f.payment.amount.toLocaleString('en-US')} was paid against it.`,
+    action: (f) => `Confirm the amount (the payment shows ${f.payment.amount.toLocaleString('en-US')}) and fill it in.`,
+    choices: [['usePayment', (f) => `Use ${f.payment.amount.toLocaleString('en-US')} from the payment`], ['checkFirst', () => 'Check with the team first']],
+    prevent: 'Make the amount a required field.',
   },
-  owner: {
-    title: 'No one assigned',
-    card: ['Work without an owner', 'One open task needs someone responsible.'],
-    explain: 'This item is still open, but nobody is listed as responsible for it.',
-    why: 'Work without an owner is easy to miss, and nobody knows who should follow it up.',
-    choices: [['assign', 'Assign someone'], ['pending', 'Leave it pending']],
+  followUp: {
+    title: 'Outstanding follow-up',
+    hero: 'Quote request with no next action',
+    source: 'Customer requests',
+    rule: `An open request older than ${FOLLOW_UP_DAYS} working days with no next action recorded.`,
+    why: (f) => `${f.record.customer} asked for a quote on ${f.receivedDay}. ${f.days} working days later there’s no owner and no next step.`,
+    action: 'Give it an owner and a next action.',
+    choices: [['assign', () => 'Assign and add a next action'], ['handled', () => 'Mark as handled']],
+    prevent: 'Require an owner and a next action when a request is logged.',
   },
 };
 
 // One-line consequence shown after each choice.
 export const CONSEQUENCE = {
-  merge: 'Merged into one item. Open work goes down by one.',
-  separate: 'Kept as two items. They won’t be flagged again.',
-  followUp: 'Added to the invoice follow-ups. It stays counted as not invoiced until an invoice is raised.',
-  noInvoiceDue: 'Recorded as not billable. It no longer counts as not invoiced.',
-  assign: (who) => `Assigned to ${who}. Every open item now has an owner.`,
-  pending: (reason) => `Left pending: ${reason.toLowerCase()}. It stays visible as open with no owner, with the reason recorded.`,
+  remove: (f) => `Removed ${f.ids[1]}. The sales total drops by ${f.amount.toLocaleString('en-US')}.`,
+  keep: () => 'Kept as two sales. The second one now shows as waiting for payment.',
+  usePayment: (f) => `Amount filled in from ${f.payment.id}. The sales total goes up by ${f.payment.amount.toLocaleString('en-US')}.`,
+  checkFirst: () => 'Left for the team to confirm. The sale stays out of the total until it has an amount.',
+  assign: () => 'Assigned to Ben, with the next action “Send the quote”.',
+  handled: () => 'Marked as handled. It no longer counts as an open request.',
 };
-
-// Stage 4: how each problem gets prevented next time.
-export const PREVENTION = [
-  { issue: 'duplicate', before: 'New work is added without checking the tracker.', after: 'Check for an existing record before creating a new one.' },
-  { issue: 'finance', before: 'Invoices are matched to completed work by memory.', after: 'Add a completion-to-invoice check.' },
-  { issue: 'owner', before: 'Items can become active with no one responsible.', after: 'Require an owner before an item becomes active.' },
-];

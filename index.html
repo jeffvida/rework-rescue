@@ -65,43 +65,31 @@
           </div>
         </div>
         <figure class="hero-preview teaser no-print">
-          <div class="tz-card hs-card" id="hero-sheet">
+          <div class="tz-card rl-card" id="hero-run">
             <div class="ops-top">
-              <p class="ops-eyebrow">Weekly business report</p>
-              <p class="ops-flag"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.2M12 17h.01"/></svg><span data-hero="status">Review required</span></p>
+              <p class="ops-eyebrow">Weekly report &middot; Every Monday, 7:00&nbsp;AM</p>
+              <p class="ops-flag rl-status"><span data-rl="status">Awaiting review</span></p>
             </div>
-            <p class="tz-title">Can you trust this week&rsquo;s numbers?</p>
+            <p class="tz-title">This week&rsquo;s report, checked and ready for your approval.</p>
             <p class="tz-date">Fictional sample data &middot; <span data-hero="weekRange">2–6 November 2026</span></p>
-            <div class="hs-sheet" role="img" aria-label="A sample sales log. Two Greenfield Ltd sales on Tuesday for 860 are flagged as a potential duplicate, and a Summit Supplies sale is flagged because its amount is blank.">
-              <table class="hs-table" aria-hidden="true">
-                <thead><tr><th>Ref</th><th>Date</th><th>Customer</th><th class="hs-num">Amount</th><th class="hs-flagcol"><span class="sr-only">Check</span></th></tr></thead>
-                <tbody>
-                  <tr class="hs-row hs-dup"><td>S-1043</td><td>Tue 3</td><td>Greenfield Ltd</td><td class="hs-num">860</td><td class="hs-flagcol"><span class="hs-tag">Duplicate?</span></td></tr>
-                  <tr class="hs-row"><td>S-1044</td><td>Tue 3</td><td>M. Tan</td><td class="hs-num">95</td><td class="hs-flagcol"></td></tr>
-                  <tr class="hs-row"><td>S-1046</td><td>Wed 4</td><td>J. Reyes</td><td class="hs-num">210</td><td class="hs-flagcol"></td></tr>
-                  <tr class="hs-row hs-miss"><td>S-1047</td><td>Wed 4</td><td>Summit Supplies</td><td class="hs-num hs-blank"></td><td class="hs-flagcol"><span class="hs-tag">No amount</span></td></tr>
-                  <tr class="hs-row hs-more"><td colspan="5">+ 7 more rows</td></tr>
-                  <tr class="hs-row hs-dup"><td>S-1051</td><td>Tue 3</td><td>Greenfield Ltd</td><td class="hs-num">860</td><td class="hs-flagcol"><span class="hs-tag">Duplicate?</span></td></tr>
-                </tbody>
-                <tfoot><tr><td colspan="3">Total (<span data-hero="sales">12</span> sales)</td><td class="hs-num hs-total" data-hero="salesTotal">4,310</td><td class="hs-flagcol"></td></tr></tfoot>
-              </table>
-              <span class="hs-scan" aria-hidden="true"></span>
-              <p class="hs-tabs" aria-hidden="true"><span class="is-on">Sales log</span><span>Payments</span><span>Requests</span></p>
-            </div>
-            <div class="hs-result">
-              <p class="hs-result-h"><span data-hero="toCheck">3</span> things to check before you share it</p>
-              <ul class="hs-issues">
-                <li data-hero-issue="duplicate"><strong>Potential duplicate to review</strong> <span>Sales log</span></li>
-                <li data-hero-issue="missing"><strong>Sale with no amount</strong> <span>Sales log + Payments</span></li>
-                <li data-hero-issue="followUp"><strong>Quote request with no next action</strong> <span>Customer requests</span></li>
-              </ul>
-              <p class="hs-total-line">Sales total <s data-hero="salesTotal">4,310</s> <span aria-hidden="true">&rarr;</span><span class="sr-only">, which</span> could be <strong data-hero="confirmedTotal">3,830</strong> once checked</p>
-              <div class="hs-actions">
-                <a class="btn btn-primary tz-btn ops-cta" href="#samples" data-demo-check data-demo-tab="exceptions">See how these were found <span aria-hidden="true">&rarr;</span></a>
-                <button type="button" class="hs-replay" hidden>Replay</button>
-              </div>
-            </div>
+            <ol class="rl">
+              <li class="rl-step is-done"><span class="rl-dot" aria-hidden="true"></span><div><p class="rl-h">Collect and consolidate</p><p class="rl-m"><span data-hero="sourceRecords">27</span> records from <span data-hero="sources">3</span> sources, plus <span data-hero="historyWeeks">4</span> weeks of sales history</p></div></li>
+              <li class="rl-step is-done"><span class="rl-dot" aria-hidden="true"></span><div><p class="rl-h">Format and standardise</p><p class="rl-m">One table: dates, customers and amounts in one format</p></div></li>
+              <li class="rl-step is-warn"><span class="rl-dot" aria-hidden="true"></span><div><p class="rl-h">Validate and detect patterns <span class="rl-badge" data-rl="flagged"><span data-hero="flagged">4</span> flagged</span></p>
+                <ul class="rl-flags" data-rl="flags">
+                  <li data-flag="duplicate">Potential duplicate</li>
+                  <li data-flag="missing">Sale with no amount</li>
+                  <li data-flag="pattern">Unusual Tuesday sales</li>
+                  <li data-flag="followUp">Request with no next action</li>
+                </ul></div></li>
+              <li class="rl-step is-done"><span class="rl-dot" aria-hidden="true"></span><div><p class="rl-h">AI findings <span class="rl-ai">AI &middot; simulated</span></p><p class="rl-sum" data-rl="summary">Sales recorded: 4,310, provisional. 4 items need investigation, including Tuesday sales 58% above their 4-week average.</p></div></li>
+              <li class="rl-step rl-approve"><span class="rl-dot" aria-hidden="true"></span><div><p class="rl-h">Your review and approval</p><p class="rl-m" data-rl="note">Nothing is shared or changed until you decide.</p>
+                <div class="rl-actions" data-rl="actions"><a class="btn btn-primary btn-small" href="#samples">Review flagged items</a></div></div></li>
+              <li class="rl-step rl-out is-locked"><span class="rl-dot" aria-hidden="true"></span><div><p class="rl-h">Deliver</p><div class="rl-m" data-rl="outputs">Report, dashboard and follow-up tasks unlock after release.</div></div></li>
+            </ol>
+            <p class="rl-foot"><span>Simulated in your browser. Nothing is sent or changed.</span> <button type="button" class="hs-replay" hidden>Replay</button></p>
           </div>
+          <figcaption class="rl-tagline">Automation does the repetitive work. Rules check the data. AI helps explain what needs attention. You stay in control.</figcaption>
         </figure>
       </div>
     </section>
@@ -122,23 +110,24 @@
     <section class="section demo-section" id="samples" aria-labelledby="samples-h">
       <div class="container">
         <h2 id="samples-h">See how the checks work</h2>
-        <p class="lede">One fictional week: 27 records across a sales log, payments received and customer requests.</p>
-        <p class="lede">The checks found three things. Select one to see the records behind it, then decide what happens. The report flags it. You decide.</p>
+        <p class="lede">One fictional week: 27 records across a sales log, payments received and customer requests, checked against four weeks of sales history.</p>
+        <p class="lede">The checks flagged four things. A flag isn&rsquo;t an error until you say so: open the original records, then correct what&rsquo;s wrong or confirm what&rsquo;s genuine. Every decision reruns the checks.</p>
         <p class="disclosure demo-disclosure"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg><span>This is a fictional example using made-up data. It demonstrates how I approach a reporting problem; it isn&#39;t a client project.</span></p>
         <div class="demo-window">
         <div class="demo-window-bar" aria-hidden="true"><span class="dw-dots"><i></i><i></i><i></i></span><span class="dw-title">Weekly business report</span><span class="dw-sub">Fictional business</span><span class="dw-status" data-week>Week ending Fri 6 Nov 2026</span></div>
         <div id="demo-app" class="demo-app">
           <div class="demo-static">
             <h3>Overview: what&rsquo;s happening?</h3>
-            <p>Sales recorded: 4,310 across 12 sales. Payments received: 2,980 across 9 payments. Open customer requests: 3. Things to check: 3.</p>
+            <p>Sales recorded: 4,310 across 12 sales (provisional). Payments received: 2,980 across 9 payments. Open customer requests: 3. Findings: 4.</p>
             <h3>Exceptions: what needs attention?</h3>
             <ol>
-              <li><strong>Potential duplicate (S-1043 and S-1051).</strong> Same customer, same date, same amount, different reference, and only one payment. To stop it happening again: check for an existing sale before adding a new one.</li>
-              <li><strong>Missing information (S-1047).</strong> The sale has no amount, so the total leaves it out. Payment P-307 shows 380 was paid against it. To stop it happening again: make the amount a required field.</li>
-              <li><strong>Outstanding follow-up (R-205).</strong> A quote request open for 4 working days with no owner and no next action. To stop it happening again: require an owner and a next action when a request is logged.</li>
+              <li><strong>Potential duplicate (S-1043 and S-1051).</strong> Same customer, same date, same amount, different reference, and only one payment. Either the same sale (remove S-1051) or two genuine sales.</li>
+              <li><strong>Missing amount (S-1047).</strong> The sale has no amount, so the total leaves it out. Payment P-307 shows 380 received, but not whether that&rsquo;s the full amount or a part payment.</li>
+              <li><strong>Unusual Tuesday sales.</strong> 2,455 against a 4-week Tuesday average of 1,550 (about 58% higher; the demonstration rule flags anything beyond 40%). Without S-1051, Tuesday would be 1,595.</li>
+              <li><strong>Request with no next action (R-205).</strong> A quote request open for 4 working days with no owner and no next action.</li>
             </ol>
             <h3>Source records: where did the information come from?</h3>
-            <p>A sales log (12 records), payments received (9) and customer requests (6).</p>
+            <p>A sales log (12 records), payments received (9), customer requests (6), and daily sales totals for the previous 4 weeks (demonstration data).</p>
             <p>The interactive version of this example needs JavaScript.</p>
           </div>
         </div>
@@ -186,23 +175,24 @@
               <p class="svc-outcome"><strong>What gets better:</strong> spend less time preparing and checking reports, catch data issues earlier and send the report without checking it twice.</p>
             </details>
             <details class="svc-try">
-              <summary>Try an example</summary>
-              <figure class="svc-preview svc-preview-auto" data-pv-figure="data">
-                <div class="pva" role="group" aria-label="Sample automated weekly report: the data comes in, the checks run, the dashboard updates and AI drafts a summary that waits for your approval.">
-                  <div class="pva-top"><p class="pva-title">Weekly report, automated</p><span class="pva-tag">Sample &middot; AI simulated</span></div>
-                  <ol class="pva-steps">
-                    <li class="pva-step"><span class="pva-n" aria-hidden="true">1</span><div><p class="pva-k">Data comes in</p><p class="pva-chips"><span>Sales log &middot; <b data-pva="sales">12</b></span><span>Payments &middot; <b data-pva="payments">9</b></span><span>Requests &middot; <b data-pva="requests">6</b></span></p></div></li>
-                    <li class="pva-step"><span class="pva-n" aria-hidden="true">2</span><div><p class="pva-k">Checks run</p><ul class="pva-checks"><li class="is-ok">Every payment matched to a sale</li><li class="is-warn">1 potential duplicate</li><li class="is-warn">1 sale with no amount</li><li class="is-warn">1 request with no next action</li></ul></div></li>
-                    <li class="pva-step"><span class="pva-n" aria-hidden="true">3</span><div><p class="pva-k">Dashboard updates</p><dl class="pva-kpis"><div><dt>Sales</dt><dd data-pva="salesTotal">4,310</dd></div><div><dt>Payments</dt><dd data-pva="paymentsTotal">2,980</dd></div><div><dt>Open requests</dt><dd data-pva="openRequests">3</dd></div></dl></div></li>
-                    <li class="pva-step"><span class="pva-n" aria-hidden="true">4</span><div><p class="pva-k"><span class="pva-ai">AI</span> Summary drafted</p><div class="pva-sum" data-pva-summary><p>Sales recorded: 4,310 across 12 sales.</p><p>Two items need checking before this total is final: a potential duplicate (S-1051, 860) and a sale with no amount (S-1047; payment shows 380).</p><p>Payments received: 2,980.</p><p>One quote request (Northside Partners) has no next action.</p></div></div></li>
-                    <li class="pva-step pva-you-step"><span class="pva-n" aria-hidden="true">5</span><div><p class="pva-k"><span class="pva-you">You</span> Review, then share</p><p class="pva-wait">Waiting for you to approve or edit the draft. Nothing is shared until you do.</p><p class="pva-shared">Approved. Report and summary shared with the team.</p></div></li>
-                  </ol>
+              <summary>See an example output</summary>
+              <figure class="svc-preview svc-preview-out" data-pv-figure="output">
+                <div class="po" role="group" aria-label="Sample output after a full review: the final weekly report, the refreshed dashboard and one follow-up task.">
+                  <div class="po-top"><p class="po-title">Weekly report &middot; after review</p><span class="po-tag">Final &middot; sample data</span></div>
+                  <dl class="po-kpis">
+                    <div><dt>Sales after review</dt><dd data-po="salesTotal">3,830</dd><p>recorded <span data-po="recordedTotal">4,310</span></p></div>
+                    <div><dt>Payments received</dt><dd data-po="paymentsTotal">2,980</dd></div>
+                    <div><dt>Still to be paid</dt><dd data-po="owed">850</dd><p>S-1049, S-1052</p></div>
+                    <div><dt>Open requests</dt><dd data-po="openRequests">3</dd><p>each with a next action</p></div>
+                  </dl>
+                  <p class="po-k">Dashboard: daily sales against the 4-week average</p>
+                  <svg class="po-chart" viewBox="0 0 300 132" role="img" aria-label="Daily sales after review against the 4-week average: Monday 570, Tuesday 1,595, Wednesday 740, Thursday 595, Friday 330. Every day is within the plus or minus 40% demonstration rule." focusable="false"><text class="po-day" x="0" y="25">Mon</text><rect class="po-track" x="44" y="14" width="170" height="14" rx="3"/><rect class="po-bar" x="44" y="14" width="61" height="14" rx="3"/><rect class="po-avg" x="109" y="11" width="2" height="20"/><text class="po-n" x="222" y="25" data-po-day="Mon">570 <tspan class="po-c">−8%</tspan></text><text class="po-day" x="0" y="49">Tue</text><rect class="po-track" x="44" y="38" width="170" height="14" rx="3"/><rect class="po-bar" x="44" y="38" width="170" height="14" rx="3"/><rect class="po-avg" x="208" y="35" width="2" height="20"/><text class="po-n" x="222" y="49" data-po-day="Tue">1,595 <tspan class="po-c">+3%</tspan></text><text class="po-day" x="0" y="73">Wed</text><rect class="po-track" x="44" y="62" width="170" height="14" rx="3"/><rect class="po-bar" x="44" y="62" width="79" height="14" rx="3"/><rect class="po-avg" x="103" y="59" width="2" height="20"/><text class="po-n" x="222" y="73" data-po-day="Wed">740 <tspan class="po-c">+32%</tspan></text><text class="po-day" x="0" y="97">Thu</text><rect class="po-track" x="44" y="86" width="170" height="14" rx="3"/><rect class="po-bar" x="44" y="86" width="63" height="14" rx="3"/><rect class="po-avg" x="111" y="83" width="2" height="20"/><text class="po-n" x="222" y="97" data-po-day="Thu">595 <tspan class="po-c">−7%</tspan></text><text class="po-day" x="0" y="121">Fri</text><rect class="po-track" x="44" y="110" width="170" height="14" rx="3"/><rect class="po-bar" x="44" y="110" width="35" height="14" rx="3"/><rect class="po-avg" x="84" y="107" width="2" height="20"/><text class="po-n" x="222" y="121" data-po-day="Fri">330 <tspan class="po-c">−13%</tspan></text></svg>
+                  <ul class="po-log">
+                    <li><strong>Review:</strong> <span data-po="review">4 findings resolved</span> (S-1051 removed, S-1047 confirmed at 380, Tuesday cleared by the recheck, R-205 assigned).</li>
+                    <li><strong>Follow-up task:</strong> <span data-po="task">R-205: Send the quote to Northside Partners (Ben)</span></li>
+                  </ul>
                 </div>
-                <div class="pv-controls" data-pv="data" hidden>
-                  <span class="pv-try">Try it</span> <button type="button" class="pv-btn" data-pv-go>Approve &amp; share</button>
-                  <p class="pv-result" aria-live="polite"></p>
-                </div>
-                <p class="svc-preview-note">The same fictional week as the example above, once the weekly run is automated.</p>
+                <p class="svc-preview-note">What the example above produces after a full review and final approval. Your own decisions there produce their own version.</p>
               </figure>
             </details>
           </li>

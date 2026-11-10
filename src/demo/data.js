@@ -4,9 +4,13 @@
 //   SALES    (12 rows): every sale recorded this week.
 //   PAYMENTS  (9 rows): every payment received, with the sale it pays.
 //   REQUESTS  (6 rows): customer requests, who owns them and the next action.
-// Exactly three things are planted, each found by a stated rule (see CHECKS):
+//   HISTORY  (fictional demonstration data): daily sales totals for the previous 4 weeks, used only for the
+//            pattern check.
+// Four findings, each from a stated rule:
 //   S-1051 looks like a duplicate of S-1043 (same customer, date and amount; only one payment).
-//   S-1047 has no amount (payment P-307 shows 380 was paid against it).
+//   S-1047 has no amount; payment P-307 shows 380 received against it (full amount or part payment: unknown).
+//   Tuesday's sales (2,455) are about 58% above the 4-week Tuesday average (1,550). Partly explained by the
+//   potential duplicate: without S-1051, Tuesday is 1,595 (+3%), inside the range.
 //   R-205 is an open quote request with no owner and no next action after 4 working days.
 // S-1049 and S-1052 are not paid yet. That's normal within the week, so they are NOT flagged.
 // The engine (./engine.js) works out every number the page shows from these rows; tests/demo.test.mjs checks them.
@@ -54,55 +58,59 @@ export const REQUESTS = [
 ];
 
 export const SOURCES = [
-  { id: 'sales', name: 'Sales log', file: 'Sales log.xlsx', fields: ['Ref', 'Date', 'Customer', 'Amount', 'Entered from'] },
-  { id: 'payments', name: 'Payments received', file: 'Payments.xlsx', fields: ['Ref', 'Date', 'Sale ref', 'Customer', 'Amount', 'Method'] },
-  { id: 'requests', name: 'Customer requests', file: 'Requests sheet', fields: ['Ref', 'Received', 'Customer', 'Request', 'Status', 'Owner', 'Next action'] },
+  { id: 'sales', name: 'Sales log', fields: ['Ref', 'Date', 'Customer', 'Amount', 'Entered from'] },
+  { id: 'payments', name: 'Payments received', fields: ['Ref', 'Date', 'Sale ref', 'Customer', 'Amount', 'Method'] },
+  { id: 'requests', name: 'Customer requests', fields: ['Ref', 'Received', 'Customer', 'Request', 'Status', 'Owner', 'Next action'] },
 ];
 
-// The rule each check applies, in plain words. A request is followed up if it is open longer than this
-// many working days with no next action recorded.
-export const FOLLOW_UP_DAYS = 2;
-
-// The three kinds of finding, in the visitor's words. First person only, no "we".
-export const ISSUES = {
-  duplicate: {
-    title: 'Potential duplicate',
-    hero: 'Potential duplicate to review',
-    source: 'Sales log',
-    rule: 'Same customer, same date, same amount, different reference.',
-    why: (f) => `One entry came in by email and one by phone, and only one payment exists. If they’re the same sale, the total is ${f.amount.toLocaleString('en-US')} too high.`,
-    action: 'Confirm with the team, then remove one entry if it’s the same sale.',
-    choices: [['remove', (f) => `Same sale, remove ${f.ids[1]}`], ['keep', () => 'Two separate sales, keep both']],
-    prevent: 'Check for an existing sale before adding a new one.',
-  },
-  missing: {
-    title: 'Missing information',
-    hero: 'Sale with no amount',
-    source: 'Sales log + Payments',
-    rule: 'Every sale needs an amount.',
-    why: (f) => `The total leaves this sale out. Payment ${f.payment.id} shows ${f.payment.amount.toLocaleString('en-US')} was paid against it.`,
-    action: (f) => `Confirm the amount (the payment shows ${f.payment.amount.toLocaleString('en-US')}) and fill it in.`,
-    choices: [['usePayment', (f) => `Use ${f.payment.amount.toLocaleString('en-US')} from the payment`], ['checkFirst', () => 'Check with the team first']],
-    prevent: 'Make the amount a required field.',
-  },
-  followUp: {
-    title: 'Outstanding follow-up',
-    hero: 'Quote request with no next action',
-    source: 'Customer requests',
-    rule: `An open request older than ${FOLLOW_UP_DAYS} working days with no next action recorded.`,
-    why: (f) => `${f.record.customer} asked for a quote on ${f.receivedDay}. ${f.days} working days later there’s no owner and no next step.`,
-    action: 'Give it an owner and a next action.',
-    choices: [['assign', () => 'Assign and add a next action'], ['handled', () => 'Mark as handled']],
-    prevent: 'Require an owner and a next action when a request is logged.',
+// Fictional demonstration data: daily sales totals for the 4 weeks before the sample week (oldest first).
+export const HISTORY = {
+  weeks: ['w/e 9 Oct', 'w/e 16 Oct', 'w/e 23 Oct', 'w/e 30 Oct'],
+  days: {
+    Mon: [640, 590, 610, 640],
+    Tue: [1520, 1610, 1480, 1590],
+    Wed: [540, 600, 520, 580],
+    Thu: [660, 610, 650, 640],
+    Fri: [360, 410, 350, 400],
   },
 };
 
-// One-line consequence shown after each choice.
-export const CONSEQUENCE = {
-  remove: (f) => `Removed ${f.ids[1]}. The sales total drops by ${f.amount.toLocaleString('en-US')}.`,
-  keep: () => 'Kept as two sales. The second one now shows as waiting for payment.',
-  usePayment: (f) => `Amount filled in from ${f.payment.id}. The sales total goes up by ${f.payment.amount.toLocaleString('en-US')}.`,
-  checkFirst: () => 'Left for the team to confirm. The sale stays out of the total until it has an amount.',
-  assign: () => 'Assigned to Ben, with the next action “Send the quote”.',
-  handled: () => 'Marked as handled. It no longer counts as an open request.',
+// Demonstration rules. Configurable per business, not universal standards.
+export const RULES = {
+  patternThreshold: 0.4,  // flag a day more than 40% above or below its 4-week average for the same weekday
+  followUpDays: 2,        // flag an open request older than this many working days with no next action
+};
+
+// The four findings, in the visitor's words. First person only, no "we". Outcome per choice:
+//   resolved = an error corrected or a rule satisfied; legitimate = checked and confirmed as genuine;
+//   unresolved = still needs confirming.
+export const ISSUES = {
+  duplicate: {
+    title: 'Potential duplicate',
+    kind: 'Duplicate check',
+    hero: 'Potential duplicate',
+    choices: [['remove', 'Same sale: remove S-1051', 'resolved'], ['keep', 'Two separate sales: keep both', 'legitimate']],
+    prevent: 'Check for an existing sale before adding a new one.',
+  },
+  missing: {
+    title: 'Missing amount',
+    kind: 'Missing information · cross-source',
+    hero: 'Sale with no amount',
+    choices: [['fullAmount', '380 is the full sale amount', 'resolved'], ['partial', '380 is a part payment', 'unresolved'], ['unconfirmed', 'Can’t confirm yet', 'unresolved']],
+    prevent: 'Make the amount a required field.',
+  },
+  pattern: {
+    title: 'Unusual Tuesday sales',
+    kind: 'Historical pattern',
+    hero: 'Unusual Tuesday sales',
+    choices: [['legit', 'Legitimate variation', 'legitimate'], ['investigate', 'Keep investigating', 'unresolved']],
+    prevent: 'Check unusual days against the source records before the report is shared.',
+  },
+  followUp: {
+    title: 'Request with no next action',
+    kind: 'Business rule',
+    hero: 'Request with no next action',
+    choices: [['assign', 'Assign and add a next action', 'resolved'], ['handled', 'Already handled', 'resolved']],
+    prevent: 'Require an owner and a next action when a request is logged.',
+  },
 };

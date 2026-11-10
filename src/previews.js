@@ -1,9 +1,8 @@
 // Service previews you can try: the routine runs on its own and the visitor makes the one step
-// (approve the AI-drafted report summary, approve the AI-drafted reply, pick a time and book). Without JavaScript the finished
+// (approve the AI-drafted reply, pick a time and book). The Data & Reporting output sample has no controls. Without JavaScript the finished
 // picture shows and the controls stay hidden.
 
 const RESULT = {
-  data: () => 'Sample complete: the checks ran and AI drafted the summary, but nothing was shared until you approved it.',
   workflow: () => 'Sample complete: AI read the email and drafted the reply, but nothing was sent until you approved it. Then a follow-up was set.',
   systems: (t) => `Sample only, no real booking was made: Tuesday at ${t} now shows in the sample calendar and bookings sheet.`,
 };

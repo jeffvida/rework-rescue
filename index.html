@@ -77,15 +77,15 @@
             <div class="hw-bar-top"><span class="hw-dots"><i></i><i></i><i></i></span><span class="hw-app-t">Connected workspace</span><span class="hw-app-s">Illustration</span></div>
             <div class="hw-grid">
               <section class="hw-panel hw-data"><p class="hw-k">Data <span data-hw="records">33</span> records &middot; 3 sources</p>
-                <ul class="hw-rows"><li><span>R-101</span><span>Bayview Co.</span><span class="hw-ok">&#10003;</span></li><li><span>R-104</span><span>Summit Supplies</span><span class="hw-flag">check</span></li><li><span>R-107</span><span>Lakeside Cafe</span><span class="hw-ok">&#10003;</span></li></ul></section>
+                <ul class="hw-rows" data-hw-rows><li data-hw-row="R-101"><span>R-101</span><span>Bayview Co.</span><span class="hw-ok">&#10003;</span></li><li data-hw-row="R-104"><span>R-104</span><span>Summit Supplies</span><span class="hw-flag">check</span></li><li data-hw-row="R-107"><span>R-107</span><span>Lakeside Cafe</span><span class="hw-ok">&#10003;</span></li></ul></section>
               <section class="hw-panel hw-report"><p class="hw-k">Report</p>
                 <p class="hw-kpis"><span><strong data-hw="requests">12</strong> requests</span><span><strong data-hw="openRequests">6</strong> open</span><span><strong data-hw="completed">6</strong> done</span></p>
                 <div class="hw-chart"><span class="hw-bar" data-hw-day="Mon" data-v="1"><i></i><em>M</em></span><span class="hw-bar" data-hw-day="Tue" data-v="2"><i></i><em>T</em></span><span class="hw-bar" data-hw-day="Wed" data-v="1"><i></i><em>W</em></span><span class="hw-bar" data-hw-day="Thu" data-v="1"><i></i><em>T</em></span><span class="hw-bar" data-hw-day="Fri" data-v="1"><i></i><em>F</em></span></div></section>
               <section class="hw-panel hw-flow"><p class="hw-k">Workflow</p>
                 <ol class="hw-stages"><li>Received <b data-hw-stage="Request received">0</b></li><li>Reviewed <b data-hw-stage="Reviewed">1</b></li><li>Assigned <b data-hw-stage="Assigned">2</b></li><li>In progress <b data-hw-stage="In progress">3</b></li><li>Done <b data-hw-stage="Completed">6</b></li></ol></section>
-              <section class="hw-panel hw-actions"><p class="hw-k">Actions <span class="hw-count"><span data-hw="attention">5</span> to check</span></p>
-                <ul class="hw-list"><li>Possible duplicate <em>Needs checking</em></li><li>Overdue task <em class="is-prog">In progress</em></li><li>Task with no owner <em>Needs checking</em></li></ul></section>
-              <section class="hw-panel hw-ai"><p class="hw-k">Insights <span class="hw-ai-tag">AI-drafted</span></p><p class="hw-ai-t">1 task is overdue and 1 has nobody assigned. Check the possible duplicate before sharing the numbers.</p></section>
+              <section class="hw-panel hw-actions"><p class="hw-k">Actions <span class="hw-count"><span data-hw="attention">5</span> open</span></p>
+                <ul class="hw-list" data-hw-list><li>Possible duplicate request <em>Needs checking</em></li><li>Request with no customer <em>Needs checking</em></li><li>Record with no matching request <em>Needs checking</em></li></ul></section>
+              <section class="hw-panel hw-ai"><p class="hw-k">Insights <span class="hw-ai-tag">AI-drafted</span></p><p class="hw-ai-t" data-hw-insight>1 task is overdue and 1 has nobody assigned. Check the possible duplicate before sharing the numbers.</p></section>
             </div>
           </div>
           <figcaption class="hr-note hw-note">An illustration of what I could build around your tools. Fictional data. <button type="button" class="hw-replay" hidden>Replay</button></figcaption>

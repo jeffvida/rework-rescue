@@ -72,17 +72,34 @@ export function runChecks(s = initialState()) {
   return { duplicates, missing, unmatched, badDates };
 }
 
-/** The check list shown in Data: what was loaded, standardised and found. */
+/** The check list shown in Data: what was loaded, standardised and found, and how each finding stands after the
+ *  reviewer's decisions. A finding the reviewer has resolved is shown as resolved, never left as a stale warning;
+ *  the source rows themselves are unchanged. */
 export function checkList(s = initialState()) {
-  const c = runChecks(s); const k = sourceCounts(s);
-  const linked = TRANSACTIONS.length - c.unmatched.length;
+  const c = runChecks(s); const k = sourceCounts(s); const d = s.decisions;
+  const linkedBySource = TRANSACTIONS.length - c.unmatched.length;
+  const linked = linkedBySource + (d.unmatched?.choice === 'link' ? 1 : 0);
+  const dupOpen = c.duplicates.length && !d.duplicate;
+  const missOpen = c.missing.length && d.missing?.choice !== 'fill';
+  const refOpen = c.unmatched.length && d.unmatched?.choice !== 'link';
   return [
     { id: 'loaded', label: `Loaded ${k.requests} requests, ${k.tasks} tasks and ${k.transactions} records from ${k.sources} sources`, ok: true },
     { id: 'dates', label: `Dates standardised from ${SOURCES.length} different formats`, ok: !c.badDates.length },
-    { id: 'refs', label: `References matched: ${linked} of ${TRANSACTIONS.length} records linked to a request`, ok: !c.unmatched.length },
-    { id: 'required', label: c.missing.length ? `Required fields: ${c.missing.length} request with a blank customer` : 'Required fields: all filled in', ok: !c.missing.length },
-    { id: 'dupes', label: c.duplicates.length ? `Possible duplicates: ${c.duplicates.length} pair to check` : 'Possible duplicates: none found', ok: !c.duplicates.length },
+    { id: 'refs', label: refOpen ? `References matched: ${linked} of ${TRANSACTIONS.length} records linked to a request${d.unmatched?.choice === 'leave' ? ' (TX-309 left unmatched for now)' : ''}` : `References matched: ${linked} of ${TRANSACTIONS.length} records linked (TX-309 linked by you)`, ok: !refOpen },
+    { id: 'required', label: missOpen ? `Required fields: 1 request with a blank customer${d.missing?.choice === 'unknown' ? ' (left as unknown for now)' : ''}` : c.missing.length ? 'Required fields: R-111’s customer filled in by you from TX-307' : 'Required fields: all filled in', ok: !missOpen },
+    { id: 'dupes', label: dupOpen ? `Possible duplicates: ${c.duplicates.length} pair to check` : c.duplicates.length ? `Possible duplicates: R-104 / R-109 checked by you (${d.duplicate.choice === 'same' ? 'counted once' : 'two separate requests'})` : 'Possible duplicates: none found', ok: !dupOpen },
   ];
+}
+
+/** The hero's short insight line (AI-drafted, simulated), from the same figures as everything else. */
+export function heroInsight(s = initialState()) {
+  const m = metrics(s); const parts = [];
+  const tasks = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+  if (m.overdue && m.unassigned) parts.push(`${tasks(m.overdue, 'task is', 'tasks are')} overdue and ${m.unassigned} ${m.unassigned === 1 ? 'has' : 'have'} nobody assigned.`);
+  else if (m.overdue) parts.push(`${tasks(m.overdue, 'task is', 'tasks are')} overdue.`);
+  else if (m.unassigned) parts.push(`${tasks(m.unassigned, 'task has', 'tasks have')} nobody assigned.`);
+  if (m.duplicatePending) parts.push('Check the possible duplicate before sharing the numbers.');
+  return parts.length ? parts.join(' ') : 'No overdue or unassigned tasks, and the figures have been checked.';
 }
 
 // ---- Consolidated dataset: one row per request, with its task and linked records, standardised.

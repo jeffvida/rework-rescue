@@ -2762,7 +2762,7 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .hero-copy > .eyebrow { order: 1; }
   .hero-copy > h1 { order: 2; }
   .hero-grid > .hero-preview { order: 3; margin: 0.3rem 0 1.6rem; }
-  .hero-copy > .hero-sub { order: 4; }
+  .hero-copy > .hero-sub, .hero-copy > .hero-assure { order: 4; }
   .hero-copy > .hero-actions { order: 5; }
   .hero-copy > .cred-strip { order: 6; }
 }
@@ -3305,4 +3305,20 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .cw-checks .dt-todo-t { font-weight: 600; }
 .cw-checks { display: grid; gap: 0.3rem; }
 .cw-checks li { margin: 0; }
-@media (max-width: 40rem) { .cw-col-done ul { display: none; } .cw-col-done h3 { margin: 0; } }
+/* Workflows on phones: a compact list with expandable details (the five-column board stays on wider screens) */
+.cw-wlist { list-style: none; margin: 0 0 0.5rem; padding: 0; display: grid; gap: 0.4rem; }
+.cw-wlist > li { margin: 0; }
+.cw-wl { border-radius: 12px; border: 1px solid #e7e3d6; background: #fff; }
+.cw-wl > summary { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.5rem 0.75rem; cursor: pointer; list-style: none; font-size: 0.9rem; }
+.cw-wl > summary::-webkit-details-marker { display: none; }
+.cw-wl > summary::after { content: "+"; flex: none; font-weight: 700; color: var(--teal-dark); }
+.cw-wl[open] > summary::after { content: "–"; }
+.cw-wl-main { min-width: 0; }
+.cw-wl-st { flex: none; margin-left: auto; padding: 0.1rem 0.55rem; border-radius: 999px; background: #eef4f1; color: var(--teal-dark); font-size: 0.75rem; font-weight: 700; }
+.cw-wl-st.is-late { background: var(--warn-bg); color: #8a6516; }
+.cw-wl-body { padding: 0 0.75rem 0.7rem; }
+.cw-wl-steps { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.2rem; margin: 0 0 0.45rem; padding: 0; }
+.cw-wl-steps li { margin: 0; padding: 0.25rem 0.1rem; border-radius: 6px; background: #f2f2ee; text-align: center; font-size: 0.6rem; font-weight: 600; color: var(--muted); }
+.cw-wl-steps li.is-done { background: #dcebe5; color: var(--teal-dark); } .cw-wl-steps li.is-now { background: var(--ink); color: #fff; }
+.cw-wl-m { margin: 0 0 0.4rem; font-size: 0.82rem; color: var(--muted); }
+.cw-wl-donelist { margin: 0; padding: 0 0.75rem 0.7rem 1.9rem; font-size: 0.82rem; } .cw-wl-donelist li { margin-bottom: 0.2rem; }

@@ -6,7 +6,8 @@
 // motion and no JavaScript show the finished picture. CSP: no inline style attributes.
 
 import { getState, subscribe } from './store.js';
-import { overview, board, metrics } from './engine.js';
+import { overview, board, metrics, openActions, heroInsight } from './engine.js';
+import { esc } from '../forms.js';
 
 export function mountHero(fig) {
   if (!fig) return;
@@ -17,6 +18,16 @@ export function mountHero(fig) {
     const s = getState(); const o = overview(s); const m = metrics(s);
     for (const k of ['records', 'requests', 'openRequests', 'completed', 'attention']) set(k, o[k]);
     for (const col of board(s)) { const el = fig.querySelector(`[data-hw-stage="${col.stage}"]`); if (el) el.textContent = String(col.items.length); }
+    // Data rows, the actions list and the insight follow the same state, so nothing stays flagged once it's resolved.
+    const flagged = new Set(openActions(s).flatMap((a) => a.refs));
+    fig.querySelectorAll('[data-hw-row]').forEach((li) => {
+      const on = flagged.has(li.dataset.hwRow); const mark = li.lastElementChild;
+      mark.className = on ? 'hw-flag' : 'hw-ok'; mark.textContent = on ? 'check' : '\u2713';
+    });
+    const open = openActions(s).slice(0, 3);
+    const list = fig.querySelector('[data-hw-list]');
+    if (list) list.innerHTML = open.length ? open.map((a) => `<li>${esc(a.title)} <em${['In progress', 'Assigned', 'Waiting for follow-up'].includes(a.status) ? ' class="is-prog"' : ''}>${esc(a.status)}</em></li>`).join('') : '<li>Nothing waiting <em class="is-prog">Up to date</em></li>';
+    const ins = fig.querySelector('[data-hw-insight]'); if (ins) ins.textContent = heroInsight(s);
     const max = Math.max(2, ...m.byDay.map((d) => d.completed));
     for (const d of m.byDay) {
       const el = fig.querySelector(`[data-hw-day="${d.day}"]`); if (!el) continue;

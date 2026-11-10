@@ -10,7 +10,7 @@ import * as DATA from '../src/demo/data.js';
 import { REQUESTS, TASKS, TRANSACTIONS, SOURCES, STAFF } from '../src/demo/data.js';
 import {
   initialState, sourceCounts, runChecks, checkList, consolidated, actions, openActions, decide, assign, setStatus, review, remind,
-  submitRequest, stageOf, board, metrics, summary, overview, taskFor, toIso, toRef, dayOf, STAGES, ACTION_STATUSES, AI_LABEL,
+  submitRequest, stageOf, board, metrics, summary, overview, taskFor, toIso, toRef, dayOf, STAGES, ACTION_STATUSES, AI_LABEL, heroInsight,
 } from '../src/demo/engine.js';
 import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
@@ -176,6 +176,51 @@ test('AI-drafted summary: labelled as simulated, built from the figures, says wh
   assert.doesNotMatch([...s0, ...s1].join(' '), /every|all errors|100% accurate|guarantee|definitely/i);
 });
 
+test('no stale warnings: each resolved finding clears from the checks, Actions, the combined view and the hero', () => {
+  let s = initialState();
+  assert.deepEqual(checkList(s).map((c) => c.ok), [true, true, false, false, false]);
+  s = decide(s, 'duplicate', 'same');
+  assert.match(checkList(s)[4].label, /R-104 \/ R-109 checked by you \(counted once\)/); assert.equal(checkList(s)[4].ok, true);
+  s = decide(s, 'missing', 'fill');
+  assert.match(checkList(s)[3].label, /filled in by you from TX-307/); assert.equal(checkList(s)[3].ok, true);
+  s = decide(s, 'unmatched', 'link');
+  assert.equal(checkList(s)[2].label, 'References matched: 9 of 9 records linked (TX-309 linked by you)');
+  assert.ok(checkList(s).every((c) => c.ok));
+  assert.deepEqual(openActions(s).map((a) => a.id), ['T-206', 'T-210']);
+  assert.deepEqual(runChecks(s), runChecks(), 'the source rows still contain what they contained: the rules see the same records');
+  // "leave for now" keeps the warning, with the reviewer's note
+  const left = decide(decide(initialState(), 'unmatched', 'leave'), 'missing', 'unknown');
+  assert.match(checkList(left)[2].label, /left unmatched for now/); assert.equal(checkList(left)[2].ok, false);
+  assert.match(checkList(left)[3].label, /left as unknown for now/); assert.equal(checkList(left)[3].ok, false);
+});
+
+test('hero insight follows the figures and never claims more than they show', () => {
+  assert.equal(heroInsight(), '1 task is overdue and 1 has nobody assigned. Check the possible duplicate before sharing the numbers.');
+  let s = decide(initialState(), 'duplicate', 'same');
+  assert.equal(heroInsight(s), '1 task is overdue and 1 has nobody assigned.');
+  s = setStatus(assign(s, 'T-210', 'Ana'), 'T-206', 'Completed');
+  assert.equal(heroInsight(s), 'No overdue or unassigned tasks, and the figures have been checked.');
+  assert.equal(metrics(s).onTime, 86, 'the late completion lowers the on-time rate (6 of 7)');
+});
+
+test('the hero’s static rows, actions list and insight match the engine’s first state', async () => {
+  const html = await page();
+  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
+  const flagged = new Set(openActions().flatMap((a) => a.refs));
+  for (const m of fig.matchAll(/data-hw-row="(R-\d+)">.*?<span class="(hw-ok|hw-flag)">/g)) assert.equal(m[2] === 'hw-flag', flagged.has(m[1]), m[1]);
+  assert.deepEqual([...fig.matchAll(/<li>([^<]+) <em>([^<]+)<\/em><\/li>/g)].map((m) => [m[1], m[2]]), openActions().slice(0, 3).map((a) => [a.title, a.status]));
+  assert.match(fig, new RegExp(`data-hw-insight>${heroInsight().replace(/[.]/g, '\\.')}<`));
+  const js = await src('demo/hero.js'); assert.match(js, /heroInsight\(s\)/); assert.match(js, /openActions\(s\)/);
+});
+
+test('mobile Workflows: a compact list with expandable details replaces the board below 40rem; same data and controls', async () => {
+  const ui = await src('demo/ui.js');
+  assert.match(ui, /matchMedia\('\(max-width: 40rem\)'\)/);
+  assert.match(ui, /narrow \? listHtml\(cols\) : `<ol class="cw-board">/);
+  assert.match(ui, /<details class="cw-wl" data-wl=/);
+  const c = await css(); assert.match(c, /\.cw-wl-steps \{ list-style: none; display: grid; grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+});
+
 // ---- Service samples (18.18–18.22)
 
 test('18.18 Data & Reporting sample: three files, three layouts → one refreshed, checked report (flags kept, not removed)', () => {
@@ -218,6 +263,11 @@ test('18.6–18.7 hero copy: eyebrow, headline, exact supporting text and reassu
   assert.match(hero, /href="#samples" data-demo-check>See how it works/);
   assert.match(hero, /Free &middot; No obligation/);
   assert.match(html, /Jeff Herson Vida<\/a><span class="cred-role">8\+ years in data operations, reporting and process improvement\.<\/span><span class="cred-role">Work directly with me, from understanding the problem to building the solution\.<\/span>/);
+});
+
+test('hero on tablets and phones: the reassurance line stays right after the supporting text', async () => {
+  const c = await css();
+  assert.match(c, /\.hero-copy > \.hero-sub, \.hero-copy > \.hero-assure \{ order: 4; \}/);
 });
 
 test('18.8–18.9 hero visual: three sources into one workspace with data, report, workflow, actions and insight, from the engine', async () => {

@@ -58,7 +58,7 @@ export function mountDemo(root) {
     root.querySelector('.cw-over').innerHTML = `
       <button type="button" class="cw-tile" data-tab="data"><span class="cw-k">Records</span><strong>${o.records}</strong><span>from ${o.sources} sources</span></button>
       <button type="button" class="cw-tile" data-tab="reports"><span class="cw-k">Requests</span><strong>${o.requests}</strong><span>${o.openRequests} open</span></button>
-      <button type="button" class="cw-tile${o.attention ? ' is-warn' : ''}" data-tab="actions"><span class="cw-k">To check</span><strong>${o.attention}</strong><span>${o.attention === 1 ? 'item' : 'items'}</span></button>
+      <button type="button" class="cw-tile${o.attention ? ' is-warn' : ''}" data-tab="actions"><span class="cw-k">Open items</span><strong>${o.attention}</strong><span>to check or follow up</span></button>
       <button type="button" class="cw-tile" data-tab="workflows"><span class="cw-k">In progress</span><strong>${o.inProgress}</strong><span>${o.completed} done this week</span></button>
       <button type="button" class="cw-tile cw-sum" data-tab="reports"><span class="cw-k">Summary <span class="rl-ai">AI-drafted</span></span><span class="cw-sum-t">${esc(first)}</span></button>`;
   }
@@ -172,8 +172,28 @@ export function mountDemo(root) {
     return `<li class="cw-card${r.added ? ' is-new' : ''}${late ? ' is-late' : ''}"><p class="cw-card-h"><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : '<em class="dt-blank">customer unknown</em>'}</p>
       <p class="cw-card-m">${esc(r.type)}${t.owner ? ` · ${esc(t.owner)}` : ''}${late ? ' · <span class="cw-late">overdue</span>' : ''}</p>${ctl || remindBtn ? `<div class="cw-card-c">${ctl}${remindBtn}</div>` : ''}</li>`;
   }
+  // Phones: a compact list with expandable details instead of the five-column board (same data, same controls).
+  const narrowMq = typeof matchMedia === 'function' ? matchMedia('(max-width: 40rem)') : null;
+  const wlOpen = new Set();
+  function listHtml(cols) {
+    const rows = cols.filter((c) => c.stage !== 'Completed').flatMap((c) => c.items);
+    const done = cols.find((c) => c.stage === 'Completed').items;
+    const item = (r) => {
+      const t = r.t; const stage = stageOf(t); const i = STAGES.indexOf(stage); const late = t.status !== 'Completed' && t.due < '2026-11-06';
+      const card = cardHtml(r); const ctl = (card.match(/<div class="cw-card-c">([\s\S]*)<\/div><\/li>$/) || [])[1] || '';
+      return `<li><details class="cw-wl" data-wl="${esc(t.id)}"${wlOpen.has(t.id) ? ' open' : ''}><summary><span class="cw-wl-main"><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : '<em class="dt-blank">customer unknown</em>'}</span><span class="cw-wl-st${late ? ' is-late' : ''}">${esc(stage)}${late ? ' · overdue' : ''}</span></summary>
+        <div class="cw-wl-body"><ol class="cw-wl-steps" aria-label="Progress">${STAGES.map((x, k) => `<li class="${k < i ? 'is-done' : k === i ? 'is-now' : ''}"${k === i ? ' aria-current="step"' : ''}>${esc(x === 'Request received' ? 'Received' : x)}</li>`).join('')}</ol>
+        <p class="cw-wl-m">${esc(r.type)} · ${t.owner ? `Owner: ${esc(t.owner)}` : 'No owner yet'} · due ${esc(fmtDate(t.due))}</p>${ctl ? `<div class="cw-card-c">${ctl}</div>` : ''}</div></details></li>`;
+    };
+    return `<ul class="cw-wlist" aria-label="Requests in progress">${rows.map(item).join('')}</ul>
+      <details class="cw-wl cw-wl-done"${wlOpen.has('done') ? ' open' : ''} data-wl="done"><summary><span class="cw-wl-main"><strong>Completed</strong></span><span class="cw-wl-st">${done.length}</span></summary>
+        <ul class="cw-wl-donelist">${done.map((r) => `<li><strong>${esc(r.ref)}</strong> ${r.customer ? esc(r.customer) : 'customer unknown'} · ${esc(r.type)}</li>`).join('')}</ul></details>`;
+  }
+  root.addEventListener('toggle', (e) => { const d = e.target; if (d.matches?.('[data-wl]')) { if (d.open) wlOpen.add(d.dataset.wl); else wlOpen.delete(d.dataset.wl); } }, true);
+  if (narrowMq) (narrowMq.addEventListener ? narrowMq.addEventListener('change', () => { if (view === 'workflows') paintWorkflows(); }) : null);
+
   function paintWorkflows() {
-    const s = getState(); const cols = board(s); const full = s.added.length >= 5;
+    const s = getState(); const cols = board(s); const full = s.added.length >= 5; const narrow = !!narrowMq?.matches;
     panel('workflows').innerHTML = `
       <form class="cw-form" data-form novalidate>
         <p class="dt-k">Submit a sample request <span>It goes into the Requests Register, creates a task, and shows up in Data, Reports and Actions.</span></p>
@@ -185,8 +205,8 @@ export function mountDemo(root) {
         </div>
         ${note ? `<p class="dt-sorted" role="status">${note}</p>` : ''}
       </form>
-      <ol class="cw-board">${cols.map((c) => `<li class="cw-col${c.stage === 'Completed' ? ' cw-col-done' : ''}"><h3>${esc(c.stage)} <span class="dt-count">${c.items.length}</span></h3>
-        <ul>${c.items.map(cardHtml).join('') || '<li class="cw-empty">Nothing here</li>'}</ul></li>`).join('')}</ol>
+      ${narrow ? listHtml(cols) : `<ol class="cw-board">${cols.map((c) => `<li class="cw-col"><h3>${esc(c.stage)} <span class="dt-count">${c.items.length}</span></h3>
+        <ul>${c.items.map(cardHtml).join('') || '<li class="cw-empty">Nothing here</li>'}</ul></li>`).join('')}</ol>`}
       <p class="dt-intro">Reminders are simulated: they're logged here, and nothing is sent.</p>`;
   }
 
@@ -213,7 +233,7 @@ export function mountDemo(root) {
     const d = Object.fromEntries(new FormData(f));
     const before = getState().added.length;
     submitRequest(d);
-    const a = getState().added[before];
+    const a = getState().added[before]; if (a) wlOpen.add(a.task.id);
     note = a ? `${esc(a.request.id)} added to the Requests Register and task ${esc(a.task.id)} created. It's now in <button type="button" class="dt-link" data-tab="data">Data</button>, <button type="button" class="dt-link" data-tab="reports">Reports</button> and <button type="button" class="dt-link" data-tab="actions">Actions</button>.` : 'The sample is limited to five new requests. Reset the demo to start again.';
     paintWorkflows(); say(note.replace(/<[^>]+>/g, ''));
   });
@@ -221,8 +241,8 @@ export function mountDemo(root) {
     const t = e.target;
     if (t.matches('[data-filter="channel"]')) { channel = t.value; paintReports(); return; }
     if (t.matches('[data-filter="status"]')) { listStatus = t.value; paintReports(); return; }
-    if (t.matches('[data-owner]') && t.value) { const id = t.dataset.owner; const who = t.value; if (view === 'workflows') note = esc(`${id} assigned to ${who}.`); assign(id, who); say(`${id} assigned to ${who}.`); root.querySelector(`[data-owner="${id}"]`)?.focus(); return; }
-    if (t.matches('[data-status]')) { const id = t.dataset.status; setStatus(id, t.value); say(`${id} marked ${t.value.toLowerCase()}.`); root.querySelector(`[data-status="${id}"]`)?.focus(); }
+    if (t.matches('[data-owner]') && t.value) { const id = t.dataset.owner; const who = t.value; if (view === 'workflows') note = esc(`${id} assigned to ${who}.`); assign(id, who); say(`${id} assigned to ${who}.`); panel(view).querySelector(`[data-owner="${id}"]`)?.focus(); return; }
+    if (t.matches('[data-status]')) { const id = t.dataset.status; setStatus(id, t.value); say(`${id} marked ${t.value.toLowerCase()}.`); panel(view).querySelector(`[data-status="${id}"]`)?.focus(); }
   });
   root.addEventListener('click', (e) => {
     const tab = e.target.closest('[data-tab]');

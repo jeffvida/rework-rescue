@@ -4025,3 +4025,11 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 /* Booking: "Try again" is a full-size tap target. */
 .bk-link[data-retry] { min-height: 44px; padding: 0 0.6rem; margin-left: 0.4rem; }
 .lx-next .btn span { margin-left: 0.35rem; }
+
+/* 11 Nov panel quick wins: cost of doing nothing, booking after the live example, sign-off in the final section. */
+.pain-cost { margin: 1.8rem 0 0; max-width: 44em; color: var(--muted); font-size: 1.02rem; line-height: 1.6; }
+.pain-cost + .pain-bridge { margin-top: 0.9rem; }
+.samples-cta { display: flex; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; flex-wrap: wrap; margin: 1rem 0 0; padding: 1.1rem 1.25rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.samples-cta-t { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.2rem; line-height: 1.3; color: var(--ink); letter-spacing: -0.01em; }
+@media (max-width: 40rem) { .samples-cta .demo-after-cta, .samples-cta .demo-after-cta .btn { width: 100%; } .samples-cta .demo-after-cta .btn { justify-content: center; } }
+.book-sign { margin: 0.5rem 0 0; font-family: var(--display); font-style: italic; font-weight: 600; font-size: 1.15rem; color: var(--signal); }

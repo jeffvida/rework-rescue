@@ -153,7 +153,7 @@ test('services (10 Nov; heading and card order 11 Nov PM): Capture -> Move -> Se
   // Data & Reporting keeps the most visual weight.
   assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
   assert.match(sec, /A good place to start/);
-  assert.doesNotMatch(html, /Most projects start|Most first projects|Where most projects start/, 'no implied track record');
+  assert.doesNotMatch(html, /Most projects start|Most first projects|Where most projects start|first project usually/, 'no implied track record');
   // Implementation note sits at the top of Services (11 Nov), not inside the live example.
   assert.ok(sec.indexOf('class="lx-impl"') > sec.indexOf('class="svc-intro"') && sec.indexOf('class="lx-impl"') < sec.indexOf('class="svc-layers"'));
   // The repeated checks band and the second weekly-report story were removed (11 Nov review): the live example shows both.
@@ -187,15 +187,17 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   assert.doesNotMatch(priv, /Reset sample|change an owner or a status|A clearer way to manage the work/, 'privacy page matches the read-only example');
 });
 
-test('problem cards: three, in the customer’s words, each pointing to its layer of the one solution', async () => {
+test('problem cards: three, in the customer’s words, each pointing to its layer of the one solution (plain "See how I fix this" link, 11 Nov panel)', async () => {
   const html = await page();
   const fit = html.slice(html.indexOf('id="fit"'), html.indexOf('id="samples"'));
   const cards = [...fit.matchAll(/<a href="#(svc-\w+)"><strong>([^<]+)<\/strong>[\s\S]*?<em>([^<]+)</g)].map((m) => [m[1], m[2], m[3].trim()]);
   assert.deepEqual(cards, [
-    ['svc-systems', '&ldquo;Everything is scattered.&rdquo;', 'Capture &middot; Business Tools &amp; Systems'],
-    ['svc-workflow', '&ldquo;I&rsquo;m always chasing updates.&rdquo;', 'Move &middot; Workflows &amp; Processes'],
-    ['svc-data', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;', 'See &middot; Data &amp; Reporting'],
+    ['svc-systems', '&ldquo;Everything is scattered.&rdquo;', 'See how I fix this'],
+    ['svc-workflow', '&ldquo;I&rsquo;m always chasing updates.&rdquo;', 'See how I fix this'],
+    ['svc-data', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;', 'See how I fix this'],
   ]);
+  assert.match(fit, /<p class="pain-cost">A job with no owner turns into a customer complaint\./, 'what doing nothing costs, worded as everyday examples, not results');
+  assert.doesNotMatch(fit.slice(fit.indexOf('pain-cost')), /\d+\s?(%|hours|per cent)/, 'no invented numbers');
   assert.match(fit, /Most weeks it&rsquo;s all three at once, <a href="#services">and that&rsquo;s how I fix them<\/a>\./);
 });
 
@@ -208,7 +210,7 @@ test('page order (11 Nov review): problem, proof, offer, process, person; previo
   assert.doesNotMatch(html, /id="experience"/, 'Experience merged into About');
   const about = html.slice(order[4], order[5]);
   for (const t of ['Before Rework Rescue', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.', 'not Rework Rescue client projects']) assert.ok(about.includes(t), t);
-  assert.match(html, /Based in the Philippines\. Available for calls Monday to Friday/);
+  assert.match(html, /Based in the Philippines\. Calls fit your working day in the US, the UK, Europe or Australia/);
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">/g)].map((m) => m[1]);
   assert.deepEqual(nav, ['samples', 'services', 'how', 'about', 'faq'], 'nav follows the page');
   const start = html.slice(order[6]);
@@ -249,7 +251,14 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   assert.doesNotMatch(after.slice(0, after.indexOf('</div>\n        </div>')), /weeks|days|[$₱]/i, 'no timeframe or price');
   const offer = 'Bring your Monday report. I&rsquo;ll look at where the information breaks down, what&rsquo;s creating unnecessary work and what I&rsquo;d fix first. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me.';
   assert.ok(html.slice(html.indexOf('id="how"'), html.indexOf('id="about"')).includes(offer), 'offer in How I work step 1');
-  assert.ok(html.slice(html.indexOf('id="start"')).includes(offer), 'offer next to the final booking button');
+  const start = html.slice(html.indexOf('id="start"'));
+  assert.ok(!start.includes(offer), 'final section no longer repeats How I work step 1 word for word (11 Nov panel)');
+  assert.match(start, /<p class="book-sub">I&rsquo;ll show you where it breaks and what I&rsquo;d fix first\. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me\.<\/p>/);
+  assert.match(start, /<p class="book-sign">&mdash; Jeff<\/p>/);
+  assert.match(start, /Prefer writing\? <a href="mailto:[^"]+subject=Written%20report%20review">Email me a sample report<\/a>/);
+  // Booking straight after the report and workbook, where the example has made its case (11 Nov panel).
+  assert.ok(demo.indexOf('class="samples-cta"') > demo.indexOf('class="wt-download"'), 'booking strip after the workbook');
+  assert.match(demo.slice(demo.indexOf('class="samples-cta"')), /Want this built around your own tracker\?[\s\S]*?href="contact\/#contact-form-area">Book a free report review</);
   assert.match(html, /<h2 id="cta-h">Bring me the report you rebuild every Monday\.<\/h2>/);
   assert.match(html, /<h2 id="fit-h">Good teams shouldn&rsquo;t have to fight their spreadsheets\.<\/h2>/);
   assert.doesNotMatch(html, /\bwe&rsquo;ll\b|\bWe&rsquo;ll\b/, 'first person singular');

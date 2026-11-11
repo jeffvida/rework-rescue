@@ -1,7 +1,6 @@
-// Homepage: the tracker example, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
+// Homepage: the hero, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
 import { mountBooking } from './booking/popup.js';
-import { mountTracker } from './tracker/ui.js';
 import { mountHero } from './demo/hero.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
@@ -17,10 +16,9 @@ import { mountMotion } from './motion.js';
 export function mountMobileCta() {
   const bar = document.getElementById('mobile-cta');
   const hero = document.querySelector('.hero .hv-actions') || document.querySelector('.hero');
-  // In the live example it hides only while the example's own controls are on screen (stage buttons, Next buttons,
-  // the report links and the download), so it never sits over them but is still there while visitors read (11 Nov PM review).
+  // In "Problems I help fix" it also hides while the tracker download is on screen, so it never sits over that button.
   const end = [document.getElementById('start'), document.querySelector('.site-footer'),
-    ...document.querySelectorAll('#samples .lx-bar, #samples .lx-tabs, #samples .lx-jump, #samples .lx-next, #samples .lx-jump-see, #samples .lx-all > summary, #samples .wt-download'),
+    ...document.querySelectorAll('#samples .wt-download'),
     ...document.querySelectorAll('main .btn[href*="contact-form-area"], main .btn[data-book]')].filter(Boolean);
   if (!bar || !hero || typeof IntersectionObserver !== 'function') return;
 
@@ -49,8 +47,8 @@ export function mountMobileCta() {
 }
 
 // ---- Start the homepage
-// The main example: the Weekly Work & Follow-up Tracker (src/tracker/), with its downloadable workbook.
-mountTracker(document.getElementById('tracker-app'));
+// The old step-by-step live example (src/tracker/ui.js) was replaced by "Problems I help fix" (11 Nov spec).
+// The tracker data and rules (src/tracker/data.js, engine.js, store.js) still drive the hero and the workbook.
 mountMobileCta();
 mountMotion();
 mountBooking();

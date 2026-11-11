@@ -52,9 +52,9 @@ test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting
   assert.match(hero, /<p class="eyebrow hero-pill">For service businesses managing jobs, teams and spreadsheets\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
   assert.match(hero, /<p class="hero-sub">Chasing job updates\? Fixing spreadsheets\? Rebuilding reports every week\? I help you get your information right, keep work moving and produce reports you can rely on\.<\/p>/);
-  assert.ok(hero.indexOf('Book a free report review') < hero.indexOf('Explore the live example'));
+  assert.ok(hero.indexOf('Book a free report review') < hero.indexOf('See the problems I fix'));
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free report review<\/a>/);
-  assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
+  assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?See the problems I fix<\/a>/); // label only; was "Explore the live example" (11 Nov spec)
   for (const t of ['30 minutes', 'Free', 'No obligation']) assert.match(hero, new RegExp(`</svg>${t}</li>`), t);
   assert.match(hero, /class="cred-strip hv-cred"/);
   assert.equal((html.match(/Northstar Services/g) || []).length >= 2, true, 'the hero and the live example name the same fictional business');
@@ -126,7 +126,7 @@ test('hero report: Northstar Services, 7 / 5 / 3, action items named by record, 
   assert.ok(f.attention <= f.outstanding);
   assert.doesNotMatch(fig, /class="hx-head"/, 'no state label inside the panel; the toggle shows it');
   assert.ok(fig.includes(`<ul data-ws-summary>${summaryHtml(summaryBullets(f, items))}</ul>`));
-  assert.ok(html.includes('Northstar Services, a fictional service business'), 'the live example names the same business');
+  assert.match(html, /Fictional sample data for Northstar Services \(2–6 November 2026\), the same records as the sample tracker below\./, 'the caption points at the workbook, the same records');
 });
 
 test('hero motion: autoplay only on screen, Pause button, toggle stops it, reduced motion switches instantly', async () => {
@@ -236,11 +236,11 @@ test('page: no prices, testimonials or client results; service names kept; servi
   assert.match(html, /30 days of fixes for anything that doesn&#39;t work as agreed\./);
 });
 
-test('booking: Services ends with the closing strip; the demo ends with the report and the workbook (11 Nov)', async () => {
+test('booking: Services ends with the closing strip; "Problems I help fix" ends with the check, the workbook and both CTAs (11 Nov spec)', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const demo = html.slice(html.indexOf('id="samples"'), html.indexOf('id="services"'));
-  assert.doesNotMatch(demo, /class="demo-after"|class="lx-impl"/, 'the demo finishes with the report');
-  assert.ok(demo.indexOf('class="wt-download"') > demo.indexOf('<!-- tracker:end -->'));
+  assert.doesNotMatch(demo, /class="demo-after"|class="lx-impl"/, 'the section finishes with its own CTAs');
+  assert.ok(demo.indexOf('class="wt-download"') > demo.indexOf('class="tot"'), 'workbook after the totals check');
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
   assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="svc-foot"'), 'at the end of Services');
@@ -257,14 +257,16 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   assert.match(start, /<p class="book-sign">&mdash; Jeff<\/p>/);
   // Written review as a second main option, next to the calendar and after the live example (11 Nov customer panel, decision D).
   assert.match(start, /<div class="book-written">[\s\S]*?Prefer writing\?[\s\S]*?No report\? Send a screenshot of your roster or tracker, or describe it in a few lines\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>/);
-  const scta = demo.slice(demo.indexOf('class="samples-cta"'));
+  const scta = demo.slice(demo.indexOf('class="samples-cta'));
   assert.match(scta, /<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>/);
-  assert.match(scta, /No report\? Send a screenshot of your roster or tracker/);
+  assert.match(scta, /No formal report\? Send a screenshot of your roster, spreadsheet or tracker instead\./);
+  assert.match(scta, /For healthcare and multi-clinic examples, I only work with de-identified exports\./);
   // Not only for "small" businesses (11 Nov customer panel, decision C).
   assert.doesNotMatch(html, /small (service )?businesses/i, 'no "small businesses" on the page');
   // Booking straight after the report and workbook, where the example has made its case (11 Nov panel).
-  assert.ok(demo.indexOf('class="samples-cta"') > demo.indexOf('class="wt-download"'), 'booking strip after the workbook');
-  assert.match(demo.slice(demo.indexOf('class="samples-cta"')), /Want this built around your own tracker\?[\s\S]*?href="contact\/#contact-form-area">Book a free report review</);
+  assert.ok(demo.indexOf('class="samples-cta') > demo.indexOf('class="wt-download"'), 'CTAs after the workbook');
+  // Booking stays the filled button; the written review sits beside it (Jeff, 11 Nov: option 3a).
+  assert.match(scta, /Prefer to talk through the problem\? Book a free 30-minute conversation\. No obligation\.<\/p>\s*<a class="btn btn-primary" href="contact\/#contact-form-area">Book a free report review<\/a>/);
   assert.match(html, /<h2 id="cta-h">Bring me the report you rebuild every Monday\.<\/h2>/);
   assert.match(html, /<h2 id="fit-h">Good teams shouldn&rsquo;t have to fight their spreadsheets\.<\/h2>/);
   assert.doesNotMatch(html, /\bwe&rsquo;ll\b|\bWe&rsquo;ll\b/, 'first person singular');

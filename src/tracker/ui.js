@@ -1,4 +1,5 @@
-// Live example on the homepage (#samples), 11 Nov 2026 (final brief): Capture → Move → See with Northstar Services.
+// NOT ON THE PAGE since 11 Nov 2026 (replaced by "Problems I help fix"); kept, with its tests, in case parts are reused.
+// Was: live example on the homepage (#samples), 11 Nov 2026 (final brief): Capture → Move → See with Northstar Services.
 //   Opening (about 4 s, once, when on screen): this week's scattered information (tracker, request form, email update,
 //   follow-up note) with the three real problems (R-111, R-112, R-104), then the three stages and the weekly report.
 //   Skip, Pause and Replay. Reduced motion: the finished view, no animation; the "explore next" cue is static.

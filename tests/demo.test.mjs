@@ -179,7 +179,8 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   // The only mention of subscriptions is the cost-transparency line in the live example (final brief, 11 Nov).
   assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  for (const t of ['A clearer way to manage the work', 'customers, requests, tasks and team names are fictional', 'Reset sample', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
+  for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'The example is read-only.', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
+  assert.doesNotMatch(priv, /Reset sample|change an owner or a status|A clearer way to manage the work/, 'privacy page matches the read-only example');
 });
 
 test('problem cards: three, in the customer’s words, each pointing to its layer of the one solution', async () => {

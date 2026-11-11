@@ -49,7 +49,7 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting copy, two CTAs, chips, credibility', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
-  assert.match(hero, /<p class="eyebrow hero-pill">For small service businesses managing jobs, teams and spreadsheets\.<\/p>/);
+  assert.match(hero, /<p class="eyebrow hero-pill">For service businesses managing jobs, teams and spreadsheets\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
   assert.match(hero, /<p class="hero-sub">Chasing job updates\? Fixing spreadsheets\? Rebuilding reports every week\? I help you get your information right, keep work moving and produce reports you can rely on\.<\/p>/);
   assert.ok(hero.indexOf('Book a free report review') < hero.indexOf('Explore the live example'));
@@ -255,7 +255,13 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   assert.ok(!start.includes(offer), 'final section no longer repeats How I work step 1 word for word (11 Nov panel)');
   assert.match(start, /<p class="book-sub">I&rsquo;ll show you where it breaks and what I&rsquo;d fix first\. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me\.<\/p>/);
   assert.match(start, /<p class="book-sign">&mdash; Jeff<\/p>/);
-  assert.match(start, /Prefer writing\? <a href="mailto:[^"]+subject=Written%20report%20review">Email me a sample report<\/a>/);
+  // Written review as a second main option, next to the calendar and after the live example (11 Nov customer panel, decision D).
+  assert.match(start, /<div class="book-written">[\s\S]*?Prefer writing\?[\s\S]*?No report\? Send a screenshot of your roster or tracker, or describe it in a few lines\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>/);
+  const scta = demo.slice(demo.indexOf('class="samples-cta"'));
+  assert.match(scta, /<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>/);
+  assert.match(scta, /No report\? Send a screenshot of your roster or tracker/);
+  // Not only for "small" businesses (11 Nov customer panel, decision C).
+  assert.doesNotMatch(html, /small (service )?businesses/i, 'no "small businesses" on the page');
   // Booking straight after the report and workbook, where the example has made its case (11 Nov panel).
   assert.ok(demo.indexOf('class="samples-cta"') > demo.indexOf('class="wt-download"'), 'booking strip after the workbook');
   assert.match(demo.slice(demo.indexOf('class="samples-cta"')), /Want this built around your own tracker\?[\s\S]*?href="contact\/#contact-form-area">Book a free report review</);

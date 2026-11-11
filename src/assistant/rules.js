@@ -46,7 +46,7 @@ export const SERVICES = {
 };
 
 // ---- What the assistant may say (only facts from the live site)
-export const KNOWLEDGE = `Positioning: helps small service businesses fix the reports and spreadsheets their teams rebuild by hand. Data & Reporting is the core; workflows and tools are fixed when they're the cause. Rework Rescue is not an AI automation agency, a web design agency or a software company. Visitors don't need to choose a service: they bring a problem and Jeff helps identify what needs fixing. Most projects start with one problem; some involve more than one area.
+export const KNOWLEDGE = `Positioning: helps service businesses fix the reports and spreadsheets their teams rebuild by hand. Data & Reporting is the core; workflows and tools are fixed when they're the cause. Rework Rescue is not an AI automation agency, a web design agency or a software company. Visitors don't need to choose a service: they bring a problem and Jeff helps identify what needs fixing. Most projects start with one problem; some involve more than one area.
 Services:
 - Data & Reporting (fix the numbers): data and reports that take too long to prepare, contain errors or can't be trusted. Builds automated weekly and monthly reports, KPI dashboards and operations reports, data checks that flag errors and missing records, reconciliation and comparison reports, and spreadsheet and reporting improvements using Excel and Power Query. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, spreadsheets or dashboards are hard to maintain or trust, or different reports show different numbers for the same activity.
 - Workflows & Processes (fix the steps): how work gets done, when the steps, handoffs and follow-ups create unnecessary effort. Builds automatic reminders and follow-ups, fewer copy-paste and re-typing steps, simple approval and handoff steps, recurring admin tasks on a schedule, automated notifications and task updates, practical workflows connecting the tools a business already uses, and AI that reads emails and documents, summarizes them, finds details and sends notifications, with a person reviewing what matters. Fits when information is copied or updated repeatedly, manual follow-ups slow work down, handoffs are unclear, or a process has unnecessary steps.
@@ -59,7 +59,7 @@ How a project works: free report review, written scope and price, the client's a
 Who: Jeff Herson Vida, Data & Operations Specialist (Reporting, Workflow & Automation), 8+ years in data operations, reporting, validation, analysis and process improvement (Excel, Power Query, Power BI, Python, Power Automate). Based in the Philippines; available for calls Monday to Friday, 8 am to 2 am Philippine time (UTC+8). Clients work directly with him.
 Confidential data: ordinary business information is fine through an agreed, authorized route; he will sign a reasonable confidentiality agreement; sensitive or regulated information needs a review of safeguards first. He doesn't automate consequential decisions about people.
 AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
-Written review instead of a call: the visitor can email Jeff a sample report with names and confidential details removed, and he sends a free one-page written review within 1 working day (where it breaks and what he'd fix first).
+Written review instead of a call: the visitor can email Jeff a sample report with names and confidential details removed, and he sends a free one-page written review within 1 working day (where it breaks and what he'd fix first). No report yet? They can send a screenshot of their roster or tracker, or describe it in a few lines.
 Larger teams: yes, if the problem is the same (jobs in one system, reports put together in spreadsheets). He can combine trackers from several teams or regions into one weekly report, work on contract, sign an NDA and a data processing agreement, and work inside the client's own accounts and tools.
 If Jeff is unavailable: everything runs in the client's own accounts with tools their team already has, plus a run guide, so the team can keep it going.
 Client project data is never put into free AI tools or tools that train on the client's data.
@@ -69,7 +69,7 @@ Prices and timelines depend on the scope and are agreed in writing after the fre
 // ---- The fixed brief sent to the model with every message
 export function assistantBrief(questionsAsked) {
   return `You are the Rework Rescue assistant on Jeff Herson Vida's website.
-Jeff is a Data & Operations Specialist who helps small businesses with their data, reporting, workflows and business tools.
+Jeff is a Data & Operations Specialist who helps service businesses with their data, reporting, workflows and business tools.
 
 Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflows & Processes or Business Tools & Systems, and invite them to a free 30-minute report review. Visitors don't need to choose a service; it is only a starting point for the review.
 

@@ -8,14 +8,15 @@ import { mountMotion } from './motion.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free report review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
-// It appears once the hero has scrolled out of view and hides again while the closing
+// It appears once the hero's own buttons have scrolled out of view (not the whole hero, so phones aren't left
+// without a booking button while the hero demo is on screen; 11 Nov panel review) and hides again while the closing
 // call-to-action section, the footer or any other booking button on the page is on screen,
 // so it never doubles up with them.
 // Without JavaScript or IntersectionObserver the bar simply stays hidden.
 
 export function mountMobileCta() {
   const bar = document.getElementById('mobile-cta');
-  const hero = document.querySelector('.hero');
+  const hero = document.querySelector('.hero .hv-actions') || document.querySelector('.hero');
   // In the live example it hides only while the example's own controls are on screen (stage buttons, Next buttons,
   // the report links and the download), so it never sits over them but is still there while visitors read (11 Nov PM review).
   const end = [document.getElementById('start'), document.querySelector('.site-footer'),

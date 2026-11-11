@@ -175,7 +175,8 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   const main = html.slice(html.indexOf('<main'), html.indexOf('id="experience"'));
   assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
   assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
-  assert.doesNotMatch(html, /subscription|sign up for (the|our) platform/i);
+  // The only mention of subscriptions is the cost-transparency line in the live example (final brief, 11 Nov).
+  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   for (const t of ['A clearer way to manage the work', 'customers, requests, tasks and team names are fictional', 'Reset sample', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
 });
@@ -224,7 +225,8 @@ test('booking after the demo: one strip with the first-project line, using the e
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
   assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('<!-- tracker:end -->'), 'after the live example');
-  assert.match(after, /Want this for your own weekly report\?<\/strong> Most projects start with one report or recurring process\. Once that&rsquo;s working, you and I can look at what&rsquo;s next\./);
+  assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong> Rework Rescue helps businesses dealing with scattered information, manual processes, unclear follow-ups or reporting that takes too much effort to prepare\. The first step is a conversation about your actual process, not a commitment to buy software or an automation package\./);
+  assert.match(after, /30 minutes &middot; No obligation &middot; Practical next steps/);
   assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });

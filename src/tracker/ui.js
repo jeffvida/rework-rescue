@@ -1,234 +1,250 @@
-// Live example on the homepage (#samples), 11 Nov 2026: "fix the week, get the report".
-// Capture is done (12 jobs in one list). My checks found three problems; the visitor clears them with one tap each
-// and the Northstar Services weekly report next to them updates as they go:
-//   R-112  no owner          → pick Ana, Mark or Sam              (engine: setOwner)
-//   R-111  blank customer    → pick one of the existing customers (engine: setCustomer)
-//   R-104  overdue payment   → not a data error: it stays on the report as the first action (nothing in the data changes)
-// Every figure, action item, "fixed during checks" line and summary bullet is worked out from the records as they are
-// now (src/tracker/engine.js, and the hero's actionItems/summaryBullets so the two reports read the same). The full
-// 12-row tracker is still there, behind "See all 12 jobs", and is editable too.
-// appHtml() is pure (no DOM): tools/render_tracker_static.mjs writes its non-interactive output into index.html as the
-// no-JavaScript version (cards say what a person would do; no buttons). CSP: no inline style attributes.
+// Live example on the homepage (#samples), 11 Nov 2026 (final brief): Capture → Move → See with Northstar Services.
+//   Opening (about 4 s, once, when on screen): this week's scattered information (tracker, request form, email update,
+//   follow-up note) with the three real problems (R-111, R-112, R-104), then the three stages and the weekly report.
+//   Skip, Pause and Replay. Reduced motion: the finished view, no animation; the "explore next" cue is static.
+//   Stages: Capture, Move, See, selectable in any order. A gentle pulse suggests the next unexplored one ("1 of 3 explored").
+//   Each stage shows the real records involved and the checks for that stage; the weekly report is always on screen
+//   (beside the stages on desktop, with a jump link on phones).
+// Read-only by design: the sample is fixed (12 / 7 / 5 / 3). Nothing here edits records. The full 12-job tracker is
+// shown read-only; the downloadable workbook is the hands-on version.
+// Every status, figure and action item comes from the records through src/tracker/engine.js and the hero's
+// dataChecks()/actionItems() (src/demo/hero.js), so the hero, this example, the tracker and the workbook agree.
+// appHtml() is pure (no DOM): tools/render_tracker_static.mjs writes the non-interactive output into index.html as the
+// no-JavaScript version (all three stages shown one after another). CSP: no inline style attributes.
 
-import { RECORDS, OWNERS, STATUSES, PERIOD_LABEL, BUSINESS } from './data.js';
-import { summarise, findings, shortDate, isCompleted, isUnassigned, missingFields, isOverdue, setOwner, setCustomer } from './engine.js';
-import { actionItems, summaryBullets } from '../demo/hero.js';
-import * as store from './store.js';
+import { RECORDS, PERIOD_LABEL, BUSINESS } from './data.js';
+import { summarise, findings, shortDate, day, isCompleted, inPeriod, isEmptyRow } from './engine.js';
+import { dataChecks, heroFigures, actionItems, STATE } from '../demo/hero.js';
 
 const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const refs = (t) => esc(t).replace(/R-\d+/g, (r) => `<span class="lx-ref">${r}</span>`);
 const byRef = (rec, ref) => rec.find((r) => r.ref === ref);
-// Records whose Customer / Area is blank in the sample get a field to fill it in (in the full tracker).
-const FILLABLE = new Set(RECORDS.filter((r) => !String(r.customer).trim()).map((r) => r.ref));
+const ICON = { pass: '&#10003;', flag: '!', action: '&#9679;' };
+const pill = (state, text = STATE[state]) => `<span class="lx-pill is-${state}"><span aria-hidden="true">${ICON[state] || ''}</span> ${esc(text)}</span>`;
 
-/** The three problems my checks found in the sample, in the order a visitor fixes them. */
-export const CASES = Object.freeze([
-  { ref: 'R-112', kind: 'unassigned', badge: 'Action required', tone: 'action',
-    problem: 'Nobody owns this job, so nobody will do it.', ask: 'Who should take it?', options: OWNERS.filter((o) => o !== 'Unassigned'),
-    still: 'A person assigns an owner (Ana, Mark or Sam).',
-    isOpen: (r) => isUnassigned(r), done: (r) => `${r.owner} owns it now.` },
-  { ref: 'R-111', kind: 'missing', badge: 'Flagged', tone: 'flag',
-    problem: 'The customer is blank, so this job can’t be reported against anyone.', ask: 'The job notes say it’s for Harbor Works.', options: ['Harbor Works'], label: (o) => `Add ${o}`,
-    still: 'A person adds the customer from the job notes.',
-    isOpen: (r) => missingFields(r).length > 0, done: (r) => `Customer added: ${r.customer}.` },
-  { ref: 'R-104', kind: 'overdue', badge: 'Real exception', tone: 'action',
-    problem: 'Due 4 Nov and still waiting on payment. The data is right: this needs chasing.', ask: '', options: ['Keep it at the top of the report'],
-    still: 'Nothing to fix in the data: it goes to the top of the report.',
-    isOpen: (r) => isOverdue(r), done: (r) => (isOverdue(r) ? `At the top of the report for ${r.owner} to chase.` : 'No longer overdue.') },
+export const STAGES = Object.freeze([
+  { id: 'capture', n: '01', name: 'Capture', short: 'Get the information right',
+    h: 'First, let’s get the information right.',
+    benefit: 'Missing information and duplicate records are identified before they create problems further down the process.' },
+  { id: 'move', n: '02', name: 'Move', short: 'Make sure work moves forward',
+    h: 'Next, let’s make sure the work doesn’t get forgotten.',
+    benefit: 'Clear responsibilities and visible follow-ups help prevent work from slipping through the cracks.' },
+  { id: 'see', n: '03', name: 'See', short: 'Understand where the business stands',
+    h: 'Finally, know where your business stands.',
+    benefit: 'Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.' },
 ]);
 
-/** Which of the three are cleared. R-104 counts as handled once it's on the report (kept) or no longer overdue. */
-export function progress(records, kept = false) {
-  const st = CASES.map((c) => {
-    const r = byRef(records, c.ref);
-    const open = c.kind === 'overdue' ? c.isOpen(r) && !kept : c.isOpen(r);
-    return { ...c, r, open };
+// Plain-language names for the checks shown in this example (the hero keeps its shorter labels).
+const LABEL = { 'Required fields': 'Required information' };
+const DETAIL = { 'None found': 'No duplicates found' };
+
+/** What needs attention: one line per flagged record, in the report's order (from the hero's actionItems). */
+export function attentionItems(rec = RECORDS) {
+  const f = heroFigures(rec);
+  const text = { overdue: ['Follow up on overdue work', 'Overdue'], unassigned: ['Assign an owner', 'No owner'], missing: ['Complete the missing customer information', 'Missing customer'], duplicate: ['Check the possible duplicate', 'Possible duplicate'] };
+  return actionItems(f).filter((x) => x.ref).map((x) => {
+    const keys = f.followUps.find((u) => u.ref === x.ref).keys;
+    const key = ['overdue', 'unassigned', 'missing', 'duplicate'].find((k) => keys.includes(k));
+    return { ref: x.ref, what: text[key][0], tag: text[key][1], state: x.priority === 'High' ? 'action' : 'flag' };
   });
-  const caseRefs = new Set(CASES.map((c) => c.ref));
-  const extra = summarise(records).followUps.filter((f) => !caseRefs.has(f.ref)).length;
-  const cleared = st.filter((c) => !c.open).length;
-  return { cases: st, cleared, total: st.length, extra, ready: cleared === st.length && !extra };
 }
 
-/** What changed compared with the sample as delivered (owners, customers, statuses), for "Fixed during checks". */
-export function changes(records) {
-  const out = [];
-  for (const r of records) {
-    const o = byRef(RECORDS, r.ref); if (!o) continue;
-    if (o.owner !== r.owner) out.push(`${r.ref}: owner set to ${r.owner}`);
-    if (o.customer !== r.customer && String(r.customer).trim()) out.push(`${r.ref}: customer set to ${String(r.customer).trim()}`);
-    if (o.status !== r.status) out.push(`${r.ref}: status changed to ${r.status}`);
-  }
-  return out;
+/** The report's three plain-language checks, from the hero's See checks. */
+export function reportChecks(rec = RECORDS) {
+  const [kpi, recon, exc] = dataChecks(rec).see;
+  const s = summarise(rec);
+  return [
+    { label: `All ${s.total} records accounted for`, state: recon.state, detail: recon.detail },
+    { label: 'Reporting totals checked', state: kpi.state, detail: `${s.completed} completed + ${s.outstanding} outstanding = ${s.total}` },
+    { label: `${s.attention} exception${s.attention === 1 ? '' : 's'} visible`, state: exc.state, detail: 'Shown in the report, not hidden' },
+  ];
 }
 
-function kpisHtml(s) {
-  const k = (key, n, label, cls, sub = '') => `<li class="lx-kpi ${cls}" data-kpi="${key}"><strong>${n}</strong><span>${label}${sub}</span></li>`;
-  return k('total', s.total, 'Jobs this week', 'is-all') + k('completed', s.completed, 'Completed', 'is-done')
-    + k('outstanding', s.outstanding, 'Still outstanding', 'is-open')
-    + k('attention', s.attention, 'Need attention', s.attention ? 'is-att' : 'is-clear', s.outstanding ? ` <small>of the ${s.outstanding}</small>` : '');
+const checksHtml = (list) => `<ul class="lx-checks">${list.map((c) => `<li><span class="lx-chk-l">${esc(LABEL[c.label] || c.label)}</span><span class="lx-chk-d">${refs(DETAIL[c.detail] || c.detail)}</span>${pill(c.state)}</li>`).join('')}</ul>`;
+
+// --- Opening: this week's scattered information --------------------------------------------------------------------
+function openingHtml(rec) {
+  const s = summarise(rec);
+  const r104 = byRef(rec, 'R-104'); const r111 = byRef(rec, 'R-111'); const r112 = byRef(rec, 'R-112');
+  const card = (cls, kind, title, body, tag, tone) => `<li class="lx-art ${cls}"><p class="lx-art-k">${kind}</p><p class="lx-art-t">${title}</p><p class="lx-art-b">${body}</p><p class="lx-tag is-${tone}">${tag}</p></li>`;
+  const sentence = (t) => t.toLowerCase().replace(/^./, (c) => c.toUpperCase());
+  return '<div class="lx-open" data-lx="open">'
+    + `<p class="lx-open-h">This week at ${esc(BUSINESS)}: ${s.total} jobs, and ${s.attention} problems hiding in the information.</p>`
+    + '<ul class="lx-arts">'
+    + card('lx-a1', 'Job tracker', `${s.total} jobs this week`, `<span class="lx-ref">${r112.ref}</span> ${esc(r112.task)} · owner: ${esc(r112.owner.toLowerCase())}`, `<span class="lx-ref">${r112.ref}</span> · No owner`, 'action')
+    + card('lx-a2', 'Service request form', `<span class="lx-ref">${r111.ref}</span> ${esc(r111.task)}`, `Received ${esc(shortDate(r111.received))} · customer left blank`, `<span class="lx-ref">${r111.ref}</span> · Missing customer`, 'flag')
+    + card('lx-a3', 'Email update', `Re: ${esc(sentence(r104.task))}`, `${esc(r104.customer)} · due ${esc(shortDate(r104.due))} · still ${esc(r104.status.toLowerCase())}`, `<span class="lx-ref">${r104.ref}</span> · Overdue`, 'action')
+    + card('lx-a4', 'Follow-up note', 'Weekly report', 'Pulled together by hand from all of the above', 'Takes time every week', 'neutral')
+    + '</ul></div>';
 }
 
-function reportInner(records, p) {
-  const s = summarise(records);
-  const f = { ...s, business: BUSINESS, period: PERIOD_LABEL };
-  const items = actionItems(f);
-  const fixed = changes(records);
-  return `<p class="lx-status ${p.ready ? 'is-ready' : 'is-draft'}" data-lx="status">${p.ready ? 'Ready to send' : draftText(p)}</p>`
-    + `<ul class="lx-kpis" data-lx="kpis">${kpisHtml(s)}</ul>`
-    + '<p class="lx-sub">Action items</p>'
-    + `<ul class="lx-actions">${items.map((x) => `<li><span>${refs(x.label)}</span>${x.priority ? `<em class="${x.priority === 'High' ? 'is-high' : ''}">${x.priority}</em>` : ''}</li>`).join('')}</ul>`
-    + (fixed.length ? `<p class="lx-sub">Fixed during checks</p><ul class="lx-fixed">${fixed.map((t) => `<li>${refs(t)}</li>`).join('')}</ul>` : '')
-    + '<p class="lx-sub">Summary</p>'
-    + `<ul class="lx-sum">${summaryBullets(f, items).map((t) => `<li>${refs(t)}</li>`).join('')}</ul>`;
+// --- Stage panels ---------------------------------------------------------------------------------------------------
+function captureHtml(rec, checks) {
+  const r = byRef(rec, 'R-111');
+  const keys = new Set(findings(r, rec).map((f) => f.key));
+  const field = (k, v, miss) => `<div class="lx-f${miss ? ' is-miss' : ''}"><dt>${k}</dt><dd>${miss ? '<span class="lx-blank">Missing</span>' : v}</dd></div>`;
+  return '<div class="lx-pair">'
+    + '<figure class="lx-form"><figcaption>Service request form <span>Sample</span></figcaption><dl>'
+    + field('Reference', `<span class="lx-ref">${r.ref}</span>`) + field('Received', esc(shortDate(r.received)))
+    + field('Request', esc(r.task)) + field('Customer', '', keys.has('missing')) + '</dl></figure>'
+    + '<p class="lx-arrow" aria-hidden="true">&rarr;</p>'
+    + '<figure class="lx-rec"><figcaption>Job record, after the checks</figcaption>'
+    + `<p class="lx-rec-row"><span class="lx-ref">${r.ref}</span> <b>${esc(r.task)}</b></p>`
+    + `<p class="lx-rec-meta">Received ${esc(shortDate(r.received))} · ${esc(r.owner)} · ${esc(r.status)}</p>`
+    + `<p class="lx-rec-flag">${pill('flag')} <span>Customer missing: completed before it’s reported</span></p></figure>`
+    + '</div>' + checksHtml(checks);
 }
 
-function cardHtml(c, interactive, note = '') {
-  const head = `<p class="lx-card-h"><span class="lx-badge is-${c.open ? c.tone : 'done'}">${c.open ? c.badge : (c.kind === 'overdue' ? (isOverdue(c.r) ? 'On the report' : 'Resolved') : 'Fixed')}</span>`
-    + `<span class="lx-ref">${esc(c.ref)}</span> <b>${esc(c.r.task)}</b></p>`;
-  if (!c.open) {
-    return `<li class="lx-card is-cleared" data-case="${c.ref}">${head}<p class="lx-done" tabindex="-1">${esc(c.done(c.r))}</p>`
-      + (note ? `<p class="lx-delta">${esc(note)}</p>` : '') + '</li>';
-  }
-  const body = interactive
-    ? `${c.ask ? `<p class="lx-ask" id="lx-ask-${c.ref}">${esc(c.ask)}</p>` : ''}<div class="lx-opts" role="group" aria-label="${esc(c.ask || `Next step for ${c.ref}`)}">`
-      + c.options.map((o) => `<button type="button" class="lx-opt${c.kind === 'overdue' ? ' is-wide' : ''}" data-fix="${c.ref}" data-val="${esc(o)}">${esc(c.label ? c.label(o) : o)}</button>`).join('') + '</div>'
-    : `<p class="lx-still">${esc(c.still)}</p>`;
-  return `<li class="lx-card is-${c.tone}" data-case="${c.ref}">${head}<p class="lx-prob">${esc(c.problem)}</p>${body}</li>`;
+function moveHtml(rec, checks) {
+  const open = rec.filter((r) => inPeriod(r) && !isEmptyRow(r) && !isCompleted(r));
+  const row = (r) => {
+    const keys = new Set(findings(r, rec).map((f) => f.key));
+    const tags = [keys.has('unassigned') && pill('action', 'No owner'), keys.has('overdue') && pill('action', 'Overdue')].filter(Boolean).join(' ');
+    return `<tr class="${tags ? 'is-flag' : ''}"><th scope="row"><span class="lx-ref">${r.ref}</span></th><td>${esc(r.task)}${tags ? `<span class="lx-row-tags">${tags}</span>` : ''}</td>`
+      + `<td data-l="Owner">${keys.has('unassigned') ? '<span class="lx-blank">Nobody</span>' : esc(r.owner)}</td><td data-l="Due">${esc(day(r.due))}</td><td data-l="Status">${esc(r.status)}</td></tr>`;
+  };
+  return `<figure class="lx-list"><figcaption>Work still outstanding <span>${open.length} jobs</span></figcaption><div class="lx-scroll">`
+    + `<table><caption class="sr-only">The ${open.length} outstanding jobs with owner, due date and status</caption><thead><tr><th scope="col">Ref</th><th scope="col">Job</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>`
+    + `<tbody>${open.map(row).join('')}</tbody></table></div></figure>`
+    + checksHtml(checks)
+    + '<p class="lx-note">The checks show what needs attention. A person decides who takes the job and chases the follow-up.</p>';
 }
 
-export function rowHtml(r, all, interactive) {
+function seeHtml(rec, interactive) {
+  const list = reportChecks(rec);
+  const s = summarise(rec);
+  return `<ul class="lx-checks">${list.map((c) => `<li><span class="lx-chk-l">${esc(c.label)}</span><span class="lx-chk-d">${refs(c.detail)}</span>${pill(c.state)}</li>`).join('')}</ul>`
+    + '<details class="lx-how"><summary>How the totals are checked</summary><ul>'
+    + `<li>Every record received in the period is counted once: ${s.total} of ${s.total}.</li>`
+    + `<li>Completed plus still outstanding must equal the total: ${s.completed} + ${s.outstanding} = ${s.total}.</li>`
+    + `<li>The ${s.attention} needing attention are part of the ${s.outstanding} still outstanding, not extra jobs.</li></ul></details>`
+    + (interactive ? '<p class="lx-jump-see"><a href="#lx-rep-h">See the weekly report <span aria-hidden="true">&darr;</span></a></p>' : '');
+}
+
+function stageHtml(st, rec, interactive) {
+  const c = dataChecks(rec);
+  const body = st.id === 'capture' ? captureHtml(rec, c.capture) : st.id === 'move' ? moveHtml(rec, c.move) : seeHtml(rec, interactive);
+  return `<div class="lx-panel" id="lx-p-${st.id}" data-stage="${st.id}"${interactive ? ` role="region" aria-labelledby="lx-ph-${st.id}" hidden` : ''}>`
+    + `<p class="lx-panel-k">${st.n} ${st.name} · ${esc(st.short)}</p><h3 id="lx-ph-${st.id}">${esc(st.h)}</h3>${body}`
+    + `<p class="lx-benefit">${esc(st.benefit)}</p></div>`;
+}
+
+// --- The weekly report ----------------------------------------------------------------------------------------------
+export function reportHtml(rec = RECORDS) {
+  const s = summarise(rec);
+  const items = attentionItems(rec);
+  const kpi = (key, n, label, cls, sub = '') => `<li class="lx-kpi ${cls}" data-kpi="${key}"><strong>${n}</strong><span>${label}</span>${sub ? `<small>${sub}</small>` : ''}</li>`;
+  return '<section class="lx-report" aria-labelledby="lx-rep-h">'
+    + `<p class="lx-rep-k">Weekly operations report · Fictional sample</p><h3 id="lx-rep-h" tabindex="-1">${esc(BUSINESS)}</h3>`
+    + `<p class="lx-rep-sub">${PERIOD_LABEL} · ${s.total} records checked</p>`
+    + `<ul class="lx-kpis">${kpi('completed', s.completed, 'Completed this week', 'is-done')}${kpi('outstanding', s.outstanding, 'Still outstanding', 'is-open')}`
+    + `${kpi('attention', s.attention, 'Need attention', s.attention ? 'is-att' : 'is-clear', s.outstanding ? `Of the ${s.outstanding} still outstanding` : '')}</ul>`
+    + '<p class="lx-sub">What needs attention</p>'
+    + `<ol class="lx-actions">${items.length ? items.map((x) => `<li><span><span class="lx-ref">${x.ref}</span> ${esc(x.what)}</span>${pill(x.state, x.tag)}</li>`).join('') : '<li><span>Nothing needs attention this week</span></li>'}</ol>`
+    + `<ul class="lx-rchecks">${reportChecks(rec).map((c) => `<li class="is-${c.state}"><span aria-hidden="true">${ICON[c.state]}</span> ${esc(c.label)}<span class="sr-only"> (${STATE[c.state]})</span></li>`).join('')}</ul>`
+    + '<p class="lx-close">Know what&rsquo;s completed. See what&rsquo;s outstanding. Know what to do next.</p>'
+    + '</section>';
+}
+
+// --- Full tracker (read-only) ---------------------------------------------------------------------------------------
+export function rowHtml(r, all) {
   const keys = new Set(findings(r, all).map((f) => f.key));
   const cls = ['wt-row', isCompleted(r) && 'is-done', keys.size && 'is-flag'].filter(Boolean).join(' ');
-  const options = (list, value) => list.map((o) => `<option${o === value ? ' selected' : ''}>${esc(o)}</option>`).join('');
-  const cust = interactive && FILLABLE.has(r.ref)
-    ? `<input class="wt-in${keys.has('missing') ? ' is-missing' : ''}" type="text" value="${esc(r.customer)}" placeholder="Add customer / area" maxlength="40" autocomplete="off" aria-label="Customer / Area for ${esc(r.ref)}" data-customer="${esc(r.ref)}">`
-    : r.customer ? esc(r.customer) : '<span class="wt-blank">Blank</span>';
-  const own = interactive
-    ? `<select class="wt-sel${keys.has('unassigned') ? ' is-missing' : ''}" aria-label="Assigned To for ${esc(r.ref)}" data-owner="${esc(r.ref)}">${options(OWNERS, r.owner)}</select>`
-    : esc(r.owner);
-  const st = interactive
-    ? `<select class="wt-sel" aria-label="Status for ${esc(r.ref)}" data-status="${esc(r.ref)}">${options(STATUSES, r.status)}</select>`
-    : esc(r.status);
   return `<tr class="${cls}" data-ref="${esc(r.ref)}"><td class="wt-ref">${esc(r.ref)}</td><td class="wt-task">${esc(r.task)}</td>`
-    + `<td class="wt-cust">${cust}</td><td class="wt-own">${own}</td>`
-    + `<td class="wt-due"><span>${esc(shortDate(r.due))}</span>${keys.has('overdue') ? ' <em class="wt-tag">Overdue</em>' : ''}</td>`
-    + `<td class="wt-st">${st}</td></tr>`;
+    + `<td class="wt-cust">${r.customer ? esc(r.customer) : '<span class="wt-blank">Missing</span>'}</td>`
+    + `<td class="wt-own">${keys.has('unassigned') ? '<span class="wt-blank">Unassigned</span>' : esc(r.owner)}</td>`
+    + `<td class="wt-due"><span>${esc(shortDate(r.due))}</span>${keys.has('overdue') ? ' <em class="wt-tag">Overdue</em>' : ''}</td><td class="wt-st">${esc(r.status)}</td></tr>`;
 }
 
-const draftText = (p) => (p.cleared < p.total ? `Draft · ${p.cleared} of ${p.total} checks cleared` : `Draft · ${p.extra} new ${p.extra === 1 ? 'issue' : 'issues'} to check`);
-const workH = (p, interactive) => (!interactive ? 'My checks found 3 problems. Here’s what happens to each one.'
-  : p.ready ? 'All 3 handled. Your report is ready to send.'
-  : p.cleared === p.total ? 'All 3 handled, but the tracker has a new issue. See the report.' : 'My checks found 3 problems. Fix each one with a tap.');
-const peekHtml = (s, p) => `Report: ${s.attention} need${s.attention === 1 ? 's' : ''} attention · ${p.ready ? 'Ready to send' : 'Draft'} <a href="#lx-rep-h">See the report <span aria-hidden="true">&darr;</span></a>`;
-const figsLine = (s) => `This week: ${s.total} jobs · ${s.completed} completed · ${s.outstanding} still outstanding · ${s.attention} need${s.attention === 1 ? 's' : ''} attention`;
+const allHtml = (rec) => `<details class="lx-all"><summary>See all ${rec.length} jobs (the tracker behind this report)</summary>`
+  + '<p class="lx-all-n">Read-only sample. Download the workbook below to try the tracker yourself.</p>'
+  + `<div class="wt-scroll"><table class="wt-table"><caption class="sr-only">Sample work tracker: ${rec.length} jobs</caption>`
+  + '<thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th></tr></thead>'
+  + `<tbody>${rec.map((r) => rowHtml(r, rec)).join('')}</tbody></table></div></details>`;
 
-const railHtml = (p, interactive = true) => {
-  const ready = p.ready;
-  return `<li class="is-done"><b><span aria-hidden="true">1</span> Capture</b><span>12 jobs in one list</span></li>`
-    + `<li class="${ready ? 'is-done' : 'is-now'}"${ready ? '' : ' aria-current="step"'}><b><span aria-hidden="true">2</span> Check</b><span>${p.cleared < p.total || !interactive ? `${p.cleared} of ${p.total} problems cleared` : `${p.extra} new ${p.extra === 1 ? 'issue' : 'issues'}`}</span></li>`
-    + `<li class="${ready ? 'is-done' : ''}"${ready ? ' aria-current="step"' : ''}><b><span aria-hidden="true">3</span> Report</b><span>${ready ? 'Ready to send' : interactive ? 'Updating as you go' : 'The weekly report'}</span></li>`;
-};
+const tabsHtml = (explored = new Set(), current = '', hint = '') => STAGES.map((st) => `<button type="button" class="lx-tab${current === st.id ? ' is-on' : ''}${explored.has(st.id) ? ' is-seen' : ''}${hint === st.id ? ' is-hint' : ''}" data-go="${st.id}" aria-controls="lx-p-${st.id}" aria-pressed="${current === st.id}">`
+  + `<span class="lx-tab-n">${st.n}</span><span class="lx-tab-t"><b>${st.name}</b><span>${esc(st.short)}</span></span>${explored.has(st.id) ? '<span class="lx-tab-ok" aria-hidden="true">&#10003;</span>' : ''}</button>`).join('');
 
-export function appHtml(records = RECORDS, { interactive = false, kept = false, notes = {} } = {}) {
-  const p = progress(records, kept);
-  return `<ol class="lx-rail" data-lx="rail" aria-label="Progress">${railHtml(p, interactive)}</ol>`
-    + '<div class="lx-grid"><div class="lx-work">'
-    + `<p class="lx-work-h" data-lx="workh">${workH(p, interactive)}</p>`
-    + (interactive ? `<p class="lx-peek" data-lx="peek">${peekHtml(summarise(records), p)}</p>` : '')
-    + `<ul class="lx-cards" data-lx="cards">${p.cases.map((c) => cardHtml(c, interactive, notes[c.ref])).join('')}</ul>`
-    + '</div>'
-    + '<section class="lx-report" aria-labelledby="lx-rep-h"><div class="lx-rep-head"><div>'
-    + `<h3 id="lx-rep-h">${esc(BUSINESS)} · Weekly report</h3><p>${PERIOD_LABEL} · Fictional sample</p></div></div>`
-    + `<div data-lx="report">${reportInner(records, p)}</div>`
-    + '<p class="lx-cap">The summary is written by simple rules from these records. In a real project, a person checks it before it&rsquo;s sent.</p>'
-    + (interactive ? '<p class="sr-only" aria-live="polite" data-lx="live"></p><button type="button" class="btn btn-quiet btn-small lx-reset" data-wt-reset>Start over</button>' : '')
-    + '</section></div>'
-    + '<details class="lx-all"><summary>See all 12 jobs (the tracker behind this report)</summary>'
-    + (interactive ? `<p class="lx-all-figs" data-lx="allfigs">${figsLine(summarise(records))}</p>` : '')
-    + `<p class="lx-all-n">${interactive ? 'Change any owner or status and the report follows. Changes stay on this page and reset when you refresh.' : 'The interactive version needs JavaScript.'}</p>`
-    + `<div class="wt-scroll"><table class="wt-table"><caption class="sr-only">Sample work tracker: ${records.length} jobs</caption>`
-    + '<thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th></tr></thead>'
-    + `<tbody data-wt="rows">${records.map((r) => rowHtml(r, records, interactive)).join('')}</tbody></table></div></details>`;
+/** The whole example. interactive=false is the no-JavaScript version (everything visible, no controls). */
+export function appHtml(rec = RECORDS, { interactive = false } = {}) {
+  const stages = STAGES.map((st) => stageHtml(st, rec, interactive)).join('');
+  if (!interactive) {
+    return '<div class="lx-grid is-static"><div class="lx-main">' + openingHtml(rec)
+      + `<ol class="lx-stagelist">${STAGES.map((st) => `<li><span class="lx-tab-n">${st.n}</span> <b>${st.name}</b> · ${esc(st.short)}</li>`).join('')}</ol>`
+      + stages + `</div>${reportHtml(rec)}</div>` + allHtml(rec);
+  }
+  return '<div class="lx-bar"><p class="lx-progress" data-lx="progress" aria-live="polite">Pick a stage to explore</p><div class="lx-ctrl">'
+    + '<button type="button" class="lx-btn" data-lx-act="pause" aria-pressed="false" hidden>Pause</button>'
+    + '<button type="button" class="lx-btn" data-lx-act="skip" hidden>Skip intro</button>'
+    + '<button type="button" class="lx-btn" data-lx-act="replay" hidden>Replay intro</button></div></div>'
+    + '<div class="lx-grid"><div class="lx-main">'
+    + `<div class="lx-tabs" role="group" aria-label="Explore the three stages" data-lx="tabs">${tabsHtml()}</div>`
+    + '<a class="lx-jump" href="#lx-rep-h">Jump to the weekly report <span aria-hidden="true">&darr;</span></a>'
+    + `<div class="lx-stage" data-lx="stage">${openingHtml(rec)}${stages}</div>`
+    + `</div>${reportHtml(rec)}</div>` + allHtml(rec);
 }
 
+/** Interactive version: opening animation, stage selection with a guided cue. Read-only: no record changes. */
 export function mountTracker(host) {
   if (!host) return null;
-  let kept = false; let said = ''; let refs0 = ''; let prevKpi = null; let lastFix = null; const notes = {};
-  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const q = (s) => host.querySelector(s);
-
-  const paint = (records) => {
-    const nowRefs = records.map((r) => r.ref).join();
-    if (nowRefs !== refs0) { host.innerHTML = appHtml(records, { interactive: true, kept, notes }); refs0 = nowRefs; prevKpi = summarise(records); return; }
-    const p = progress(records, kept);
-    const s = summarise(records);
-    for (const c of p.cases) if (c.open) delete notes[c.ref];
-    q('[data-lx="rail"]').innerHTML = railHtml(p);
-    q('[data-lx="workh"]').textContent = workH(p, true);
-    q('[data-lx="peek"]').innerHTML = peekHtml(s, p);
-    q('[data-lx="allfigs"]').textContent = figsLine(s);
-    q('[data-lx="cards"]').innerHTML = p.cases.map((c) => cardHtml(c, true, notes[c.ref])).join('');
-    q('[data-lx="report"]').innerHTML = reportInner(records, p);
-    // Mark the figures that moved (a short tint; a static outline under reduced motion).
-    for (const k of ['total', 'completed', 'outstanding', 'attention']) {
-      if (prevKpi && prevKpi[k] !== s[k]) {
-        const el = q(`[data-kpi="${k}"]`); el.classList.add('is-changed');
-        if (!reduce) setTimeout(() => el.classList.remove('is-changed'), 1400); else setTimeout(() => el.classList.remove('is-changed'), 2000);
-      }
-    }
-    const live = q('[data-lx="live"]');
-    // Announce only when something a listener cares about changed (not on every keystroke).
-    const msg = p.ready ? `Report ready to send. ${s.attention} ${s.attention === 1 ? 'job needs' : 'jobs need'} attention.` : `Report updated: ${s.attention} ${s.attention === 1 ? 'job needs' : 'jobs need'} attention. ${p.cleared} of ${p.total} problems cleared.`;
-    if (live && msg !== said) { live.textContent = msg; said = msg; }
-    prevKpi = s;
-    // Rows are updated in place so a field being typed in keeps its focus.
-    for (const r of records) {
-      const tr = q(`tr[data-ref="${r.ref}"]`);
-      const keys = new Set(findings(r, records).map((f) => f.key));
-      tr.classList.toggle('is-done', isCompleted(r));
-      tr.classList.toggle('is-flag', keys.size > 0);
-      const own = tr.querySelector('[data-owner]'); if (own.value !== r.owner) own.value = r.owner;
-      own.classList.toggle('is-missing', keys.has('unassigned'));
-      const st = tr.querySelector('[data-status]'); if (st.value !== r.status) st.value = r.status;
-      const inp = tr.querySelector('[data-customer]');
-      if (inp) { if (inp.value !== r.customer) inp.value = r.customer; inp.classList.toggle('is-missing', keys.has('missing')); }
-      const due = tr.querySelector('.wt-due');
-      const tag = due.querySelector('.wt-tag');
-      if (keys.has('overdue') && !tag) due.insertAdjacentHTML('beforeend', ' <em class="wt-tag">Overdue</em>');
-      if (!keys.has('overdue') && tag) { tag.previousSibling?.nodeType === 3 && tag.previousSibling.remove(); tag.remove(); }
-    }
-    if (lastFix) { q(`[data-case="${lastFix}"] .lx-done`)?.focus({ preventScroll: true }); lastFix = null; }
-  };
-
-  host.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-fix]');
-    if (b) {
-      const ref = b.dataset.fix; const v = b.dataset.val;
-      const now = store.getRecords();
-      const before = summarise(now).attention;
-      lastFix = ref;
-      if (ref === 'R-104') { kept = true; notes[ref] = `Need attention stays at ${before}: it’s real work, not a data error.`; paint(now); return; }
-      const next = ref === 'R-112' ? setOwner(now, ref, v) : setCustomer(now, ref, v);
-      notes[ref] = `Need attention: ${before} → ${summarise(next).attention}`;
-      if (ref === 'R-112') store.setOwner(ref, v); else store.setCustomer(ref, v);
-      return;
-    }
-    if (e.target.closest('[data-wt-reset]')) {
-      kept = false; for (const k of Object.keys(notes)) delete notes[k]; prevKpi = null;
-      store.reset();
-      q('[data-wt-reset]')?.focus();
-    }
-  });
-  host.addEventListener('change', (e) => {
-    const t = e.target;
-    if (t.dataset.owner) store.setOwner(t.dataset.owner, t.value);
-    else if (t.dataset.status) store.setStatus(t.dataset.status, t.value);
-  });
-  host.addEventListener('input', (e) => { if (e.target.dataset.customer) store.setCustomer(e.target.dataset.customer, e.target.value); });
+  host.innerHTML = appHtml(RECORDS, { interactive: true });
   host.classList.add('is-live');
   host.closest('section')?.classList.add('lx-on');
-  store.subscribe(paint);
-  paint(store.getRecords());
-  return store;
+  const q = (s) => host.querySelector(s);
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const explored = new Set(); let current = '';
+  const order = STAGES.map((s) => s.id);
+  const report = q('.lx-report');
+  const ctrl = (act) => q(`[data-lx-act="${act}"]`);
+
+  const paintTabs = () => {
+    const hint = host.classList.contains('lx-intro') ? '' : order.find((id) => !explored.has(id)) || '';
+    q('[data-lx="tabs"]').innerHTML = tabsHtml(explored, current, hint);
+    q('[data-lx="progress"]').textContent = explored.size ? `${explored.size} of 3 explored` : 'Pick a stage to explore';
+  };
+  const show = (id) => {
+    current = id; explored.add(id);
+    q('[data-lx="open"]').hidden = true;
+    for (const p of host.querySelectorAll('.lx-panel')) p.hidden = p.dataset.stage !== id;
+    report.classList.toggle('is-focus', id === 'see');
+    paintTabs();
+    q(`[data-go="${id}"]`)?.focus();
+  };
+
+  // Opening: CSS keyframes under .lx-intro. It ends when the report's rise finishes (so Pause also pauses the end).
+  const finish = () => {
+    host.classList.remove('lx-intro', 'lx-paused', 'lx-wait');
+    ctrl('pause').hidden = true; ctrl('skip').hidden = true; ctrl('replay').hidden = reduce;
+    ctrl('pause').textContent = 'Pause'; ctrl('pause').setAttribute('aria-pressed', 'false');
+    paintTabs();
+  };
+  const play = () => {
+    if (reduce) { finish(); return; }
+    current = ''; for (const p of host.querySelectorAll('.lx-panel')) p.hidden = true;
+    q('[data-lx="open"]').hidden = false; report.classList.remove('is-focus');
+    host.classList.remove('lx-intro', 'lx-paused', 'lx-wait'); void host.offsetWidth; host.classList.add('lx-intro');
+    ctrl('pause').hidden = false; ctrl('skip').hidden = false; ctrl('replay').hidden = true;
+    paintTabs();
+  };
+  report.addEventListener('animationend', (e) => { if (e.animationName === 'lx-rise' && host.classList.contains('lx-intro')) finish(); });
+
+  host.addEventListener('click', (e) => {
+    const go = e.target.closest('[data-go]');
+    if (go) { if (host.classList.contains('lx-intro')) finish(); show(go.dataset.go); return; }
+    const act = e.target.closest('[data-lx-act]')?.dataset.lxAct;
+    if (act === 'skip') { finish(); q('[data-go="capture"]').focus(); }
+    if (act === 'replay') { play(); ctrl('skip').focus(); }
+    if (act === 'pause') {
+      const paused = host.classList.toggle('lx-paused');
+      ctrl('pause').textContent = paused ? 'Play' : 'Pause'; ctrl('pause').setAttribute('aria-pressed', String(paused));
+    }
+  });
+
+  if (reduce || typeof IntersectionObserver !== 'function') { finish(); return null; }
+  host.classList.add('lx-wait');
+  const io = new IntersectionObserver((ents) => {
+    if (ents.some((x) => x.isIntersecting)) { io.disconnect(); play(); }
+  }, { threshold: 0.25 });
+  io.observe(host);
+  return null;
 }

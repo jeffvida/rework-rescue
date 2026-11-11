@@ -67,7 +67,7 @@ test('hero: one workspace, Today / With Rework Rescue toggle; Today shows the da
   assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
   assert.match(fig, /What goes wrong today/);
   assert.match(fig, /Checked at every step/);
-  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Northfield job?', 'Weekly_Report_FINAL(2).xlsx', 'The result']) assert.ok(fig.includes(t), t);
+  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Ridgeway job?', 'Weekly_Report_FINAL(2).xlsx', 'The result']) assert.ok(fig.includes(t), t);
   assert.deepEqual([...fig.matchAll(/<em class="hx-tag is-(red|amber)">([^<]+)<\/em>/g)].map((m) => [m[2], m[1]]), [
     ['Duplicates', 'red'], ['Not in the tracker', 'amber'], ['Missing record', 'red'], ['Manual check', 'amber'], ['No owner', 'red'], ['Manual rebuild', 'amber']]);
   assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state hidden from screen readers by default');
@@ -140,15 +140,16 @@ test('hero motion: autoplay only on screen, Pause button, toggle stops it, reduc
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
 });
 
-test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {
+test('services (10 Nov; heading and card order 11 Nov PM): Capture -> Move -> See, checks across all three, no choosing', async () => {
   const html = await page();
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
-  assert.match(sec, /<h2 id="services-h">One connected solution\. Three parts that work together\.<\/h2>/);
+  assert.match(sec, /<h2 id="services-h">I fix the tools, the steps and the numbers\.<\/h2>/);
+  assert.doesNotMatch(html, /One connected solution/);
   assert.match(sec, /You don&rsquo;t need to choose a service\. I&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there\./);
-  // Order: Capture, Move, See, with the three service names kept.
+  // Order: Capture, Move, See. The cards lead with the plain line; the three service names stay under it (11 Nov PM review).
   assert.deepEqual([...sec.matchAll(/<span class="svc-layer-n">(\d\d)<\/span> (\w+)<\/p>\s*<h3>([^<]+)<\/h3>/g)].map((m) => [m[1], m[2], m[3]]), [
-    ['01', 'Capture', 'Business Tools &amp; Systems'], ['02', 'Move', 'Workflows &amp; Processes'], ['03', 'See', 'Data &amp; Reporting']]);
-  assert.deepEqual([...sec.matchAll(/<p class="svc-short">([^<]+)<\/p>/g)].map((m) => m[1]), ['Fix the tools.', 'Fix the steps.', 'Fix the numbers.']);
+    ['01', 'Capture', 'Fix the tools.'], ['02', 'Move', 'Fix the steps.'], ['03', 'See', 'Fix the numbers.']]);
+  assert.deepEqual([...sec.matchAll(/<p class="svc-short">([^<]+)<\/p>/g)].map((m) => m[1]), ['Business Tools &amp; Systems', 'Workflows &amp; Processes', 'Data &amp; Reporting']);
   // Data & Reporting keeps the most visual weight.
   assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
   assert.match(sec, /A good place to start/);
@@ -179,8 +180,8 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   const main = html.slice(html.indexOf('<main'), html.indexOf('id="services"'));
   assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
   assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
-  // The only mention of subscriptions is the cost-transparency line in the live example (final brief, 11 Nov).
-  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', ''), /subscription|sign up for (the|our) platform/i);
+  // The only mentions of subscriptions are the cost-transparency lines (final brief, 11 Nov; cost FAQ, 11 Nov PM).
+  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('The written scope also lists any subscriptions you&#39;d need.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'The example is read-only.', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
   assert.doesNotMatch(priv, /Reset sample|change an owner or a status|A clearer way to manage the work/, 'privacy page matches the read-only example');
@@ -218,11 +219,11 @@ test('page: no prices, testimonials or client results; service names kept; servi
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const visible = html.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '');
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
-  for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<h3>${n}</h3>`), n);
+  for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<p class="svc-short">${n}</p>`), n);
   // Services stay short: the problem line per service, no separate symptom lists.
   assert.doesNotMatch(html, /svc-familiar|Does this sound familiar\?/);
   // Middle option (9 Nov): CRM, websites and booking pages stay, framed as support for records and reporting.
-  assert.match(html, /Simple CRM and customer records/);
+  assert.match(html, /Customer lists and records/); // "CRM" -> "customer list" (11 Nov PM review)
   assert.match(html, /Forms, booking and request pages/);
   assert.match(html, /Trackers and job lists/);
   // Three examples per part (11 Nov review).
@@ -230,7 +231,7 @@ test('page: no prices, testimonials or client results; service names kept; servi
   for (const ul of html.match(/<ul class="svc-have">[\s\S]*?<\/ul>/g)) assert.equal((ul.match(/<li>/g) || []).length, 3);
   assert.doesNotMatch(html, /Better data\. Simpler workflows\./);
   assert.match(html, /I don&#39;t automate important decisions about people\./);
-  assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
+  assert.match(html, /30 days of fixes for anything that doesn&#39;t work as agreed\./);
 });
 
 test('booking: Services ends with the closing strip; the demo ends with the report and the workbook (11 Nov)', async () => {
@@ -241,8 +242,9 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
   assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="svc-foot"'), 'at the end of Services');
-  assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong>/);
-  assert.match(after, /30 minutes &middot; No obligation &middot; Practical next steps/);
+  assert.match(after, /<strong>Your business may be different\.<\/strong> If your week runs on a tracker, a few forms and an inbox, I can probably help\./);
+  assert.doesNotMatch(after, /Rework Rescue helps/, 'first person, not third');
+  assert.match(after, /30 minutes &middot; No obligation &middot; Clear next steps/);
   assert.match(after, /href="contact\/#contact-form-area">Book a free report review</);
   assert.doesNotMatch(after.slice(0, after.indexOf('</div>\n        </div>')), /weeks|days|[$₱]/i, 'no timeframe or price');
   const offer = 'Bring your Monday report. I&rsquo;ll look at where the information breaks down, what&rsquo;s creating unnecessary work and what I&rsquo;d fix first. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me.';
@@ -258,7 +260,7 @@ test('How I work: four steps; step 4 lists what you receive and the 30-day fixes
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'How I work keeps its four steps');
-  for (const t of ['The working solution, set up in your tools or accounts.', 'Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
+  for (const t of ['The finished work, set up in your own tools or accounts.', 'Ownership of the delivered work', '30 days of fixes for anything that doesn&#39;t work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
   assert.doesNotMatch(how, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
 });
 
@@ -272,3 +274,25 @@ test('availability on the page matches the booking calendar rules', async () => 
   }
 });
 
+
+test('11 Nov PM round: new FAQs, written review without a call, scope you can share, AI data line', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const faq = html.slice(html.indexOf('id="faq"'), html.indexOf('id="start"'));
+  for (const q of ['Can I get a review without a call?', 'How much does it cost?', 'How long does a first project take?', 'Do you work with larger teams?', 'What if you&#39;re unavailable?', 'You&#39;re in the Philippines. How does working remotely work?']) assert.ok(faq.includes(`<summary>${q}</summary>`), q);
+  assert.match(faq, /I plan a first project to take 2&ndash;3 weeks/);
+  assert.match(faq, /sign an NDA, and sign a data processing agreement/);
+  assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);
+  assert.doesNotMatch(faq, /reply within|within \d+ hours/i, 'no reply-time promise (Jeff, 11 Nov)');
+  for (const f of ['../index.html', '../contact/index.html']) {
+    const h = await readFile(new URL(f, import.meta.url), 'utf8');
+    assert.match(h, /one-page written review within 1 working day/, f);
+    assert.match(h, /share (it )?with whoever signs off/, f);
+  }
+  assert.doesNotMatch(html, /Northfield|Brightline Studio|Send updated quotation|Review supplier quote/, 'field-work sample jobs');
+  assert.doesNotMatch(html.slice(html.indexOf('id="fit"'), html.indexOf('id="how"')), /\bCRM\b/, '"customer list", not CRM (the FAQ keeps the word for people who search for it)');
+  const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  assert.match(priv, /Client project data is never put into free AI tools/);
+  for (const f of ['../tools/build_n8n_assistant.mjs', '../tools/build_tracker_xlsx.py', '../n8n/rework-assistant.json']) {
+    assert.doesNotMatch(await readFile(new URL(f, import.meta.url), 'utf8'), /book a free rework review/i, f);
+  }
+});

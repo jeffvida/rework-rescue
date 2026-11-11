@@ -11,8 +11,7 @@ const REVEAL = [
   '.hero-copy > *',
   '#fit .fit-eyebrow', '#fit h2', '.pain-bridge',
   '#samples h2', '#samples .lede', '#samples .disclosure',
-  '#services h2', '#services .svc-intro', '.svc-checks', '.example-project', '.svc-foot',
-  '.exp-head', '.exp-note',
+  '#services h2', '#services .svc-intro', '.svc-foot',
   '#how h2', '.steps-h', '.steps-row', '.handover-h', '.handover-list', '.handover-note',
   '.about-section .photo-card', '.about-copy',
   '#faq h2',
@@ -22,7 +21,6 @@ const REVEAL = [
 const STAGGER = [
   ['.pain-tiles', 70],
   ['.svc-layers', 90],
-  ['.exp-list', 70],
   ['.about-copy', 35],
   ['.faq-wrap', 30, '.faq-item'],
   ['.book-main', 50],
@@ -55,30 +53,12 @@ export function mountMotion() {
       if (!e.isIntersecting) return;
       e.target.classList.add('is-in');
       io.unobserve(e.target);
-      if (e.target.classList.contains('exp-head')) countTo(e.target.querySelector('[data-count-to]'));
     });
   }, { rootMargin: '0px 0px -4% 0px' });
   els.forEach((el) => io.observe(el));
 
   // When printing, show everything that hasn't been scrolled to yet.
   window.addEventListener('beforeprint', () => els.forEach((el) => el.classList.add('is-in')));
-}
-
-/** Counts a number up from 0 once (the HTML already holds the final value). */
-function countTo(el) {
-  if (!el || typeof requestAnimationFrame !== 'function') return;
-  const to = Number(el.dataset.countTo) || 0;
-  const dur = 700;
-  let t0 = null;
-  el.textContent = '0';
-  const tick = (t) => {
-    if (t0 === null) t0 = t;
-    const p = Math.min(1, (t - t0) / dur);
-    el.textContent = String(Math.round(to * (1 - (1 - p) ** 3)));
-    if (p < 1) requestAnimationFrame(tick);
-    else el.closest('.exp-stat')?.classList.add('is-counted');
-  };
-  requestAnimationFrame(tick);
 }
 
 function mountActiveNav() {

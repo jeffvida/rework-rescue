@@ -38,7 +38,7 @@ test('acceptance figures: 12 records, 7 completed, 5 outstanding, 1 overdue, 1 u
   assert.deepEqual(s.followUps.map((f) => [f.title, `${f.reason} · ${f.ref}`, f.note]), [
     ['Follow up on payment', 'Overdue · R-104', 'Due 4 November and still waiting.'],
     ['Check service notes', 'Missing customer · R-111', 'Add the missing customer or area details.'],
-    ['Confirm outstanding item', 'No owner · R-112', 'Choose someone to take responsibility.'],
+    ['Fix leaking tap, unit 4', 'No owner · R-112', 'Choose someone to take responsibility.'],
   ]);
   assert.equal(s.text, '12 jobs in this report. 7 were completed this week, while 5 remain outstanding. 3 jobs need attention.');
 });
@@ -80,7 +80,7 @@ test('visitor changes recalculate everything: completing R-104, assigning R-112,
 });
 
 test('possible duplicates: same date, customer and request, ignoring case and outer spaces; flagged, never removed', () => {
-  const rec = addRecord(RECORDS, { ref: 'R-113', received: '2026-11-02', task: '  send UPDATED quotation ', customer: 'northfield services', owner: 'Sam', due: '2026-11-09', status: 'Not Started' });
+  const rec = addRecord(RECORDS, { ref: 'R-113', received: '2026-11-02', task: '  quote for END-OF-LEASE clean ', customer: 'ridgeway apartments', owner: 'Sam', due: '2026-11-09', status: 'Not Started' });
   assert.deepEqual(duplicatesOf(rec[12], rec), ['R-101']);
   assert.deepEqual(duplicatesOf(rec[0], rec), ['R-113']);
   const s = summarise(rec);
@@ -256,7 +256,7 @@ test('download: the button links to the real workbook in assets/downloads, nothi
 
 test('services keep their names; no pricing, testimonials or invented results added', async () => {
   const html = await page();
-  for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<h3>${n}</h3>`), n);
+  for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<p class="svc-short">${n}</p>`), n);
   const sec = await section();
   assert.doesNotMatch(sec, /[$₱€£]\s?\d|testimonial|saved \d|% faster|guarantee/i);
 });

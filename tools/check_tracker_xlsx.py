@@ -211,7 +211,7 @@ def main():
 
     def add_dup(ws, sm):
         r = B.FIRST + 12
-        for c, v in enumerate(['R-113', dt.datetime(2026, 11, 2), '  send UPDATED quotation ', 'northfield services', 'Sam', dt.datetime(2026, 11, 9), 'Not Started', None], 1):
+        for c, v in enumerate(['R-113', dt.datetime(2026, 11, 2), '  quote for END-OF-LEASE clean ', 'ridgeway apartments', 'Sam', dt.datetime(2026, 11, 9), 'Not Started', None], 1):
             ws.cell(r, c, v)
     s = scenario('new record R-113 matching R-101 (case and spaces differ)', add_dup)
     check(s['flags']['R-113'] == 'Possible duplicate' and s['flags']['R-101'] == 'Possible duplicate', 'both records flagged "Possible duplicate"')

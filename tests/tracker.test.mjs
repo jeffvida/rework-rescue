@@ -118,7 +118,7 @@ test('every follow-up and figure comes from the current records (no fixed text l
 test('page copy (11 Nov): eyebrow, heading, lede, steps, report and the download wording, in order', async () => {
   const sec = await section();
   const order = ['<p class="eyebrow">Live example &middot; fictional sample data</p>', '<h2 id="samples-h">Turn a messy week into a report you can send.</h2>',
-    'A week at Northstar Services, a fictional service business: 12 jobs in one list, and three problems my checks caught. Fix them and watch the weekly report update.',
+    'A week at Northstar Services, a fictional service business: 12 jobs in one list, and three problems my checks caught.<span class="lx-js-only"> Fix them and watch the weekly report update.</span>',
     'Capture</b><span>12 jobs in one list', 'Check</b>', 'Report</b>', 'My checks found 3 problems. Here’s what happens to each one.',
     'R-112', 'R-111', 'R-104', 'Northstar Services · Weekly report', '2–6 November 2026 · Fictional sample', 'Action items', 'Summary',
     'The summary is written by simple rules from these records. In a real project, a person checks it before it&rsquo;s sent.',
@@ -147,7 +147,9 @@ test('interactive version: one-tap fixes for R-112 and R-111, R-104 kept on the 
   const html = appHtml(RECORDS, { interactive: true });
   assert.deepEqual([...html.matchAll(/data-fix="R-112" data-val="([^"]+)"/g)].map((m) => m[1]), ['Ana', 'Mark', 'Sam']);
   const cust = [...html.matchAll(/data-fix="R-111" data-val="([^"]+)"/g)].map((m) => m[1].replace('&amp;', '&'));
-  assert.ok(cust.length === 3 && cust.every((c) => RECORDS.some((r) => r.customer === c)), 'only existing customers, nothing invented');
+  assert.deepEqual(cust, ['Harbor Works'], 'one clear answer, from the job notes, an existing customer');
+  assert.ok(RECORDS.some((r) => r.customer === 'Harbor Works'));
+  assert.match(html, />Add Harbor Works</);
   assert.match(html, /data-fix="R-104" data-val="Keep it at the top of the report"/);
   assert.equal((html.match(/data-owner="/g) || []).length, 12);
   assert.equal((html.match(/data-status="/g) || []).length, 12);
@@ -170,6 +172,16 @@ test('fixing the three problems: figures, action items and "fixed during checks"
   assert.match(html, /On the report/);
   assert.match(html, /All 3 handled\. Your report is ready to send\./);
   assert.deepEqual(changes(RECORDS), [], 'nothing marked fixed in the sample as delivered');
+  // A new problem made in the full tracker after the three fixes: not ready to send.
+  const extra = setOwner(rec, 'R-106', 'Unassigned');
+  const p = progress(extra, true);
+  assert.deepEqual([p.cleared, p.extra, p.ready], [3, 1, false]);
+  const h2 = appHtml(extra, { interactive: true, kept: true });
+  assert.doesNotMatch(h2, /Ready to send/);
+  assert.match(h2, /Draft · 1 new issue to check/);
+  assert.match(h2, /Assign an owner to <span class="lx-ref">R-106<\/span>/);
+  // R-104 completed in the tracker: a real exception resolved, not "fixed".
+  assert.match(appHtml(setStatus(rec, 'R-104', 'Completed'), { interactive: true }), /lx-badge is-done">Resolved</);
 });
 
 test('download: the button links to the real workbook in assets/downloads, nothing is sent anywhere', async () => {

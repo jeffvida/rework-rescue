@@ -20,7 +20,6 @@ const refs = (t) => esc(t).replace(/R-\d+/g, (r) => `<span class="lx-ref">${r}</
 const byRef = (rec, ref) => rec.find((r) => r.ref === ref);
 // Records whose Customer / Area is blank in the sample get a field to fill it in (in the full tracker).
 const FILLABLE = new Set(RECORDS.filter((r) => !String(r.customer).trim()).map((r) => r.ref));
-const CUSTOMERS = ['Harbor Works', 'Cedar & Co.', 'Lakeside Trading'];
 
 /** The three problems my checks found in the sample, in the order a visitor fixes them. */
 export const CASES = Object.freeze([
@@ -29,7 +28,7 @@ export const CASES = Object.freeze([
     still: 'A person assigns an owner (Ana, Mark or Sam).',
     isOpen: (r) => isUnassigned(r), done: (r) => `${r.owner} owns it now.` },
   { ref: 'R-111', kind: 'missing', badge: 'Flagged', tone: 'flag',
-    problem: 'The customer is blank, so this job can’t be reported against anyone.', ask: 'Which customer is it for?', options: CUSTOMERS,
+    problem: 'The customer is blank, so this job can’t be reported against anyone.', ask: 'The job notes say it’s for Harbor Works.', options: ['Harbor Works'], label: (o) => `Add ${o}`,
     still: 'A person adds the customer from the job notes.',
     isOpen: (r) => missingFields(r).length > 0, done: (r) => `Customer added: ${r.customer}.` },
   { ref: 'R-104', kind: 'overdue', badge: 'Real exception', tone: 'action',
@@ -45,7 +44,10 @@ export function progress(records, kept = false) {
     const open = c.kind === 'overdue' ? c.isOpen(r) && !kept : c.isOpen(r);
     return { ...c, r, open };
   });
-  return { cases: st, cleared: st.filter((c) => !c.open).length, total: st.length };
+  const caseRefs = new Set(CASES.map((c) => c.ref));
+  const extra = summarise(records).followUps.filter((f) => !caseRefs.has(f.ref)).length;
+  const cleared = st.filter((c) => !c.open).length;
+  return { cases: st, cleared, total: st.length, extra, ready: cleared === st.length && !extra };
 }
 
 /** What changed compared with the sample as delivered (owners, customers, statuses), for "Fixed during checks". */
@@ -72,8 +74,7 @@ function reportInner(records, p) {
   const f = { ...s, business: BUSINESS, period: PERIOD_LABEL };
   const items = actionItems(f);
   const fixed = changes(records);
-  const ready = p.cleared === p.total;
-  return `<p class="lx-status ${ready ? 'is-ready' : 'is-draft'}" data-lx="status">${ready ? 'Ready to send' : `Draft · ${p.cleared} of ${p.total} checks cleared`}</p>`
+  return `<p class="lx-status ${p.ready ? 'is-ready' : 'is-draft'}" data-lx="status">${p.ready ? 'Ready to send' : draftText(p)}</p>`
     + `<ul class="lx-kpis" data-lx="kpis">${kpisHtml(s)}</ul>`
     + '<p class="lx-sub">Action items</p>'
     + `<ul class="lx-actions">${items.map((x) => `<li><span>${refs(x.label)}</span>${x.priority ? `<em class="${x.priority === 'High' ? 'is-high' : ''}">${x.priority}</em>` : ''}</li>`).join('')}</ul>`
@@ -83,7 +84,7 @@ function reportInner(records, p) {
 }
 
 function cardHtml(c, interactive, note = '') {
-  const head = `<p class="lx-card-h"><span class="lx-badge is-${c.open ? c.tone : 'done'}">${c.open ? c.badge : (c.kind === 'overdue' && isOverdue(c.r) ? 'On the report' : 'Fixed')}</span>`
+  const head = `<p class="lx-card-h"><span class="lx-badge is-${c.open ? c.tone : 'done'}">${c.open ? c.badge : (c.kind === 'overdue' ? (isOverdue(c.r) ? 'On the report' : 'Resolved') : 'Fixed')}</span>`
     + `<span class="lx-ref">${esc(c.ref)}</span> <b>${esc(c.r.task)}</b></p>`;
   if (!c.open) {
     return `<li class="lx-card is-cleared" data-case="${c.ref}">${head}<p class="lx-done" tabindex="-1">${esc(c.done(c.r))}</p>`
@@ -91,7 +92,7 @@ function cardHtml(c, interactive, note = '') {
   }
   const body = interactive
     ? `${c.ask ? `<p class="lx-ask" id="lx-ask-${c.ref}">${esc(c.ask)}</p>` : ''}<div class="lx-opts" role="group" aria-label="${esc(c.ask || `Next step for ${c.ref}`)}">`
-      + c.options.map((o) => `<button type="button" class="lx-opt${c.kind === 'overdue' ? ' is-wide' : ''}" data-fix="${c.ref}" data-val="${esc(o)}">${esc(o)}</button>`).join('') + '</div>'
+      + c.options.map((o) => `<button type="button" class="lx-opt${c.kind === 'overdue' ? ' is-wide' : ''}" data-fix="${c.ref}" data-val="${esc(o)}">${esc(c.label ? c.label(o) : o)}</button>`).join('') + '</div>'
     : `<p class="lx-still">${esc(c.still)}</p>`;
   return `<li class="lx-card is-${c.tone}" data-case="${c.ref}">${head}<p class="lx-prob">${esc(c.problem)}</p>${body}</li>`;
 }
@@ -115,21 +116,26 @@ export function rowHtml(r, all, interactive) {
     + `<td class="wt-st">${st}</td></tr>`;
 }
 
+const draftText = (p) => (p.cleared < p.total ? `Draft · ${p.cleared} of ${p.total} checks cleared` : `Draft · ${p.extra} new ${p.extra === 1 ? 'issue' : 'issues'} to check`);
 const workH = (p, interactive) => (!interactive ? 'My checks found 3 problems. Here’s what happens to each one.'
-  : p.cleared === p.total ? 'All 3 handled. Your report is ready to send.' : 'My checks found 3 problems. Fix each one with a tap.');
+  : p.ready ? 'All 3 handled. Your report is ready to send.'
+  : p.cleared === p.total ? 'All 3 handled, but the tracker has a new issue. See the report.' : 'My checks found 3 problems. Fix each one with a tap.');
+const peekHtml = (s, p) => `Report: ${s.attention} need${s.attention === 1 ? 's' : ''} attention · ${p.ready ? 'Ready to send' : 'Draft'} <a href="#lx-rep-h">See the report <span aria-hidden="true">&darr;</span></a>`;
+const figsLine = (s) => `This week: ${s.total} jobs · ${s.completed} completed · ${s.outstanding} still outstanding · ${s.attention} need${s.attention === 1 ? 's' : ''} attention`;
 
-const railHtml = (p) => {
-  const ready = p.cleared === p.total;
+const railHtml = (p, interactive = true) => {
+  const ready = p.ready;
   return `<li class="is-done"><b><span aria-hidden="true">1</span> Capture</b><span>12 jobs in one list</span></li>`
-    + `<li class="${ready ? 'is-done' : 'is-now'}"${ready ? '' : ' aria-current="step"'}><b><span aria-hidden="true">2</span> Check</b><span>${p.cleared} of ${p.total} problems cleared</span></li>`
-    + `<li class="${ready ? 'is-done' : ''}"${ready ? ' aria-current="step"' : ''}><b><span aria-hidden="true">3</span> Report</b><span>${ready ? 'Ready to send' : 'Updating as you go'}</span></li>`;
+    + `<li class="${ready ? 'is-done' : 'is-now'}"${ready ? '' : ' aria-current="step"'}><b><span aria-hidden="true">2</span> Check</b><span>${p.cleared < p.total || !interactive ? `${p.cleared} of ${p.total} problems cleared` : `${p.extra} new ${p.extra === 1 ? 'issue' : 'issues'}`}</span></li>`
+    + `<li class="${ready ? 'is-done' : ''}"${ready ? ' aria-current="step"' : ''}><b><span aria-hidden="true">3</span> Report</b><span>${ready ? 'Ready to send' : interactive ? 'Updating as you go' : 'The weekly report'}</span></li>`;
 };
 
 export function appHtml(records = RECORDS, { interactive = false, kept = false, notes = {} } = {}) {
   const p = progress(records, kept);
-  return `<ol class="lx-rail" data-lx="rail" aria-label="Progress">${railHtml(p)}</ol>`
+  return `<ol class="lx-rail" data-lx="rail" aria-label="Progress">${railHtml(p, interactive)}</ol>`
     + '<div class="lx-grid"><div class="lx-work">'
     + `<p class="lx-work-h" data-lx="workh">${workH(p, interactive)}</p>`
+    + (interactive ? `<p class="lx-peek" data-lx="peek">${peekHtml(summarise(records), p)}</p>` : '')
     + `<ul class="lx-cards" data-lx="cards">${p.cases.map((c) => cardHtml(c, interactive, notes[c.ref])).join('')}</ul>`
     + '</div>'
     + '<section class="lx-report" aria-labelledby="lx-rep-h"><div class="lx-rep-head"><div>'
@@ -139,6 +145,7 @@ export function appHtml(records = RECORDS, { interactive = false, kept = false, 
     + (interactive ? '<p class="sr-only" aria-live="polite" data-lx="live"></p><button type="button" class="btn btn-quiet btn-small lx-reset" data-wt-reset>Start over</button>' : '')
     + '</section></div>'
     + '<details class="lx-all"><summary>See all 12 jobs (the tracker behind this report)</summary>'
+    + (interactive ? `<p class="lx-all-figs" data-lx="allfigs">${figsLine(summarise(records))}</p>` : '')
     + `<p class="lx-all-n">${interactive ? 'Change any owner or status and the report follows. Changes stay on this page and reset when you refresh.' : 'The interactive version needs JavaScript.'}</p>`
     + `<div class="wt-scroll"><table class="wt-table"><caption class="sr-only">Sample work tracker: ${records.length} jobs</caption>`
     + '<thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th></tr></thead>'
@@ -147,7 +154,7 @@ export function appHtml(records = RECORDS, { interactive = false, kept = false, 
 
 export function mountTracker(host) {
   if (!host) return null;
-  let kept = false; let refs0 = ''; let prevKpi = null; let lastFix = null; const notes = {};
+  let kept = false; let said = ''; let refs0 = ''; let prevKpi = null; let lastFix = null; const notes = {};
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const q = (s) => host.querySelector(s);
 
@@ -159,6 +166,8 @@ export function mountTracker(host) {
     for (const c of p.cases) if (c.open) delete notes[c.ref];
     q('[data-lx="rail"]').innerHTML = railHtml(p);
     q('[data-lx="workh"]').textContent = workH(p, true);
+    q('[data-lx="peek"]').innerHTML = peekHtml(s, p);
+    q('[data-lx="allfigs"]').textContent = figsLine(s);
     q('[data-lx="cards"]').innerHTML = p.cases.map((c) => cardHtml(c, true, notes[c.ref])).join('');
     q('[data-lx="report"]').innerHTML = reportInner(records, p);
     // Mark the figures that moved (a short tint; a static outline under reduced motion).
@@ -169,7 +178,9 @@ export function mountTracker(host) {
       }
     }
     const live = q('[data-lx="live"]');
-    if (live) live.textContent = p.cleared === p.total ? `Report ready to send. ${s.attention} ${s.attention === 1 ? 'job needs' : 'jobs need'} attention.` : `Report updated: ${s.attention} ${s.attention === 1 ? 'job needs' : 'jobs need'} attention. ${p.cleared} of ${p.total} problems cleared.`;
+    // Announce only when something a listener cares about changed (not on every keystroke).
+    const msg = p.ready ? `Report ready to send. ${s.attention} ${s.attention === 1 ? 'job needs' : 'jobs need'} attention.` : `Report updated: ${s.attention} ${s.attention === 1 ? 'job needs' : 'jobs need'} attention. ${p.cleared} of ${p.total} problems cleared.`;
+    if (live && msg !== said) { live.textContent = msg; said = msg; }
     prevKpi = s;
     // Rows are updated in place so a field being typed in keeps its focus.
     for (const r of records) {
@@ -216,6 +227,7 @@ export function mountTracker(host) {
   });
   host.addEventListener('input', (e) => { if (e.target.dataset.customer) store.setCustomer(e.target.dataset.customer, e.target.value); });
   host.classList.add('is-live');
+  host.closest('section')?.classList.add('lx-on');
   store.subscribe(paint);
   paint(store.getRecords());
   return store;

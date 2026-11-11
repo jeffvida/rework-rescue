@@ -34,7 +34,7 @@ test('12: the 9th message in one chat gets the limit notice', () => {
   const r = checkRequest({ message: 'one more', history });
   assert.equal(r.ok, false);
   assert.equal(r.code, 'too_many');
-  assert.match(r.notice, /free 30-minute rework review/);
+  assert.match(r.notice, /free 30-minute report review/);
   assert.equal(checkRequest({ message: 'eighth', history: history.slice(0, 14) }).ok, true);
 });
 
@@ -103,7 +103,7 @@ test('parseReply accepts the expected shape and rejects anything else', () => {
 
 test('14: honest lines pass the price check, prices and promises do not', () => {
   for (const ok of [
-    "Jeff doesn't offer guarantees, but the free 30-minute rework review is a good start.",
+    "Jeff doesn't offer guarantees, but the free 30-minute report review is a good start.",
     'The free 30-minute review is a video call. Want to pick a time?',
     'That sounds like Workflows & Processes: 3 people copy the same job details every day.',
     'Prices depend on the scope and are covered in the free review.',

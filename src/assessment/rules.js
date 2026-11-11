@@ -224,7 +224,7 @@ export const RESULT = {
     shareButton: 'Send my result without booking',
     emailSubject: 'Find Your Rework result',
     linkedinButton: 'Message on LinkedIn',
-    button: 'Book a free rework review',
+    button: 'Book a free report review',
   },
   method: {
     heading: 'How this result was generated',

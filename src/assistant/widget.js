@@ -4,7 +4,7 @@
 // - Only appears when site-config.js has assistantUrl. Until then the page looks exactly as before.
 // - Preview mode: add ?assistant=preview to the address to see the widget with sample replies (no AI, nothing sent).
 // - The conversation lives in this page's memory only. Nothing is stored in the browser except "invitation seen".
-// - It never books: "Book a free rework review" opens the normal booking pop-up (src/booking/popup.js, via data-book).
+// - It never books: "Book a free report review" opens the normal booking pop-up (src/booking/popup.js, via data-book).
 import { SITE } from '../../site-config.js';
 import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L } from './rules.js';
 
@@ -56,7 +56,7 @@ async function askPreview(payload) {
   const pick = /tool|website|form|calendar|crm|system|talk/.test(said) ? ['systems', 'Business Tools & Systems', 'systems']
     : /task|follow|call|crack|handoff|remind|copy/.test(said) ? ['workflow', 'Workflows & Processes', 'workflow']
       : ['data_reporting', 'Data & Reporting', 'data'];
-  return { reply: `That sounds like ${pick[1]}. In a free 30-minute rework review, Jeff can look at where it goes wrong with you and suggest a practical next step. Want to pick a time?`, stage: 'suggested', service: pick[0], serviceLabel: pick[1], bookService: pick[2], showBooking: true };
+  return { reply: `That sounds like ${pick[1]}. In a free 30-minute report review, Jeff can look at where it goes wrong with you and suggest a practical next step. Want to pick a time?`, stage: 'suggested', service: pick[0], serviceLabel: pick[1], bookService: pick[2], showBooking: true };
 }
 
 export function mountAssistant({ base = './' } = {}) {

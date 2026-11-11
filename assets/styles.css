@@ -4034,3 +4034,47 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 }
 /* Phone steps: everything in a step sits in the text column, next to the number. */
 .steps-row > li > * { grid-column: 2; }
+
+/* ---- 11 Nov PM review (customer + expert panel) ---- */
+/* About: the plain line leads; the formal title sits under it, smaller. */
+.about-lead { margin: 0.2rem 0 0.25rem; font-family: var(--font-display, inherit); font-size: 1.2rem; font-weight: 600; line-height: 1.35; color: var(--ink); }
+.about-lead + .about-title { font-size: 0.88rem; font-weight: 600; }
+/* Services: the "Improve the process first" box is one column now that the repeated list is gone. */
+.lx-impl { grid-template-columns: minmax(0, 1fr); }
+.lx-impl-t { max-width: 46rem; }
+/* Live example: a way on at the end of each stage; the stage buttons come back to the top. */
+.lx-next { margin: 1rem 0 0; }
+.lx-tabs { scroll-margin-top: calc(var(--header-h, 4.5rem) + 0.75rem); }
+@media (max-width: 40rem) {
+  .lx-tabs { scroll-margin-top: 0.75rem; }
+  /* Phones: the stage buttons are there from the start (no blank gap while the opening plays). */
+  .lx.lx-wait .lx-tabs { opacity: 1; }
+  .lx.lx-intro .lx-tabs { animation: none; }
+  .lx-next .btn { width: 100%; justify-content: center; }
+}
+/* "See all 12 jobs" on phones and tablets: every value labelled, including the completion date. */
+@media (max-width: 52rem) {
+  .wt-done { grid-area: done; font-size: 0.88rem; color: var(--muted); }
+  .wt-done:empty { display: none; }
+  .wt-own::before { content: "Owner: "; color: var(--muted); font-weight: 400; }
+  .wt-due > span::before { content: "Due "; color: var(--muted); }
+  .wt-done:not(:empty)::before { content: "Completed "; }
+  .wt-table tr { grid-template-areas: "ref task task due" "cust cust own st" ". . . done"; }
+}
+@media (max-width: 40rem) {
+  .wt-table tr { grid-template-columns: 3.6rem minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "ref task task" "ref cust cust" "ref own st" "ref due done"; }
+  .wt-due { text-align: left; }
+  .wt-done { text-align: left; }
+}
+/* Focus ring on the dark closing section and footer: gold, 7.2:1 on #0f3a3a (the blue ring was 1.95:1). */
+.site-footer :focus-visible, .cta-section :focus-visible:not(.book-inline *) { outline-color: #e6c078; }
+/* Phone hero panel: small text no smaller than 13 px. */
+@media (max-width: 40rem) {
+  .hx-issues li, .hx-chk, .hx-legend { font-size: 0.8125rem; }
+  .hx-chk-d { font-size: 0.75rem; }
+}
+/* Contact details: label above its value, so email and LinkedIn line up. */
+.contact-list .contact-label { display: block; min-width: 0; }
+/* Booking: "Try again" is a full-size tap target. */
+.bk-link[data-retry] { min-height: 44px; padding: 0 0.6rem; margin-left: 0.4rem; }
+.lx-next .btn span { margin-left: 0.35rem; }

@@ -225,7 +225,9 @@ test('the no-JavaScript version in index.html is exactly what the engine renders
   assert.equal((inner.match(/class="lx-panel"/g) || []).length, 3, 'all three stages shown');
   const live = appHtml(RECORDS, { interactive: true });
   assert.doesNotMatch(live, /<select|<input|data-fix|data-wt-reset/, 'no tap-to-fix, no editing');
-  assert.deepEqual([...live.matchAll(/data-go="(\w+)"/g)].map((m) => m[1]), ['capture', 'move', 'see']);
+  assert.deepEqual([...live.matchAll(/class="lx-tab[^"]*" data-go="(\w+)"/g)].map((m) => m[1]), ['capture', 'move', 'see']);
+  // The end of the Capture and Move panels leads on to the next stage (11 Nov PM review).
+  assert.deepEqual([...live.matchAll(/data-go="(\w+)" data-lx-next>Next: (\w+)/g)].map((m) => `${m[1]}:${m[2]}`), ['move:Move', 'see:See']);
   for (const a of ['pause', 'skip', 'replay']) assert.match(live, new RegExp(`data-lx-act="${a}"`));
   assert.match(live, /class="lx-jump" href="#lx-rep-h"/);
   assert.equal((live.match(/role="region"[^>]*hidden/g) || []).length, 3, 'stage panels start hidden behind the opening');

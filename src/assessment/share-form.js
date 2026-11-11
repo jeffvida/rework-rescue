@@ -40,7 +40,7 @@ export function mountShareBlock(root, ctx) {
     root.innerHTML = `
       <div class="share-block share-intro" id="share-block">
         <div class="share-actions">
-          <button type="button" class="btn btn-primary btn-large" data-book id="share-h">${esc((ctx.labels || {}).button || 'Book a free rework review')}</button>
+          <button type="button" class="btn btn-primary btn-large" data-book id="share-h">${esc((ctx.labels || {}).button || 'Book a free report review')}</button>
           <button type="button" class="btn btn-secondary" data-share="open">${esc((ctx.labels || {}).shareButton || 'Send my result without booking')}</button>
           <button type="button" class="btn btn-ghost" data-share="dismiss">No thanks</button>
         </div>
@@ -52,7 +52,7 @@ export function mountShareBlock(root, ctx) {
       <div class="share-block share-dismissed" id="share-block">
         <p id="share-h" tabindex="-1">No problem. Your result stays on this page until you close or refresh it. Nothing has been sent.</p>
         <p class="share-actions"><a class="btn btn-secondary" href="../">Back to the home page</a>
-          <button type="button" class="btn btn-ghost" data-book>${esc((ctx.labels || {}).button || 'Book a free rework review')} after all</button></p>
+          <button type="button" class="btn btn-ghost" data-book>${esc((ctx.labels || {}).button || 'Book a free report review')} after all</button></p>
       </div>`;
   }
 
@@ -203,7 +203,7 @@ export function mountShareBlock(root, ctx) {
     root.innerHTML = `
       <div class="share-block share-intro" id="share-block">
         <div class="share-actions">
-          <button type="button" class="btn btn-primary btn-large" id="share-h" data-book>${esc(L.button || 'Book a free rework review')}</button>
+          <button type="button" class="btn btn-primary btn-large" id="share-h" data-book>${esc(L.button || 'Book a free report review')}</button>
           <a class="btn btn-secondary" data-share-email href="${esc(href())}">${esc(L.emailButton || 'Email my result without booking')}</a>
           ${ctx.linkedin ? `<a class="btn btn-ghost" href="${esc(ctx.linkedin)}" target="_blank" rel="noopener noreferrer">${esc(L.linkedinButton || 'Message on LinkedIn')}<span class="sr-only"> (opens in a new tab)</span></a>` : ''}
         </div>

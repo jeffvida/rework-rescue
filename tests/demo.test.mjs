@@ -52,8 +52,8 @@ test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting
   assert.match(hero, /<p class="eyebrow hero-pill">For small service businesses managing jobs, teams and spreadsheets\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
   assert.match(hero, /<p class="hero-sub">Chasing job updates\? Fixing spreadsheets\? Rebuilding reports every week\? I help you get your information right, keep work moving and produce reports you can rely on\.<\/p>/);
-  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
-  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review<\/a>/);
+  assert.ok(hero.indexOf('Book a free report review') < hero.indexOf('Explore the live example'));
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free report review<\/a>/);
   assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
   for (const t of ['30 minutes', 'Free', 'No obligation']) assert.match(hero, new RegExp(`</svg>${t}</li>`), t);
   assert.match(hero, /class="cred-strip hv-cred"/);
@@ -65,8 +65,8 @@ test('hero: one workspace, Today / With Rework Rescue toggle; Today shows the da
   const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
   assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today<\/button>/);
   assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
-  assert.match(fig, /Data issues in today&rsquo;s process/);
-  assert.match(fig, /Built-in data checks at every stage/);
+  assert.match(fig, /What goes wrong today/);
+  assert.match(fig, /Checked at every step/);
   for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Northfield job?', 'Weekly_Report_FINAL(2).xlsx', 'The result']) assert.ok(fig.includes(t), t);
   assert.deepEqual([...fig.matchAll(/<em class="hx-tag is-(red|amber)">([^<]+)<\/em>/g)].map((m) => [m[2], m[1]]), [
     ['Duplicates', 'red'], ['Not in the tracker', 'amber'], ['Missing record', 'red'], ['Manual check', 'amber'], ['No owner', 'red'], ['Manual rebuild', 'amber']]);
@@ -243,7 +243,7 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="svc-foot"'), 'at the end of Services');
   assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong>/);
   assert.match(after, /30 minutes &middot; No obligation &middot; Practical next steps/);
-  assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
+  assert.match(after, /href="contact\/#contact-form-area">Book a free report review</);
   assert.doesNotMatch(after.slice(0, after.indexOf('</div>\n        </div>')), /weeks|days|[$₱]/i, 'no timeframe or price');
   const offer = 'Bring your Monday report. I&rsquo;ll look at where the information breaks down, what&rsquo;s creating unnecessary work and what I&rsquo;d fix first. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me.';
   assert.ok(html.slice(html.indexOf('id="how"'), html.indexOf('id="about"')).includes(offer), 'offer in How I work step 1');

@@ -1,225 +1,19 @@
-// Tests for the connected-workspace demo, the hero illustration and the three service samples (master brief,
-// 10 Nov 2026). Every figure the hero, Data, Reports, Actions, Workflows and the workspace overview show comes from
-// src/demo/engine.js working on src/demo/data.js; the service samples run on their own small datasets in src/samples.js.
-// Numbered comments refer to the brief's acceptance criteria (18.1–18.31).
+// Tests for the hero illustration, the page around the main example and the three service samples (master brief,
+// 10 Nov 2026). The main example itself, the Weekly Work & Follow-up Tracker, is tested in tests/tracker.test.mjs;
+// the hero's figures now come from that tracker (src/tracker/engine.js). The service samples run on their own small
+// datasets in src/samples.js. Numbered comments refer to the brief's acceptance criteria (18.1–18.31).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import * as DATA from '../src/demo/data.js';
-import { REQUESTS, TASKS, TRANSACTIONS, SOURCES, STAFF } from '../src/demo/data.js';
-import {
-  initialState, sourceCounts, runChecks, checkList, consolidated, actions, openActions, decide, assign, setStatus, review, remind,
-  submitRequest, stageOf, board, metrics, summary, overview, taskFor, toIso, toRef, dayOf, STAGES, ACTION_STATUSES, AI_LABEL, heroInsight,
-} from '../src/demo/engine.js';
+import { summarise, byStatus, receivedByDay } from '../src/tracker/engine.js';
+import { RECORDS, PERIOD_LABEL, BUSINESS } from '../src/tracker/data.js';
+import { heroFigures, actionItems, summaryBullets, dataChecks, checksHtml, actionsHtml, summaryHtml } from '../src/demo/hero.js';
 import { refreshReport, REPORT_FILES, flow, FLOW_STEPS, CUSTOMERS, toolsOverview } from '../src/samples.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = () => readFile(new URL('../assets/styles.css', import.meta.url), 'utf8');
 const src = (f) => readFile(new URL(`../src/${f}`, import.meta.url), 'utf8');
-const sample = (s) => submitRequest(s, { customer: 'Oakline Studio', type: 'Quote request', channel: 'Email' });
-
-// ---- One shared dataset (18.11, 18.12)
-
-test('three industry-neutral sources: Requests Register 12, Work Tracker 12, Records & Transactions 9; frozen originals', () => {
-  assert.deepEqual(sourceCounts(), { requests: 12, tasks: 12, transactions: 9, total: 33, sources: 3 });
-  assert.deepEqual(SOURCES.map((x) => x.name), ['Requests Register', 'Work Tracker', 'Records & Transactions']);
-  for (const a of [REQUESTS, TASKS, TRANSACTIONS]) assert.ok(Object.isFrozen(a) && a.every(Object.isFrozen));
-  assert.throws(() => { TASKS[0].owner = 'X'; });
-  const text = JSON.stringify(DATA);
-  assert.doesNotMatch(text, /\b(we|our|us)\b/i);
-  assert.doesNotMatch(text, /sales|repair|technician|plumb|solar|meter|utility|facilit|maintenance|jobs?\b/i, 'no single industry');
-  assert.doesNotMatch(text, /[$₱€£]/);
-});
-
-test('standardising: three date formats and two reference formats line up; originals untouched', () => {
-  assert.equal(toIso('03/11/2026'), '2026-11-03'); assert.equal(toIso('2026-11-03'), '2026-11-03'); assert.equal(toIso('Tue 3 Nov'), '2026-11-03');
-  assert.equal(toIso('Wed 3 Nov'), ''); assert.equal(toRef('R101'), 'R-101'); assert.equal(toRef('R-101'), 'R-101');
-  assert.ok(TRANSACTIONS.every((t) => /^R\d+$/.test(t.request)), 'records keep their own reference format');
-});
-
-test('18.14 checks report only what the configured rules find in these records', () => {
-  assert.deepEqual(runChecks(), { duplicates: [['R-104', 'R-109']], missing: ['R-111'], unmatched: ['TX-309'], badDates: [] });
-  assert.deepEqual(checkList().map((c) => [c.label, c.ok]), [
-    ['Loaded 12 requests, 12 tasks and 9 records from 3 sources', true],
-    ['Dates standardised from 3 different formats', true],
-    ['References matched: 8 of 9 records linked to a request', false],
-    ['Required fields: 1 request with a blank customer', false],
-    ['Possible duplicates: 1 pair to check', false],
-  ]);
-});
-
-test('combined records: one row per request with its task and linked records; unknown values stay unknown', () => {
-  const rows = consolidated();
-  assert.equal(rows.length, 12);
-  const r111 = rows.find((r) => r.ref === 'R-111');
-  assert.deepEqual([r111.customer, r111.customerNote, r111.records], ['', 'unknown: needs confirming', ['TX-307']]);
-  assert.deepEqual(rows.find((r) => r.ref === 'R-102').records, ['TX-302', 'TX-303']);
-  assert.ok(!rows.some((r) => r.records.includes('TX-309')), 'the unmatched record is not attached to anything');
-  for (const r of rows) assert.equal(r.task, TASKS.find((t) => t.request === r.ref).id);
-});
-
-// ---- Reports (18.13)
-
-test('report figures are calculated from the combined records', () => {
-  const m = metrics();
-  assert.deepEqual([m.requests, m.duplicatePending, m.openRequests, m.completed, m.outstanding, m.overdue, m.unassigned, m.onTime, m.attention], [12, true, 6, 6, 6, 1, 1, 100, 5]);
-  assert.deepEqual(m.byDay.map((d) => d.completed), [1, 2, 1, 1, 1]);
-  assert.equal(m.completed, TASKS.filter((t) => t.status === 'Completed').length);
-  for (const d of m.byDay) assert.equal(TASKS.filter((t) => t.completed && dayOf(t.completed) === d.day).length, d.completed, d.day);
-  const phone = metrics(initialState(), { channel: 'Phone' });
-  assert.equal(phone.requests, REQUESTS.filter((r) => r.channel === 'Phone').length);
-  assert.equal(metrics().byChannel.reduce((t, c) => t + c.count, 0), 12);
-});
-
-// ---- Actions and decisions (18.13, 18.16)
-
-test('actions: five items, each with source, suggested next step, suggested responsibility and a practical status', () => {
-  const a = actions();
-  assert.deepEqual(a.map((x) => [x.id, x.title, x.status]), [
-    ['duplicate', 'Possible duplicate request', 'Needs checking'], ['missing', 'Request with no customer', 'Needs checking'],
-    ['unmatched', 'Record with no matching request', 'Needs checking'], ['T-206', 'Overdue task', 'In progress'], ['T-210', 'Task with no owner', 'Needs checking'],
-  ]);
-  for (const x of a) { assert.ok(x.next && x.team && x.source && x.refs.length, x.id); assert.ok(ACTION_STATUSES.includes(x.status)); }
-  const ids = new Set([...REQUESTS, ...TASKS, ...TRANSACTIONS].map((r) => r.id));
-  for (const ref of a.flatMap((x) => x.refs)) assert.ok(ids.has(ref), ref);
-});
-
-test('decisions change the shared figures: duplicate counted once, customer filled from its record, record linked', () => {
-  const s = decide(initialState(), 'duplicate', 'same');
-  assert.deepEqual([metrics(s).requests, metrics(s).duplicatePending, consolidated(s).length], [11, false, 12]);
-  assert.ok(consolidated(s).find((r) => r.ref === 'R-109').excluded);
-  assert.ok(!board(s).flatMap((c) => c.items).some((r) => r.ref === 'R-109'));
-  assert.equal(metrics(decide(initialState(), 'duplicate', 'separate')).requests, 12);
-  const f = decide(initialState(), 'missing', 'fill');
-  assert.deepEqual([consolidated(f).find((r) => r.ref === 'R-111').customer, REQUESTS.find((r) => r.id === 'R-111').customer], ['Harbour & Co.', '']);
-  assert.equal(actions(decide(initialState(), 'missing', 'unknown')).find((x) => x.id === 'missing').status, 'Waiting for follow-up');
-  const l = decide(initialState(), 'unmatched', 'link');
-  assert.deepEqual(consolidated(l).find((r) => r.ref === 'R-107').records, ['TX-306', 'TX-308', 'TX-309']);
-  assert.equal(TRANSACTIONS.find((t) => t.id === 'TX-309').request, 'R115', 'the original record is unchanged');
-});
-
-test('task actions: an owner first; status changes update every view; reminders are simulated and logged', () => {
-  const s0 = initialState();
-  assert.equal(setStatus(s0, 'T-210', 'In progress'), s0, 'nobody owns it yet');
-  assert.equal(assign(s0, 'T-210', 'Zed'), s0);
-  const a = assign(s0, 'T-210', 'Ana');
-  assert.deepEqual([taskFor(a, 'R-110').owner, actions(a).find((x) => x.id === 'T-210').status, metrics(a).unassigned], ['Ana', 'Assigned', 0]);
-  const done = setStatus(setStatus(a, 'T-210', 'In progress'), 'T-210', 'Completed');
-  const m = metrics(done);
-  assert.deepEqual([m.completed, m.openRequests, m.byDay.at(-1).completed, actions(done).find((x) => x.id === 'T-210').status], [7, 5, 2, 'Completed']);
-  assert.equal(TASKS.find((t) => t.id === 'T-210').status, 'Not started');
-  const r = remind(s0, 'T-206');
-  assert.equal(actions(r).find((x) => x.id === 'T-206').status, 'Waiting for follow-up');
-  assert.match(r.log.at(-1).text, /Reminder prepared for Ben about T-206 \(simulated: nothing was sent\)/);
-  assert.equal(remind(r, 'T-206'), r, 'one reminder');
-  assert.equal(remind(s0, 'T-210'), s0, 'no reminder without an owner');
-});
-
-// ---- Workflows (18.15)
-
-test('a sample request enters the register, creates a task, and appears in Data, Reports, Actions and Workflows', () => {
-  const s = sample(initialState());
-  assert.deepEqual(s.added.map((a) => [a.request.id, a.task.id, a.task.due, a.task.owner]), [['R-113', 'T-213', '2026-11-10', '']]);
-  assert.ok(consolidated(s).some((r) => r.ref === 'R-113' && r.added));
-  assert.deepEqual([metrics(s).requests, metrics(s).openRequests, sourceCounts(s).total], [13, 7, 35]);
-  assert.deepEqual(actions(s).find((x) => x.id === 'T-213').title, 'New request to review');
-  assert.ok(board(s).find((c) => c.stage === 'Request received').items.some((r) => r.ref === 'R-113'));
-  assert.equal(REQUESTS.length, 12, 'the original register is untouched');
-  assert.equal(submitRequest(initialState(), { customer: '', type: 'Quote request', channel: 'Email' }).added.length, 0);
-  assert.equal(submitRequest(initialState(), { customer: 'X', type: 'Nonsense', channel: 'Email' }).added.length, 0);
-  let many = initialState(); for (let i = 0; i < 7; i++) many = sample(many);
-  assert.equal(many.added.length, 5, 'limited to five sample requests');
-});
-
-test('request to completion: received → reviewed → assigned → in progress → completed', () => {
-  let s = sample(initialState()); const t = () => taskFor(s, 'R-113');
-  const seen = [stageOf(t())];
-  s = review(s, 'T-213'); seen.push(stageOf(t()));
-  s = assign(s, 'T-213', 'Carla'); seen.push(stageOf(t()));
-  s = setStatus(s, 'T-213', 'In progress'); seen.push(stageOf(t()));
-  s = setStatus(s, 'T-213', 'Completed'); seen.push(stageOf(t()));
-  assert.deepEqual(seen, STAGES);
-  assert.deepEqual([metrics(s).requests, metrics(s).completed, metrics(s).openRequests], [13, 7, 6]);
-});
-
-test('18.12 the same records across views: Data, Reports, Workflows and the overview agree on every path', () => {
-  const paths = [initialState(), decide(initialState(), 'duplicate', 'same'), sample(decide(initialState(), 'duplicate', 'same')), setStatus(assign(initialState(), 'T-210', 'Ben'), 'T-210', 'In progress')];
-  for (const s of paths) {
-    const rows = consolidated(s).filter((r) => !r.excluded);
-    const onBoard = board(s).flatMap((c) => c.items.map((r) => r.ref)).sort();
-    assert.deepEqual(onBoard, rows.map((r) => r.ref).sort());
-    const m = metrics(s); const o = overview(s);
-    assert.deepEqual([o.requests, o.openRequests, o.attention], [m.requests, m.openRequests, openActions(s).length]);
-    assert.equal(board(s).find((c) => c.stage === 'Completed').items.length, rows.filter((r) => r.status === 'Completed').length);
-  }
-});
-
-test('the log only grows and is frozen; refused actions add nothing; reset is the original state', () => {
-  let s = initialState(); const steps = [s];
-  for (const f of [(x) => decide(x, 'duplicate', 'same'), (x) => assign(x, 'T-210', 'Ana'), (x) => remind(x, 'T-206'), sample]) { s = f(s); steps.push(s); }
-  for (let i = 1; i < steps.length; i++) { steps[i - 1].log.forEach((e, k) => assert.equal(steps[i].log[k], e)); assert.equal(steps[i].log.length, steps[i - 1].log.length + 1); }
-  assert.ok(Object.isFrozen(s.log) && s.log.every(Object.isFrozen));
-  const s0 = initialState();
-  for (const x of [decide(s0, 'duplicate', 'nope'), assign(s0, 'T-999', 'Ana'), setStatus(s0, 'T-201', 'Completed'), review(s0, 'T-201')]) assert.equal(x, s0);
-  assert.deepEqual(initialState(), s0);
-});
-
-test('AI-drafted summary: labelled as simulated, built from the figures, says what is unknown, no overclaiming', () => {
-  assert.equal(AI_LABEL, 'AI-drafted · simulated in this demo');
-  const s0 = summary();
-  assert.match(s0[0], /^12 requests \(one may be a duplicate\) came in this week\. 6 tasks were completed, 100% of them on time, and 6 are still open\./);
-  assert.ok(s0.some((l) => /who it’s for is unknown until someone confirms it/.test(l)));
-  const s1 = summary(decide(decide(decide(initialState(), 'duplicate', 'same'), 'missing', 'fill'), 'unmatched', 'link'));
-  assert.ok(!s1.some((l) => /unknown|couldn’t be matched/.test(l)));
-  assert.match(s1[0], /^11 requests came in this week/);
-  assert.doesNotMatch([...s0, ...s1].join(' '), /every|all errors|100% accurate|guarantee|definitely/i);
-});
-
-test('no stale warnings: each resolved finding clears from the checks, Actions, the combined view and the hero', () => {
-  let s = initialState();
-  assert.deepEqual(checkList(s).map((c) => c.ok), [true, true, false, false, false]);
-  s = decide(s, 'duplicate', 'same');
-  assert.match(checkList(s)[4].label, /R-104 \/ R-109 checked by you \(counted once\)/); assert.equal(checkList(s)[4].ok, true);
-  s = decide(s, 'missing', 'fill');
-  assert.match(checkList(s)[3].label, /filled in by you from TX-307/); assert.equal(checkList(s)[3].ok, true);
-  s = decide(s, 'unmatched', 'link');
-  assert.equal(checkList(s)[2].label, 'References matched: 9 of 9 records linked (TX-309 linked by you)');
-  assert.ok(checkList(s).every((c) => c.ok));
-  assert.deepEqual(openActions(s).map((a) => a.id), ['T-206', 'T-210']);
-  assert.deepEqual(runChecks(s), runChecks(), 'the source rows still contain what they contained: the rules see the same records');
-  // "leave for now" keeps the warning, with the reviewer's note
-  const left = decide(decide(initialState(), 'unmatched', 'leave'), 'missing', 'unknown');
-  assert.match(checkList(left)[2].label, /left unmatched for now/); assert.equal(checkList(left)[2].ok, false);
-  assert.match(checkList(left)[3].label, /left as unknown for now/); assert.equal(checkList(left)[3].ok, false);
-});
-
-test('hero insight follows the figures and never claims more than they show', () => {
-  assert.equal(heroInsight(), '1 task is overdue and 1 has nobody assigned. Check the possible duplicate before sharing the numbers.');
-  let s = decide(initialState(), 'duplicate', 'same');
-  assert.equal(heroInsight(s), '1 task is overdue and 1 has nobody assigned.');
-  s = setStatus(assign(s, 'T-210', 'Ana'), 'T-206', 'Completed');
-  assert.equal(heroInsight(s), 'No overdue or unassigned tasks, and the figures have been checked.');
-  assert.equal(metrics(s).onTime, 86, 'the late completion lowers the on-time rate (6 of 7)');
-});
-
-test('the hero’s static rows, actions list and insight match the engine’s first state', async () => {
-  const html = await page();
-  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
-  const flagged = new Set(openActions().flatMap((a) => a.refs));
-  for (const m of fig.matchAll(/data-hw-row="(R-\d+)">.*?<span class="(hw-ok|hw-flag)">/g)) assert.equal(m[2] === 'hw-flag', flagged.has(m[1]), m[1]);
-  assert.deepEqual([...fig.matchAll(/<li>([^<]+) <em>([^<]+)<\/em><\/li>/g)].map((m) => [m[1], m[2]]), openActions().slice(0, 3).map((a) => [a.title, a.status]));
-  assert.match(fig, new RegExp(`data-hw-insight>${heroInsight().replace(/[.]/g, '\\.')}<`));
-  const js = await src('demo/hero.js'); assert.match(js, /heroInsight\(s\)/); assert.match(js, /openActions\(s\)/);
-});
-
-test('mobile Workflows: a compact list with expandable details replaces the board below 40rem; same data and controls', async () => {
-  const ui = await src('demo/ui.js');
-  assert.match(ui, /matchMedia\('\(max-width: 40rem\)'\)/);
-  assert.match(ui, /narrow \? listHtml\(cols\) : `<ol class="cw-board">/);
-  assert.match(ui, /<details class="cw-wl" data-wl=/);
-  const c = await css(); assert.match(c, /\.cw-wl-steps \{ list-style: none; display: grid; grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
-});
 
 // ---- Service samples (18.18–18.22)
 
@@ -252,75 +46,122 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 
 // ---- The page
 
-test('18.6–18.7 hero copy: eyebrow, headline, exact supporting text and reassurance, two CTAs, intro, booking info', async () => {
+test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting copy, two CTAs, chips, credibility', async () => {
   const html = await page();
-  const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<figure'));
-  assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. More real work\.<\/p>/);
-  assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\.<\/span>/);
-  assert.match(hero, /<p class="hero-sub">I turn scattered business data and repetitive tasks into connected workflows, reliable reports and practical business tools\.<\/p>/);
-  assert.match(hero, /<p class="hero-assure">Built around the tools you already use\. Designed around how your business works\.<\/p>/);
-  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how it works'));
-  assert.match(hero, /href="#samples" data-demo-check>See how it works/);
-  assert.match(hero, /Free &middot; No obligation/);
-  assert.match(html, /Jeff Herson Vida<\/a><span class="cred-role">8\+ years in data operations, reporting and process improvement\.<\/span><span class="cred-role">Work directly with me, from understanding the problem to building the solution\.<\/span>/);
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
+  assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. Better reporting\. Smarter workflows\.<\/p>/);
+  assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
+  assert.match(hero, /<p class="hero-sub">I connect the tools, workflows and reporting that help your business run more smoothly &mdash; with built-in data checks to keep your information reliable\.<\/p>/);
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review<\/a>/);
+  assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
+  for (const t of ['30 minutes', 'Free', 'No obligation']) assert.match(hero, new RegExp(`</svg>${t}</li>`), t);
+  assert.match(hero, /class="cred-strip hv-cred"/);
+  assert.equal((html.match(/Northstar Services/g) || []).length >= 2, true, 'the hero and the live example name the same fictional business');
 });
 
-test('hero on tablets and phones: the reassurance line stays right after the supporting text', async () => {
+test('hero: one workspace, Today / With Rework Rescue toggle; Today shows the data issues of each stage and on each source file', async () => {
+  const html = await page();
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today<\/button>/);
+  assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
+  assert.match(fig, /Data issues in today&rsquo;s process/);
+  assert.match(fig, /Built-in data checks at every stage/);
+  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Northfield job?', 'Weekly_Report_FINAL(2).xlsx', 'The result']) assert.ok(fig.includes(t), t);
+  assert.deepEqual([...fig.matchAll(/<em class="hx-tag is-(red|amber)">([^<]+)<\/em>/g)].map((m) => [m[2], m[1]]), [
+    ['Duplicates', 'red'], ['Not in the tracker', 'amber'], ['Missing record', 'red'], ['Manual check', 'amber'], ['No owner', 'red'], ['Manual rebuild', 'amber']]);
+  assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state hidden from screen readers by default');
+  assert.match(fig, /AI-assisted summary <small>Sample draft<\/small>/);
+  assert.match(fig, /Reviewed by a person before sharing/);
+  assert.match(fig, /In a project, an AI tool drafts the summary and a person checks it; here it&rsquo;s a sample written by simple rules\./);
+  assert.doesNotMatch(fig, /\b42\b/, 'no figures from the reference images');
+});
+
+test('hero checks: every Today issue has a matching check in the same stage; states come from the records; exceptions stay visible', async () => {
+  const html = await page();
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const c = dataChecks(RECORDS);
+  const steps = fig.split('<li class="hx-step ').slice(1);
+  const names = { capture: 'svc-systems', move: 'svc-workflow', see: 'svc-data' };
+  for (const [k, cls] of Object.entries(names)) {
+    const step = steps.find((x) => x.startsWith(cls));
+    const issues = [...step.matchAll(/<li class="is-(?:red|amber)">([^<]+)<\/li>/g)].map((m) => m[1].replace('&rsquo;', "'"));
+    assert.ok(issues.length >= 3, `${k} shows its issues`);
+    for (const i of issues) assert.ok(c[k].some((x) => x.answers.includes(i)), `${k}: "${i}" has a matching check`);
+    assert.ok(step.includes(`data-ws-checks="${k}">${checksHtml(c[k])}</ul>`), `${k}: the page shows the computed checks`);
+  }
+  const all = Object.values(c).flat();
+  const st = Object.fromEntries(all.map((x) => [x.label, [x.state, x.detail]]));
+  assert.deepEqual(st['No duplicate jobs'], ['pass', 'None found']);
+  assert.deepEqual(st['Job details complete'], ['flag', '11 of 12 complete · R-111']);
+  assert.deepEqual(st['Every open job has an owner'], ['action', 'No owner · R-112']);
+  assert.deepEqual(st['Follow-ups on time'], ['action', 'Overdue · R-104']);
+  assert.ok(!('Completed, not invoiced' in st), 'invoice check removed (no invoice data in the sample)');
+  assert.deepEqual(st['Totals add up'], ['pass', '7 done + 5 open = 12']);
+  assert.deepEqual(st['Problems shown, not hidden'], ['flag', '3 on the report']);
+  for (const s of ['pass', 'flag', 'action']) assert.ok(all.some((x) => x.state === s), `uses the ${s} state`);
+  // Records that need attention are a subset of the open ones (not an extra category).
+  const f = heroFigures(RECORDS);
+  assert.ok(f.followUps.every((x) => RECORDS.find((r) => r.ref === x.ref).status !== 'Completed'));
+  // Fix the records and the checks pass.
+  const fixed = RECORDS.map((r) => ({ ...r, owner: r.ref === 'R-112' ? 'Ana' : r.owner, status: r.ref === 'R-104' ? 'Completed' : r.status, customer: r.ref === 'R-111' ? 'Harbor Works' : r.customer }));
+  assert.ok(Object.values(dataChecks(fixed)).flat().every((x) => x.state === 'pass' || x.state === 'none'));
+});
+
+test('hero report: Northstar Services, 7 / 5 / 3, action items named by record, summary from the same figures', async () => {
+  const html = await page();
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const f = heroFigures(RECORDS);
+  assert.equal(BUSINESS, 'Northstar Services');
+  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention], [12, 7, 5, 3]);
+  for (const k of ['business', 'period', 'total', 'completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-ws="${k}">${f[k]}<`), k);
+  const items = actionItems(f);
+  assert.deepEqual(items.map((x) => [x.label, x.priority]), [['Follow up R-104 (overdue)', 'High'], ['Assign an owner to R-112', 'High'], ['Complete customer details for R-111', 'Medium']]);
+  assert.ok(fig.includes(`<ul data-ws-actions>${actionsHtml(items)}</ul>`));
+  assert.deepEqual(summaryBullets(f, items), ['7 of 12 jobs completed this week.', '5 still outstanding; 3 of these need attention.', 'Next: follow up R-104 and assign an owner to R-112.']);
+  // KPI wording, and the 3 shown as part of the 5.
+  assert.match(fig, /<strong data-ws="completed">7<\/strong>Completed this week<\/p>/);
+  assert.match(fig, /<strong data-ws="outstanding">5<\/strong>Still outstanding<\/p>/);
+  assert.match(fig, /<strong data-ws="attention">3<\/strong>Need attention <small>of the <span data-ws="outstanding">5<\/span> still outstanding<\/small>/);
+  assert.ok(f.attention <= f.outstanding);
+  assert.doesNotMatch(fig, /class="hx-head"/, 'no state label inside the panel; the toggle shows it');
+  assert.ok(fig.includes(`<ul data-ws-summary>${summaryHtml(summaryBullets(f, items))}</ul>`));
+  assert.ok(html.includes('Northstar Services, a fictional service business'), 'the live example names the same business');
+});
+
+test('hero motion: autoplay only on screen, Pause button, toggle stops it, reduced motion switches instantly', async () => {
   const c = await css();
-  assert.match(c, /\.hero-copy > \.hero-sub, \.hero-copy > \.hero-assure \{ order: 4; \}/);
+  const block = c.slice(c.indexOf('/* ---- Hero workspace (11 Nov 2026, data checks)'));
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hx, \.hx \* \{ animation: none !important; transition: none !important; \} \}/);
+  assert.doesNotMatch(block, /infinite/, 'no CSS loops');
+  const js = await src('demo/hero.js');
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /document\.hidden/); assert.match(js, /IntersectionObserver/);
+  assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/); assert.match(js, /aria-hidden/);
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
 });
 
-test('18.8–18.9 hero visual: three sources into one workspace with data, report, workflow, actions and insight, from the engine', async () => {
-  const html = await page();
-  const fig = html.slice(html.indexOf('<figure class="hero-preview hw'), html.indexOf('</figure>', html.indexOf('<figure class="hero-preview hw')));
-  assert.deepEqual([...fig.matchAll(/<li class="hw-src">.*?<strong>([^<]+)<\/strong>/g)].map((m) => m[1]), ['Spreadsheet files', 'Business records', 'Requests &amp; tasks']);
-  assert.deepEqual([...fig.matchAll(/<section class="hw-panel hw-(\w+)">/g)].map((m) => m[1]), ['data', 'report', 'flow', 'actions', 'ai']);
-  const o = overview(); const val = (k) => Number(fig.match(new RegExp(`data-hw="${k}">(\\d+)<`))[1]);
-  assert.deepEqual(['records', 'requests', 'openRequests', 'completed', 'attention'].map(val), [o.records, o.requests, o.openRequests, o.completed, o.attention]);
-  for (const c of board()) assert.equal(Number(fig.match(new RegExp(`data-hw-stage="${c.stage}">(\\d+)<`))[1]), c.items.length, c.stage);
-  assert.deepEqual([...fig.matchAll(/data-hw-day="(\w+)" data-v="(\d)"/g)].map((m) => [m[1], Number(m[2])]), metrics().byDay.map((d) => [d.day, d.completed]));
-  assert.match(fig, /Illustration/); assert.match(fig, /An illustration of what I could build around your tools\. Fictional data\./);
-  assert.doesNotMatch(fig, /\sstyle="/); assert.doesNotMatch(fig, /sales|jobs?\b|invoice tracker/i);
-});
-
-test('18.10 hero motion: ordered ~4.5 s timeline, played once, reduced motion shows the finished picture', async () => {
-  const c = await css(); const block = c.slice(c.indexOf('/* ---- Hero: connected workspace illustration'), c.indexOf('/* ---- Main demo: connected workspace'));
-  const at = (sel) => { const m = block.match(new RegExp(`\\.hw-play ${sel.replace(/[.]/g, '\\.')}[^{]*\\{ animation(?:-delay: ([\\d.]+)s;|:[^;]* ([\\d.]+)s both;)`)); return Number(m[1] ?? m[2]); };
-  const order = [at('.hw-lines'), at('.hw-app'), at('.hw-data'), at('.hw-ok'), at('.hw-report'), at('.hw-flow'), at('.hw-actions'), at('.hw-ai')];
-  assert.deepEqual(order, [...order].sort((a, b) => a - b), `sources → lines → workspace → data → checks → report → workflow → actions → insight: ${order}`);
-  let end = 0;
-  for (const m of block.matchAll(/\.hw-play [^{]*\{[^}]*animation(?:-delay)?:([^;}]+)/g)) for (const part of m[1].split(',')) { const t = [...part.matchAll(/([\d.]+)s/g)].map((x) => Number(x[1])); if (t.length) end = Math.max(end, t.reduce((x, y) => x + y, 0)); }
-  assert.ok(end >= 4 && end <= 5, `ends at ${end}s`);
-  assert.doesNotMatch(block, /infinite/);
-  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hw-wait \.hw-sources, \.hw-wait \.hw-lines, \.hw-wait \.hw-app \{ opacity: 1; \} \.hw-play, \.hw-play \* \{ animation: none !important; \} \}/);
-  const js = await src('demo/hero.js'); assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /io\.disconnect\(\)/);
-});
-
-test('18.4–18.5, 18.11, 18.17 main demo: heading, intro, illustrative label, four connected views, workspace overview, reset', async () => {
-  const html = await page();
-  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
-  assert.match(sec, /<h2 id="samples-h">A more connected way to work\.<\/h2>/);
-  assert.match(sec, /See how scattered information can become organised data, useful reports and workflows that keep work moving\./);
-  assert.match(sec, /Bring your information together\. Make sense of the numbers\. Keep work moving\./);
-  assert.match(sec, /Illustrative demonstration using fictional business data\./);
-  assert.match(sec, /around your existing tools, such as Excel, Power Query and simple automations, not a product you&rsquo;d have to buy/);
-  const ui = await src('demo/ui.js');
-  assert.match(ui, /\['data', 'Data'[\s\S]*\['reports', 'Reports'[\s\S]*\['actions', 'Actions'[\s\S]*\['workflows', 'Workflows'/);
-  for (const t of ['cw-over', 'Reset the demo', 'Submit a sample request', 'Checks found items that may need attention.', 'Management summary', 'Send a reminder', 'nothing is sent']) assert.ok(ui.includes(t), t);
-  const fb = sec.slice(sec.indexOf('class="demo-static"'));
-  for (const t of ['Requests Register (12 requests)', 'Work Tracker (12 tasks)', 'Records &amp; Transactions (9 records)', 'R-104 / R-109', 'R-111', 'TX-309', '12 requests this week, 6 still open', 'T-206', 'T-210']) assert.ok(fb.includes(t), t);
-});
-
-test('18.2, 18.21–18.22 services: names kept, the brief’s descriptions, how they connect, three distinct samples', async () => {
+test('services (10 Nov): one connected solution, Capture -> Move -> See, checks across all three, no choosing', async () => {
   const html = await page();
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
-  assert.deepEqual([...sec.matchAll(/<h3>([^<]+)<\/h3>\s*<p class="svc-short">/g)].map((m) => m[1]), ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']);
-  for (const t of ['Turn scattered spreadsheets and repetitive reporting tasks into organised, reliable reports that are easier to update and maintain.', 'Make everyday work easier to manage by improving handoffs, responsibilities and follow-ups.', 'Bring disconnected information and everyday processes into practical business tools that make work easier to manage.',
-    'makes information easier to combine, check, update and report.', 'makes work easier to assign, track and follow up.', 'brings related information and processes together into a usable solution.']) assert.ok(sec.includes(t), t);
-  assert.deepEqual([...sec.matchAll(/data-mini="(\w+)">\s*<p class="mini-t">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]), [
-    ['report', 'From scattered files to one reliable report.'], ['workflow', 'From missed requests to clear next steps.'], ['tools', 'From disconnected files to one useful workspace.']]);
+  assert.match(sec, /<h2 id="services-h">One connected solution\. Three parts that work together\.<\/h2>/);
+  assert.match(sec, /You don&rsquo;t need to choose a service\. I&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there\./);
+  // Order: Capture, Move, See, with the three service names kept.
+  assert.deepEqual([...sec.matchAll(/<span class="svc-layer-n">(\d\d)<\/span> (\w+)<\/p>\s*<h3>([^<]+)<\/h3>/g)].map((m) => [m[1], m[2], m[3]]), [
+    ['01', 'Capture', 'Business Tools &amp; Systems'], ['02', 'Move', 'Workflows &amp; Processes'], ['03', 'See', 'Data &amp; Reporting']]);
+  assert.deepEqual([...sec.matchAll(/<p class="svc-short">([^<]+)<\/p>/g)].map((m) => m[1]), ['Fix the tools.', 'Fix the steps.', 'Fix the numbers.']);
+  // Data & Reporting keeps the most visual weight.
+  assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
+  assert.match(sec, /Most projects start here/);
+  // The repeated checks band and the second weekly-report story were removed (11 Nov review): the live example shows both.
+  assert.doesNotMatch(sec, /svc-checks|example-project/);
+  assert.doesNotMatch(html, /checks its own data|every workflow I build/i);
+  // Nothing that asks the visitor to pick a service; no per-service mini-demos.
+  assert.doesNotMatch(html, /on its own or combined|Not sure where your problem fits|data-mini=|svc-try|data-svc-go/);
+  const home = await src('home.js'); assert.doesNotMatch(home, /mountServices|mountSamples/);
+  // Plain tools line in Services; the technical list lives in the AI/automation FAQ (11 Nov review).
+  assert.match(sec, /Works with what you already use:/);
+  assert.match(html.slice(html.indexOf('id="faq"')), /Google Apps Script/);
   assert.doesNotMatch(html, /KPI &amp; Operations Reporting|Reporting &amp; Data Automation|Workflow Improvements/);
-  const js = await src('samples.js'); assert.match(js, /mountReport[\s\S]*mountWorkflow[\s\S]*mountTools/);
 });
 
 test('18.11 How I work: the reassurance line, the steps and the handover terms stay', async () => {
@@ -332,34 +173,42 @@ test('18.11 How I work: the reassurance line, the steps and the handover terms s
 
 test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, no platform pitch, privacy matches', async () => {
   const html = await page();
-  const main = html.slice(html.indexOf('<main'), html.indexOf('id="experience"'));
+  const main = html.slice(html.indexOf('<main'), html.indexOf('id="services"'));
   assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
   assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
-  assert.doesNotMatch(html, /subscription|sign up for (the|our) platform/i);
+  // The only mention of subscriptions is the cost-transparency line in the live example (final brief, 11 Nov).
+  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  for (const t of ['A more connected way to work', 'requests, tasks, records and staff names are fictional', 'Reset the demo', 'no AI runs on this page']) assert.ok(priv.includes(t), t);
-  assert.equal((await page()).match(/<span class="dw-status" data-week>([^<]*)</)[1], DATA.WEEK);
+  for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'The example is read-only.', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
+  assert.doesNotMatch(priv, /Reset sample|change an owner or a status|A clearer way to manage the work/, 'privacy page matches the read-only example');
 });
 
-test('problem cards: three, in the customer’s words, each opening its service', async () => {
+test('problem cards: three, in the customer’s words, each pointing to its layer of the one solution', async () => {
   const html = await page();
   const fit = html.slice(html.indexOf('id="fit"'), html.indexOf('id="samples"'));
-  const cards = [...fit.matchAll(/<a href="#(svc-\w+)" data-svc-go="(\d)"><strong>([^<]+)<\/strong>/g)].map((m) => [m[1], m[2], m[3]]);
+  const cards = [...fit.matchAll(/<a href="#(svc-\w+)"><strong>([^<]+)<\/strong>[\s\S]*?<em>([^<]+)</g)].map((m) => [m[1], m[2], m[3].trim()]);
   assert.deepEqual(cards, [
-    ['svc-data', '0', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;'],
-    ['svc-workflow', '1', '&ldquo;I&rsquo;m always chasing updates.&rdquo;'],
-    ['svc-systems', '2', '&ldquo;Everything is scattered.&rdquo;'],
+    ['svc-systems', '&ldquo;Everything is scattered.&rdquo;', 'Capture &middot; Business Tools &amp; Systems'],
+    ['svc-workflow', '&ldquo;I&rsquo;m always chasing updates.&rdquo;', 'Move &middot; Workflows &amp; Processes'],
+    ['svc-data', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;', 'See &middot; Data &amp; Reporting'],
   ]);
+  assert.match(fit, /Most weeks it&rsquo;s all three at once, <a href="#services">and that&rsquo;s how I fix them<\/a>\./);
 });
 
 
-test('page: experience sits right after the live example, marked as previous professional experience', async () => {
+test('page order (11 Nov review): problem, proof, offer, process, person; previous roles live in About', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const order = ['id="samples"', 'id="experience"', 'id="services"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
+  const order = ['id="fit"', 'id="samples"', 'id="services"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
+  assert.ok(order.every((i) => i > 0));
   assert.deepEqual([...order].sort((a, b) => a - b), order);
-  const exp = html.slice(order[1], order[2]);
-  for (const t of ['Utility Billing &amp; Data Validation', 'Operational Reporting &amp; Analysis', 'Solar &amp; Energy Performance Analysis', 'Previous professional experience', 'not Rework Rescue client projects']) assert.ok(exp.includes(t), t);
+  assert.doesNotMatch(html, /id="experience"/, 'Experience merged into About');
+  const about = html.slice(order[4], order[5]);
+  for (const t of ['Before Rework Rescue', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.', 'not Rework Rescue client projects']) assert.ok(about.includes(t), t);
   assert.match(html, /Based in the Philippines\. Available for calls Monday to Friday/);
+  const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">/g)].map((m) => m[1]);
+  assert.deepEqual(nav, ['samples', 'services', 'how', 'about', 'faq'], 'nav follows the page');
+  const start = html.slice(order[6]);
+  assert.doesNotMatch(start.slice(0, start.indexOf('</section>')), /Prefer to write first\?/, 'contact details live in the footer');
 });
 
 test('page: no prices, testimonials or client results; service names kept; services kept short', async () => {
@@ -370,31 +219,34 @@ test('page: no prices, testimonials or client results; service names kept; servi
   // Services stay short: the problem line per service, no separate symptom lists.
   assert.doesNotMatch(html, /svc-familiar|Does this sound familiar\?/);
   // Middle option (9 Nov): CRM, websites and booking pages stay, framed as support for records and reporting.
-  assert.match(html, /Customer and enquiry tracking that feeds your reports/);
-  assert.match(html, /Simple pages connected to your forms and records/);
-  assert.match(html, /Booking and request pages connected to your records/);
+  assert.match(html, /Simple CRM and customer records/);
+  assert.match(html, /Forms, booking and request pages/);
+  assert.match(html, /Trackers and job lists/);
+  // Three examples per part (11 Nov review).
+  assert.equal((html.slice(html.indexOf('id="services"'), html.indexOf('id="how"')).match(/<ul class="svc-have">/g) || []).length, 3);
+  for (const ul of html.match(/<ul class="svc-have">[\s\S]*?<\/ul>/g)) assert.equal((ul.match(/<li>/g) || []).length, 3);
   assert.doesNotMatch(html, /Better data\. Simpler workflows\./);
-  assert.match(html, /I don&#39;t automate consequential decisions about people\./);
+  assert.match(html, /I don&#39;t automate important decisions about people\./);
   assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
 });
 
 test('booking after the demo: one strip with the first-project line, using the existing pop-up link', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
+  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="services"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
-  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="demo-window"'), 'after the demo window');
-  assert.match(after, /Most projects start with one report or recurring process\. Once that&rsquo;s working, we can look at what&rsquo;s next\./);
+  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('<!-- tracker:end -->'), 'after the live example');
+  assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong> Rework Rescue helps businesses dealing with scattered information, manual processes, unclear follow-ups or reporting that takes too much effort to prepare\. The first step is a conversation about your actual process, not a commitment to buy software or an automation package\./);
+  assert.match(after, /30 minutes &middot; No obligation &middot; Practical next steps/);
   assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });
 
-test('How I work shows an example first project, labelled as an illustration, with the handover terms', async () => {
+test('How I work: four steps; step 4 lists what you receive and the 30-day fixes terms (moved from Services, 11 Nov)', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
-  assert.match(how, /Example first project &middot; illustration/);
-  assert.match(how, /not a client result/);
-  for (const t of ['Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
+  assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'How I work keeps its four steps');
+  for (const t of ['The working solution, set up in your tools or accounts.', 'Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
   assert.doesNotMatch(how, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
 });
 

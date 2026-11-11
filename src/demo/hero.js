@@ -1,53 +1,170 @@
-// Hero: an illustration of scattered information becoming one connected workspace (master brief, 10 Nov 2026).
-// Three sources (spreadsheet files, business records, requests and tasks) flow into a workspace with organised
-// records, a report, a workflow, actions and an AI-drafted insight. The figures come from the main demo's engine and
-// follow the same state, so what the visitor does in the demo shows here too. It is an illustration of a possible
-// solution, not a product. Motion: one ~4.6 s CSS timeline (.hw-play), played once on screen, with Replay; reduced
-// motion and no JavaScript show the finished picture. CSP: no inline style attributes.
+// Hero (11 Nov 2026): one workspace, two states, switched with a toggle.
+//   Today: a typical week run from scattered spreadsheets, emails, forms, PDFs and notes, with the data problems each one
+//   causes marked in red (problem) or amber (warning), grouped under Capture, Move and See.
+//   With Rework Rescue: the same week as checked records. Each of Capture, Move and See shows its own built-in checks with
+//   one of three states: Passed, Flagged (an exception was found) or Action required (a person must resolve it). Then the
+//   Northstar Services weekly report: KPIs, action items and a summary draft.
+// Every check state, figure, action item and summary line is computed from the Weekly Work & Follow-up Tracker records
+// (src/tracker/), the homepage's live example, and follows the tracker's state. Nothing is shown as passed unless the
+// sample data passes the rule.
+// The HTML is the "With Rework Rescue" state (no JavaScript). With motion allowed, the hero alternates Today (~5 s) and
+// With Rework Rescue (~10 s) while on screen and the tab is visible; Pause stops it (WCAG 2.2.2) and so does the toggle.
+// Reduced motion: no autoplay, instant switch; the toggle still works. CSP: CSSOM setProperty only.
 
-import { getState, subscribe } from './store.js';
-import { overview, board, metrics, openActions, heroInsight } from './engine.js';
-import { esc } from '../forms.js';
+import { getRecords, subscribe } from '../tracker/store.js';
+import { summarise, missingFields, isEmptyRow, inReport, byStatus } from '../tracker/engine.js';
+import { RECORDS, PERIOD, PERIOD_LABEL, BUSINESS, STATUSES, OWNERS } from '../tracker/data.js';
+
+/** The report's figures, all derived from the tracker records. */
+export function heroFigures(rec = RECORDS, p = PERIOD) {
+  const s = summarise(rec, p);
+  return { total: s.total, completed: s.completed, outstanding: s.outstanding, attention: s.attention, overdue: s.overdue,
+    unassigned: s.unassigned, missing: s.missing, duplicates: s.duplicates, period: PERIOD_LABEL, business: BUSINESS, followUps: s.followUps };
+}
+
+const refsOf = (f, key) => f.followUps.filter((x) => x.keys.includes(key)).map((x) => x.ref);
+const refText = (refs) => (refs.length <= 2 ? refs.join(', ') : `${refs.length} records`);
+const isoOk = (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '').trim()) || String(v ?? '').trim() === '';
+
+/**
+ * Built-in checks per stage, from the records. state: 'pass' | 'flag' | 'action' | 'none' (no data to check).
+ * Each check lists the Today issues it answers (answers), so the two states line up (a test checks every Today issue).
+ */
+export function dataChecks(rec = RECORDS, p = PERIOD) {
+  const f = heroFigures(rec, p);
+  const rows = rec.filter((r) => inReport(r, p) && !isEmptyRow(r));
+  const complete = rows.filter((r) => !missingFields(r).length).length;
+  const formatsOk = rows.filter((r) => isoOk(r.received) && isoOk(r.due) && STATUSES.includes(String(r.status).trim())).length;
+  const statusOk = rows.filter((r) => STATUSES.includes(String(r.status).trim())).length;
+  const ownersOk = rows.filter((r) => OWNERS.includes(String(r.owner).trim()) || String(r.owner).trim() === '').length;
+  const counted = byStatus(rec, p).reduce((n, x) => n + x.count, 0);
+  const missRefs = refsOf(f, 'missing'); const ownRefs = refsOf(f, 'unassigned'); const lateRefs = refsOf(f, 'overdue');
+  return {
+    capture: [
+      { label: 'No duplicate jobs', state: f.duplicates ? 'flag' : 'pass', detail: f.duplicates ? `${f.duplicates} found` : 'None found', answers: ['Duplicate job references', 'Multiple spreadsheet versions'] },
+      { label: 'Job details complete', state: missRefs.length ? 'flag' : 'pass', detail: missRefs.length ? `${complete} of ${f.total} complete · ${refText(missRefs)}` : `${f.total} of ${f.total} complete`, answers: ['Missing service requests'] },
+      { label: 'Dates entered correctly', state: formatsOk === rows.length ? 'pass' : 'flag', detail: `${formatsOk} of ${rows.length}`, answers: ['Inconsistent information'] },
+    ],
+    move: [
+      { label: 'Every open job has an owner', state: ownRefs.length ? 'action' : 'pass', detail: ownRefs.length ? `No owner · ${refText(ownRefs)}` : 'All open jobs', answers: ['Jobs without owners'] },
+      { label: 'Every job has a status', state: statusOk === rows.length && ownersOk === rows.length ? 'pass' : 'flag', detail: `${statusOk} of ${rows.length}`, answers: ['Inconsistent statuses', 'Email updates not in records'] },
+      { label: 'Follow-ups on time', state: lateRefs.length ? 'action' : 'pass', detail: lateRefs.length ? `Overdue · ${refText(lateRefs)}` : 'None overdue', answers: ['Overdue follow-ups'] },
+    ],
+    see: [
+      { label: 'Totals add up', state: f.completed + f.outstanding === f.total ? 'pass' : 'flag', detail: `${f.completed} done + ${f.outstanding} open = ${f.total}`, answers: ['Figures added up by hand', 'Rebuilt every week'] },
+      { label: 'Every job counted', state: counted === f.total ? 'pass' : 'flag', detail: `${counted} of ${f.total} counted`, answers: ["Report figures don't match"] },
+      { label: 'Problems shown, not hidden', state: f.attention ? 'flag' : 'pass', detail: f.attention ? `${f.attention} on the report` : 'None this week', answers: [] },
+    ],
+  };
+}
+
+export const STATE = { pass: 'Passed', flag: 'Flagged', action: 'Action required', none: 'No data' };
+const NEXT = { unassigned: ['Assign an owner to', '', 'High'], overdue: ['Follow up', ' (overdue)', 'High'], missing: ['Complete customer details for', '', 'Medium'], duplicate: ['Check the possible duplicate', '', 'Medium'] };
+
+/** Action items: one per flagged record (most urgent first), named by its reference. */
+export function actionItems(f) {
+  const order = { High: 0, Medium: 1 };
+  const items = f.followUps.map((x) => {
+    const key = ['unassigned', 'overdue', 'missing', 'duplicate'].find((k) => x.keys.includes(k));
+    const [verb, tail, priority] = NEXT[key];
+    return { label: `${verb} ${x.ref}${tail}`, short: `${verb} ${x.ref}`, priority, ref: x.ref };
+  }).sort((a, b) => order[a.priority] - order[b.priority]);
+  return items.length ? items.slice(0, 3) : [{ label: 'Nothing needs attention this week', priority: '' }];
+}
+
+/** The summary draft's bullets (written by simple rules on this page; the caption says so). */
+export function summaryBullets(f, items = actionItems(f)) {
+  const att = f.followUps.length;
+  const high = items.filter((x) => x.priority === 'High').map((x) => x.short.replace(/^./, (c) => c.toLowerCase()));
+  return [
+    `${f.completed} of ${f.total} jobs completed this week.`,
+    f.outstanding ? `${f.outstanding} still outstanding${att ? `; ${att} of these need${att === 1 ? 's' : ''} attention` : ''}.` : 'Nothing is still outstanding.',
+    high.length ? `Next: ${high.join(' and ')}.` : 'Next: share the report.',
+  ];
+}
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/** HTML for one stage's checks (also used to write the no-JavaScript version and by the tests). */
+export const checksHtml = (list) => list.map((c) => `<li class="hx-chk is-${c.state}"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">${esc(c.label)}</span><span class="hx-chk-d">${esc(c.detail)}</span><span class="sr-only"> ${STATE[c.state]}</span></li>`).join('');
+const refs = (t) => esc(t).replace(/R-\d+/g, (r) => `<span class="hx-ref">${r}</span>`);
+export const actionsHtml = (items) => items.map((x) => `<li><span class="hx-box" aria-hidden="true"></span><span>${refs(x.label)}</span>${x.priority ? `<em${x.priority === 'High' ? ' class="is-high"' : ''}>${x.priority}</em>` : ''}</li>`).join('');
+export const summaryHtml = (bullets) => bullets.map((t) => `<li>${refs(t)}</li>`).join('');
 
 export function mountHero(fig) {
   if (!fig) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const set = (k, v) => fig.querySelectorAll(`[data-hw="${k}"]`).forEach((el) => { el.textContent = String(v); });
+  // Phones (11 Nov review): no automatic switching while people scroll; open on the problem ("Today"), toggle to compare.
+  const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 40rem)').matches;
+  const q = (s) => fig.querySelector(s);
+  const btns = [...fig.querySelectorAll('[data-ws-mode]')];
+  const pauseBtn = q('.hx-pause');
+  let mode = 'after';
 
+  const set = (k, v) => fig.querySelectorAll(`[data-ws="${k}"]`).forEach((el) => { el.textContent = String(v); });
+  // Figures are always shown final (no count-up), so the tiles never show numbers that don't add up.
   function paint() {
-    const s = getState(); const o = overview(s); const m = metrics(s);
-    for (const k of ['records', 'requests', 'openRequests', 'completed', 'attention']) set(k, o[k]);
-    for (const col of board(s)) { const el = fig.querySelector(`[data-hw-stage="${col.stage}"]`); if (el) el.textContent = String(col.items.length); }
-    // Data rows, the actions list and the insight follow the same state, so nothing stays flagged once it's resolved.
-    const flagged = new Set(openActions(s).flatMap((a) => a.refs));
-    fig.querySelectorAll('[data-hw-row]').forEach((li) => {
-      const on = flagged.has(li.dataset.hwRow); const mark = li.lastElementChild;
-      mark.className = on ? 'hw-flag' : 'hw-ok'; mark.textContent = on ? 'check' : '\u2713';
-    });
-    const open = openActions(s).slice(0, 3);
-    const list = fig.querySelector('[data-hw-list]');
-    if (list) list.innerHTML = open.length ? open.map((a) => `<li>${esc(a.title)} <em${['In progress', 'Assigned', 'Waiting for follow-up'].includes(a.status) ? ' class="is-prog"' : ''}>${esc(a.status)}</em></li>`).join('') : '<li>Nothing waiting <em class="is-prog">Up to date</em></li>';
-    const ins = fig.querySelector('[data-hw-insight]'); if (ins) ins.textContent = heroInsight(s);
-    const max = Math.max(2, ...m.byDay.map((d) => d.completed));
-    for (const d of m.byDay) {
-      const el = fig.querySelector(`[data-hw-day="${d.day}"]`); if (!el) continue;
-      el.dataset.v = String(d.completed);
-      el.querySelector('i').style.setProperty('height', `${Math.round((d.completed / max) * 100)}%`);
-    }
+    const rec = getRecords(); const f = heroFigures(rec);
+    for (const k of ['business', 'period', 'total', 'completed', 'outstanding', 'attention']) set(k, f[k]);
+    const checks = dataChecks(rec);
+    for (const k of ['capture', 'move', 'see']) { const el = q(`[data-ws-checks="${k}"]`); if (el) el.innerHTML = checksHtml(checks[k]); }
+    const items = actionItems(f);
+    const a = q('[data-ws-actions]'); if (a) a.innerHTML = actionsHtml(items);
+    const sm = q('[data-ws-summary]'); if (sm) sm.innerHTML = summaryHtml(summaryBullets(f, items));
   }
-  subscribe(() => paint());
-  paint();
 
-  if (reduce || typeof IntersectionObserver !== 'function') return;
-  const replay = fig.querySelector('.hw-replay');
-  const play = () => { fig.classList.remove('hw-play'); void fig.offsetWidth; fig.classList.add('hw-play'); };
-  fig.classList.add('hw-wait');
-  const io = new IntersectionObserver((entries) => {
-    if (!entries.some((x) => x.isIntersecting)) return;
-    io.disconnect();
-    fig.classList.remove('hw-wait'); play();
-    if (replay) replay.hidden = false;
-  }, { threshold: 0.25 });
-  io.observe(fig);
-  replay?.addEventListener('click', play);
+  const toggle = q('.hx-toggle');
+  function placePill() {
+    const on = btns.find((b) => b.getAttribute('aria-pressed') === 'true');
+    if (!toggle || !on) return;
+    toggle.classList.add('is-js');
+    toggle.style.setProperty('--tg-x', `${on.offsetLeft}px`);
+    toggle.style.setProperty('--tg-w', `${on.offsetWidth}px`);
+  }
+  addEventListener('resize', placePill);
+  document.fonts?.ready?.then(placePill);
+
+  function setMode(m) {
+    mode = m;
+    fig.classList.toggle('hx-is-today', m === 'today');
+    fig.classList.toggle('hx-is-after', m === 'after');
+    btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wsMode === m)));
+    placePill();
+    // Only the visible state is exposed to screen readers.
+    fig.querySelectorAll('.hx-today, .hx-only-today').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'today')));
+    fig.querySelectorAll('.hx-after, .hx-only-after').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'after')));
+    paint();
+  }
+  setMode(phone ? 'today' : 'after');
+  subscribe(() => paint());
+
+  let manual = false; let paused = false; let onScreen = false; let timer = 0;
+  const canPlay = () => !reduce && !manual && !paused && onScreen && !document.hidden;
+  function loop() {
+    clearTimeout(timer);
+    if (!canPlay()) return;
+    timer = setTimeout(() => { setMode(mode === 'today' ? 'after' : 'today'); loop(); }, mode === 'today' ? 5000 : 10000);
+  }
+  btns.forEach((b) => b.addEventListener('click', () => {
+    manual = true; clearTimeout(timer);
+    if (pauseBtn && !pauseBtn.hidden) pauseBtn.textContent = 'Play animation';
+    if (b.dataset.wsMode !== mode) setMode(b.dataset.wsMode);
+  }));
+  if (reduce || phone || typeof IntersectionObserver !== 'function') return;
+
+  if (pauseBtn) {
+    pauseBtn.hidden = false;
+    pauseBtn.addEventListener('click', () => {
+      const play = manual || paused;
+      manual = false; paused = !play;
+      pauseBtn.textContent = paused ? 'Play animation' : 'Pause animation';
+      if (play) { setMode('today'); loop(); } else clearTimeout(timer);
+    });
+  }
+  let started = false;
+  new IntersectionObserver((entries) => {
+    onScreen = entries.some((e) => e.isIntersecting);
+    if (onScreen && !started && canPlay()) { started = true; setMode('today'); }
+    if (onScreen) loop(); else clearTimeout(timer);
+  }, { threshold: 0.3 }).observe(fig);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else loop(); });
 }

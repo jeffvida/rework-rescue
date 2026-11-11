@@ -36,8 +36,8 @@
       <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" hidden><span class="nav-toggle-icon" aria-hidden="true"></span>Menu</button>
       <nav id="site-nav" aria-label="Main">
         <ul class="nav-list">
-          <li><a href="#services">How I can help</a></li>
           <li><a href="#samples">Live example</a></li>
+          <li><a href="#services">How I can help</a></li>
           <li><a href="#how">How I work</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#faq">FAQ</a></li>
@@ -48,49 +48,97 @@
   </header>
   <main id="main" tabindex="-1">
 
-    <section class="hero" aria-labelledby="hero-title">
+    <section class="hero hero-cmv hero-v3" aria-labelledby="hero-title">
+      <svg class="hv-hills" viewBox="0 0 800 600" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="hv-hill-a" d="M800 40 C640 60 560 150 600 260 C640 370 520 470 300 520 L0 600 H800 Z"/><path class="hv-hill-b" d="M800 330 C700 360 610 430 470 470 C320 510 200 540 0 560 V600 H800 Z"/></svg>
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow hero-pill">Less rework. More real work.</p>
-          <h1 id="hero-title">Less time fixing the numbers. <span class="h1-accent">More time running the business.</span></h1>
-          <p class="hero-sub">I turn scattered business data and repetitive tasks into connected workflows, reliable reports and practical business tools.</p>
-          <p class="hero-assure">Built around the tools you already use. Designed around how your business works.</p>
-          <div class="hero-actions">
-            <div class="hero-cta-main"><a class="btn btn-primary btn-large" href="contact/#contact-form-area">Book a free rework review</a>
-            <p class="cta-micro">A 30-minute call about one report or process<span class="cta-micro-sep"> &middot; </span><span class="cta-micro-2">Free &middot; No obligation</span></p></div>
-            <a class="btn btn-quiet btn-large hero-explore" href="#samples" data-demo-check>See how it works</a>
+          <p class="eyebrow hero-pill">Less rework. Better reporting. Smarter workflows.</p>
+          <h1 id="hero-title">Less time fixing the numbers. <span class="h1-accent">More time running the business.<svg class="hv-swoosh" viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 10 C60 2 150 1 217 7"/></svg></span></h1>
+          <p class="hero-sub">I connect the tools, workflows and reporting that help your business run more smoothly &mdash; with built-in data checks to keep your information reliable.</p>
+          <div class="hero-actions hv-actions">
+            <a class="btn btn-primary btn-large hv-book" href="contact/#contact-form-area"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Book a free rework review</a>
+            <a class="btn btn-large hv-explore" href="#samples" data-demo-check><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5z"/></svg>Explore the live example</a>
           </div>
-          <div class="cred-strip">
+          <ul class="hv-chips" aria-label="About the free review">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>30 minutes</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>Free</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 11l4-4 4 2 3-2 4 1 3 3"/><path d="M7 7v6l4 4 2-1 2 1 3-3"/><path d="M11 17l-1-1"/></svg>No obligation</li>
+          </ul>
+          <div class="cred-strip hv-cred">
             <img class="cred-avatar" src="assets/photo/jeff-avatar.jpg" width="288" height="288" alt="">
-            <p><a class="cred-name" href="#about">Jeff Herson Vida</a><span class="cred-role">8+ years in data operations, reporting and process improvement.</span><span class="cred-role">Work directly with me, from understanding the problem to building the solution.</span></p>
+            <p><a class="cred-name" href="#about">Jeff Herson Vida</a><span class="cred-role">8+ years in data operations, reporting and process improvement.</span></p>
           </div>
         </div>
-        <figure class="hero-preview hw no-print" id="hero-visual" aria-labelledby="hw-desc">
-          <p class="sr-only" id="hw-desc">An illustration: spreadsheet files, business records and requests come together in one connected workspace with organised records, a report, a workflow, a list of actions and an AI-drafted summary.</p>
-          <ul class="hw-sources" aria-hidden="true">
-            <li class="hw-src"><svg class="hw-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 9h16M4 15h16M10 3v18"/></svg><span><strong>Spreadsheet files</strong><small>Exports and trackers</small></span></li>
-            <li class="hw-src"><svg class="hw-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7"/></svg><span><strong>Business records</strong><small>Records &amp; transactions</small></span></li>
-            <li class="hw-src"><svg class="hw-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9l1.5 1.5L12 8M8 15l1.5 1.5L12 14M14 9.5h3M14 15.5h3"/></svg><span><strong>Requests &amp; tasks</strong><small>Emails, forms, to-dos</small></span></li>
-          </ul>
-          <svg class="hw-lines" viewBox="0 0 300 40" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M50 0 C50 22 150 18 150 40"/><path d="M150 0 V40"/><path d="M250 0 C250 22 150 18 150 40"/></svg>
-          <div class="hw-app" aria-hidden="true">
-            <div class="hw-bar-top"><span class="hw-dots"><i></i><i></i><i></i></span><span class="hw-app-t">Connected workspace</span><span class="hw-app-s">Illustration</span></div>
-            <div class="hw-grid">
-              <section class="hw-panel hw-data"><p class="hw-k">Data <span data-hw="records">33</span> records &middot; 3 sources</p>
-                <ul class="hw-rows" data-hw-rows><li data-hw-row="R-101"><span>R-101</span><span>Bayview Co.</span><span class="hw-ok">&#10003;</span></li><li data-hw-row="R-104"><span>R-104</span><span>Summit Supplies</span><span class="hw-flag">check</span></li><li data-hw-row="R-107"><span>R-107</span><span>Lakeside Cafe</span><span class="hw-ok">&#10003;</span></li></ul></section>
-              <section class="hw-panel hw-report"><p class="hw-k">Report</p>
-                <p class="hw-kpis"><span><strong data-hw="requests">12</strong> requests</span><span><strong data-hw="openRequests">6</strong> open</span><span><strong data-hw="completed">6</strong> done</span></p>
-                <div class="hw-chart"><span class="hw-bar" data-hw-day="Mon" data-v="1"><i></i><em>M</em></span><span class="hw-bar" data-hw-day="Tue" data-v="2"><i></i><em>T</em></span><span class="hw-bar" data-hw-day="Wed" data-v="1"><i></i><em>W</em></span><span class="hw-bar" data-hw-day="Thu" data-v="1"><i></i><em>T</em></span><span class="hw-bar" data-hw-day="Fri" data-v="1"><i></i><em>F</em></span></div></section>
-              <section class="hw-panel hw-flow"><p class="hw-k">Workflow</p>
-                <ol class="hw-stages"><li>Received <b data-hw-stage="Request received">0</b></li><li>Reviewed <b data-hw-stage="Reviewed">1</b></li><li>Assigned <b data-hw-stage="Assigned">2</b></li><li>In progress <b data-hw-stage="In progress">3</b></li><li>Done <b data-hw-stage="Completed">6</b></li></ol></section>
-              <section class="hw-panel hw-actions"><p class="hw-k">Actions <span class="hw-count"><span data-hw="attention">5</span> open</span></p>
-                <ul class="hw-list" data-hw-list><li>Possible duplicate request <em>Needs checking</em></li><li>Request with no customer <em>Needs checking</em></li><li>Record with no matching request <em>Needs checking</em></li></ul></section>
-              <section class="hw-panel hw-ai"><p class="hw-k">Insights <span class="hw-ai-tag">AI-drafted</span></p><p class="hw-ai-t" data-hw-insight>1 task is overdue and 1 has nobody assigned. Check the possible duplicate before sharing the numbers.</p></section>
+        <figure class="hero-preview hx no-print" id="hero-visual" aria-labelledby="hx-cap">
+          <div class="hx-top">
+            <div class="hx-toggle" role="group" aria-label="Compare a typical week today with the same week after the work">
+              <button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today</button>
+              <button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue</button>
+              <span class="hx-tg-pill" aria-hidden="true"></span>
+            </div>
+            <p class="hx-hint" aria-hidden="true"><svg viewBox="0 0 40 16" focusable="false"><path d="M38 9C28 3 16 3 4 8M4 8l6-5M4 8l7 3"/></svg>Switch to see the difference</p>
+          </div>
+          <div class="hx-panel">
+            <p class="hx-sec">
+              <span class="hx-only-today" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>Data issues in today&rsquo;s process <span class="hx-legend"><i class="is-action"></i>Problem <i class="is-flag"></i>Warning</span></span>
+              <span class="hx-only-after"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8l7.5 3v5.6c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V5.8z"/><path d="M8.6 12.1l2.4 2.4 4.5-4.7"/></svg>Built-in data checks at every stage <span class="hx-legend"><i class="is-pass"></i>Passed <i class="is-flag"></i>Flagged <i class="is-action"></i>Action required</span></span>
+            </p>
+            <ol class="hx-flow" aria-label="Capture, move, see">
+              <li class="hx-step svc-systems">
+                <p class="hx-step-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="hx-ic-doc" d="M6 3h9l4 4v14H6z"/><path class="hx-ic-doc" d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/><ellipse class="hx-ic-db" cx="12" cy="6" rx="7" ry="2.8"/><path class="hx-ic-db" d="M5 6v12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V6M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/></svg><span><b>Capture</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Details in multiple places</span><span class="hx-only-after">One organised record per job</span></span></span></p>
+                <ul class="hx-issues hx-only-today" aria-hidden="true"><li class="is-red">Duplicate job references</li><li class="is-red">Missing service requests</li><li class="is-amber">Inconsistent information</li><li class="is-amber">Multiple spreadsheet versions</li></ul>
+                <ul class="hx-checks hx-only-after" data-ws-checks="capture"><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">No duplicate jobs</span><span class="hx-chk-d">None found</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-flag"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Job details complete</span><span class="hx-chk-d">11 of 12 complete · R-111</span><span class="sr-only"> Flagged</span></li><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Dates entered correctly</span><span class="hx-chk-d">12 of 12</span><span class="sr-only"> Passed</span></li></ul>
+              </li>
+              <li class="hx-step svc-workflow">
+                <p class="hx-step-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3.5" y="16" width="5" height="5" rx="1"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><span><b>Move</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Chasing people for updates</span><span class="hx-only-after">Clear owners, status and follow-ups</span></span></span></p>
+                <ul class="hx-issues hx-only-today" aria-hidden="true"><li class="is-amber">Email updates not in records</li><li class="is-red">Jobs without owners</li><li class="is-amber">Inconsistent statuses</li><li class="is-red">Overdue follow-ups</li></ul>
+                <ul class="hx-checks hx-only-after" data-ws-checks="move"><li class="hx-chk is-action"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Every open job has an owner</span><span class="hx-chk-d">No owner · R-112</span><span class="sr-only"> Action required</span></li><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Every job has a status</span><span class="hx-chk-d">12 of 12</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-action"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Follow-ups on time</span><span class="hx-chk-d">Overdue · R-104</span><span class="sr-only"> Action required</span></li></ul>
+              </li>
+              <li class="hx-step svc-data">
+                <p class="hx-step-h"><svg class="hx-ic hx-ic-bars" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8.5" width="4" height="11.5" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg><span><b>See</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Rebuilding the Monday report</span><span class="hx-only-after">A Monday report you don&rsquo;t have to double-check</span></span></span></p>
+                <ul class="hx-issues hx-only-today" aria-hidden="true"><li class="is-amber">Figures added up by hand</li><li class="is-red">Report figures don&rsquo;t match</li><li class="is-amber">Rebuilt every week</li></ul>
+                <ul class="hx-checks hx-only-after" data-ws-checks="see"><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Totals add up</span><span class="hx-chk-d">7 done + 5 open = 12</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Every job counted</span><span class="hx-chk-d">12 of 12 counted</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-flag"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Problems shown, not hidden</span><span class="hx-chk-d">3 on the report</span><span class="sr-only"> Flagged</span></li></ul>
+              </li>
+            </ol>
+            <div class="hx-body">
+              <div class="hx-today" aria-hidden="true">
+                <ul class="hx-scatter">
+                  <li class="hx-card hx-c1"><svg class="hx-file is-xls" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span><b>Job_Tracker_v3.xlsx</b>3 versions in different folders<em class="hx-tag is-red">Duplicates</em></span></li>
+                  <li class="hx-card hx-c2"><svg class="hx-file is-mail" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span><b>Re: Re: Job update?</b>Sent 3 times<em class="hx-tag is-amber">Not in the tracker</em></span></li>
+                  <li class="hx-card hx-c3"><svg class="hx-file is-form" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span><b>Service request (form)</b>Not entered in the tracker<em class="hx-tag is-red">Missing record</em></span></li>
+                  <li class="hx-card hx-c4"><svg class="hx-file is-pdf" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 15.5h6"/></svg><span><b>Completion records.pdf</b>Checked against the tracker by hand<em class="hx-tag is-amber">Manual check</em></span></li>
+                  <li class="hx-card hx-c5 hx-sticky"><span><b>Who&rsquo;s doing the Northfield job?</b><em class="hx-tag is-red">No owner</em></span></li>
+                  <li class="hx-card hx-c6"><svg class="hx-file is-xls" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span><b>Weekly_Report_FINAL(2).xlsx</b>Rebuilt by hand every Monday<em class="hx-tag is-amber">Manual rebuild</em></span></li>
+                </ul>
+                <p class="hx-result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg><span><b>The result</b> Records that don&rsquo;t match, missed updates and hours rebuilding the weekly report.</span></p>
+              </div>
+              <div class="hx-after">
+                <div class="hx-report">
+                  <p class="hx-rep-head"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span><b><span data-ws="business">Northstar Services</span> &middot; Weekly operations report</b><small data-ws="period">2–6 November 2026</small></span><span class="hx-valid"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6 5.4-5.6"/></svg><span data-ws="total">12</span> jobs checked</span></p>
+                  <div class="hx-kpis">
+                    <p class="hx-kpi is-done"><strong data-ws="completed">7</strong>Completed this week</p>
+                    <p class="hx-kpi is-open"><strong data-ws="outstanding">5</strong>Still outstanding</p>
+                    <p class="hx-kpi is-att"><strong data-ws="attention">3</strong>Need attention <small>of the <span data-ws="outstanding">5</span> still outstanding</small></p>
+                  </div>
+                  <div class="hx-cols">
+                    <div class="hx-actions">
+                      <p class="hx-col-t"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>Action items</p>
+                      <ul data-ws-actions><li><span class="hx-box" aria-hidden="true"></span><span>Follow up <span class="hx-ref">R-104</span> (overdue)</span><em class="is-high">High</em></li><li><span class="hx-box" aria-hidden="true"></span><span>Assign an owner to <span class="hx-ref">R-112</span></span><em class="is-high">High</em></li><li><span class="hx-box" aria-hidden="true"></span><span>Complete customer details for <span class="hx-ref">R-111</span></span><em>Medium</em></li></ul>
+                    </div>
+                    <div class="hx-sum">
+                      <p class="hx-col-t"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>AI-assisted summary <small>Sample draft</small></p>
+                      <ul data-ws-summary><li>7 of 12 jobs completed this week.</li><li>5 still outstanding; 3 of these need attention.</li><li>Next: follow up <span class="hx-ref">R-104</span> and assign an owner to <span class="hx-ref">R-112</span>.</li></ul>
+                      <p class="hx-review"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>Reviewed by a person before sharing</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <figcaption class="hr-note hw-note">An illustration of what I could build around your tools. Fictional data. <button type="button" class="hw-replay" hidden>Replay</button></figcaption>
+          <figcaption class="hx-cap" id="hx-cap"><span class="hx-cap-short">Fictional sample business. An illustration, not real results.</span><span class="hx-cap-long">Fictional sample data for Northstar Services (2–6 November 2026), the same records as the live example below. Check results are worked out from those records. An illustration, not real results. In a project, an AI tool drafts the summary and a person checks it; here it&rsquo;s a sample written by simple rules.</span> <button type="button" class="hx-pause" hidden>Pause animation</button></figcaption>
         </figure>
       </div>
+      <svg class="hv-edge" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 46 C260 10 520 6 760 34 C1000 62 1220 70 1440 30 V80 H0 Z"/></svg>
     </section>
 
     <section class="section" id="fit" aria-labelledby="fit-h">
@@ -98,150 +146,107 @@
         <p class="eyebrow fit-eyebrow">Sound familiar?</p>
         <h2 id="fit-h">Good people shouldn&rsquo;t have to fight their own processes.</h2>
         <ul class="pain-tiles pain-cards">
-          <li class="svc-data"><a href="#svc-data" data-svc-go="0"><strong>&ldquo;I&rsquo;m always rebuilding reports.&rdquo;</strong> <span>The same report gets copied together every Monday, and there&rsquo;s still a column nobody quite trusts.</span> <em>Data &amp; Reporting <span aria-hidden="true">&rarr;</span></em></a></li>
-          <li class="svc-workflow"><a href="#svc-workflow" data-svc-go="1"><strong>&ldquo;I&rsquo;m always chasing updates.&rdquo;</strong> <span>Requests sit open because nobody knows who owns the next step.</span> <em>Workflows &amp; Processes <span aria-hidden="true">&rarr;</span></em></a></li>
-          <li class="svc-systems"><a href="#svc-systems" data-svc-go="2"><strong>&ldquo;Everything is scattered.&rdquo;</strong> <span>Jobs, invoices and customer requests live in different files, so nothing lines up without copying.</span> <em>Business Tools &amp; Systems <span aria-hidden="true">&rarr;</span></em></a></li>
+          <li class="svc-systems"><a href="#svc-systems"><strong>&ldquo;Everything is scattered.&rdquo;</strong> <span>Jobs, invoices and customer requests live in different files, so nothing lines up without copying.</span> <em>Capture &middot; Business Tools &amp; Systems <span aria-hidden="true">&rarr;</span></em></a></li>
+          <li class="svc-workflow"><a href="#svc-workflow"><strong>&ldquo;I&rsquo;m always chasing updates.&rdquo;</strong> <span>Requests sit open because nobody knows who owns the next step.</span> <em>Move &middot; Workflows &amp; Processes <span aria-hidden="true">&rarr;</span></em></a></li>
+          <li class="svc-data"><a href="#svc-data"><strong>&ldquo;I&rsquo;m always rebuilding reports.&rdquo;</strong> <span>The same report gets copied together every Monday, and there&rsquo;s still a column nobody quite trusts.</span> <em>See &middot; Data &amp; Reporting <span aria-hidden="true">&rarr;</span></em></a></li>
         </ul>
-        <p class="pain-bridge">Most weeks it&rsquo;s all three at once. <a href="#samples">The example below</a> shows how fixing them fits together.</p>
+        <p class="pain-bridge">Most weeks it&rsquo;s all three at once, <a href="#services">and that&rsquo;s how I fix them</a>.</p>
       </div>
     </section>
 
-    <section class="section demo-section" id="samples" aria-labelledby="samples-h">
+    <section class="section demo-section wt-section" id="samples" aria-labelledby="samples-h">
       <div class="container">
-        <p class="eyebrow">Live example</p>
-        <h2 id="samples-h">A more connected way to work.</h2>
-        <p class="lede">See how scattered information can become organised data, useful reports and workflows that keep work moving.</p>
-        <p class="demo-tagline">Bring your information together. Make sense of the numbers. Keep work moving.</p>
-        <ul class="demo-map" aria-label="How the views relate to my services">
-          <li class="svc-data"><strong>Data &amp; Reports</strong> <span>Data &amp; Reporting</span></li>
-          <li class="svc-workflow"><strong>Actions &amp; Workflows</strong> <span>Workflows &amp; Processes</span></li>
-          <li class="svc-systems"><strong>The workspace as a whole</strong> <span>Business Tools &amp; Systems</span></li>
-        </ul>
-        <p class="disclosure demo-disclosure"><svg class="ops-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></svg><span>Illustrative demonstration using fictional business data. It shows the kind of thing I could build around your existing tools, such as Excel, Power Query and simple automations, not a product you&rsquo;d have to buy.</span></p>
-        <div class="demo-window">
-        <div class="demo-window-bar" aria-hidden="true"><span class="dw-dots"><i></i><i></i><i></i></span><span class="dw-title">Connected workspace</span><span class="dw-sub">Fictional business</span><span class="dw-status" data-week>Week ending Fri 6 Nov 2026</span></div>
-        <div id="demo-app" class="demo-app">
-          <div class="demo-static">
-            <h3>Data: combine and check</h3>
-            <p>Three files come in as they are: a Requests Register (12 requests), a Work Tracker (12 tasks) and Records &amp; Transactions (9 records), each with its own date format. They&rsquo;re combined into one list and the checks set up for this business run. Checks found items that may need attention: a possible duplicate request (R-104 / R-109), a request with no customer (R-111) and a record with no matching request (TX-309).</p>
-            <h3>Reports: see the numbers</h3>
-            <p>12 requests this week, 6 still open. 6 tasks completed (Mon 1, Tue 2, Wed 1, Thu 1, Fri 1), all on time; 1 task overdue (T-206) and 1 with no owner (T-210).</p>
-            <h3>Actions and Workflows: follow up and keep work moving</h3>
-            <p>Each item shows its source, a suggested next step and who could handle it. Requests move from received to reviewed, assigned, in progress and completed. Reminders are simulated.</p>
-            <p>The interactive version of this example needs JavaScript.</p>
+        <p class="eyebrow">Live example &middot; Northstar Services, a fictional service business</p>
+        <h2 id="samples-h">Your team is working hard. So why does everything still need chasing?</h2>
+        <p class="lede">Your information is spread across spreadsheets, emails and forms. Updates get missed, responsibilities become unclear and reporting takes time to pull together. Here&rsquo;s one sample week, and how Capture, Move and See turn it into a report you can rely on.</p>
+        <div id="tracker-app" class="lx"><!-- tracker:start --><div class="lx-grid is-static"><div class="lx-main"><div class="lx-open" data-lx="open"><p class="lx-open-h">12 jobs this week. 3 issues that could easily be missed.</p><ul class="lx-arts"><li class="lx-art lx-a1"><p class="lx-art-k">Job tracker</p><p class="lx-art-t">12 jobs this week</p><p class="lx-art-b"><span class="lx-ref">R-112</span> Confirm outstanding item · owner: unassigned</p><p class="lx-tag is-action"><span class="lx-ref">R-112</span> · No owner</p></li><li class="lx-art lx-a2"><p class="lx-art-k">Service request form</p><p class="lx-art-t"><span class="lx-ref">R-111</span> Check service notes</p><p class="lx-art-b">Received 6 Nov 2026 · customer left blank</p><p class="lx-tag is-flag"><span class="lx-ref">R-111</span> · Missing customer</p></li><li class="lx-art lx-a3"><p class="lx-art-k">Email update</p><p class="lx-art-t">Re: Follow up on payment</p><p class="lx-art-b">Harbor Works · due 4 Nov 2026 · still waiting</p><p class="lx-tag is-action"><span class="lx-ref">R-104</span> · Overdue</p></li><li class="lx-art lx-a4"><p class="lx-art-k">Follow-up note</p><p class="lx-art-t">Monday: rebuild the weekly report</p><p class="lx-art-b">Pulled together by hand from the tracker, forms and emails</p><p class="lx-tag is-neutral">Built by hand every week</p></li></ul></div><ol class="lx-stagelist"><li><span class="lx-tab-n">01</span> <b>Capture</b> · Get the information right</li><li><span class="lx-tab-n">02</span> <b>Move</b> · Make sure work moves forward</li><li><span class="lx-tab-n">03</span> <b>See</b> · Understand where the business stands</li></ol><div class="lx-panel" id="lx-p-capture" data-stage="capture"><p class="lx-panel-k">01 Capture · Get the information right</p><h3 id="lx-ph-capture">First, let’s get the information right.</h3><div class="lx-pair"><figure class="lx-form"><figcaption>Service request form <span>Sample</span></figcaption><dl><div class="lx-f"><dt>Reference</dt><dd><span class="lx-ref">R-111</span></dd></div><div class="lx-f"><dt>Received</dt><dd>6 Nov 2026</dd></div><div class="lx-f"><dt>Request</dt><dd>Check service notes</dd></div><div class="lx-f is-miss"><dt>Customer</dt><dd><span class="lx-blank">Missing</span></dd></div></dl></figure><p class="lx-arrow" aria-hidden="true">&rarr;</p><figure class="lx-rec"><figcaption>Job record, with checks applied</figcaption><p class="lx-rec-row"><span class="lx-ref">R-111</span> <b>Check service notes</b></p><p class="lx-rec-meta">Received 6 Nov 2026 · Mark · In Progress</p><p class="lx-rec-cust">Customer: <span class="lx-blank">Missing</span></p><p class="lx-rec-flag"><span class="lx-pill is-flag"><span aria-hidden="true">!</span> Flagged</span> <span>Customer details need completing. The missing information is flagged for follow-up and shown in the weekly report.</span></p></figure></div><ul class="lx-checks"><li><span class="lx-chk-l">No duplicate jobs</span><span class="lx-chk-d">None found</span><span class="lx-pill is-pass"><span aria-hidden="true">&#10003;</span> Passed</span></li><li><span class="lx-chk-l">Job details complete</span><span class="lx-chk-d">11 of 12 complete · <span class="lx-ref">R-111</span></span><span class="lx-pill is-flag"><span aria-hidden="true">!</span> Flagged</span></li><li><span class="lx-chk-l">Dates entered correctly</span><span class="lx-chk-d">12 of 12</span><span class="lx-pill is-pass"><span aria-hidden="true">&#10003;</span> Passed</span></li></ul><p class="lx-benefit">Missing information and duplicate records are identified before they create problems further down the process.</p></div><div class="lx-panel" id="lx-p-move" data-stage="move"><p class="lx-panel-k">02 Move · Make sure work moves forward</p><h3 id="lx-ph-move">Next, let’s make sure the work doesn’t get forgotten.</h3><figure class="lx-list"><figcaption>Work still outstanding <span>5 jobs</span></figcaption><div class="lx-scroll"><table><caption class="sr-only">The 5 outstanding jobs with owner, due date and status</caption><thead><tr><th scope="col">Ref</th><th scope="col">Job</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead><tbody><tr class="is-flag"><th scope="row"><span class="lx-ref">R-104</span></th><td>Follow up on payment<span class="lx-row-tags"><span class="lx-pill is-action"><span aria-hidden="true">&#9679;</span> Overdue</span></span></td><td data-l="Owner">Mark</td><td data-l="Due">4 November</td><td data-l="Status">Waiting</td></tr><tr class=""><th scope="row"><span class="lx-ref">R-106</span></th><td>Schedule service visit</td><td data-l="Owner">Ana</td><td data-l="Due">6 November</td><td data-l="Status">In Progress</td></tr><tr class=""><th scope="row"><span class="lx-ref">R-108</span></th><td>Review supplier quote</td><td data-l="Owner">Sam</td><td data-l="Due">6 November</td><td data-l="Status">Waiting</td></tr><tr class=""><th scope="row"><span class="lx-ref">R-111</span></th><td>Check service notes</td><td data-l="Owner">Mark</td><td data-l="Due">6 November</td><td data-l="Status">In Progress</td></tr><tr class="is-flag"><th scope="row"><span class="lx-ref">R-112</span></th><td>Confirm outstanding item<span class="lx-row-tags"><span class="lx-pill is-action"><span aria-hidden="true">&#9679;</span> No owner</span></span></td><td data-l="Owner"><span class="lx-blank">Unassigned</span></td><td data-l="Due">6 November</td><td data-l="Status">Not Started</td></tr></tbody></table></div></figure><ul class="lx-checks"><li><span class="lx-chk-l">Every open job has an owner</span><span class="lx-chk-d">No owner · <span class="lx-ref">R-112</span></span><span class="lx-pill is-action"><span aria-hidden="true">&#9679;</span> Action required</span></li><li><span class="lx-chk-l">Every job has a status</span><span class="lx-chk-d">12 of 12</span><span class="lx-pill is-pass"><span aria-hidden="true">&#10003;</span> Passed</span></li><li><span class="lx-chk-l">Follow-ups on time</span><span class="lx-chk-d">Overdue · <span class="lx-ref">R-104</span></span><span class="lx-pill is-action"><span aria-hidden="true">&#9679;</span> Action required</span></li></ul><p class="lx-note">The checks show what needs attention. A person decides who takes the job and chases the follow-up.</p><p class="lx-benefit">Clear responsibilities and visible follow-ups help prevent work from slipping through the cracks.</p></div><div class="lx-panel" id="lx-p-see" data-stage="see"><p class="lx-panel-k">03 See · Understand where the business stands</p><h3 id="lx-ph-see">Finally, know where your business stands.</h3><ul class="lx-checks"><li><span class="lx-chk-l">Every job counted</span><span class="lx-chk-d">12 of 12 counted</span><span class="lx-pill is-pass"><span aria-hidden="true">&#10003;</span> Passed</span></li><li><span class="lx-chk-l">Totals add up</span><span class="lx-chk-d">7 done + 5 open = 12</span><span class="lx-pill is-pass"><span aria-hidden="true">&#10003;</span> Passed</span></li><li><span class="lx-chk-l">Problems shown, not hidden</span><span class="lx-chk-d">3 on the report</span><span class="lx-pill is-flag"><span aria-hidden="true">!</span> Flagged</span></li></ul><details class="lx-how"><summary>How the totals are checked</summary><ul><li>Every job in the report is counted once: 12 of 12. That includes jobs still open from earlier weeks.</li><li>Completed plus still outstanding must equal the total: 7 + 5 = 12.</li><li>The 3 needing attention are part of the 5 still outstanding, not extra jobs.</li></ul></details><p class="lx-benefit">Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.</p></div></div><section class="lx-report" aria-labelledby="lx-rep-h"><p class="lx-rep-k">Weekly operations report · Fictional sample</p><h3 id="lx-rep-h" tabindex="-1">Northstar Services</h3><p class="lx-rep-sub">2–6 November 2026 · 12 jobs checked</p><ul class="lx-kpis"><li class="lx-kpi is-done" data-kpi="completed"><strong>7</strong><span>Completed this week</span></li><li class="lx-kpi is-open" data-kpi="outstanding"><strong>5</strong><span>Still outstanding</span></li><li class="lx-kpi is-att" data-kpi="attention"><strong>3</strong><span>Need attention</span><small>Of the 5 still outstanding</small></li></ul><p class="lx-sub">What needs attention</p><ol class="lx-actions"><li><span><span class="lx-ref">R-104</span> Follow up on overdue work</span><span class="lx-pill is-action"><span aria-hidden="true">&#9679;</span> Overdue</span></li><li><span><span class="lx-ref">R-112</span> Assign an owner</span><span class="lx-pill is-action"><span aria-hidden="true">&#9679;</span> No owner</span></li><li><span><span class="lx-ref">R-111</span> Complete the missing customer information</span><span class="lx-pill is-flag"><span aria-hidden="true">!</span> Missing customer</span></li></ol><ul class="lx-rchecks"><li class="is-pass"><span aria-hidden="true">&#10003;</span> Every job counted<span class="sr-only"> (Passed)</span></li><li class="is-pass"><span aria-hidden="true">&#10003;</span> Totals add up<span class="sr-only"> (Passed)</span></li><li class="is-flag"><span aria-hidden="true">!</span> Problems shown, not hidden<span class="sr-only"> (Flagged)</span></li></ul><p class="lx-close">Know what&rsquo;s completed. See what&rsquo;s outstanding. Know what to do next.</p></section></div><details class="lx-all"><summary>See all 12 jobs (the tracker behind this report)</summary><p class="lx-all-n">Read-only sample. Download the workbook below to try the tracker yourself.</p><div class="wt-scroll"><table class="wt-table"><caption class="sr-only">Sample work tracker: 12 jobs</caption><thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th><th scope="col">Date Completed</th></tr></thead><tbody><tr class="wt-row is-done" data-ref="R-101"><td class="wt-ref">R-101</td><td class="wt-task">Send updated quotation</td><td class="wt-cust">Northfield Services</td><td class="wt-own">Ana</td><td class="wt-due"><span>3 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">3 Nov 2026</td></tr><tr class="wt-row is-done" data-ref="R-102"><td class="wt-ref">R-102</td><td class="wt-task">Confirm customer details</td><td class="wt-cust">Lakeside Trading</td><td class="wt-own">Mark</td><td class="wt-due"><span>4 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">4 Nov 2026</td></tr><tr class="wt-row is-done" data-ref="R-103"><td class="wt-ref">R-103</td><td class="wt-task">Prepare monthly report</td><td class="wt-cust">Cedar &amp; Co.</td><td class="wt-own">Ana</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">6 Nov 2026</td></tr><tr class="wt-row is-flag" data-ref="R-104"><td class="wt-ref">R-104</td><td class="wt-task">Follow up on payment</td><td class="wt-cust">Harbor Works</td><td class="wt-own">Mark</td><td class="wt-due"><span>4 Nov 2026</span> <em class="wt-tag">Overdue</em></td><td class="wt-st">Waiting</td><td class="wt-done"></td></tr><tr class="wt-row is-done" data-ref="R-105"><td class="wt-ref">R-105</td><td class="wt-task">Update customer records</td><td class="wt-cust">Brightline Studio</td><td class="wt-own">Mark</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">6 Nov 2026</td></tr><tr class="wt-row" data-ref="R-106"><td class="wt-ref">R-106</td><td class="wt-task">Schedule service visit</td><td class="wt-cust">Northfield Services</td><td class="wt-own">Ana</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">In Progress</td><td class="wt-done"></td></tr><tr class="wt-row is-done" data-ref="R-107"><td class="wt-ref">R-107</td><td class="wt-task">Send invoice copy</td><td class="wt-cust">Lakeside Trading</td><td class="wt-own">Mark</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">6 Nov 2026</td></tr><tr class="wt-row" data-ref="R-108"><td class="wt-ref">R-108</td><td class="wt-task">Review supplier quote</td><td class="wt-cust">Cedar &amp; Co.</td><td class="wt-own">Sam</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Waiting</td><td class="wt-done"></td></tr><tr class="wt-row is-done" data-ref="R-109"><td class="wt-ref">R-109</td><td class="wt-task">Confirm delivery date</td><td class="wt-cust">Harbor Works</td><td class="wt-own">Ana</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">6 Nov 2026</td></tr><tr class="wt-row is-done" data-ref="R-110"><td class="wt-ref">R-110</td><td class="wt-task">Prepare weekly update</td><td class="wt-cust">Brightline Studio</td><td class="wt-own">Sam</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Completed</td><td class="wt-done">6 Nov 2026</td></tr><tr class="wt-row is-flag" data-ref="R-111"><td class="wt-ref">R-111</td><td class="wt-task">Check service notes</td><td class="wt-cust"><span class="wt-blank">Missing</span></td><td class="wt-own">Mark</td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">In Progress</td><td class="wt-done"></td></tr><tr class="wt-row is-flag" data-ref="R-112"><td class="wt-ref">R-112</td><td class="wt-task">Confirm outstanding item</td><td class="wt-cust">Northfield Services</td><td class="wt-own"><span class="wt-blank">Unassigned</span></td><td class="wt-due"><span>6 Nov 2026</span></td><td class="wt-st">Not Started</td><td class="wt-done"></td></tr></tbody></table></div></details><!-- tracker:end --></div>
+        <div class="lx-impl" aria-labelledby="lx-impl-h" role="region">
+          <div class="lx-impl-t">
+            <p class="lx-impl-k"><span>Capture</span> <span aria-hidden="true">&rarr;</span> <span>Move</span> <span aria-hidden="true">&rarr;</span> <span>See</span> &middot; how it&rsquo;s put in place</p>
+            <h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>
+            <p>Not every business needs another system or complicated automation.</p>
+            <p>I start by improving the information, processes and reporting you already use. Where connecting tools or using automation and AI would make a meaningful difference, I&rsquo;ll recommend a practical approach based on your needs.</p>
+            <p class="lx-impl-cost">Any additional software, subscriptions or implementation costs are discussed before the work begins.</p>
           </div>
-        </div>
+          <div class="lx-impl-l">
+            <p class="lx-impl-lh">Depending on what you need, that could mean:</p>
+            <ul>
+              <li>Improving existing spreadsheets and trackers</li>
+              <li>Adding checks and making reports more reliable</li>
+              <li>Connecting forms, spreadsheets and other tools</li>
+              <li>Automating repetitive tasks or using AI to assist with information processing</li>
+            </ul>
+            <p class="lx-impl-note">Improving what you already use is a complete starting point on its own.</p>
+          </div>
         </div>
         <div class="demo-after">
-          <p class="demo-after-t"><strong>Seen this in your own reports?</strong> Most projects start with one report or recurring process. Once that&rsquo;s working, we can look at what&rsquo;s next.</p>
-          <div class="demo-after-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a><p class="cta-micro">30 minutes &middot; No obligation</p></div>
+          <p class="demo-after-t"><strong>Your business may be different. The problems are often familiar.</strong> Rework Rescue helps businesses dealing with scattered information, manual processes, unclear follow-ups or reporting that takes too much effort to prepare. The first step is a conversation about your actual process, not a commitment to buy software or an automation package.</p>
+          <div class="demo-after-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free rework review</a><p class="cta-micro">30 minutes &middot; No obligation &middot; Practical next steps</p></div>
+        </div>
+        <div class="wt-download">
+          <div class="wt-download-t">
+            <p class="wt-download-h">Try the same tracker yourself. Includes the checks, the weekly report and a chart, just like the example above.</p>
+            <p class="wt-download-n">It opens with this sample week. Change a record and watch the report update, then replace it with your own.</p>
+          </div>
+          <div class="wt-download-a">
+            <a class="btn btn-secondary" href="assets/downloads/Rework-Rescue-Weekly-Work-Tracker.xlsx" download type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-wt-download>Download the free Excel tracker</a>
+            <p class="cta-micro">Excel workbook (.xlsx) &middot; 3 sheets &middot; no macros</p>
+          </div>
+          <p class="wt-disclose">Sample business data for demonstration purposes.</p>
         </div>
       </div>
     </section>
 
-    <section class="section experience" id="experience" aria-labelledby="experience-h">
-      <div class="container">
-        <div class="exp-head">
-          <p class="exp-stat"><span class="exp-num" data-count-to="8">8</span><span class="exp-plus">+</span><span class="exp-stat-l">years in data operations, reporting and process improvement</span></p>
-          <div class="exp-intro">
-        <h2 id="experience-h">Experience behind the work</h2>
-        <p class="lede">Rework Rescue is built on more than eight years of hands-on experience working with data, reporting and operational processes. I&#39;ve worked with the kinds of issues that make everyday business reporting harder than it needs to be.</p>
-          </div>
-        </div>
-        <p class="exp-kind">Previous professional experience</p>
-        <ul class="exp-list">
-          <li class="exp svc-data"><h3>Utility Billing &amp; Data Validation</h3><p>Investigating discrepancies across invoices, usage records, tariffs and supplier data to help ensure information is accurate and ready for reporting.</p></li>
-          <li class="exp svc-data"><h3>Operational Reporting &amp; Analysis</h3><p>Working with operational data to build structured reports, identify exceptions and give teams a clearer picture of performance.</p></li>
-          <li class="exp svc-data"><h3>Solar &amp; Energy Performance Analysis</h3><p>Working with energy usage and generation data to assess performance, investigate inconsistencies and support better operational decisions.</p></li>
-        </ul>
-        <p class="exp-close">This experience shapes how I approach every engagement: understand the process first, identify what needs attention, and improve the work in a practical and measurable way.</p>
-        <p class="exp-note">These highlights are from my previous professional roles, not Rework Rescue client projects. The examples on this website are illustrative, not client results.</p>
-      </div>
-    </section>
 
     <section class="section section-tint" id="services" aria-labelledby="services-h">
       <div class="container">
-        <h2 id="services-h">What I can help you improve</h2>
-        <p class="svc-areas">Most of my work starts with a report someone doesn&rsquo;t trust. If the cause is how work is recorded or handed between people, I fix that too.</p>
-        <ul class="svc-connect" aria-label="How the three services connect">
-          <li class="svc-data"><strong>Data &amp; Reporting</strong> makes information easier to combine, check, update and report.</li>
-          <li class="svc-workflow"><strong>Workflows &amp; Processes</strong> makes work easier to assign, track and follow up.</li>
-          <li class="svc-systems"><strong>Business Tools &amp; Systems</strong> brings related information and processes together into a usable solution.</li>
-        </ul>
-        <p class="svc-connect-note">Each can be done on its own or combined, depending on what your business needs. The live example above shows them working together.</p>
-        <ol class="svc-flow">
-          <li class="svc-step svc-data" id="svc-data">
-            <h3>Data &amp; Reporting</h3>
-            <p class="svc-short">Fix the numbers.</p>
-            <p class="svc-when">Turn scattered spreadsheets and repetitive reporting tasks into organised, reliable reports that are easier to update and maintain.</p>
-            <details class="svc-detail" open>
-              <summary>What you can have</summary>
-              <p class="svc-label svc-label-have">What you can have</p>
-              <ul class="svc-have"><li><strong>A weekly report that rebuilds itself</strong> <span>Drop in this week&rsquo;s exports and the report updates the same way every time, without copy and paste.</span></li><li><strong>KPI and operations dashboards</strong> <span>Clear views of performance, outstanding work and what needs attention.</span></li><li><strong>Checks before you share the report</strong> <span>Duplicates, missing records, and invoices that don&rsquo;t match the work done are flagged first.</span></li><li><strong>Repeatable reporting processes</strong> <span>A more consistent way to prepare and distribute weekly or monthly reports.</span></li></ul>
-              <p class="svc-outcome"><strong>What gets better:</strong> spend less time preparing and checking reports, catch data issues earlier and send the report without checking it twice.</p>
-            </details>
-            <details class="svc-try">
-              <summary>Try it: refresh a report</summary>
-              <figure class="svc-preview svc-mini" data-mini="report">
-                <p class="mini-t">From scattered files to one reliable report.</p>
-                <p class="mini-lead">Three sample spreadsheets with different columns are combined, standardised and checked, and the report is refreshed in one step.</p>
-                <div class="mini-app" data-mini-app><p class="mini-static">After a refresh: 11 requests from 3 files, 5 completed and 6 open, with 3 rows flagged to check (one missing date, and a possible duplicate across two files). The interactive version needs JavaScript.</p></div>
-                <p class="svc-preview-note"><strong>What you&rsquo;d get:</strong> A refreshable reporting workbook, the kind of thing built in Excel and Power Query. It&rsquo;s set up once for your files; if a file&rsquo;s layout changes, it needs a small update. Sample data.</p>
-              </figure>
-            </details>
-          </li>
-          <li class="svc-step svc-workflow" id="svc-workflow">
-            <h3>Workflows &amp; Processes</h3>
-            <p class="svc-short">Fix the steps.</p>
-            <p class="svc-when">Make everyday work easier to manage by improving handoffs, responsibilities and follow-ups.</p>
-            <details class="svc-detail" open>
-              <summary>What you can have</summary>
-              <p class="svc-label svc-label-have">What you can have</p>
-              <ul class="svc-have"><li><strong>Automatic reminders, notifications and follow-ups</strong> <span>The right person is told when something needs them, triggered by dates, status changes or agreed conditions.</span></li><li><strong>AI that reads your emails and documents</strong> <span>The details go into your spreadsheet, and anything unclear comes to you to check.</span></li><li><strong>AI summaries and quick answers</strong> <span>A short summary of what came in or changed, and a customer&rsquo;s or job&rsquo;s details found without digging through files.</span></li><li><strong>Less copying between forms, spreadsheets and email</strong> <span>Information moving between forms, spreadsheets, email and calendars with less manual copying.</span></li><li><strong>Routine admin that runs on a schedule</strong> <span>Repetitive tasks that can run automatically at agreed intervals.</span></li></ul>
-              <p class="svc-outcome"><strong>What gets better:</strong> reduce repetitive admin and retyping, spend less time chasing updates, and keep a person in charge of what matters.</p>
-            </details>
-            <details class="svc-try">
-              <summary>Try it: follow a request</summary>
-              <figure class="svc-preview svc-mini" data-mini="workflow">
-                <p class="mini-t">From missed requests to clear next steps.</p>
-                <p class="mini-lead">Submit a sample request and take it from received to completed, with an owner at every step.</p>
-                <div class="mini-app" data-mini-app><p class="mini-static">A request is received, assigned to an owner, moved into progress and completed, with a reminder along the way. The interactive version needs JavaScript.</p></div>
-                <p class="svc-preview-note"><strong>What you&rsquo;d get:</strong> A simple workflow with clear ownership and progress tracking. Reminders here are simulated: nothing is sent. Sample data.</p>
-              </figure>
-            </details>
-          </li>
-          <li class="svc-step svc-systems" id="svc-systems">
+        <h2 id="services-h">One connected solution. Three parts that work together.</h2>
+        <div class="svc-intro">
+          <p>Your business information needs to be captured properly, move through the right steps and turn into reports you can trust.</p>
+          <p>I bring these three parts together into one practical solution, with data checks built in to help catch missing, duplicate or inconsistent information before it causes problems.</p>
+          <p class="svc-intro-key">You don&rsquo;t need to choose a service. I&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there.</p>
+        </div>
+        <ol class="svc-layers" aria-label="How the three parts connect: capture, move, see">
+          <li class="svc-layer svc-systems" id="svc-systems">
+            <p class="svc-layer-k"><span class="svc-layer-n">01</span> Capture</p>
             <h3>Business Tools &amp; Systems</h3>
             <p class="svc-short">Fix the tools.</p>
-            <p class="svc-when">Bring disconnected information and everyday processes into practical business tools that make work easier to manage.</p>
-            <details class="svc-detail" open>
-              <summary>What you can have</summary>
-              <p class="svc-label svc-label-have">What you can have</p>
-              <ul class="svc-have"><li><strong>Customer and enquiry tracking that feeds your reports</strong> <span>One organized place for customer details, enquiries and follow-ups, so nothing slips and the numbers add up.</span></li><li><strong>Forms that feed your records</strong> <span>Information flowing from forms into Google Sheets, email, calendars and the tools you already use.</span></li><li><strong>Shared business trackers</strong> <span>A simple place your team updates for jobs, requests or operational tasks.</span></li><li><strong>Booking and request pages connected to your records</strong> <span>Requests and bookings that land straight in your calendar and records.</span></li><li><strong>Simple pages connected to your forms and records</strong> <span>Practical web pages that send enquiries and bookings straight into your records.</span></li></ul>
-              <p class="svc-outcome"><strong>What gets better:</strong> keep customer and job information organized in one place, reduce manual updates between your tools, and give your reports a reliable source.</p>
-            </details>
-            <details class="svc-try">
-              <summary>Try it: find a customer</summary>
-              <figure class="svc-preview svc-mini" data-mini="tools">
-                <p class="mini-t">From disconnected files to one useful workspace.</p>
-                <p class="mini-lead">Search for a customer to see their requests, records and tasks in one place, and update a task.</p>
-                <div class="mini-app" data-mini-app><p class="mini-static">One place to look up a customer and see their requests, related records, tasks, owners and status. The interactive version needs JavaScript.</p></div>
-                <p class="svc-preview-note"><strong>What you&rsquo;d get:</strong> A lightweight tool built around how your business works, not a ready-made product you&rsquo;d have to adopt. Sample data.</p>
-              </figure>
-            </details>
+            <p class="svc-job">Record information once, in one organised place.</p>
+            <ul class="svc-have">
+              <li><strong>Simple CRM and customer records</strong> <span>Customer details, enquiries and follow-ups kept in one place that feeds your reports.</span></li>
+              <li><strong>Forms, booking and request pages</strong> <span>Requests and bookings that land straight in your records and calendar.</span></li>
+              <li><strong>Trackers and job lists</strong> <span>A shared place your team updates for jobs, requests, stock or routine tasks.</span></li>
+            </ul>
+          </li>
+          <li class="svc-layer svc-workflow" id="svc-workflow">
+            <p class="svc-layer-k"><span class="svc-layer-n">02</span> Move</p>
+            <h3>Workflows &amp; Processes</h3>
+            <p class="svc-short">Fix the steps.</p>
+            <p class="svc-job">Move work through the right steps.</p>
+            <ul class="svc-have">
+              <li><strong>Reminders, notifications and follow-ups</strong> <span>The right person is told when something needs them, triggered by dates or status changes.</span></li>
+              <li><strong>Approvals and handoffs</strong> <span>Clear owners at every step, so requests don&rsquo;t sit waiting for someone.</span></li>
+              <li><strong>AI that reads emails and documents and summarises them</strong> <span>The details go into your records, and anything unclear comes to a person to check.</span></li>
+            </ul>
+          </li>
+          <li class="svc-layer svc-data svc-layer-core" id="svc-data">
+            <p class="svc-layer-k"><span class="svc-layer-n">03</span> See</p>
+            <h3>Data &amp; Reporting</h3>
+            <p class="svc-short">Fix the numbers.</p>
+            <p class="svc-job">Reports you can rely on.</p>
+            <ul class="svc-have">
+              <li><strong>Checks before the report goes out</strong> <span>Duplicates, missing records and figures that don&rsquo;t match are flagged before the report goes out.</span></li>
+              <li><strong>Weekly reports that rebuild themselves</strong> <span>Drop in this week&rsquo;s exports and the report updates the same way every time.</span></li>
+              <li><strong>Simple dashboards</strong> <span>Clear views of performance, outstanding work and what needs attention.</span></li>
+            </ul>
+            <p class="svc-layer-tag">Most projects start here</p>
           </li>
         </ol>
-        <div class="svc-choose">
-          <h3>Not sure where your problem fits?</h3>
-          <p>You don&#39;t need to figure out the solution before we talk.</p>
-        </div>
         <div class="svc-foot">
-          <p class="svc-tools"><strong>Tools I work with:</strong> Excel &middot; Power Query &middot; Power BI &middot; Google Sheets &middot; Python &middot; Power Automate &middot; n8n &middot; AI tools</p>
-          <p class="svc-small">I work with the tools your business already uses, including exports from accounting, CRM and job-management systems, and I improve them rather than replace them.</p>
+          <p class="svc-tools"><strong>Works with what you already use:</strong> Excel or Google Sheets, plus the exports from your accounting, CRM or job system. I improve them rather than replace them.</p>
         </div>
       </div>
     </section>
-
 
 
     <section class="section how-section" id="how" aria-labelledby="how-h">
@@ -253,25 +258,8 @@
           <li><h3>Start with a free review</h3><p>I&#39;ll spend 30 minutes with you looking at one report, check, process or business tool that isn&#39;t working as it should. You don&#39;t need to know the technical solution before we talk.</p></li>
           <li><h3>Get a clear recommendation</h3><p>I&#39;ll explain what I found, what could be improved and what I recommend doing. If the work is a good fit, you&#39;ll receive a written scope, price and estimated timeline before anything starts.</p></li>
           <li><h3>Build, test and refine</h3><p>I&#39;ll work on the agreed solution, test it with realistic examples and make sure it addresses the original problem.</p></li>
-          <li><h3>Handover with support</h3><p>You&#39;ll receive the finished work, practical instructions and a walkthrough where needed. The project includes 30 days of fixes for issues within the agreed scope.</p></li>
+          <li><h3>Handover with support</h3><p>You&rsquo;ll receive:</p><ul class="how-receive"><li>The working solution, set up in your tools or accounts.</li><li>A short run guide and a handover call.</li><li>Ownership of the delivered work and relevant accounts.</li><li>30 days of fixes for issues where the solution does not work as agreed.</li><li>Optional ongoing support.</li></ul><p class="how-note">The 30-day fixes cover problems within the agreed scope. They don&#39;t cover new features, scope changes or changes to third-party services.</p></li>
         </ol>
-        <div class="example-project">
-          <p class="example-project-k">Example first project &middot; illustration</p>
-          <h3 class="handover-h">A weekly operations report</h3>
-          <dl class="example-project-dl">
-            <div><dt>Today</dt><dd>Built by hand from three spreadsheets every Monday, then checked twice.</dd></div>
-            <div><dt>What I&rsquo;d build</dt><dd>One workbook that pulls the three exports, flags duplicates, missing records and unbilled work, and produces the report.</dd></div>
-            <div><dt>You receive</dt><dd>
-              <ul class="check-list handover-list">
-                <li>The working solution, set up in your tools or accounts.</li>
-                <li>A short run guide and a handover call.</li>
-                <li>Ownership of the delivered work and relevant accounts.</li>
-                <li>30 days of fixes for issues where the solution does not work as agreed.</li>
-                <li>Optional ongoing support.</li>
-              </ul></dd></div>
-          </dl>
-          <p class="handover-note">An example of the kind of first project I take on, not a client result. The 30-day fixes cover problems within the agreed scope. They don&#39;t cover new features, scope changes or changes to third-party services.</p>
-        </div>
       </div>
     </section>
 
@@ -286,6 +274,13 @@
             <h2 id="about-h">Jeff Herson Vida</h2>
             <p class="about-title">Data &amp; Operations Specialist | Reporting, Workflow &amp; Automation</p>
             <p>I help small service businesses spend less time fixing reports, repeating tasks and chasing information. Over 8 years in data and operations, I&#39;ve learned how to find problems in data, understand why processes break down and make work more reliable.</p>
+            <p class="about-k">Before Rework Rescue</p>
+            <ul class="about-roles">
+              <li><strong>Utility billing checks.</strong> Matching invoices against usage records, tariffs and supplier data.</li>
+              <li><strong>Operational reporting.</strong> Building reports that show how work is going and what needs attention.</li>
+              <li><strong>Solar and energy analysis.</strong> Checking usage and generation data for gaps and inconsistencies.</li>
+            </ul>
+            <p class="about-bridge">Different industries, the same problem you probably have: numbers that don&rsquo;t match and a report nobody quite trusts. <span>These are from my previous roles, not Rework Rescue client projects.</span></p>
             <p>I started Rework Rescue to bring that experience to smaller businesses that need better reporting, simpler workflows and more connected tools without investing in unnecessarily complex systems.</p>
             <p>You&#39;ll work directly with me, from our first conversation through to the final handover. I&#39;ll take the time to understand how your business works and build something practical that your team can use.</p>
             <p class="about-where">Based in the Philippines. Available for calls Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time (UTC+8): US mornings, the UK and European working day, and Australian afternoons. The booking calendar shows times in your own time zone.</p>
@@ -299,12 +294,12 @@
       <div class="container faq-wrap">
         <h2 id="faq-h">Frequently asked questions</h2>
         <details class="faq-item"><summary>What happens in the free rework review?</summary><p>It&#39;s a 30-minute conversation about one report, check or process you choose. I ask how it works today, where the time goes and where errors show up.</p><p>I&#39;ll help map the current process, identify the main source of rework and suggest a practical next step.</p><p>If it&#39;s worth fixing, I&#39;ll outline a proposed scope, price and estimated timeline. There&#39;s no obligation to proceed.</p></details>
-        <details class="faq-item"><summary>Can you work with confidential or sensitive information?</summary><p>Ordinary business information, such as invoices, job lists and operational reports, can be handled through an agreed and authorized sharing method. I&#39;m also happy to sign a reasonable confidentiality agreement.</p><p>Sensitive or regulated information requires a review of the safeguards and project scope before implementation.</p><p>I only request the information needed for the agreed work, and before work starts, you and I agree how files are stored and when they are deleted.</p><p>I don&#39;t automate consequential decisions about people. Automation may prepare information for a person to review and decide.</p></details>
+        <details class="faq-item"><summary>Can you work with confidential or sensitive information?</summary><p>Ordinary business information, such as invoices, job lists and operational reports, can be handled through an agreed and authorized sharing method. I&#39;m also happy to sign a reasonable confidentiality agreement.</p><p>Sensitive or regulated information requires a review of the safeguards and project scope before implementation.</p><p>I only request the information needed for the agreed work, and before work starts, you and I agree how files are stored and when they are deleted.</p><p>I don&#39;t automate important decisions about people. Automation may prepare information for a person to review and decide.</p></details>
         <details class="faq-item"><summary>What do you need from us to get started?</summary><p>Usually a sample of the files or exports the process uses today, with anything confidential removed, and some time with the person who does the work.</p><p>I don&#39;t need your system logins to get started. For website, booking or CRM work, any access needed is agreed in the written scope.</p><p>You usually don&#39;t need new software. I&#39;ll first look at whether your process can be improved with tools you already have, such as Excel, Power Query, Google Sheets or your existing business systems.</p></details>
         <details class="faq-item"><summary>How long does a first project take?</summary><p>It depends on the process and what needs to be built. Most first projects focus on one report or recurring process, so you can see it working before deciding on anything bigger.</p><p>After the review, I&#39;ll provide a defined scope and estimated timeline before any work starts.</p></details>
         <details class="faq-item"><summary>Is there a written agreement?</summary><p>Yes. Before any work starts, you receive a written scope covering what will be built, what&#39;s included, the price, timeline and payment arrangements.</p><p>Work only begins once you&#39;ve agreed to the scope in writing. Anything outside the agreed scope is discussed and approved separately.</p></details>
         <details class="faq-item"><summary>Will this replace anyone on my team?</summary><p>No. The aim is to reduce repetitive copying, checking and follow-ups so your team can spend more time on work that needs their attention.</p><p>Automation can prepare information and handle routine tasks, but people remain responsible for important business decisions.</p></details>
-        <details class="faq-item"><summary>Do you use AI or automation?</summary><p>Yes, where it saves real effort. I use AI to read emails and documents, summarize what matters, find the details you need and send notifications. A person reviews anything that matters before it&#39;s sent or changed.</p><p>I start with the problem and choose the simplest practical solution. Not every problem needs AI.</p></details>
+        <details class="faq-item"><summary>Do you use AI or automation?</summary><p>Yes, where it saves real effort. I use AI to read emails and documents, summarize what matters, find the details you need and send notifications. A person reviews anything that matters before it&#39;s sent or changed.</p><p>I start with the problem and choose the simplest practical solution. Not every problem needs AI.</p><p>Behind the scenes I use tools such as Excel, Power Query, Power BI, Google Sheets, Google Apps Script, Python, Power Automate, n8n and AI tools, picked to fit what you already have.</p></details>
         <details class="faq-item"><summary>Can you build a website, booking system or CRM?</summary><p>Yes, when it supports how your business records and reports its work. Complex CRM migrations, replacing established enterprise systems, large custom applications and complex e-commerce are outside my current scope.</p><p>Within that, I build simple websites and landing pages, booking and request pages, and customer and enquiry tracking for small teams, connected to tools such as Google Sheets, Google Calendar and email.</p><p>Each project is scoped around a specific business need. For websites and pages, you own the accounts they run on, including your domain and hosting. Ongoing hosting, maintenance and security updates are only included if agreed in the written scope.</p></details>
       </div>
     </section>
@@ -325,13 +320,6 @@
             <img class="cta-avatar" src="assets/photo/jeff-avatar.jpg" width="288" height="288" loading="lazy" alt="Portrait of Jeff Herson Vida">
             <p><strong>Jeff Herson Vida</strong><br>Data &amp; Operations Specialist | Reporting, Workflow &amp; Automation</p>
           </div>
-          <h3>Prefer to write first?</h3>
-          <p>Email me or send a message on LinkedIn. Please keep workflow details general and leave out anything confidential.</p>
-          <ul class="contact-list contact-list-dark">
-            <li><span class="contact-label">Email</span> <a href="mailto:jeffhersonvida@gmail.com">jeffhersonvida@gmail.com</a></li>
-            <li><span class="contact-label">LinkedIn</span> <a href="https://www.linkedin.com/in/jeffhersonvida" target="_blank" rel="noopener noreferrer">linkedin.com/in/jeffhersonvida</a><span class="sr-only"> (opens in a new tab)</span></li>
-            <li>Based in the Philippines · Calls Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time (UTC+8)</li>
-          </ul>
           <p class="book-assess" data-assistant-only hidden>Not sure which process to bring? <a href="#start" data-assistant-open>Ask the assistant</a> first.</p>
         </aside>
       </div>

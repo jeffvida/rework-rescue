@@ -1,13 +1,10 @@
-// Homepage: the live demo, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
+// Homepage: the tracker example, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
 import { mountBooking } from './booking/popup.js';
-import { mountDemo } from './demo/ui.js';
+import { mountTracker } from './tracker/ui.js';
 import { mountHero } from './demo/hero.js';
-import { WEEK } from './demo/data.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
-import { mountServices } from './services.js';
-import { mountSamples } from './samples.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free rework review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -49,31 +46,25 @@ export function mountMobileCta() {
 }
 
 // ---- Start the homepage
-const demo = mountDemo(document.getElementById('demo-app'));
+// The main example: the Weekly Work & Follow-up Tracker (src/tracker/), with its downloadable workbook.
+mountTracker(document.getElementById('tracker-app'));
 mountMobileCta();
-mountSamples();
-mountServices();
 mountMotion();
 mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// "Explore the live example" in the hero: go to the example (data-demo-tab opens a given tab).
+// "See how it works" in the hero: scroll to the example.
 document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
-  if (!demo) return;
   e.preventDefault();
-  if (link.dataset.demoTab) demo.show(link.dataset.demoTab);
   const target = document.getElementById('samples');
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   history.replaceState(null, '', '#samples');
 }));
 
-// Hero: the connected workspace illustration, following the same state as the main demo (src/demo/hero.js).
+// Hero: Capture -> Move -> See overview, with figures following the tracker's state (src/demo/hero.js).
 mountHero(document.getElementById('hero-visual'));
-
-// The sample week shown in the demo window's title bar comes from the demo data (WEEK in ./demo/data.js), like the figures.
-document.querySelectorAll('[data-week]').forEach((el) => { el.textContent = WEEK; });
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

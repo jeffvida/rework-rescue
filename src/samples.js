@@ -1,3 +1,5 @@
+// NOT LOADED since 10 Nov 2026: the three "Try it" mini-demos were removed from the services section.
+// The Weekly Work & Follow-up Tracker (src/tracker/) is the one integrated demo. Kept in the repo for now.
 // The three service samples (master brief, 10 Nov 2026). Each is small, focused and different, and each works on
 // its own small sample dataset, so it can be understood without the main live example:
 //   report    Data & Reporting:          three spreadsheets with different columns → refresh → one checked report.

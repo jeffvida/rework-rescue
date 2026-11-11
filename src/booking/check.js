@@ -76,7 +76,7 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
     ok: true,
     booking: { name, email, company, process, summary, tz, start, end },
     event: {
-      summary: 'Free report review with Jeff (Rework Rescue)',
+      summary: 'Free review with Jeff (Rework Rescue)',
       description: [...INVITE_PREP, ...inviteLines].join('\n'),
       start: { dateTime: start },
       end: { dateTime: end },
@@ -85,8 +85,8 @@ export function checkBooking(body, nowMs, history = [], rules = RULES) {
       reminders: { useDefault: true },
     },
     notify: {
-      subject: `New report review: ${name}${company ? ` (${company})` : ''}, ${whenHost}`,
-      text: [`New free report review booked for ${whenHost}.`, '', ...notifyLines, '', 'The calendar invite with the Meet link has been sent to them.'].join('\n'),
+      subject: `New review booked: ${name}${company ? ` (${company})` : ''}, ${whenHost}`,
+      text: [`New free review booked for ${whenHost}.`, '', ...notifyLines, '', 'The calendar invite with the Meet link has been sent to them.'].join('\n'),
     },
   };
 }
@@ -157,18 +157,18 @@ export function planReminders(booking, { meet = '', nowMs = Date.now() } = {}) {
     hourAt: new Date(startMs - 3600e3).toISOString(),
     sendDay: startMs - 24 * 3600e3 > nowMs + 5 * 60e3,
     day: {
-      subject: 'Reminder: your free report review is tomorrow',
+      subject: 'Reminder: your free review is tomorrow',
       text: [
         `Hi ${first},`, '',
-        'A quick reminder of your free 30-minute report review with me tomorrow:', when, join, '',
+        'A quick reminder of your free 30-minute review with me tomorrow:', when, join, '',
         `Before the call, have one report, check or workflow in mind that your team keeps redoing, like the examples on my site: ${SITE_EXAMPLES}`,
         'No preparation or files needed, and please leave out anything confidential.', '',
         'Need to change the time? Just reply to this email.', '', ...sign,
       ].join('\n'),
     },
     hour: {
-      subject: 'Starting in an hour: your free report review',
-      text: [`Hi ${first},`, '', `Your free report review starts in an hour: ${when}.`, join, '', 'See you soon,', ...sign].join('\n'),
+      subject: 'Starting in an hour: your free review',
+      text: [`Hi ${first},`, '', `Your free review starts in an hour: ${when}.`, join, '', 'See you soon,', ...sign].join('\n'),
     },
   };
 }

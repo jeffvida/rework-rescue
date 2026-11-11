@@ -1,4 +1,4 @@
-// Booking pop-up, opened by every "Book a free report review" link (homepage, contact page, assessment result).
+// Booking pop-up, opened by every "Book a free review" link (homepage, contact page, assessment result).
 //
 // Two modes, chosen by site-config.js:
 //  - LIVE (bookingAvailabilityUrl and bookingRequestUrl set): free times come from the n8n workflow
@@ -23,7 +23,7 @@ const ZONES = [
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dayKey = (date, tz) => new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 const fmt = (date, tz, opts) => new Intl.DateTimeFormat('en-US', { timeZone: tz, ...opts }).format(date);
-const MAILTO_TIME = `mailto:${SPECIALIST.email}?subject=${encodeURIComponent('Report review: finding a time')}`;
+const MAILTO_TIME = `mailto:${SPECIALIST.email}?subject=${encodeURIComponent('Free review: finding a time')}`;
 
 /** Calls the n8n workflow. Never throws: returns {status, data}. status 0 means no answer (network/timeout). */
 async function call(url, { method = 'GET', body } = {}) {
@@ -161,7 +161,7 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
   function done() {
     const w = when();
     const body = [
-      'Hi Jeff,', '', "I'd like to book a free report review.", '',
+      'Hi Jeff,', '', "I'd like to book a free review.", '',
       `Preferred time: ${w}${fmt(slot, tz, { day: 'numeric', hour: 'numeric', minute: '2-digit' }) === fmt(slot, HOST_TZ, { day: 'numeric', hour: 'numeric', minute: '2-digit' }) ? '' : ` (${fmt(slot, HOST_TZ, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} Philippine time)`}`,
       `Name: ${req.name}`,
       `Help with: ${serviceLabel(service) || 'Not sure yet'}`,
@@ -169,7 +169,7 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
       req.process ? `Report or process: ${req.process}` : '',
       ...((getContext() || {}).summary ? ['', 'My Find Your Rework result:', getContext().summary] : []),
     ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n');
-    const href = `mailto:${SPECIALIST.email}?subject=${encodeURIComponent(`Report review request: ${w}`)}&body=${encodeURIComponent(body)}`;
+    const href = `mailto:${SPECIALIST.email}?subject=${encodeURIComponent(`Review request: ${w}`)}&body=${encodeURIComponent(body)}`;
     return `
       <div class="bk-done">
         <h3>${fallback ? 'Online booking didn&rsquo;t go through.' : 'One last step: send your request.'}</h3>
@@ -192,13 +192,13 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
       return;
     }
     dlg.innerHTML = `
-      <div class="bk-head"><div><p class="eyebrow">Book a free report review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
+      <div class="bk-head"><div><p class="eyebrow">Book a free review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
         <button type="button" class="bk-x" data-close aria-label="Close">&times;</button></div>
       ${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
       <div class="bk-body">
         <aside class="bk-side">
           <div class="bk-who"><img src="${base}assets/photo/jeff-avatar.jpg" width="56" height="56" alt=""><p><strong>Jeff Herson Vida</strong><span>Rework Rescue</span></p></div>
-          <p class="bk-meet"><strong>Free report review</strong><span>30 min</span></p>
+          <p class="bk-meet"><strong>Free review</strong><span>30 min</span></p>
           <p class="bk-desc">Just bring one report or process. No preparation needed. I&rsquo;ll help you map it, find the main source of rework and identify a practical next step.</p>
           <ul class="bk-facts"><li>${LIVE ? 'Google Meet link comes with the calendar invite.' : 'Video call link comes with the calendar invite.'}</li><li>Times are shown in your time zone.</li></ul>
         </aside>

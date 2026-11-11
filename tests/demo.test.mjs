@@ -46,14 +46,16 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 
 // ---- The page
 
-test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting copy, two CTAs, chips, credibility', async () => {
+test('hero copy (mockup v3; AI and automation wording 11 Nov late): eyebrow, headline with accent, supporting copy, two CTAs, chips, credibility', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
-  assert.match(hero, /<p class="eyebrow hero-pill">For service businesses managing jobs, teams and spreadsheets\.<\/p>/);
-  assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
-  assert.match(hero, /<p class="hero-sub">Chasing job updates\? Fixing spreadsheets\? Rebuilding reports every week\? I help you get your information right, keep work moving and produce reports you can rely on\.<\/p>/);
-  assert.ok(hero.indexOf('Book a free report review') < hero.indexOf('Explore the live example'));
-  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free report review<\/a>/);
+  // Jeff, 11 Nov 23:46: target is small to medium businesses; headline "Less manual work."; automation and AI named in the subhead.
+  assert.match(hero, /<p class="eyebrow hero-pill">For small and medium-sized service businesses\.<\/p>/);
+  assert.match(hero, /Less manual work\. <span class="h1-accent">More time running the business\./);
+  assert.match(hero, /<p class="hero-sub">Chasing job updates\? Re-typing the same details\? Rebuilding reports every week\? I set up automation and AI that take the repeat work off your team, with checks so you can trust what comes out\.<\/p>/);
+  assert.match(hero, /<span class="cred-role">8\+ years in data operations: checking, reporting and automating\.<\/span>/);
+  assert.ok(hero.indexOf('Book a free review') < hero.indexOf('Explore the live example'));
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review<\/a>/);
   assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
   for (const t of ['30 minutes', 'Free', 'No obligation']) assert.match(hero, new RegExp(`</svg>${t}</li>`), t);
   assert.match(hero, /class="cred-strip hv-cred"/);
@@ -228,9 +230,10 @@ test('page: no prices, testimonials or client results; service names kept; servi
   assert.match(html, /Customer lists and records/); // "CRM" -> "customer list" (11 Nov PM review)
   assert.match(html, /Forms, booking and request pages/);
   assert.match(html, /Trackers and job lists/);
-  // Three examples per part (11 Nov review).
-  assert.equal((html.slice(html.indexOf('id="services"'), html.indexOf('id="how"')).match(/<ul class="svc-have">/g) || []).length, 3);
-  for (const ul of html.match(/<ul class="svc-have">[\s\S]*?<\/ul>/g)) assert.equal((ul.match(/<li>/g) || []).length, 3);
+  // Four examples per part: the three from the 11 Nov review plus one AI or automation item each (11 Nov late, AI and automation round).
+  assert.equal((html.slice(html.indexOf('id="services"'), html.indexOf('id="built"')).match(/<ul class="svc-have">/g) || []).length, 3);
+  for (const ul of html.match(/<ul class="svc-have">[\s\S]*?<\/ul>/g)) assert.equal((ul.match(/<li>/g) || []).length, 4);
+  for (const t of ['Emails and documents read by AI', 'Updates between your tools', 'Replies and summaries drafted by AI', 'A written summary of the week']) assert.ok(html.includes(`<li><strong>${t}</strong>`), t);
   assert.doesNotMatch(html, /Better data\. Simpler workflows\./);
   assert.match(html, /I don&#39;t automate important decisions about people\./);
   assert.match(html, /30 days of fixes for anything that doesn&#39;t work as agreed\./);
@@ -247,13 +250,13 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   assert.match(after, /<strong>Your business may be different\.<\/strong> If your week runs on a tracker, a few forms and an inbox, I can probably help\./);
   assert.doesNotMatch(after, /Rework Rescue helps/, 'first person, not third');
   assert.match(after, /30 minutes &middot; No obligation &middot; Clear next steps/);
-  assert.match(after, /href="contact\/#contact-form-area">Book a free report review</);
+  assert.match(after, /href="contact\/#contact-form-area">Book a free review</);
   assert.doesNotMatch(after.slice(0, after.indexOf('</div>\n        </div>')), /weeks|days|[$₱]/i, 'no timeframe or price');
-  const offer = 'Bring your Monday report. I&rsquo;ll look at where the information breaks down, what&rsquo;s creating unnecessary work and what I&rsquo;d fix first. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me.';
+  const offer = 'Bring one report, task or process that takes too much time. I&rsquo;ll look at where it breaks down, what could be automated and what I&rsquo;d fix first. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me.';
   assert.ok(html.slice(html.indexOf('id="how"'), html.indexOf('id="about"')).includes(offer), 'offer in How I work step 1');
   const start = html.slice(html.indexOf('id="start"'));
   assert.ok(!start.includes(offer), 'final section no longer repeats How I work step 1 word for word (11 Nov panel)');
-  assert.match(start, /<p class="book-sub">I&rsquo;ll show you where it breaks and what I&rsquo;d fix first\. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me\.<\/p>/);
+  assert.match(start, /<p class="book-sub">It can be a report, a tracker, an inbox or a follow-up list\. I&rsquo;ll show you where it breaks, what I&rsquo;d automate and what I&rsquo;d fix first\. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me\.<\/p>/);
   assert.match(start, /<p class="book-sign">&mdash; Jeff<\/p>/);
   // Written review as a second main option, next to the calendar and after the live example (11 Nov customer panel, decision D).
   assert.match(start, /<div class="book-written">[\s\S]*?Prefer writing\?[\s\S]*?No report\? Send a screenshot of your roster or tracker, or describe it in a few lines\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>/);
@@ -264,8 +267,8 @@ test('booking: Services ends with the closing strip; the demo ends with the repo
   assert.doesNotMatch(html, /small (service )?businesses/i, 'no "small businesses" on the page');
   // Booking straight after the report and workbook, where the example has made its case (11 Nov panel).
   assert.ok(demo.indexOf('class="samples-cta"') > demo.indexOf('class="wt-download"'), 'booking strip after the workbook');
-  assert.match(demo.slice(demo.indexOf('class="samples-cta"')), /Want this built around your own tracker\?[\s\S]*?href="contact\/#contact-form-area">Book a free report review</);
-  assert.match(html, /<h2 id="cta-h">Bring me the report you rebuild every Monday\.<\/h2>/);
+  assert.match(demo.slice(demo.indexOf('class="samples-cta"')), /Want this built around your own tracker\?[\s\S]*?href="contact\/#contact-form-area">Book a free review</);
+  assert.match(html, /<h2 id="cta-h">Bring me the task your team repeats every week\.<\/h2>/); // any repeat task, not only a report (11 Nov late)
   assert.match(html, /<h2 id="fit-h">Good teams shouldn&rsquo;t have to fight their spreadsheets\.<\/h2>/);
   assert.doesNotMatch(html, /\bwe&rsquo;ll\b|\bWe&rsquo;ll\b/, 'first person singular');
 });
@@ -316,4 +319,57 @@ test('11 Nov PM round: new FAQs, written review without a call, scope you can sh
   for (const f of ['../tools/build_n8n_assistant.mjs', '../tools/build_tracker_xlsx.py', '../n8n/rework-assistant.json']) {
     assert.doesNotMatch(await readFile(new URL(f, import.meta.url), 'utf8'), /book a free rework review/i, f);
   }
+});
+
+test('AI and automation round (11 Nov late): automation and AI visible, data background as the reason, own builds shown, honest limits', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  // Button: "Book a free review" on every page and in every message the visitor gets.
+  for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../assessment/index.html', '../brand/index.html', '../src/booking/popup.js', '../src/booking/check.js', '../src/assistant/rules.js', '../n8n/rework-assistant.json', '../tools/build_tracker_xlsx.py']) {
+    const t = await readFile(new URL(f, import.meta.url), 'utf8');
+    // Tags are stripped first, so a label split across spans (the phone booking bar) is caught too.
+    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
+  }
+  assert.match(html, /<title>Rework Rescue \| Automation and AI for service businesses<\/title>/);
+  // Services: the "how" line; automation tools named in small print only.
+  const svc = html.slice(html.indexOf('id="services"'), html.indexOf('id="built"'));
+  assert.match(svc, /<p class="svc-intro-how">Automation and AI do the repeat work\. Checks catch the mistakes\. People make the decisions\.<\/p>/);
+  assert.match(svc, /<strong>Automated with:<\/strong> n8n, Power Automate, Google Apps Script, Python and AI models such as Gemini/);
+  assert.doesNotMatch(svc.match(/<h[23][^>]*>[\s\S]*?<\/h[23]>/g).join(' '), /n8n|Power Automate|Python|Gemini/, 'no tool names in headings');
+  // "See it working on this page": three of Jeff's own builds, between Services and How I work.
+  assert.ok(html.indexOf('id="services"') < html.indexOf('id="built"') && html.indexOf('id="built"') < html.indexOf('id="how"'));
+  const built = html.slice(html.indexOf('id="built"'), html.indexOf('id="how"'));
+  assert.equal((built.match(/<li class="built-card">/g) || []).length, 3);
+  for (const t of ['The booking calendar', 'The chat assistant', 'The job tracker and weekly report']) assert.ok(built.includes(`<h3>${t}</h3>`), t);
+  assert.equal((built.match(/<ol class="built-steps">/g) || []).length, 3);
+  assert.equal((built.match(/<p class="built-safe">/g) || []).length, 3);
+  assert.match(built, /I built these for my own site\. They aren&rsquo;t client projects\./);
+  assert.match(built, /href="contact\/#contact-form-area">Try it: pick a time/);
+  assert.match(built, /<p class="built-try" data-assistant-only hidden><a href="#built" data-assistant-open>/, 'the assistant link only shows when the assistant is on');
+  assert.doesNotMatch(built, /\sstyle="/);
+  // The claims on the cards match what the workflows do.
+  const nodes = (f) => readFile(new URL(f, import.meta.url), 'utf8').then((t) => JSON.parse(t).nodes.map((n) => n.name));
+  const booking = await nodes('../n8n/rework-review-booking.json');
+  for (const n of ['Google: busy times', 'Google: is it still free?', 'Google: create event + invite', 'Log to Google Sheet', 'Still on? (1 day)', 'Email: 1-day reminder', 'Still on? (1 hour)', 'Email: 1-hour reminder']) assert.ok(booking.includes(n), n);
+  const assistant = await nodes('../n8n/rework-assistant.json');
+  for (const n of ['Check request', 'Gemini: reply', 'Check reply', 'Log to Google Sheet']) assert.ok(assistant.includes(n), n);
+  // About: data analyst first, automation builds from previous roles, current training, tools in small print.
+  const about = html.slice(html.indexOf('id="about"'), html.indexOf('id="faq"'));
+  assert.match(about, /<p class="about-lead">I&rsquo;m a data analyst who builds automation and AI workflows for service businesses\.<\/p>/);
+  assert.match(about, /<p class="about-title">Data and AI automation specialist<\/p>/);
+  for (const t of ['Automated daily reporting.', 'Automated data checks.', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.']) assert.ok(about.includes(`<strong>${t}</strong>`), t);
+  assert.match(about, /These are from my previous roles, not Rework Rescue client projects\./);
+  assert.match(about, /I&rsquo;m training in AI and automation and building with n8n\./);
+  assert.match(about, /<p class="about-tools"><strong>Tools I work with:<\/strong>/);
+  // FAQ: "What can you automate?" sits near the top and keeps the limits.
+  const faq = html.slice(html.indexOf('id="faq"'), html.indexOf('id="start"'));
+  const qs = [...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]);
+  assert.equal(qs.indexOf('What can you automate?'), 2);
+  assert.ok(!qs.includes('Do you use AI or automation?'));
+  assert.match(faq, /A person reviews anything that matters before it&#39;s sent or changed\.[\s\S]*?Not every problem needs AI\./);
+  // Guards: the 8+ years are in data; no agency talk; only tools Jeff has confirmed.
+  const visible = html.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '');
+  assert.doesNotMatch(visible, /years (of experience )?in AI|AI (automation )?agency|AI expert/i);
+  assert.doesNotMatch(visible, /Zapier|GoHighLevel|\bGHL\b|Make\.com/, 'only tools Jeff has confirmed');
+  const rules = await readFile(new URL('../src/assistant/rules.js', import.meta.url), 'utf8');
+  assert.match(rules, /The 8\+ years are in data and reporting, not in AI\./);
 });

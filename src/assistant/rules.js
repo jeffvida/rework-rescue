@@ -19,10 +19,10 @@ export const ASSISTANT_TEXT = {
     'I have a different question',
   ],
   disclaimer: 'AI assistant (Google Gemini). It can make mistakes, and Google may review chats to improve its AI. Please leave out names, contact details and anything confidential.',
-  book: 'Book a free report review',
-  fallback: "Sorry, I didn't catch that. You can also book a free report review below.",
-  limitOffer: 'Thanks, that gives Jeff enough to go on. The best next step is a free 30-minute report review, where he looks at it with you. Want to pick a time?',
-  error: "Sorry, I can't answer right now. You can still book a free report review below.",
+  book: 'Book a free review',
+  fallback: "Sorry, I didn't catch that. You can also book a free review below.",
+  limitOffer: 'Thanks, that gives Jeff enough to go on. The best next step is a free 30-minute review, where he looks at it with you. Want to pick a time?',
+  error: "Sorry, I can't answer right now. You can still book a free review below.",
 };
 
 // ---- Limits (the n8n workflow enforces them; the page uses them to stop early)
@@ -46,19 +46,19 @@ export const SERVICES = {
 };
 
 // ---- What the assistant may say (only facts from the live site)
-export const KNOWLEDGE = `Positioning: helps service businesses fix the reports and spreadsheets their teams rebuild by hand. Data & Reporting is the core; workflows and tools are fixed when they're the cause. Rework Rescue is not an AI automation agency, a web design agency or a software company. Visitors don't need to choose a service: they bring a problem and Jeff helps identify what needs fixing. Most projects start with one problem; some involve more than one area.
+export const KNOWLEDGE = `Positioning: helps small and medium-sized service businesses cut manual work with automation and AI, built on data that has been checked. Jeff is a data analyst, so the automation he builds comes with checks. He improves the process first, then automates it. Rework Rescue is not a web design agency or a software company. Visitors don't need to choose a service: they bring a problem and Jeff helps identify what needs fixing. Most projects start with one problem; some involve more than one area.
 Services:
-- Data & Reporting (fix the numbers): data and reports that take too long to prepare, contain errors or can't be trusted. Builds automated weekly and monthly reports, KPI dashboards and operations reports, data checks that flag errors and missing records, reconciliation and comparison reports, and spreadsheet and reporting improvements using Excel and Power Query. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, spreadsheets or dashboards are hard to maintain or trust, or different reports show different numbers for the same activity.
-- Workflows & Processes (fix the steps): how work gets done, when the steps, handoffs and follow-ups create unnecessary effort. Builds automatic reminders and follow-ups, fewer copy-paste and re-typing steps, simple approval and handoff steps, recurring admin tasks on a schedule, automated notifications and task updates, practical workflows connecting the tools a business already uses, and AI that reads emails and documents, summarizes them, finds details and sends notifications, with a person reviewing what matters. Fits when information is copied or updated repeatedly, manual follow-ups slow work down, handoffs are unclear, or a process has unnecessary steps.
-- Business Tools & Systems (fix the tools): tools that feed your records and reports. Builds customer and enquiry tracking for small teams (simple CRM setup: customer and inquiry tracking, basic pipelines, reminders and follow-ups), forms connected to Google Sheets, email or a CRM, shared trackers, booking and request pages connected to your calendar and records, and simple web pages connected to your forms.
+- Data & Reporting (fix the numbers): data and reports that take too long to prepare, contain errors or can't be trusted. Builds automated weekly and monthly reports, KPI dashboards and operations reports, data checks that flag errors and missing records, reconciliation and comparison reports, spreadsheet and reporting improvements using Excel and Power Query, and a written summary of the week drafted by AI from checked figures and reviewed before it goes out. Fits when recurring reports take too long, the team keeps checking or reconciling the same information, spreadsheets or dashboards are hard to maintain or trust, or different reports show different numbers for the same activity.
+- Workflows & Processes (fix the steps): how work gets done, when the steps, handoffs and follow-ups create unnecessary effort. Builds automatic reminders and follow-ups, fewer copy-paste and re-typing steps, simple approval and handoff steps, recurring admin tasks on a schedule, automated notifications and task updates, practical workflows connecting the tools a business already uses, updates between tools (mark a job done once and the customer record, invoice list and report update themselves), and replies and summaries drafted by AI for a person to approve before anything is sent. Fits when information is copied or updated repeatedly, manual follow-ups slow work down, handoffs are unclear, or a process has unnecessary steps.
+- Business Tools & Systems (fix the tools): tools that feed your records and reports. Builds customer and enquiry tracking for small teams (simple CRM setup: customer and inquiry tracking, basic pipelines, reminders and follow-ups), forms connected to Google Sheets, email or a CRM, shared trackers, booking and request pages connected to your calendar and records, simple web pages connected to your forms, and emails and documents read by AI so the details go into the records, with anything unclear going to a person.
 Out of scope: large enterprise CRM implementations, complex CRM migrations, replacing established enterprise systems, extensive custom CRM or large custom software, complex e-commerce.
 Works with exports from accounting, CRM and job-management systems, in Excel or Google Sheets. Usually no new software is needed.
-The free report review: 30 minutes by video call (Google Meet), about one report or process the visitor chooses. No preparation needed. Jeff helps map it, find the main source of rework and suggest a practical next step. If it's worth fixing, he outlines a proposed scope, price and estimated timeline. No obligation.
-How to book: the visitor picks a time with the "Book a free report review" button on this page.
-How a project works: free report review, written scope and price, the client's approval, build and test, handover. The client gets the working solution in their own tools or accounts, a short run guide, a handover call, ownership of the work, and 30 days of fixes for anything within the agreed scope that doesn't work as agreed (not new features, scope changes or changes to third-party services). Ongoing support is optional.
-Who: Jeff Herson Vida, Data & Operations Specialist (Reporting, Workflow & Automation), 8+ years in data operations, reporting, validation, analysis and process improvement (Excel, Power Query, Power BI, Python, Power Automate). Based in the Philippines; available for calls Monday to Friday, 8 am to 2 am Philippine time (UTC+8). Clients work directly with him.
+The free review: 30 minutes by video call (Google Meet), about one report, task or process the visitor chooses. No preparation needed. Jeff helps map it, find the main source of rework and suggest a practical next step. If it's worth fixing, he outlines a proposed scope, price and estimated timeline. No obligation.
+How to book: the visitor picks a time with the "Book a free review" button on this page.
+How a project works: free review, written scope and price, the client's approval, build and test, handover. The client gets the working solution in their own tools or accounts, a short run guide, a handover call, ownership of the work, and 30 days of fixes for anything within the agreed scope that doesn't work as agreed (not new features, scope changes or changes to third-party services). Ongoing support is optional.
+Who: Jeff Herson Vida, Data and AI automation specialist. A data analyst with 8+ years in data operations, reporting, validation, analysis and process improvement (Excel, Power Query, Power BI, Python, Power Automate). The 8+ years are in data and reporting, not in AI. He is currently training in AI and automation and builds with n8n. He built this site's booking calendar and this chat assistant himself; they are his own builds, not client projects. Based in the Philippines; available for calls Monday to Friday, 8 am to 2 am Philippine time (UTC+8). Clients work directly with him.
 Confidential data: ordinary business information is fine through an agreed, authorized route; he will sign a reasonable confidentiality agreement; sensitive or regulated information needs a review of safeguards first. He doesn't automate consequential decisions about people.
-AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
+AI and automation: Jeff can automate most repeat work that follows the same steps each time: moving details between tools, reminders and follow-ups, booking and request forms, weekly reports, and reading emails or documents with AI. He builds with n8n, Power Automate, Google Apps Script, Python and AI models. A person reviews anything that matters before it is sent or changed. Not every problem needs AI.
 Written review instead of a call: the visitor can email Jeff a sample report with names and confidential details removed, and he sends a free one-page written review within 1 working day (where it breaks and what he'd fix first). No report yet? They can send a screenshot of their roster or tracker, or describe it in a few lines.
 Larger teams: yes, if the problem is the same (jobs in one system, reports put together in spreadsheets). He can combine trackers from several teams or regions into one weekly report, work on contract, sign an NDA and a data processing agreement, and work inside the client's own accounts and tools.
 If Jeff is unavailable: everything runs in the client's own accounts with tools their team already has, plus a run guide, so the team can keep it going.
@@ -69,9 +69,9 @@ Prices and timelines depend on the scope and are agreed in writing after the fre
 // ---- The fixed brief sent to the model with every message
 export function assistantBrief(questionsAsked) {
   return `You are the Rework Rescue assistant on Jeff Herson Vida's website.
-Jeff is a Data & Operations Specialist who helps service businesses with their data, reporting, workflows and business tools.
+Jeff is a data analyst and AI automation specialist who helps small and medium-sized service businesses cut manual work with automation and AI, built on checked data.
 
-Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflows & Processes or Business Tools & Systems, and invite them to a free 30-minute report review. Visitors don't need to choose a service; it is only a starting point for the review.
+Your job: help the visitor describe ONE report, task or process that takes too much time or feels off, suggest whether it sounds like Data & Reporting, Workflows & Processes or Business Tools & Systems, and invite them to a free 30-minute review. Visitors don't need to choose a service; it is only a starting point for the review.
 
 Services (use the name in "reply", the code in "service"):
 Always use these exact names. Never add "Rework" to them.
@@ -81,7 +81,7 @@ Always use these exact names. Never add "Rework" to them.
 
 Rules:
 - Use only the facts in KNOWLEDGE below. If something isn't there, say Jeff can answer it in the review. Never guess.
-- You may say "free 30-minute report review". Never mention any other price, discount, saving, timeline or guarantee.
+- You may say "free 30-minute review". Never mention any other price, discount, saving, timeline or guarantee.
 - Never say you will book, email or contact anyone. The visitor books with the button on the page.
 - Never invent details the visitor did not give. When you summarise, use their words.
 - Never ask for names, emails, phone numbers, passwords, account logins, confidential details or sensitive records.
@@ -150,7 +150,7 @@ export function checkRequest(body) {
   }
   const messageCount = history.filter((t) => t.role === 'user').length + 1;
   if (messageCount > L.maxMessages) {
-    return fail('too_many', 'This chat has reached its limit. The best next step is a free 30-minute report review, where Jeff can go through it with you.');
+    return fail('too_many', 'This chat has reached its limit. The best next step is a free 30-minute review, where Jeff can go through it with you.');
   }
   return { ok: true, message, history, questionsAsked: countQuestions(history), messageCount, conversationId: conversationId(body.conversation) };
 }
@@ -225,7 +225,7 @@ export function parseReply(raw) {
 
 /**
  * Finds a price, saving or promise the assistant must not make. Returns the reason, or '' if the text is fine.
- * "free 30-minute report review" is always allowed; honest lines like "Jeff doesn't offer guarantees" pass.
+ * "free 30-minute review" is always allowed; honest lines like "Jeff doesn't offer guarantees" pass.
  */
 export function findUnsafe(text) {
   const t = String(text).replace(/free\s+30[\s-]*minute\s+((?:rework|report)\s+)?review/gi, 'free review');

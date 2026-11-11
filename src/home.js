@@ -7,7 +7,7 @@ import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 
 // ---- Phone booking bar
-// Phone-only bar with "Book a free report review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
+// Phone-only bar with "Book a free review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
 // It appears once the hero's own buttons have scrolled out of view (not the whole hero, so phones aren't left
 // without a booking button while the hero demo is on screen; 11 Nov panel review) and hides again while the closing
 // call-to-action section, the footer or any other booking button on the page is on screen,

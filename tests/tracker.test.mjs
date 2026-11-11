@@ -175,7 +175,7 @@ test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, t
   assert.doesNotMatch(sec, /\bAI\b/, 'no AI in the live example');
   const page = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const svc = page.slice(page.indexOf('id="services"'), page.indexOf('id="how"'));
-  for (const t of ['<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>', 'Not every business needs another system or complicated automation.',
+  for (const t of ['<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>', 'I fix the process first, then automate it, so you&rsquo;re not automating a mess.',
     'Any additional software, subscriptions or implementation costs are discussed before the work begins.', 'Improving what you already use is a complete starting point on its own.']) assert.ok(svc.includes(t), t);
 });
 

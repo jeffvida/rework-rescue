@@ -183,13 +183,26 @@ def main():
     check([c[2] for c in base['checks']] == ['\u2713 Passed', '! Flagged', '\u2713 Passed', '\u25CF Action required', '\u2713 Passed', '\u25CF Action required', '\u2713 Passed', '\u2713 Passed', '! Flagged'],
           'nine checks: Passed / Flagged / Passed · Action required / Passed / Action required · Passed / Passed / Flagged')
     check(base['byStatus'] == [7, 2, 2, 1], f'jobs by status 7 / 2 / 2 / 1: {base["byStatus"]}')
-    check(base['text'] == '12 jobs in this report. 7 are marked as completed, while 5 remain outstanding. 3 jobs need attention.', 'summary sentence')
+    check(base['text'] == '12 jobs in this report. 7 were completed this week, while 5 remain outstanding. 3 jobs need attention.', 'summary sentence')
 
     def set_(ref, col, v):
         return lambda ws, sm: ws.cell(row_of(ws, ref), col, v)
 
-    s = scenario('R-104 completed', set_('R-104', 7, 'Completed'))
-    check(s['metrics']['overdue'] == 0 and s['flags']['R-104'] == '', 'R-104 no longer overdue or flagged')
+    def r104_done(ws, sm):
+        ws.cell(row_of(ws, 'R-104'), 7, 'Completed')
+        ws.cell(row_of(ws, 'R-104'), 8, dt.datetime(2026, 11, 6))
+    s = scenario('R-104 completed on 6 Nov', r104_done)
+    check(s['metrics']['overdue'] == 0 and s['flags']['R-104'] == '' and s['metrics']['completed'] == 8, 'R-104 completed this week, no longer overdue or flagged')
+    s = scenario('R-104 set to Completed without a date', set_('R-104', 7, 'Completed'))
+    check(s['flags']['R-104'] == 'No completion date' and [s['metrics'][k] for k in ('completed', 'outstanding', 'attention')] == [7, 5, 3],
+          'still outstanding until the date is added, and listed as "Add the completion date"')
+    check(any(a[0] == 'R-104' and a[1] == 'Add the completion date' and a[4] == 'No completion date' for a in s['attention']), 'action item for the missing date')
+
+    def r104_done_later(ws, sm):
+        ws.cell(row_of(ws, 'R-104'), 7, 'Completed')
+        ws.cell(row_of(ws, 'R-104'), 8, dt.datetime(2026, 11, 9))
+    s = scenario('last week re-run after R-104 was completed on 9 Nov', r104_done_later)
+    check([s['metrics'][k] for k in ('completed', 'outstanding', 'overdue', 'attention')] == [7, 5, 1, 3], 'R-104 still outstanding and overdue at the 6 Nov cut-off')
     s = scenario('R-112 assigned to Sam (the Start here exercise)', set_('R-112', 5, 'Sam'))
     check(s['metrics']['unassigned'] == 0 and s['flags']['R-112'] == '', 'R-112 no longer unassigned')
     check(s['tiles'][2] == 2 and s['checks'][3][2] == '\u2713 Passed', 'Need attention drops to 2 and "Assigned owners" shows Passed, as Start here says')
@@ -202,7 +215,7 @@ def main():
             ws.cell(r, c, v)
     s = scenario('new record R-113 matching R-101 (case and spaces differ)', add_dup)
     check(s['flags']['R-113'] == 'Possible duplicate' and s['flags']['R-101'] == 'Possible duplicate', 'both records flagged "Possible duplicate"')
-    check(s['metrics']['total'] == 13 and s['metrics']['attention'] == 5, 'new row counted without copying formulas (13 records, 5 need attention)')
+    check(s['metrics']['total'] == 13 and s['metrics']['attention'] == 4, 'new row counted without copying formulas (13 jobs; R-113 needs attention, R-101 is already completed)')
 
     def multi(ws, sm):
         r = row_of(ws, 'R-112')
@@ -235,9 +248,11 @@ def main():
     def everything_done(ws, sm):
         for r in range(B.FIRST, B.FIRST + 12):
             ws.cell(r, 7, 'Completed')
+            if ws.cell(r, 8).value is None:
+                ws.cell(r, 8, dt.datetime(2026, 11, 6))
         ws.cell(row_of(ws, 'R-111'), 4, 'Harbor Works')
     s = scenario('all completed and fixed', everything_done)
-    check(s['text'] == '12 jobs in this report. All 12 are marked as completed. No jobs need attention.', 'sentence when nothing is outstanding')
+    check(s['text'] == '12 jobs in this report. All 12 were completed this week. No jobs need attention.', 'sentence when nothing is outstanding')
 
     print()
     if FAILS:

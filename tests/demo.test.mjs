@@ -49,9 +49,9 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 test('hero copy (mockup v3): eyebrow, headline unchanged with accent, supporting copy, two CTAs, chips, credibility', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
-  assert.match(hero, /<p class="eyebrow hero-pill">Less rework\. Better reporting\. Smarter workflows\.<\/p>/);
+  assert.match(hero, /<p class="eyebrow hero-pill">For small service businesses managing jobs, teams and spreadsheets\.<\/p>/);
   assert.match(hero, /Less time fixing the numbers\. <span class="h1-accent">More time running the business\./);
-  assert.match(hero, /<p class="hero-sub">I connect the tools, workflows and reporting that help your business run more smoothly &mdash; with built-in data checks to keep your information reliable\.<\/p>/);
+  assert.match(hero, /<p class="hero-sub">Chasing job updates\? Fixing spreadsheets\? Rebuilding reports every week\? I help you get your information right, keep work moving and produce reports you can rely on\.<\/p>/);
   assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('Explore the live example'));
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review<\/a>/);
   assert.match(hero, /href="#samples" data-demo-check>[\s\S]*?Explore the live example<\/a>/);
@@ -104,7 +104,7 @@ test('hero checks: every Today issue has a matching check in the same stage; sta
   const f = heroFigures(RECORDS);
   assert.ok(f.followUps.every((x) => RECORDS.find((r) => r.ref === x.ref).status !== 'Completed'));
   // Fix the records and the checks pass.
-  const fixed = RECORDS.map((r) => ({ ...r, owner: r.ref === 'R-112' ? 'Ana' : r.owner, status: r.ref === 'R-104' ? 'Completed' : r.status, customer: r.ref === 'R-111' ? 'Harbor Works' : r.customer }));
+  const fixed = RECORDS.map((r) => ({ ...r, owner: r.ref === 'R-112' ? 'Ana' : r.owner, status: r.ref === 'R-104' ? 'Completed' : r.status, completed: r.ref === 'R-104' ? '2026-11-06' : r.completed, customer: r.ref === 'R-111' ? 'Harbor Works' : r.customer }));
   assert.ok(Object.values(dataChecks(fixed)).flat().every((x) => x.state === 'pass' || x.state === 'none'));
 });
 
@@ -151,7 +151,10 @@ test('services (10 Nov): one connected solution, Capture -> Move -> See, checks 
   assert.deepEqual([...sec.matchAll(/<p class="svc-short">([^<]+)<\/p>/g)].map((m) => m[1]), ['Fix the tools.', 'Fix the steps.', 'Fix the numbers.']);
   // Data & Reporting keeps the most visual weight.
   assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
-  assert.match(sec, /Most projects start here/);
+  assert.match(sec, /A good place to start/);
+  assert.doesNotMatch(html, /Most projects start|Most first projects|Where most projects start/, 'no implied track record');
+  // Implementation note sits at the top of Services (11 Nov), not inside the live example.
+  assert.ok(sec.indexOf('class="lx-impl"') > sec.indexOf('class="svc-intro"') && sec.indexOf('class="lx-impl"') < sec.indexOf('class="svc-layers"'));
   // The repeated checks band and the second weekly-report story were removed (11 Nov review): the live example shows both.
   assert.doesNotMatch(sec, /svc-checks|example-project/);
   assert.doesNotMatch(html, /checks its own data|every workflow I build/i);
@@ -230,15 +233,24 @@ test('page: no prices, testimonials or client results; service names kept; servi
   assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
 });
 
-test('booking after the demo: one strip with the first-project line, using the existing pop-up link', async () => {
+test('booking: Services ends with the closing strip; the demo ends with the report and the workbook (11 Nov)', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="services"'));
+  const demo = html.slice(html.indexOf('id="samples"'), html.indexOf('id="services"'));
+  assert.doesNotMatch(demo, /class="demo-after"|class="lx-impl"/, 'the demo finishes with the report');
+  assert.ok(demo.indexOf('class="wt-download"') > demo.indexOf('<!-- tracker:end -->'));
+  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
-  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('<!-- tracker:end -->'), 'after the live example');
-  assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong> Rework Rescue helps businesses dealing with scattered information, manual processes, unclear follow-ups or reporting that takes too much effort to prepare\. The first step is a conversation about your actual process, not a commitment to buy software or an automation package\./);
+  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="svc-foot"'), 'at the end of Services');
+  assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong>/);
   assert.match(after, /30 minutes &middot; No obligation &middot; Practical next steps/);
   assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
-  assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
+  assert.doesNotMatch(after.slice(0, after.indexOf('</div>\n        </div>')), /weeks|days|[$₱]/i, 'no timeframe or price');
+  const offer = 'Bring your Monday report. I&rsquo;ll look at where the information breaks down, what&rsquo;s creating unnecessary work and what I&rsquo;d fix first. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me.';
+  assert.ok(html.slice(html.indexOf('id="how"'), html.indexOf('id="about"')).includes(offer), 'offer in How I work step 1');
+  assert.ok(html.slice(html.indexOf('id="start"')).includes(offer), 'offer next to the final booking button');
+  assert.match(html, /<h2 id="cta-h">Bring me the report you rebuild every Monday\.<\/h2>/);
+  assert.match(html, /<h2 id="fit-h">Good teams shouldn&rsquo;t have to fight their spreadsheets\.<\/h2>/);
+  assert.doesNotMatch(html, /\bwe&rsquo;ll\b|\bWe&rsquo;ll\b/, 'first person singular');
 });
 
 test('How I work: four steps; step 4 lists what you receive and the 30-day fixes terms (moved from Services, 11 Nov)', async () => {

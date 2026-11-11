@@ -13,7 +13,7 @@
 // no-JavaScript version (all three stages shown one after another). CSP: no inline style attributes.
 
 import { RECORDS, PERIOD_LABEL, BUSINESS, FLAG } from './data.js';
-import { summarise, findings, shortDate, day, isCompleted, inReport, isEmptyRow } from './engine.js';
+import { summarise, findings, shortDate, day, isCompleted, inReport, isOutstanding, isEmptyRow } from './engine.js';
 import { dataChecks, heroFigures, STATE } from '../demo/hero.js';
 
 const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -41,9 +41,9 @@ const DETAIL = {};
 /** What needs attention: one line per flagged record, in the report's order (from the hero's actionItems). */
 export function attentionItems(rec = RECORDS, { all = false, period } = {}) {
   const f = heroFigures(rec, period);
-  const text = { overdue: ['Follow up on overdue work', 'Overdue'], unassigned: ['Assign an owner', 'No owner'], duplicate: ['Check the possible duplicate', 'Possible duplicate'] };
+  const text = { overdue: ['Follow up on overdue work', 'Overdue'], unassigned: ['Assign an owner', 'No owner'], duplicate: ['Check the possible duplicate', 'Possible duplicate'], nodate: ['Add the completion date', 'No completion date'] };
   const items = f.followUps.map((u, i) => {
-    const key = ['overdue', 'unassigned', 'missing', 'duplicate'].find((k) => u.keys.includes(k));
+    const key = ['overdue', 'unassigned', 'missing', 'duplicate', 'nodate'].find((k) => u.keys.includes(k));
     const [what, tag] = key === 'missing'
       ? (u.labels.includes(FLAG.missingCustomer) ? ['Complete the missing customer information', 'Missing customer'] : ['Complete the missing information', 'Missing information'])
       : text[key];
@@ -96,7 +96,7 @@ function captureHtml(rec, checks) {
 }
 
 function moveHtml(rec, checks) {
-  const open = rec.filter((r) => inReport(r) && !isEmptyRow(r) && !isCompleted(r));
+  const open = rec.filter((r) => isOutstanding(r) && !isEmptyRow(r));
   const row = (r) => {
     const keys = new Set(findings(r, rec).map((f) => f.key));
     const tags = [keys.has('unassigned') && pill('action', 'No owner'), keys.has('overdue') && pill('action', 'Overdue')].filter(Boolean).join(' ');
@@ -115,7 +115,7 @@ function seeHtml(rec, interactive) {
   const s = summarise(rec);
   return `<ul class="lx-checks">${list.map((c) => `<li><span class="lx-chk-l">${esc(c.label)}</span><span class="lx-chk-d">${refs(c.detail)}</span>${pill(c.state)}</li>`).join('')}</ul>`
     + '<details class="lx-how"><summary>How the totals are checked</summary><ul>'
-    + `<li>Every job in the report is counted once: ${s.total} of ${s.total}. That includes jobs still open from earlier weeks.</li>`
+    + `<li>Every job in the report is counted once: ${s.total} of ${s.total}. The report holds jobs completed this week and every job still outstanding at the end of the week, including ones from earlier weeks.</li>`
     + `<li>Completed plus still outstanding must equal the total: ${s.completed} + ${s.outstanding} = ${s.total}.</li>`
     + `<li>The ${s.attention} needing attention are part of the ${s.outstanding} still outstanding, not extra jobs.</li></ul></details>`
     + (interactive ? '<p class="lx-jump-see"><a href="#lx-rep-h">See the weekly report <span aria-hidden="true">&darr;</span></a></p>' : '');

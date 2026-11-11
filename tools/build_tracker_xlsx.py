@@ -150,15 +150,19 @@ def build(data):
 
     D, T, C, A, U, S = (this(x) for x in ('Date Received', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status'))
     empty = f'AND({D}="",TRIM({T})="",TRIM({C})="",TRIM({A})="",{U}="",TRIM({S})="")'
-    od = f'AND(TRIM({S})<>"Completed",{U}<>"",{U}<AsAt)'
+    DC = this('Date Completed')
+    # Open at the cut-off (engine isOpen): not Completed, or completed after the period end.
+    is_open = f'OR(TRIM({S})<>"Completed",AND(ISNUMBER({DC}),{DC}>PeriodEnd))'
+    od = f'AND({is_open},{U}<>"",{U}<AsAt)'
+    nodate = f'AND(TRIM({S})="Completed",TRIM({DC}&"")="")'
     miss = f'OR({D}="",TRIM({T})="",TRIM({C})="",{U}="")'
     only_c = f'AND(TRIM({C})="",{D}<>"",TRIM({T})<>"",{U}<>"")'
-    un = f'AND(TRIM({S})<>"Completed",OR(TRIM({A})="",TRIM({A})="Unassigned"))'
+    un = f'AND({is_open},OR(TRIM({A})="",TRIM({A})="Unassigned"))'
     dup = (f'AND({D}<>"",TRIM({T})<>"",TRIM({C})<>"",SUMPRODUCT(({col("Date Received")}={D})'
            f'*(TRIM({col("Request / Task")})=TRIM({T}))*(TRIM({col("Customer / Area")})=TRIM({C})))>1)')
     flag_f = (f'=IF({empty},"",MID(IF({od},"{sep}{flag["overdue"]}","")'
               f'&IF({miss},"{sep}"&IF({only_c},"{flag["missingCustomer"]}","{flag["missing"]}"),"")'
-              f'&IF({un},"{sep}{flag["unassigned"]}","")&IF({dup},"{sep}{flag["duplicate"]}",""),{len(sep) + 1},300))')
+              f'&IF({un},"{sep}{flag["unassigned"]}","")&IF({dup},"{sep}{flag["duplicate"]}","")&IF({nodate},"{sep}{flag["noDate"]}",""),{len(sep) + 1},300))')
     for r in range(FIRST, LAST + 1):
         ws.cell(r, 10, flag_f)
 
@@ -201,11 +205,11 @@ def build(data):
 
     used = f'COUNTA($A{FIRST}:$G{FIRST})>0'
     cf = ws.conditional_formatting
-    cf.add(f'F{FIRST}:F{FMT_ROWS}', FormulaRule(formula=[f'AND(TRIM($G{FIRST})<>"Completed",$F{FIRST}<>"",$F{FIRST}<AsAt)'],
+    cf.add(f'F{FIRST}:F{FMT_ROWS}', FormulaRule(formula=[f'AND(OR(TRIM($G{FIRST})<>"Completed",AND(ISNUMBER($H{FIRST}),$H{FIRST}>PeriodEnd)),$F{FIRST}<>"",$F{FIRST}<AsAt)'],
                                                 fill=fill(RED_BG), font=Font(color=RED_INK, bold=True), stopIfTrue=True))
     cf.add(f'B{FIRST}:D{FMT_ROWS} F{FIRST}:F{FMT_ROWS}', FormulaRule(formula=[f'AND(TRIM(B{FIRST})="",{used})'], fill=fill(AMBER_BG),
                                                                       border=Border(bottom=Side(style='thin', color='D9A441'))))
-    cf.add(f'E{FIRST}:E{FMT_ROWS}', FormulaRule(formula=[f'AND(TRIM($G{FIRST})<>"Completed",OR(TRIM($E{FIRST})="",TRIM($E{FIRST})="Unassigned"),{used})'],
+    cf.add(f'E{FIRST}:E{FMT_ROWS}', FormulaRule(formula=[f'AND(OR(TRIM($G{FIRST})<>"Completed",AND(ISNUMBER($H{FIRST}),$H{FIRST}>PeriodEnd)),OR(TRIM($E{FIRST})="",TRIM($E{FIRST})="Unassigned"),{used})'],
                                                 fill=fill(AMBER_BG), font=Font(color=AMBER_INK, bold=True)))
     # A completed job without its Date Completed: amber hint (the report needs it to count the job in the right week).
     cf.add(f'H{FIRST}:H{FMT_ROWS}', FormulaRule(formula=[f'AND(TRIM($G{FIRST})="Completed",$H{FIRST}="")'], fill=fill(AMBER_BG),
@@ -315,18 +319,23 @@ def report_sheet(wb, sm, data):
     put(sm, 'J5:M5', 'Calculated from the Weekly Tracker', f(8, italic=True, color=MUTED), align=Alignment(horizontal='right'))
 
     # Hidden helper figures (the same as the website's summarise()).
-    # Jobs in the report (src/tracker/engine.js inReport): received by the period end, and still open (carried over too)
-    # or completed in the period (Date Completed in the period; if blank, received in the period).
+    # Reporting definitions (src/tracker/engine.js, approved 11 Nov 2026):
+    #   Completed this week = Completed with Date Completed inside the period
+    #   Still outstanding   = received by the period end and not completed by it (no Date Completed, or a later one)
+    #   Need attention      = still-outstanding jobs with a flag
     D, S, C = col('Date Received'), col('Status'), col('Date Completed')
-    inp = (f'ISNUMBER({D})*({D}<=PeriodEnd)*((TRIM({S})<>"Completed")+(TRIM({S})="Completed")*(ISNUMBER({C})*({C}>=PeriodStart)'
-           f'+(TRIM({C}&"")="")*({D}>=PeriodStart)))')
-    notc = f'(TRIM({col("Status")})<>"Completed")'
+    recv = f'ISNUMBER({D})*({D}<=PeriodEnd)'
+    is_c = f'(TRIM({S})="Completed")'
+    comp = f'{recv}*{is_c}*ISNUMBER({C})*({C}>=PeriodStart)*({C}<=PeriodEnd)'
+    outs = f'{recv}*(1-{is_c}*ISNUMBER({C})*({C}<=PeriodEnd))'
+    inp = f'({comp}+{outs})'
+    opn = f'((1-{is_c})+{is_c}*ISNUMBER({C})*({C}>PeriodEnd))'
     miss_c = f'{inp}*(((TRIM({col("Request / Task")})="")+(TRIM({col("Customer / Area")})="")+({col("Due Date")}=""))>0)'
-    un_c = f'{inp}*{notc}*(((TRIM({col("Assigned To")})="")+(TRIM({col("Assigned To")})="Unassigned"))>0)'
-    od_c = f'{inp}*{notc}*({col("Due Date")}<>"")*({col("Due Date")}<AsAt)'
-    flagged = f'{inp}*({col("Attention Flag")}<>"")'
-    figures = [('Total', f'=SUMPRODUCT({inp})'), ('Completed', f'=SUMPRODUCT({inp}*(TRIM({col("Status")})="Completed"))'),
-               ('Outstanding', f'=SUMPRODUCT({inp}*{notc})'), ('Overdue', f'=SUMPRODUCT({od_c})'), ('Unassigned', f'=SUMPRODUCT({un_c})'),
+    un_c = f'{inp}*{opn}*(((TRIM({col("Assigned To")})="")+(TRIM({col("Assigned To")})="Unassigned"))>0)'
+    od_c = f'{inp}*{opn}*({col("Due Date")}<>"")*({col("Due Date")}<AsAt)'
+    flagged = f'{outs}*({col("Attention Flag")}<>"")'
+    figures = [('Total', f'=SUMPRODUCT({inp})'), ('Completed', f'=SUMPRODUCT({comp})'),
+               ('Outstanding', f'=SUMPRODUCT({outs})'), ('Overdue', f'=SUMPRODUCT({od_c})'), ('Unassigned', f'=SUMPRODUCT({un_c})'),
                ('Missing', f'=SUMPRODUCT({miss_c})'), ('Attention', f'=SUMPRODUCT({flagged})')]
     sm['O5'] = 'Figures (helper)'
     for i, (label, formula) in enumerate(figures):
@@ -367,9 +376,9 @@ def report_sheet(wb, sm, data):
         fl = f'INDEX({col("Attention Flag")},$O{r})'
         has = lambda w: f'ISNUMBER(SEARCH("{w}",{fl}))'
         action = (f'=IF($O{r}="","",IF({has(flag["overdue"])},"Follow up on overdue work",IF({has(flag["unassigned"])},"Assign an owner",'
-                  f'IF({has(flag["missingCustomer"])},"Complete the missing customer information",IF({has(flag["missing"])},"Complete the missing information","Check the possible duplicate")))))')
+                  f'IF({has(flag["missingCustomer"])},"Complete the missing customer information",IF({has(flag["missing"])},"Complete the missing information",IF({has(flag["duplicate"])},"Check the possible duplicate","Add the completion date"))))))')
         issue = (f'=IF($O{r}="","",IF({has(flag["overdue"])},"Overdue",IF({has(flag["unassigned"])},"No owner",'
-                 f'IF({has(flag["missingCustomer"])},"Missing customer",IF({has(flag["missing"])},"Missing information","Possible duplicate")))))')
+                 f'IF({has(flag["missingCustomer"])},"Missing customer",IF({has(flag["missing"])},"Missing information",IF({has(flag["duplicate"])},"Possible duplicate","No completion date"))))))')
         cells = [('B', f'=IF($O{r}="","",ROWS($O${ITEM0}:O{r}))', f(10, color=MUTED), '0"."'),
                  ('C', f'=IF($O{r}="","",INDEX({col("Ref")},$O{r}))', f(10, True, INK), None),
                  ('D:H', action, f(10, color=INK), None),
@@ -473,8 +482,8 @@ def report_sheet(wb, sm, data):
     n, c_, o, a = 'O6', 'O7', 'O8', 'O12'
     sentence = (f'=IF({n}=0,"No jobs in this report.",'
                 f'{n}&" job"&IF({n}=1,"","s")&" in this report. "'
-                f'&IF({o}=0,"All "&{c_}&" are marked as completed.",IF({c_}=0,"None are marked as completed yet, and "&{o}&IF({o}=1," remains"," remain")&" outstanding.",'
-                f'{c_}&IF({c_}=1," is"," are")&" marked as completed, while "&{o}&IF({o}=1," remains"," remain")&" outstanding."))'
+                f'&IF({o}=0,"All "&{c_}&IF({c_}=1," was"," were")&" completed this week.",IF({c_}=0,"None were completed this week, and "&{o}&IF({o}=1," remains"," remain")&" outstanding.",'
+                f'{c_}&IF({c_}=1," was"," were")&" completed this week, while "&{o}&IF({o}=1," remains"," remain")&" outstanding."))'
                 f'&" "&IF({a}=0,"No jobs need attention.",{a}&" job"&IF({a}=1,"","s")&IF({a}=1," needs"," need")&" attention."))')
     put(sm, 'B52:M52', sentence, f(10, color=INK), align=Alignment(wrap_text=True, vertical='top'))
     sm.row_dimensions[52].height = 30
@@ -538,6 +547,7 @@ def start_sheet(wb, st, data):
     notes = ['Works in Microsoft Excel 2010 or later, on the desktop or Excel on the web. No macros or add-ins, and nothing is sent anywhere.',
              'Add or rename team members in the Team list on the Weekly Tracker (column L); the Assigned To dropdown follows it.',
              'When a job is done, set Status to Completed and add the Date Completed. Jobs still open carry over to next week\u2019s report by themselves.',
+             'How the report counts: Completed this week = a Date Completed inside the reporting period. Still outstanding = received by the end of the period and not completed by then, including older jobs. Need attention = outstanding jobs that are overdue, missing details, have no owner, may be duplicates or are marked Completed without a date.',
              'Type new jobs in the next empty row of the tracker: the checks and the report include them automatically.',
              'Status colours: green Passed, amber Flagged, red Action required. Each status is also written out in words.',
              f"{data['BUSINESS']} and its records are fictional, for demonstration only."]
@@ -545,12 +555,14 @@ def start_sheet(wb, st, data):
         put(st, f'B{19 + i}', '•', f(10, color=TEAL), align=Alignment(horizontal='right', vertical='top', indent=1))
         put(st, f'C{19 + i}', t, f(10, color=INK), align=Alignment(wrap_text=True, vertical='top'))
         st.row_dimensions[19 + i].height = 28
-    put(st, 'B25:C25', 'Want this built around your own process?', f(11, True, INK), IVORY,
+    cta = 19 + len(notes) + 1
+    st.row_dimensions[19 + [n.startswith('How the report counts') for n in notes].index(True)].height = 54   # longer note
+    put(st, f'B{cta}:C{cta}', 'Want this built around your own process?', f(11, True, INK), IVORY,
         border=Border(top=Side(style='medium', color=GOLD)))
-    c = put(st, 'B26:C26', 'Book a free rework review: 30 minutes, no obligation →', Font(name=FONT, size=10, bold=True, color=TEAL, underline='single'), IVORY)
-    c.hyperlink = Hyperlink(ref='B26', target=f'{SITE}/contact/#contact-form-area', display=c.value)
-    put(st, 'B27:C27', 'Rework Rescue · rework-rescue.vercel.app', f(8, italic=True, color=GREY), IVORY)
-    st.row_dimensions[25].height = 24
+    c = put(st, f'B{cta + 1}:C{cta + 1}', 'Book a free rework review: 30 minutes, no obligation \u2192', Font(name=FONT, size=10, bold=True, color=TEAL, underline='single'), IVORY)
+    c.hyperlink = Hyperlink(ref=f'B{cta + 1}', target=f'{SITE}/contact/#contact-form-area', display=c.value)
+    put(st, f'B{cta + 2}:C{cta + 2}', 'Rework Rescue \u00b7 rework-rescue.vercel.app', f(8, italic=True, color=GREY), IVORY)
+    st.row_dimensions[cta].height = 24
     st.page_setup.orientation = 'portrait'
     st.page_setup.fitToWidth = 1
     st.sheet_properties.pageSetUpPr.fitToPage = True

@@ -17,7 +17,7 @@ test('a valid request becomes a calendar event with a Meet link and an invite', 
   assert.equal(Date.parse(r.event.end.dateTime) - Date.parse(SLOT), 30 * 60e3);
   assert.deepEqual(r.event.attendees, [{ email: 'ana@example.com', displayName: 'Ana Reyes' }]);
   assert.equal(r.event.conferenceData.createRequest.conferenceSolutionKey.type, 'hangoutsMeet');
-  assert.equal(r.event.summary, 'Free report review with Jeff (Rework Rescue)');
+  assert.equal(r.event.summary, 'Free review with Jeff (Rework Rescue)');
   assert.match(r.notify.subject, /Ana Reyes \(Kestrel Hardware\), Monday, November 2.*10:00 AM Philippine time/);
   assert.match(r.notify.text, /Visitor's time zone: Australia\/Sydney/);
   assert.doesNotMatch(r.event.description, /time zone/i, 'the invite leaves out the time zone line');

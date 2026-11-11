@@ -3,7 +3,7 @@
 The chat assistant on the homepage talks to one n8n workflow: `rework-assistant.json`.
 
 - **Assistant request** (`POST …/webhook/rr-assistant`): checks the message and today's limits, asks Google Gemini (free tier) for a reply in a fixed JSON shape, checks that reply (allowed values, no prices or promises, at most 3 follow-up questions), answers the page, then adds one row to the assistant log sheet.
-- It never books anything. The "Book a free rework review" button in the chat opens the normal booking pop-up (`rework-review-booking.json`).
+- It never books anything. The "Book a free review" button in the chat opens the normal booking pop-up (`rework-review-booking.json`).
 
 Wording, limits, the assistant's instructions and the facts it may use all live in `src/assistant/rules.js` (tested in `tests/assistant.test.mjs`).
 After changing that file, run `node tools/build_n8n_assistant.mjs` and re-import the workflow.

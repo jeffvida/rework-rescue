@@ -65,7 +65,7 @@ const checked = checkRequest(req.body);
 if (!checked.ok) return [{ json: checked }];
 const ip = String((req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || '').split(',')[0].trim();
 if (!takeDailyAllowance($getWorkflowStaticData('global'), ip)) {
-  return [{ json: { ok: false, code: 'daily_limit', notice: 'The assistant is resting for today. You can still book a free report review below.' } }];
+  return [{ json: { ok: false, code: 'daily_limit', notice: 'The assistant is resting for today. You can still book a free review below.' } }];
 }
 return [{ json: { ...checked, ai: ${PROVIDER === 'gemini' ? 'buildGeminiRequest(checked)' : `buildOpenAiRequest(checked, ${JSON.stringify(MODEL)})`} } }];`,
     },

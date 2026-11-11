@@ -20,7 +20,7 @@ export function startFinder(app, live, options = {}) {
   let result = null;
   let first = true;
   const utm = readUtm(typeof location !== 'undefined' ? location.search : '');
-  // "Book a free report review" on the result page opens the booking pop-up; the result travels with the request.
+  // "Book a free review" on the result page opens the booking pop-up; the result travels with the request.
   if (typeof document !== 'undefined' && !options.noBooking) {
     mountBooking({
       base: '../',

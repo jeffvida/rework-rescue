@@ -4040,3 +4040,24 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .book-written-t { margin: 0; flex: 1 1 22rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); }
 .book-written-t strong { color: #fff; }
 @media (max-width: 40rem) { .cta-pair, .cta-pair .demo-after-cta, .cta-pair .btn, .book-written .btn { width: 100%; } .cta-pair .btn, .book-written .btn { justify-content: center; } }
+
+/* AI and automation round (11 Nov 2026, late): the "how" line in Services, "See it working on this page"
+   (three of Jeff's own builds, each with its steps and a "try it" link) and the tools line in About. */
+.svc-intro .svc-intro-how { color: var(--teal-dark); font-weight: 700; }
+.built-section .lede { margin-bottom: 0; }
+.built-cards { list-style: none; margin: 1.8rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; align-items: stretch; }
+.built-card { margin: 0; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--teal); border-radius: var(--radius); padding: 1.2rem 1.2rem 1rem; box-shadow: var(--shadow); }
+.built-card h3 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+.built-k { margin: 0 0 0.4rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.built-what { margin: 0 0 0.7rem; color: var(--muted); }
+.built-steps { margin: 0 0 0.8rem; padding-left: 1.25rem; display: grid; gap: 0.35rem; font-size: 0.95rem; }
+.built-steps li { margin: 0; padding-left: 0.15rem; }
+.built-steps li::marker { color: var(--teal); font-weight: 700; }
+.built-safe { margin: 0 0 0.8rem; padding: 0.55rem 0.7rem; background: var(--info-bg); border-radius: 8px; font-size: 0.92rem; }
+.built-tools { margin: auto 0 0.3rem; font-size: 0.82rem; color: var(--muted); }
+.built-try { margin: 0; font-weight: 700; }
+.built-try a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 44px; color: var(--teal-dark); }
+.built-note { margin: 1.1rem 0 0; font-size: 0.88rem; color: var(--muted); }
+.about-tools { font-size: 0.9rem; color: var(--muted); }
+.about-tools strong { color: var(--ink); }
+@media (max-width: 900px) { .built-cards { grid-template-columns: 1fr; } }

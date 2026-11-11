@@ -559,7 +559,7 @@ def start_sheet(wb, st, data):
     st.row_dimensions[19 + [n.startswith('How the report counts') for n in notes].index(True)].height = 54   # longer note
     put(st, f'B{cta}:C{cta}', 'Want this built around your own process?', f(11, True, INK), IVORY,
         border=Border(top=Side(style='medium', color=GOLD)))
-    c = put(st, f'B{cta + 1}:C{cta + 1}', 'Book a free report review: 30 minutes, no obligation \u2192', Font(name=FONT, size=10, bold=True, color=TEAL, underline='single'), IVORY)
+    c = put(st, f'B{cta + 1}:C{cta + 1}', 'Book a free review: 30 minutes, no obligation \u2192', Font(name=FONT, size=10, bold=True, color=TEAL, underline='single'), IVORY)
     c.hyperlink = Hyperlink(ref=f'B{cta + 1}', target=f'{SITE}/contact/#contact-form-area', display=c.value)
     put(st, f'B{cta + 2}:C{cta + 2}', 'Rework Rescue \u00b7 rework-rescue.vercel.app', f(8, italic=True, color=GREY), IVORY)
     st.row_dimensions[cta].height = 24

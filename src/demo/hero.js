@@ -6,7 +6,7 @@
 //   Northstar Services weekly report: KPIs, action items and a summary draft.
 // Every check state, figure, action item and summary line is computed from the Weekly Work & Follow-up Tracker records
 // (src/tracker/), the homepage's live example, and follows the tracker's state. Nothing is shown as passed unless the
-// sample data passes the rule. The sample has no invoice data, so that check says so instead of showing a status.
+// sample data passes the rule.
 // The HTML is the "With Rework Rescue" state (no JavaScript). With motion allowed, the hero alternates Today (~5 s) and
 // With Rework Rescue (~10 s) while on screen and the tab is visible; Pause stops it (WCAG 2.2.2) and so does the toggle.
 // Reduced motion: no autoplay, instant switch; the toggle still works. CSP: CSSOM setProperty only.
@@ -49,7 +49,6 @@ export function dataChecks(rec = RECORDS) {
       { label: 'Assigned owners', state: ownRefs.length ? 'action' : 'pass', detail: ownRefs.length ? `No owner · ${refText(ownRefs)}` : 'All open jobs', answers: ['Jobs without owners'] },
       { label: 'Valid job statuses', state: statusOk === rows.length && ownersOk === rows.length ? 'pass' : 'flag', detail: `${statusOk} of ${rows.length}`, answers: ['Inconsistent statuses', 'Email updates not in records'] },
       { label: 'Overdue follow-ups', state: lateRefs.length ? 'action' : 'pass', detail: lateRefs.length ? `Overdue · ${refText(lateRefs)}` : 'None overdue', answers: ['Overdue follow-ups'] },
-      { label: 'Completed, not invoiced', state: 'none', detail: 'No invoice data in this sample', answers: ['Completed, not invoiced'] },
     ],
     see: [
       { label: 'KPI calculation', state: f.completed + f.outstanding === f.total ? 'pass' : 'flag', detail: `${f.completed} + ${f.outstanding} = ${f.total}`, answers: ['Manual KPI compilation', 'Rebuilt every week'] },

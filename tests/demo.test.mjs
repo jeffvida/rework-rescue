@@ -96,7 +96,7 @@ test('hero checks: every Today issue has a matching check in the same stage; sta
   assert.deepEqual(st['Required fields'], ['flag', '11 of 12 complete · R-111']);
   assert.deepEqual(st['Assigned owners'], ['action', 'No owner · R-112']);
   assert.deepEqual(st['Overdue follow-ups'], ['action', 'Overdue · R-104']);
-  assert.deepEqual(st['Completed, not invoiced'], ['none', 'No invoice data in this sample'], 'no invented invoice status');
+  assert.ok(!('Completed, not invoiced' in st), 'invoice check removed (no invoice data in the sample)');
   assert.deepEqual(st['KPI calculation'], ['pass', '7 + 5 = 12']);
   assert.deepEqual(st['Exceptions in the report'], ['flag', '3 shown, not hidden']);
   for (const s of ['pass', 'flag', 'action']) assert.ok(all.some((x) => x.state === s), `uses the ${s} state`);
@@ -223,8 +223,8 @@ test('booking after the demo: one strip with the first-project line, using the e
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
-  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('class="demo-window"'), 'after the demo window');
-  assert.match(after, /Most projects start with one report or recurring process\. Once that&rsquo;s working, we can look at what&rsquo;s next\./);
+  assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('<!-- tracker:end -->'), 'after the live example');
+  assert.match(after, /Want this for your own weekly report\?<\/strong> Most projects start with one report or recurring process\. Once that&rsquo;s working, you and I can look at what&rsquo;s next\./);
   assert.match(after, /href="contact\/#contact-form-area">Book a free rework review</);
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });

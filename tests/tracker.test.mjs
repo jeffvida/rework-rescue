@@ -10,7 +10,7 @@ import { RECORDS, PERIOD, OWNERS, STATUSES } from '../src/tracker/data.js';
 import {
   summarise, findings, flagText, isOverdue, isUnassigned, missingFields, duplicatesOf, inPeriod, setOwner, setStatus, setCustomer, addRecord, summaryText,
 } from '../src/tracker/engine.js';
-import { appHtml } from '../src/tracker/ui.js';
+import { appHtml, progress, changes } from '../src/tracker/ui.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
 const section = async () => { const h = await page(); return h.slice(h.indexOf('id="samples"'), h.indexOf('id="experience"')); };
@@ -111,43 +111,65 @@ test('every follow-up and figure comes from the current records (no fixed text l
     assert.deepEqual(s.followUps.map((f) => f.ref), want, `${status} / ${owner}`);
     assert.equal(s.attention, want.length);
     const html = appHtml(rec);
-    assert.equal((html.match(/class="wt-fu"/g) || []).length, want.length);
+    assert.ok(html.includes(`<li class="lx-kpi ${s.attention ? 'is-att' : 'is-clear'}" data-kpi="attention"><strong>${s.attention}</strong>`), `${status} / ${owner}: attention tile`);
   }
 });
 
-test('page copy: eyebrow, heading, supporting text, intro, labels and the download wording, in the agreed order', async () => {
+test('page copy (11 Nov): eyebrow, heading, lede, steps, report and the download wording, in order', async () => {
   const sec = await section();
-  const order = ['<p class="eyebrow">Practical business example</p>', '<h2 id="samples-h">A clearer way to manage the work.</h2>',
-    'Keep requests, responsibilities and follow-ups in one simple tracker. See what&rsquo;s completed, what&rsquo;s outstanding and what needs attention.',
-    'Here&rsquo;s a typical week at Northstar Services, a fictional service business (the same records as the report at the top of the page).', 'Weekly overview', '2–6 November 2026 &middot; Sample reporting period', 'As at 6 November 2026',
-    'Work tracker', 'Needs attention', 'Weekly summary', 'Use the same simple tracker with your own business records. Includes automatic counts and a weekly follow-up summary.',
-    'Start with the sample, then replace it with your own records.', 'Download the free Excel tracker', 'Sample business data for demonstration purposes.'];
+  const order = ['<p class="eyebrow">Live example &middot; fictional sample data</p>', '<h2 id="samples-h">Turn a messy week into a report you can send.</h2>',
+    'A week at Northstar Services, a fictional service business: 12 jobs in one list, and three problems my checks caught. Fix them and watch the weekly report update.',
+    'Capture</b><span>12 jobs in one list', 'Check</b>', 'Report</b>', 'My checks found 3 problems. Here’s what happens to each one.',
+    'R-112', 'R-111', 'R-104', 'Northstar Services · Weekly report', '2–6 November 2026 · Fictional sample', 'Action items', 'Summary',
+    'The summary is written by simple rules from these records. In a real project, a person checks it before it&rsquo;s sent.',
+    'See all 12 jobs (the tracker behind this report)', 'Use the same simple tracker with your own business records. Includes automatic counts and a weekly follow-up summary.',
+    'It starts with the sample as delivered (before your fixes). Replace it with your own records.', 'Download the free Excel tracker', 'Sample business data for demonstration purposes.'];
   const at = order.map((t) => sec.indexOf(t));
   assert.ok(at.every((i) => i >= 0), order.filter((t, i) => at[i] < 0).join(' | '));
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'in order');
-  const ui = await readFile(new URL('../src/tracker/ui.js', import.meta.url), 'utf8');
-  for (const t of ['Try it: change an owner or status to see the overview update.', 'Reset sample', 'Changes in this preview are temporary and are not saved.']) assert.ok(ui.includes(t), t);
-  assert.doesNotMatch(sec, /cw-|demo-window|role="tab"|Connected workspace/, 'the old multi-tab demo is gone');
   assert.doesNotMatch(sec, /\sstyle="/);
+  assert.doesNotMatch(sec, /\bwe\b|\bour\b/i, 'first person singular only');
+  assert.doesNotMatch(sec, /\bAI\b|saves? hours|100%/, 'no overclaims');
 });
 
 test('the no-JavaScript version in index.html is exactly what the engine renders for the sample', async () => {
   const sec = await section();
   const inner = sec.slice(sec.indexOf('<!-- tracker:start -->') + 22, sec.indexOf('<!-- tracker:end -->'));
   assert.equal(inner, appHtml(), 'run: node tools/render_tracker_static.mjs');
-  assert.match(inner, /<li class="wt-fig" data-fig="total"><strong>12<\/strong><span>Records received<\/span><\/li><li class="wt-fig" data-fig="completed"><strong>7<\/strong><span>Completed<\/span><\/li><li class="wt-fig" data-fig="outstanding"><strong>5<\/strong><span>Still outstanding<\/span><\/li><li class="wt-fig is-warn" data-fig="attention"><strong>3<\/strong><span>Need attention<\/span><\/li>/);
+  assert.match(inner, /data-kpi="total"><strong>12<\/strong>.*data-kpi="completed"><strong>7<\/strong>.*data-kpi="outstanding"><strong>5<\/strong>.*data-kpi="attention"><strong>3<\/strong>/);
   assert.deepEqual([...inner.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]), ['Ref', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status']);
   assert.equal((inner.match(/<tr class="wt-row/g) || []).length, 12);
+  assert.doesNotMatch(inner, /<button/, 'no buttons without JavaScript');
+  assert.equal((inner.match(/class="lx-still"/g) || []).length, 3, 'each card says what a person does');
 });
 
-test('interactive version: owner and status dropdowns on every row, R-111 can be filled in, reset button', () => {
+test('interactive version: one-tap fixes for R-112 and R-111, R-104 kept on the report, full tracker, Start over', () => {
   const html = appHtml(RECORDS, { interactive: true });
+  assert.deepEqual([...html.matchAll(/data-fix="R-112" data-val="([^"]+)"/g)].map((m) => m[1]), ['Ana', 'Mark', 'Sam']);
+  const cust = [...html.matchAll(/data-fix="R-111" data-val="([^"]+)"/g)].map((m) => m[1].replace('&amp;', '&'));
+  assert.ok(cust.length === 3 && cust.every((c) => RECORDS.some((r) => r.customer === c)), 'only existing customers, nothing invented');
+  assert.match(html, /data-fix="R-104" data-val="Keep it at the top of the report"/);
   assert.equal((html.match(/data-owner="/g) || []).length, 12);
   assert.equal((html.match(/data-status="/g) || []).length, 12);
-  assert.deepEqual([...html.matchAll(/data-customer="([^"]+)"/g)].map((m) => m[1]), ['R-111']);
-  assert.match(html, /<option selected>Unassigned<\/option>/);
-  assert.match(html, /data-wt-reset>Reset sample</);
+  assert.match(html, /data-wt-reset>Start over</);
   assert.match(html, /aria-live="polite"/);
+  assert.match(html, /Draft · 0 of 3 checks cleared/);
+});
+
+test('fixing the three problems: figures, action items and "fixed during checks" follow the records', () => {
+  const rec = setCustomer(setOwner(RECORDS, 'R-112', 'Sam'), 'R-111', 'Harbor Works');
+  const s = summarise(rec);
+  assert.deepEqual([s.total, s.completed, s.outstanding, s.attention], [12, 7, 5, 1]);
+  assert.equal(progress(rec).cleared, 2, 'R-104 still overdue until kept on the report');
+  assert.equal(progress(rec, true).cleared, 3);
+  assert.deepEqual(changes(rec), ['R-111: customer set to Harbor Works', 'R-112: owner set to Sam']);
+  const html = appHtml(rec, { interactive: true, kept: true });
+  assert.match(html, /Ready to send/);
+  assert.match(html, /Follow up <span class="lx-ref">R-104<\/span> \(overdue\)/);
+  assert.doesNotMatch(html, /Assign an owner to/);
+  assert.match(html, /On the report/);
+  assert.match(html, /All 3 handled\. Your report is ready to send\./);
+  assert.deepEqual(changes(RECORDS), [], 'nothing marked fixed in the sample as delivered');
 });
 
 test('download: the button links to the real workbook in assets/downloads, nothing is sent anywhere', async () => {

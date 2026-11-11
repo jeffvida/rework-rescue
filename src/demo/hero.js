@@ -92,8 +92,8 @@ const refs = (t) => esc(t).replace(/R-\d+/g, (r) => `<span class="hx-ref">${r}</
 export const actionsHtml = (items) => items.map((x) => `<li><span class="hx-box" aria-hidden="true"></span><span>${refs(x.label)}</span>${x.priority ? `<em${x.priority === 'High' ? ' class="is-high"' : ''}>${x.priority}</em>` : ''}</li>`).join('');
 export const summaryHtml = (bullets) => bullets.map((t) => `<li>${refs(t)}</li>`).join('');
 
-// Autoplay: each state (Today / With Rework Rescue) shows for 4 s before switching (Jeff, 11 Nov 21:57; was 2.5 s).
-export const SWITCH_MS = 4000;
+// Autoplay: each state (Today / With Rework Rescue) shows for 5 s before switching (Jeff, 11 Nov 22:36; was 4 s).
+export const SWITCH_MS = 5000;
 
 export function mountHero(fig) {
   if (!fig) return;

@@ -12,7 +12,7 @@
 // Reduced motion: no autoplay, instant switch; the toggle still works. CSP: CSSOM setProperty only.
 
 import { getRecords, subscribe } from '../tracker/store.js';
-import { summarise, missingFields, isEmptyRow, inReport, byStatus } from '../tracker/engine.js';
+import { summarise, missingFields, isEmptyRow, inReport, byStatus, isUnassigned, isOverdue } from '../tracker/engine.js';
 import { RECORDS, PERIOD, PERIOD_LABEL, BUSINESS, STATUSES, OWNERS } from '../tracker/data.js';
 
 /** The report's figures, all derived from the tracker records. */
@@ -38,7 +38,9 @@ export function dataChecks(rec = RECORDS, p = PERIOD) {
   const statusOk = rows.filter((r) => STATUSES.includes(String(r.status).trim())).length;
   const ownersOk = rows.filter((r) => OWNERS.includes(String(r.owner).trim()) || String(r.owner).trim() === '').length;
   const counted = byStatus(rec, p).reduce((n, x) => n + x.count, 0);
-  const missRefs = refsOf(f, 'missing'); const ownRefs = refsOf(f, 'unassigned'); const lateRefs = refsOf(f, 'overdue');
+  // Refs come from every job in the report (a completed job can still be missing details).
+  const refsWhere = (fn) => rows.filter(fn).map((r) => r.ref);
+  const missRefs = refsWhere((r) => missingFields(r).length > 0); const ownRefs = refsWhere((r) => isUnassigned(r, p)); const lateRefs = refsWhere((r) => isOverdue(r, p));
   return {
     capture: [
       { label: 'No duplicate jobs', state: f.duplicates ? 'flag' : 'pass', detail: f.duplicates ? `${f.duplicates} found` : 'None found', answers: ['Duplicate job references', 'Multiple spreadsheet versions'] },
@@ -59,13 +61,13 @@ export function dataChecks(rec = RECORDS, p = PERIOD) {
 }
 
 export const STATE = { pass: 'Passed', flag: 'Flagged', action: 'Action required', none: 'No data' };
-const NEXT = { unassigned: ['Assign an owner to', '', 'High'], overdue: ['Follow up', ' (overdue)', 'High'], missing: ['Complete customer details for', '', 'Medium'], duplicate: ['Check the possible duplicate', '', 'Medium'] };
+const NEXT = { unassigned: ['Assign an owner to', '', 'High'], overdue: ['Follow up', ' (overdue)', 'High'], missing: ['Complete customer details for', '', 'Medium'], duplicate: ['Check the possible duplicate', '', 'Medium'], nodate: ['Add the completion date for', '', 'Medium'] };
 
 /** Action items: one per flagged record (most urgent first), named by its reference. */
 export function actionItems(f) {
   const order = { High: 0, Medium: 1 };
   const items = f.followUps.map((x) => {
-    const key = ['unassigned', 'overdue', 'missing', 'duplicate'].find((k) => x.keys.includes(k));
+    const key = ['unassigned', 'overdue', 'missing', 'duplicate', 'nodate'].find((k) => x.keys.includes(k));
     const [verb, tail, priority] = NEXT[key];
     return { label: `${verb} ${x.ref}${tail}`, short: `${verb} ${x.ref}`, priority, ref: x.ref };
   }).sort((a, b) => order[a.priority] - order[b.priority]);

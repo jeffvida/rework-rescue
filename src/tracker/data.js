@@ -38,6 +38,7 @@ export const FLAG = Object.freeze({
   missing: 'Missing information',
   unassigned: 'No owner',
   duplicate: 'Possible duplicate',
+  noDate: 'No completion date',
 });
 export const FLAG_SEP = ' · ';
 

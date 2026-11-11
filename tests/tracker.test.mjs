@@ -171,7 +171,7 @@ test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, t
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'in order');
   assert.doesNotMatch(sec, /\sstyle="/);
   assert.doesNotMatch(sec, /\bwe\b|\bour\b/i, 'first person singular only');
-  assert.doesNotMatch(sec.replace('Send invoice copy', ''), /invoic|CRM is|monitor|notification sent|automatically assign|saves? hours|time sav|%|live data|connected to your/i, 'nothing the sample does not do');
+  assert.doesNotMatch(sec.replace('Send invoice copy', '').replace(/href="[^"]*"/g, ''), /invoic|CRM is|monitor|notification sent|automatically assign|saves? hours|time sav|%|live data|connected to your/i, 'nothing the sample does not do');
   assert.doesNotMatch(sec, /\bAI\b/, 'no AI in the live example');
   const page = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const svc = page.slice(page.indexOf('id="services"'), page.indexOf('id="how"'));

@@ -8,7 +8,7 @@
 
 // ---- Wording shown to the visitor
 export const ASSISTANT_TEXT = {
-  invite: 'Not sure which rework fits? I can help you decide.',
+  invite: 'Not sure where to start? I can help you decide.',
   title: 'Rework Rescue assistant',
   subtitle: 'AI guide for reports, workflows and systems',
   opening: 'Hi! What feels off in your business right now?',
@@ -19,10 +19,10 @@ export const ASSISTANT_TEXT = {
     'I have a different question',
   ],
   disclaimer: 'AI assistant (Google Gemini). It can make mistakes, and Google may review chats to improve its AI. Please leave out names, contact details and anything confidential.',
-  book: 'Book a free rework review',
-  fallback: "Sorry, I didn't catch that. You can also book a free rework review below.",
-  limitOffer: 'Thanks, that gives Jeff enough to go on. The best next step is a free 30-minute rework review, where he looks at it with you. Want to pick a time?',
-  error: "Sorry, I can't answer right now. You can still book a free rework review below.",
+  book: 'Book a free report review',
+  fallback: "Sorry, I didn't catch that. You can also book a free report review below.",
+  limitOffer: 'Thanks, that gives Jeff enough to go on. The best next step is a free 30-minute report review, where he looks at it with you. Want to pick a time?',
+  error: "Sorry, I can't answer right now. You can still book a free report review below.",
 };
 
 // ---- Limits (the n8n workflow enforces them; the page uses them to stop early)
@@ -53,9 +53,9 @@ Services:
 - Business Tools & Systems (fix the tools): tools that feed your records and reports. Builds customer and enquiry tracking for small teams (simple CRM setup: customer and inquiry tracking, basic pipelines, reminders and follow-ups), forms connected to Google Sheets, email or a CRM, shared trackers, booking and request pages connected to your calendar and records, and simple web pages connected to your forms.
 Out of scope: large enterprise CRM implementations, complex CRM migrations, replacing established enterprise systems, extensive custom CRM or large custom software, complex e-commerce.
 Works with exports from accounting, CRM and job-management systems, in Excel or Google Sheets. Usually no new software is needed.
-The free rework review: 30 minutes by video call (Google Meet), about one report or process the visitor chooses. No preparation needed. Jeff helps map it, find the main source of rework and suggest a practical next step. If it's worth fixing, he outlines a proposed scope, price and estimated timeline. No obligation.
-How to book: the visitor picks a time with the "Book a free rework review" button on this page.
-How a project works: free rework review, written scope and price, the client's approval, build and test, handover. The client gets the working solution in their own tools or accounts, a short run guide, a handover call, ownership of the work, and 30 days of fixes for anything within the agreed scope that doesn't work as agreed (not new features, scope changes or changes to third-party services). Ongoing support is optional.
+The free report review: 30 minutes by video call (Google Meet), about one report or process the visitor chooses. No preparation needed. Jeff helps map it, find the main source of rework and suggest a practical next step. If it's worth fixing, he outlines a proposed scope, price and estimated timeline. No obligation.
+How to book: the visitor picks a time with the "Book a free report review" button on this page.
+How a project works: free report review, written scope and price, the client's approval, build and test, handover. The client gets the working solution in their own tools or accounts, a short run guide, a handover call, ownership of the work, and 30 days of fixes for anything within the agreed scope that doesn't work as agreed (not new features, scope changes or changes to third-party services). Ongoing support is optional.
 Who: Jeff Herson Vida, Data & Operations Specialist (Reporting, Workflow & Automation), 8+ years in data operations, reporting, validation, analysis and process improvement (Excel, Power Query, Power BI, Python, Power Automate). Based in the Philippines; available for calls Monday to Friday, 8 am to 2 am Philippine time (UTC+8). Clients work directly with him.
 Confidential data: ordinary business information is fine through an agreed, authorized route; he will sign a reasonable confidentiality agreement; sensitive or regulated information needs a review of safeguards first. He doesn't automate consequential decisions about people.
 AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
@@ -66,7 +66,7 @@ export function assistantBrief(questionsAsked) {
   return `You are the Rework Rescue assistant on Jeff Herson Vida's website.
 Jeff is a Data & Operations Specialist who helps small businesses with their data, reporting, workflows and business tools.
 
-Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflows & Processes or Business Tools & Systems, and invite them to a free 30-minute rework review. Visitors don't need to choose a service; it is only a starting point for the review.
+Your job: help the visitor describe ONE report or process that feels off, suggest whether it sounds like Data & Reporting, Workflows & Processes or Business Tools & Systems, and invite them to a free 30-minute report review. Visitors don't need to choose a service; it is only a starting point for the review.
 
 Services (use the name in "reply", the code in "service"):
 Always use these exact names. Never add "Rework" to them.
@@ -76,7 +76,7 @@ Always use these exact names. Never add "Rework" to them.
 
 Rules:
 - Use only the facts in KNOWLEDGE below. If something isn't there, say Jeff can answer it in the review. Never guess.
-- You may say "free 30-minute rework review". Never mention any other price, discount, saving, timeline or guarantee.
+- You may say "free 30-minute report review". Never mention any other price, discount, saving, timeline or guarantee.
 - Never say you will book, email or contact anyone. The visitor books with the button on the page.
 - Never invent details the visitor did not give. When you summarise, use their words.
 - Never ask for names, emails, phone numbers, passwords, account logins, confidential details or sensitive records.
@@ -145,7 +145,7 @@ export function checkRequest(body) {
   }
   const messageCount = history.filter((t) => t.role === 'user').length + 1;
   if (messageCount > L.maxMessages) {
-    return fail('too_many', 'This chat has reached its limit. The best next step is a free 30-minute rework review, where Jeff can go through it with you.');
+    return fail('too_many', 'This chat has reached its limit. The best next step is a free 30-minute report review, where Jeff can go through it with you.');
   }
   return { ok: true, message, history, questionsAsked: countQuestions(history), messageCount, conversationId: conversationId(body.conversation) };
 }
@@ -220,10 +220,10 @@ export function parseReply(raw) {
 
 /**
  * Finds a price, saving or promise the assistant must not make. Returns the reason, or '' if the text is fine.
- * "free 30-minute rework review" is always allowed; honest lines like "Jeff doesn't offer guarantees" pass.
+ * "free 30-minute report review" is always allowed; honest lines like "Jeff doesn't offer guarantees" pass.
  */
 export function findUnsafe(text) {
-  const t = String(text).replace(/free\s+30[\s-]*minute\s+(rework\s+)?review/gi, 'free review');
+  const t = String(text).replace(/free\s+30[\s-]*minute\s+((?:rework|report)\s+)?review/gi, 'free review');
   if (/(?:[₱$€£]|\b(?:php|usd|aud|sgd|eur|gbp)\b)\s?\d/i.test(t)) return 'price';
   if (/\d[\d,.]*\s?(?:k\b|pesos?\b|dollars?\b|php\b|usd\b)/i.test(t)) return 'price';
   if (/\d\s?%|\b\d+\s?percent\b/i.test(t)) return 'percentage';

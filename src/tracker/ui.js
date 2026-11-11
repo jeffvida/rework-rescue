@@ -126,7 +126,15 @@ function stageHtml(st, rec, interactive) {
   const body = st.id === 'capture' ? captureHtml(rec, c.capture) : st.id === 'move' ? moveHtml(rec, c.move) : seeHtml(rec, interactive);
   return `<div class="lx-panel" id="lx-p-${st.id}" data-stage="${st.id}"${interactive ? ` role="region" aria-labelledby="lx-ph-${st.id}" hidden` : ''}>`
     + `<p class="lx-panel-k">${st.n} ${st.name} · ${esc(st.short)}</p><h3 id="lx-ph-${st.id}">${esc(st.h)}</h3>${body}`
-    + `<p class="lx-benefit">${esc(st.benefit)}</p></div>`;
+    + `<p class="lx-benefit">${esc(st.benefit)}</p>${interactive ? nextHtml(st) : ''}</div>`;
+}
+
+// End of each stage panel: a way on, so phone visitors don't have to scroll back up to the stage buttons (11 Nov PM review).
+function nextHtml(st) {
+  const i = STAGES.findIndex((x) => x.id === st.id);
+  const nx = STAGES[i + 1];
+  if (nx) return `<p class="lx-next"><button type="button" class="btn btn-secondary btn-small" data-go="${nx.id}" data-lx-next>Next: ${nx.name} <span aria-hidden="true">&rarr;</span></button></p>`;
+  return '';
 }
 
 // --- The weekly report ----------------------------------------------------------------------------------------------
@@ -203,13 +211,16 @@ export function mountTracker(host) {
     q('[data-lx="tabs"]').innerHTML = tabsHtml(explored, current, hint);
     q('[data-lx="progress"]').textContent = explored.size ? `${explored.size} of 3 explored` : 'Pick a stage to explore';
   };
-  const show = (id) => {
+  const show = (id, fromNext = false) => {
     current = id; explored.add(id);
     q('[data-lx="open"]').hidden = true;
     for (const p of host.querySelectorAll('.lx-panel')) p.hidden = p.dataset.stage !== id;
     report.classList.toggle('is-focus', id === 'see');
     paintTabs();
-    q(`[data-go="${id}"]`)?.focus();
+    const tab = q(`.lx-tabs [data-go="${id}"]`);
+    tab?.focus({ preventScroll: Boolean(fromNext) });
+    // From a "Next" button at the end of a panel: bring the stage buttons and the new panel back to the top.
+    if (fromNext) q('[data-lx="tabs"]').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   };
 
   // Opening: CSS keyframes under .lx-intro. It ends when the report's rise finishes (so Pause also pauses the end).
@@ -231,7 +242,7 @@ export function mountTracker(host) {
 
   host.addEventListener('click', (e) => {
     const go = e.target.closest('[data-go]');
-    if (go) { if (host.classList.contains('lx-intro')) finish(); show(go.dataset.go); return; }
+    if (go) { if (host.classList.contains('lx-intro')) finish(); show(go.dataset.go, go.hasAttribute('data-lx-next')); return; }
     const act = e.target.closest('[data-lx-act]')?.dataset.lxAct;
     if (act === 'skip') { finish(); q('[data-go="capture"]').focus(); }
     if (act === 'replay') { play(); ctrl('skip').focus(); }

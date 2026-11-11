@@ -145,6 +145,7 @@ export function reportHtml(rec = RECORDS) {
   return '<section class="lx-report" aria-labelledby="lx-rep-h">'
     + `<p class="lx-rep-k">Weekly operations report · Fictional sample</p><h3 id="lx-rep-h" tabindex="-1">${esc(BUSINESS)}</h3>`
     + `<p class="lx-rep-sub">${PERIOD_LABEL} · ${s.total} jobs checked</p>`
+    + '<p class="lx-rep-carry">Open jobs from earlier weeks stay on the report until they&rsquo;re done.</p>'
     + `<ul class="lx-kpis">${kpi('completed', s.completed, 'Completed this week', 'is-done')}${kpi('outstanding', s.outstanding, 'Still outstanding', 'is-open')}`
     + `${kpi('attention', s.attention, 'Need attention', s.attention ? 'is-att' : 'is-clear', s.outstanding ? `Of the ${s.outstanding} still outstanding` : '')}</ul>`
     + '<p class="lx-sub">What needs attention</p>'

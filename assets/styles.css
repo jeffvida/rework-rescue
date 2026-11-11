@@ -3347,6 +3347,8 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .lx-report h3 { margin: 0.15rem 0 0; font-size: 1.25rem; }
 .lx-report h3:focus { outline: none; }
 .lx-rep-sub { margin: 0.1rem 0 0.8rem; font-size: 0.88rem; color: var(--muted); }
+.lx-rep-sub:has(+ .lx-rep-carry) { margin-bottom: 0.15rem; }
+.lx-rep-carry { margin: 0 0 0.8rem; font-size: 0.85rem; color: var(--muted); }
 .lx-kpis { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 0.9rem; padding: 0; }
 .lx-kpi { display: grid; align-content: start; margin: 0; padding: 0.6rem 0.7rem; border-radius: 12px; line-height: 1.25; font-size: 0.84rem; font-weight: 600; color: var(--ink); }
 .lx-kpi strong { font-family: var(--display); font-size: 2.1rem; line-height: 1.05; font-variant-numeric: tabular-nums; }

@@ -37,8 +37,8 @@ test('acceptance figures: 12 records, 7 completed, 5 outstanding, 1 overdue, 1 u
   assert.equal(s.duplicates, 0);
   assert.deepEqual(s.followUps.map((f) => [f.title, `${f.reason} · ${f.ref}`, f.note]), [
     ['Follow up on payment', 'Overdue · R-104', 'Due 4 November and still waiting.'],
-    ['Check service notes', 'Missing customer / area · R-111', 'Add the missing customer or area details.'],
-    ['Confirm outstanding item', 'No owner assigned · R-112', 'Choose someone to take responsibility.'],
+    ['Check service notes', 'Missing customer · R-111', 'Add the missing customer or area details.'],
+    ['Confirm outstanding item', 'No owner · R-112', 'Choose someone to take responsibility.'],
   ]);
   assert.equal(s.text, '12 records were received during the reporting period. 7 are marked as completed, while 5 remain outstanding. 3 records need attention.');
 });
@@ -82,7 +82,7 @@ test('possible duplicates: same date, customer and request, ignoring case and ou
   assert.equal(s.total, 13, 'both records are still counted');
   assert.equal(s.attention, 5);
   const f = s.followUps.find((x) => x.ref === 'R-113');
-  assert.deepEqual(f.labels, ['Possible duplicate — review']);
+  assert.deepEqual(f.labels, ['Possible duplicate']);
   assert.match(f.note, /Matches R-101 on date, customer and request\./);
   assert.deepEqual(duplicatesOf(RECORDS[0], addRecord(RECORDS, { ...RECORDS[0], ref: 'R-114', received: '2026-11-03' })), [], 'a different date is not a duplicate');
 });
@@ -91,7 +91,7 @@ test('a record with several issues shows every reason but counts once', () => {
   const rec = setCustomer(setStatus(RECORDS, 'R-112', 'Waiting'), 'R-112', '');
   const late = rec.map((r) => (r.ref === 'R-112' ? { ...r, due: '2026-11-05' } : r));
   const s = summarise(late);
-  assert.equal(flagText(late[11], late), 'Overdue · Missing customer / area · No owner assigned');
+  assert.equal(flagText(late[11], late), 'Overdue · Missing customer · No owner');
   assert.deepEqual([s.overdue, s.missing, s.unassigned, s.attention], [2, 2, 1, 3]);
   const f = s.followUps.find((x) => x.ref === 'R-112');
   assert.equal(f.note, 'Due 5 November and still waiting. Add the missing customer or area details. Choose someone to take responsibility.');

@@ -28,13 +28,14 @@ export const FIELDS = Object.freeze([
   { key: 'status', label: 'Status' },
 ].map(Object.freeze));
 
-// The words used for each finding, in the tracker's Attention Flag column (website and workbook alike).
+// The words used for each finding, in the tracker's Attention Flag column (website and workbook alike); they match the
+// issue tags in the live example's report (11 Nov 2026).
 export const FLAG = Object.freeze({
   overdue: 'Overdue',
-  missingCustomer: 'Missing customer / area',
+  missingCustomer: 'Missing customer',
   missing: 'Missing information',
-  unassigned: 'No owner assigned',
-  duplicate: 'Possible duplicate — review',
+  unassigned: 'No owner',
+  duplicate: 'Possible duplicate',
 });
 export const FLAG_SEP = ' · ';
 

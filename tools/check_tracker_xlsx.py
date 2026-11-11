@@ -2,12 +2,15 @@
 
 Run:  python3 tools/check_tracker_xlsx.py        (needs Node, openpyxl and LibreOffice)
 
-1. Structure: two sheets, the table and its columns, the 12 sample records exactly as in src/tracker/data.js,
-   dropdown lists, conditional formatting, defined names, no hardcoded results, no macros or external links.
-2. Stored values: the file as shipped already shows 12 / 7 / 5 / 1 / 1 / 1 / 3 (for previewers that don't recalculate).
+1. Structure: three sheets (Start here, Weekly Tracker, Weekly Report), the table and its columns, the 12 sample
+   records exactly as in src/tracker/data.js, dropdown lists, conditional formatting, defined names, logo, chart and
+   links, no hardcoded results, no macros or external links.
+2. Stored values: the file as shipped already shows 12 / 7 / 5 / 3 and R-104, R-112, R-111 (for previewers that
+   don't recalculate).
 3. Scenarios: edits a copy of the workbook (complete R-104, assign R-112, fill R-111's customer, add a near-identical
-   record, change the dates, ...), recalculates it in LibreOffice, and compares every flag, figure, follow-up line
-   and the summary sentence with src/tracker/engine.js run on the same records.
+   record, change the dates, ...), recalculates it in LibreOffice, and compares every flag, figure, "What needs
+   attention" line, check, status count and the summary sentence with the website (engine.js, hero.js checks and the
+   live example's report) run on the same records.
 LibreOffice Calc is the calculation engine here, not Microsoft Excel.
 """
 import copy
@@ -52,19 +55,22 @@ def d2s(v):
 
 
 def read_results(wb):
-    ws, sm = wb[B.TRACKER], wb[B.SUMMARY]
+    ws, sm = wb[B.TRACKER], wb[B.REPORT]
     flags = {}
     for r in range(B.FIRST, B.LAST + 1):
         ref = ws.cell(r, 1).value
         if ref:
             flags[ref] = ws.cell(r, 9).value or ''
     keys = ['total', 'completed', 'outstanding', 'overdue', 'unassigned', 'missing', 'attention']
-    metrics = {k: sm.cell(9 + i, 3).value for i, k in enumerate(keys)}
-    follow = []
-    for r in range(22, 22 + B.FOLLOW):
-        if sm.cell(r, 1).value:
-            follow.append([d2s(sm.cell(r, c).value).strip() for c in range(1, 6)])  # the sheet shows text as typed
-    return {'metrics': metrics, 'text': sm['A18'].value, 'flags': flags, 'followUps': follow}
+    metrics = {k: sm.cell(6 + i, 15).value for i, k in enumerate(keys)}
+    attention = []
+    for r in range(B.ITEM0, B.ITEM0 + B.FOLLOW):
+        if sm.cell(r, 3).value:
+            attention.append([d2s(sm.cell(r, c).value).strip() for c in (3, 4, 9, 11, 12)])
+    checks = [[sm.cell(r, 4).value, sm.cell(r, 8).value, sm.cell(r, 12).value] for r in range(B.CHECK0, B.CHECK0 + 9)]
+    tiles = [sm['B7'].value, sm['F7'].value, sm['J7'].value, sm['J9'].value or '', sm['J4'].value]
+    return {'metrics': metrics, 'text': sm['B52'].value, 'flags': flags, 'attention': attention, 'checks': checks,
+            'byStatus': [sm.cell(r, 5).value for r in range(B.STAT0, B.STAT0 + 4)], 'tiles': tiles}
 
 
 def records_from(wb_formulas):
@@ -81,18 +87,20 @@ def records_from(wb_formulas):
 
 
 def period_from(wb_formulas):
-    sm = wb_formulas[B.SUMMARY]
-    return {'start': d2s(sm['C4'].value), 'end': d2s(sm['C5'].value), 'asAt': d2s(sm['C6'].value)}
+    sm = wb_formulas[B.REPORT]
+    return {'start': d2s(sm['D4'].value), 'end': d2s(sm['G4'].value), 'asAt': d2s(sm['D5'].value)}
 
 
 def compare(label, path):
     wbf = load_workbook(path)
     expect = js(records_from(wbf), period_from(wbf))
     got = read_results(recalc(path))
-    for k in ('metrics', 'text', 'flags'):
-        check(got[k] == expect[k], f'{label}: {k} match the website engine' + ('' if got[k] == expect[k] else f'\n         workbook {got[k]}\n         website  {expect[k]}'))
-    exp_f = [[ref, title, owner, due, reason] for ref, title, owner, due, reason in expect['followUps']]
-    check(got['followUps'] == exp_f, f'{label}: follow-up list matches' + ('' if got['followUps'] == exp_f else f'\n         workbook {got["followUps"]}\n         website  {exp_f}'))
+    for k in ('metrics', 'text', 'flags', 'attention', 'checks', 'byStatus'):
+        check(got[k] == expect[k], f'{label}: {k} match the website' + ('' if got[k] == expect[k] else f'\n         workbook {got[k]}\n         website  {expect[k]}'))
+    m = expect['metrics']
+    want_tiles = [m['completed'], m['outstanding'], m['attention'], f"Of the {m['outstanding']} still outstanding" if m['outstanding'] else '',
+                  f"{m['total']} record{'' if m['total'] == 1 else 's'} checked"]
+    check(got['tiles'] == want_tiles, f'{label}: report tiles and header' + ('' if got['tiles'] == want_tiles else f'\n         workbook {got["tiles"]}\n         expected {want_tiles}'))
     return got
 
 
@@ -101,7 +109,7 @@ def scenario(label, edit):
     p = os.path.join(tmp, 's.xlsx')
     shutil.copy(PATH, p)
     wb = load_workbook(p)
-    edit(wb[B.TRACKER], wb[B.SUMMARY])
+    edit(wb[B.TRACKER], wb[B.REPORT])
     wb.save(p)
     return compare(label, p)
 
@@ -120,11 +128,19 @@ def main():
         names = z.namelist()
         check(not any('vbaProject' in n or 'externalLink' in n or 'connections' in n for n in names), 'no macros, external links or data connections')
         wbxml = z.read('xl/workbook.xml').decode()
+        media = [n for n in names if n.startswith('xl/media/')]
+        charts = [n for n in names if n.startswith('xl/charts/chart')]
+    check(len(media) >= 2, f'Rework Rescue logo on Start here and the report: {media}')
+    check(len(charts) == 1, f'one chart (jobs by status): {charts}')
     wb = load_workbook(PATH)
-    check(wb.sheetnames == [B.TRACKER, B.SUMMARY], f'exactly two sheets: {wb.sheetnames}')
-    ws, sm = wb[B.TRACKER], wb[B.SUMMARY]
-    check(ws['A1'].value == 'Weekly Work & Follow-up Tracker' and sm['A1'].value == 'Weekly Operations Summary', 'sheet titles')
+    check(wb.sheetnames == [B.START, B.TRACKER, B.REPORT], f'three sheets in order: {wb.sheetnames}')
+    st, ws, sm = wb[B.START], wb[B.TRACKER], wb[B.REPORT]
+    check(st['B3'].value == 'Weekly Work & Follow-up Tracker' and ws['A1'].value == 'Weekly Work & Follow-up Tracker' and sm['B3'].value == data['BUSINESS'], 'sheet titles')
+    check(sm['B2'].value == 'WEEKLY OPERATIONS REPORT \u00b7 FICTIONAL SAMPLE', 'report label says fictional sample')
     check(ws['A2'].value.startswith('Enter your requests and tasks, assign an owner, set a due date, and update the status as work progresses.'), 'tracker instruction')
+    links = {c.hyperlink.location or c.hyperlink.target for row in st.iter_rows() for c in row if c.hyperlink}
+    check(f"'{B.TRACKER}'!A1" in links and f"'{B.REPORT}'!A1" in links and f'{B.SITE}/contact/#contact-form-area' in links, f'Start here links to both sheets and the booking page: {links}')
+    check(any('Excel 2010' in str(st.cell(r, 3).value) for r in range(19, 24)), 'Start here says which Excel versions it works in')
     t = ws.tables[B.TABLE]
     check([c.name for c in t.tableColumns] == ['Ref', 'Date Received', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status', 'Notes / Next Step', 'Attention Flag'], 'table columns in order')
     check(t.ref == f'A4:I{B.LAST}' and t.autoFilter is not None, f'Excel Table {t.ref} with filters')
@@ -140,26 +156,33 @@ def main():
     check(dvs.get(f'E5:E{B.FMT_ROWS}') is not None and dvs[f'E5:E{B.FMT_ROWS}'].formula1 == 'TeamList', 'Assigned To dropdown reads the team list')
     check([ws.cell(r, 11).value for r in range(5, 9)] == data['OWNERS'], 'editable team list K5:K14 starts Ana, Mark, Sam, Unassigned')
     check('OFFSET' in wb.defined_names['TeamList'].attr_text, 'team list grows with the names entered')
-    for n, cell in (('PeriodStart', '$C$4'), ('PeriodEnd', '$C$5'), ('AsAt', '$C$6')):
-        check(wb.defined_names[n].attr_text.endswith(cell), f'{n} → {cell}')
-    check([d2s(sm[c].value) for c in ('C4', 'C5', 'C6')] == ['2026-11-02', '2026-11-06', '2026-11-06'], 'reporting dates 2 Nov – 6 Nov, as at 6 Nov')
-    check(all(str(sm.cell(r, 3).value).startswith('=') for r in range(9, 16)) and str(sm['A18'].value).startswith('='), 'all summary figures and the sentence are formulas')
-    check(len(ws.conditional_formatting) >= 5, 'conditional formatting: overdue, missing, unassigned, completed, flagged')
+    for n, cell in (('PeriodStart', '$D$4'), ('PeriodEnd', '$G$4'), ('AsAt', '$D$5')):
+        check(wb.defined_names[n].attr_text == f"'{B.REPORT}'!{cell}", f'{n} → Weekly Report {cell}')
+    check([d2s(sm[c].value) for c in ('D4', 'G4', 'D5')] == ['2026-11-02', '2026-11-06', '2026-11-06'], 'reporting dates 2 Nov – 6 Nov, as at 6 Nov')
+    formula_cells = [sm.cell(r, 15) for r in range(6, 13)] + [sm[c] for c in ('B7', 'F7', 'J7', 'J9', 'J4', 'B52')] + \
+        [sm.cell(r, c) for r in range(B.CHECK0, B.CHECK0 + 9) for c in (8, 12, 16)] + [sm.cell(r, 5) for r in range(B.STAT0, B.STAT0 + 5)] + \
+        [sm.cell(r, c) for r in range(B.ITEM0, B.ITEM0 + B.FOLLOW) for c in (3, 4, 9, 11, 12, 15)]
+    check(all(str(c.value).startswith('=') for c in formula_cells), 'every figure, check, status count and action line on the report is a formula')
+    check(len(ws.conditional_formatting) >= 5, 'tracker conditional formatting: overdue, missing, unassigned, completed, flagged')
+    check(len(sm.conditional_formatting) >= 4, 'report conditional formatting: status colours, issue colours, tile, lines')
     check('fullCalcOnLoad="1"' in wbxml, 'Excel recalculates on open')
-    check([sm.cell(r, 5).value for r in range(4, 8)] == ['1. Update the sample records or replace them with your own.', '2. Set the reporting period and as-at date.',
-                                                       '3. Update owners and statuses as work progresses.', '4. Review the weekly summary and follow-up items.'], 'usage guide')
 
     print('Values stored in the file (what a previewer shows without recalculating)')
-    vals = load_workbook(PATH, data_only=True)[B.SUMMARY]
-    check([vals.cell(r, 3).value for r in range(9, 16)] == [12, 7, 5, 1, 1, 1, 3], f'12 / 7 / 5 / 1 / 1 / 1 / 3: {[vals.cell(r, 3).value for r in range(9, 16)]}')
-    check([vals.cell(r, 1).value for r in range(22, 26)] == ['R-104', 'R-111', 'R-112', None], 'follow-up list R-104, R-111, R-112')
+    vals = load_workbook(PATH, data_only=True)[B.REPORT]
+    stored = [vals.cell(r, 15).value for r in range(6, 13)]
+    check(stored == [12, 7, 5, 1, 1, 1, 3], f'12 / 7 / 5 / 1 / 1 / 1 / 3: {stored}')
+    check([vals['B7'].value, vals['F7'].value, vals['J7'].value] == [7, 5, 3], 'tiles 7 / 5 / 3')
+    check([vals.cell(r, 3).value for r in range(B.ITEM0, B.ITEM0 + 4)] == ['R-104', 'R-112', 'R-111', None], 'What needs attention: R-104, R-112, R-111')
 
-    print('Recalculated in LibreOffice and compared with the website engine')
+    print('Recalculated in LibreOffice and compared with the website')
     base = compare('sample', PATH)
     check(list(base['metrics'].values()) == [12, 7, 5, 1, 1, 1, 3], f'acceptance figures 12, 7, 5, 1, 1, 1, 3: {list(base["metrics"].values())}')
-    check(base['followUps'] == [['R-104', 'Follow up on payment', 'Mark', '2026-11-04', 'Overdue'],
-                                ['R-111', 'Check service notes', 'Mark', '2026-11-06', 'Missing customer / area'],
-                                ['R-112', 'Confirm outstanding item', 'Unassigned', '2026-11-06', 'No owner assigned']], 'follow-up items as specified')
+    check(base['attention'] == [['R-104', 'Follow up on overdue work', 'Mark', '2026-11-04', 'Overdue'],
+                                ['R-112', 'Assign an owner', 'Unassigned', '2026-11-06', 'No owner'],
+                                ['R-111', 'Complete the missing customer information', 'Mark', '2026-11-06', 'Missing customer']], 'What needs attention, as in the live example')
+    check([c[2] for c in base['checks']] == ['\u2713 Passed', '! Flagged', '\u2713 Passed', '\u25CF Action required', '\u2713 Passed', '\u25CF Action required', '\u2713 Passed', '\u2713 Passed', '! Flagged'],
+          'nine checks: Passed / Flagged / Passed · Action required / Passed / Action required · Passed / Passed / Flagged')
+    check(base['byStatus'] == [7, 2, 2, 1], f'jobs by status 7 / 2 / 2 / 1: {base["byStatus"]}')
     check(base['text'] == '12 records were received during the reporting period. 7 are marked as completed, while 5 remain outstanding. 3 records need attention.', 'summary sentence')
 
     def set_(ref, col, v):
@@ -167,8 +190,9 @@ def main():
 
     s = scenario('R-104 completed', set_('R-104', 7, 'Completed'))
     check(s['metrics']['overdue'] == 0 and s['flags']['R-104'] == '', 'R-104 no longer overdue or flagged')
-    s = scenario('R-112 assigned to Ana', set_('R-112', 5, 'Ana'))
+    s = scenario('R-112 assigned to Sam (the Start here exercise)', set_('R-112', 5, 'Sam'))
     check(s['metrics']['unassigned'] == 0 and s['flags']['R-112'] == '', 'R-112 no longer unassigned')
+    check(s['tiles'][2] == 2 and s['checks'][3][2] == '\u2713 Passed', 'Need attention drops to 2 and "Assigned owners" shows Passed, as Start here says')
     s = scenario('R-111 customer filled', set_('R-111', 4, 'Harbor Works'))
     check(s['metrics']['missing'] == 0 and s['flags']['R-111'] == '', 'R-111 no longer missing information')
 
@@ -177,7 +201,7 @@ def main():
         for c, v in enumerate(['R-113', dt.datetime(2026, 11, 2), '  send UPDATED quotation ', 'northfield services', 'Sam', dt.datetime(2026, 11, 9), 'Not Started'], 1):
             ws.cell(r, c, v)
     s = scenario('new record R-113 matching R-101 (case and spaces differ)', add_dup)
-    check(s['flags']['R-113'] == 'Possible duplicate — review' and s['flags']['R-101'] == 'Possible duplicate — review', 'both records flagged "Possible duplicate — review"')
+    check(s['flags']['R-113'] == 'Possible duplicate' and s['flags']['R-101'] == 'Possible duplicate', 'both records flagged "Possible duplicate"')
     check(s['metrics']['total'] == 13 and s['metrics']['attention'] == 5, 'new row counted without copying formulas (13 records, 5 need attention)')
 
     def multi(ws, sm):
@@ -185,11 +209,11 @@ def main():
         ws.cell(r, 4).value = None
         ws.cell(r, 6, dt.datetime(2026, 11, 5))
     s = scenario('R-112 overdue, missing customer and unassigned', multi)
-    check(s['flags']['R-112'] == 'Overdue · Missing customer / area · No owner assigned' and s['metrics']['attention'] == 3, 'one record, three reasons, counted once')
+    check(s['flags']['R-112'] == 'Overdue · Missing customer · No owner' and s['metrics']['attention'] == 3, 'one record, three reasons, counted once')
 
-    s = scenario('as-at date moved to 9 Nov', lambda ws, sm: sm.__setitem__('C6', dt.datetime(2026, 11, 9)))
+    s = scenario('as-at date moved to 9 Nov', lambda ws, sm: sm.__setitem__('D5', dt.datetime(2026, 11, 9)))
     check(s['metrics']['overdue'] == 5, f'all five open items now overdue: {s["metrics"]["overdue"]}')
-    s = scenario('period ends 4 Nov', lambda ws, sm: sm.__setitem__('C5', dt.datetime(2026, 11, 4)))
+    s = scenario('period ends 4 Nov', lambda ws, sm: sm.__setitem__('G4', dt.datetime(2026, 11, 4)))
     check(s['metrics']['total'] == 8, f'eight records received 2–4 Nov: {s["metrics"]["total"]}')
 
     def everything_done(ws, sm):

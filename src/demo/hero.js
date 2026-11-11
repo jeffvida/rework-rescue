@@ -13,11 +13,11 @@
 
 import { getRecords, subscribe } from '../tracker/store.js';
 import { summarise, missingFields, isEmptyRow, inPeriod, byStatus } from '../tracker/engine.js';
-import { RECORDS, PERIOD_LABEL, BUSINESS, STATUSES, OWNERS } from '../tracker/data.js';
+import { RECORDS, PERIOD, PERIOD_LABEL, BUSINESS, STATUSES, OWNERS } from '../tracker/data.js';
 
 /** The report's figures, all derived from the tracker records. */
-export function heroFigures(rec = RECORDS) {
-  const s = summarise(rec);
+export function heroFigures(rec = RECORDS, p = PERIOD) {
+  const s = summarise(rec, p);
   return { total: s.total, completed: s.completed, outstanding: s.outstanding, attention: s.attention, overdue: s.overdue,
     unassigned: s.unassigned, missing: s.missing, duplicates: s.duplicates, period: PERIOD_LABEL, business: BUSINESS, followUps: s.followUps };
 }
@@ -30,14 +30,14 @@ const isoOk = (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '').trim()) || Strin
  * Built-in checks per stage, from the records. state: 'pass' | 'flag' | 'action' | 'none' (no data to check).
  * Each check lists the Today issues it answers (answers), so the two states line up (a test checks every Today issue).
  */
-export function dataChecks(rec = RECORDS) {
-  const f = heroFigures(rec);
-  const rows = rec.filter((r) => inPeriod(r) && !isEmptyRow(r));
+export function dataChecks(rec = RECORDS, p = PERIOD) {
+  const f = heroFigures(rec, p);
+  const rows = rec.filter((r) => inPeriod(r, p) && !isEmptyRow(r));
   const complete = rows.filter((r) => !missingFields(r).length).length;
   const formatsOk = rows.filter((r) => isoOk(r.received) && isoOk(r.due) && STATUSES.includes(String(r.status).trim())).length;
   const statusOk = rows.filter((r) => STATUSES.includes(String(r.status).trim())).length;
   const ownersOk = rows.filter((r) => OWNERS.includes(String(r.owner).trim()) || String(r.owner).trim() === '').length;
-  const counted = byStatus(rec).reduce((n, x) => n + x.count, 0);
+  const counted = byStatus(rec, p).reduce((n, x) => n + x.count, 0);
   const missRefs = refsOf(f, 'missing'); const ownRefs = refsOf(f, 'unassigned'); const lateRefs = refsOf(f, 'overdue');
   return {
     capture: [

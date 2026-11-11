@@ -12,9 +12,9 @@
 // appHtml() is pure (no DOM): tools/render_tracker_static.mjs writes the non-interactive output into index.html as the
 // no-JavaScript version (all three stages shown one after another). CSP: no inline style attributes.
 
-import { RECORDS, PERIOD_LABEL, BUSINESS } from './data.js';
+import { RECORDS, PERIOD_LABEL, BUSINESS, FLAG } from './data.js';
 import { summarise, findings, shortDate, day, isCompleted, inPeriod, isEmptyRow } from './engine.js';
-import { dataChecks, heroFigures, actionItems, STATE } from '../demo/hero.js';
+import { dataChecks, heroFigures, STATE } from '../demo/hero.js';
 
 const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const refs = (t) => esc(t).replace(/R-\d+/g, (r) => `<span class="lx-ref">${r}</span>`);
@@ -39,14 +39,18 @@ const LABEL = { 'Required fields': 'Required information' };
 const DETAIL = { 'None found': 'No duplicates found' };
 
 /** What needs attention: one line per flagged record, in the report's order (from the hero's actionItems). */
-export function attentionItems(rec = RECORDS) {
-  const f = heroFigures(rec);
-  const text = { overdue: ['Follow up on overdue work', 'Overdue'], unassigned: ['Assign an owner', 'No owner'], missing: ['Complete the missing customer information', 'Missing customer'], duplicate: ['Check the possible duplicate', 'Possible duplicate'] };
-  return actionItems(f).filter((x) => x.ref).map((x) => {
-    const keys = f.followUps.find((u) => u.ref === x.ref).keys;
-    const key = ['overdue', 'unassigned', 'missing', 'duplicate'].find((k) => keys.includes(k));
-    return { ref: x.ref, what: text[key][0], tag: text[key][1], state: x.priority === 'High' ? 'action' : 'flag' };
-  });
+export function attentionItems(rec = RECORDS, { all = false, period } = {}) {
+  const f = heroFigures(rec, period);
+  const text = { overdue: ['Follow up on overdue work', 'Overdue'], unassigned: ['Assign an owner', 'No owner'], duplicate: ['Check the possible duplicate', 'Possible duplicate'] };
+  const items = f.followUps.map((u, i) => {
+    const key = ['overdue', 'unassigned', 'missing', 'duplicate'].find((k) => u.keys.includes(k));
+    const [what, tag] = key === 'missing'
+      ? (u.labels.includes(FLAG.missingCustomer) ? ['Complete the missing customer information', 'Missing customer'] : ['Complete the missing information', 'Missing information'])
+      : text[key];
+    const high = u.keys.includes('overdue') || u.keys.includes('unassigned');
+    return { ref: u.ref, what, tag, state: high ? 'action' : 'flag', owner: u.owner, due: u.due, order: (high ? 0 : 1) * 1e5 + i };
+  }).sort((a, b) => a.order - b.order);
+  return all ? items : items.slice(0, 3);
 }
 
 /** The report's three plain-language checks, from the hero's See checks. */

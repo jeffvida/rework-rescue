@@ -92,13 +92,13 @@ test('hero checks: every Today issue has a matching check in the same stage; sta
   }
   const all = Object.values(c).flat();
   const st = Object.fromEntries(all.map((x) => [x.label, [x.state, x.detail]]));
-  assert.deepEqual(st['Duplicate job references'], ['pass', 'None found']);
-  assert.deepEqual(st['Required fields'], ['flag', '11 of 12 complete · R-111']);
-  assert.deepEqual(st['Assigned owners'], ['action', 'No owner · R-112']);
-  assert.deepEqual(st['Overdue follow-ups'], ['action', 'Overdue · R-104']);
+  assert.deepEqual(st['No duplicate jobs'], ['pass', 'None found']);
+  assert.deepEqual(st['Job details complete'], ['flag', '11 of 12 complete · R-111']);
+  assert.deepEqual(st['Every open job has an owner'], ['action', 'No owner · R-112']);
+  assert.deepEqual(st['Follow-ups on time'], ['action', 'Overdue · R-104']);
   assert.ok(!('Completed, not invoiced' in st), 'invoice check removed (no invoice data in the sample)');
-  assert.deepEqual(st['KPI calculation'], ['pass', '7 + 5 = 12']);
-  assert.deepEqual(st['Exceptions in the report'], ['flag', '3 shown, not hidden']);
+  assert.deepEqual(st['Totals add up'], ['pass', '7 done + 5 open = 12']);
+  assert.deepEqual(st['Problems shown, not hidden'], ['flag', '3 on the report']);
   for (const s of ['pass', 'flag', 'action']) assert.ok(all.some((x) => x.state === s), `uses the ${s} state`);
   // Records that need attention are a subset of the open ones (not an extra category).
   const f = heroFigures(RECORDS);
@@ -144,7 +144,7 @@ test('services (10 Nov): one connected solution, Capture -> Move -> See, checks 
   const html = await page();
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   assert.match(sec, /<h2 id="services-h">One connected solution\. Three parts that work together\.<\/h2>/);
-  assert.match(sec, /You don&rsquo;t need to choose a service\. We&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there\./);
+  assert.match(sec, /You don&rsquo;t need to choose a service\. I&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there\./);
   // Order: Capture, Move, See, with the three service names kept.
   assert.deepEqual([...sec.matchAll(/<span class="svc-layer-n">(\d\d)<\/span> (\w+)<\/p>\s*<h3>([^<]+)<\/h3>/g)].map((m) => [m[1], m[2], m[3]]), [
     ['01', 'Capture', 'Business Tools &amp; Systems'], ['02', 'Move', 'Workflows &amp; Processes'], ['03', 'See', 'Data &amp; Reporting']]);
@@ -152,14 +152,15 @@ test('services (10 Nov): one connected solution, Capture -> Move -> See, checks 
   // Data & Reporting keeps the most visual weight.
   assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
   assert.match(sec, /Most projects start here/);
-  // Checks band across all three, in the softer wording (no promise that everything checks itself).
-  assert.match(sec, /Automation is only useful when the information behind it can be trusted\./);
-  assert.match(sec, /Built with data checks and clear exceptions, so problems are easier to catch before they affect your reports and workflows\./);
+  // The repeated checks band and the second weekly-report story were removed (11 Nov review): the live example shows both.
+  assert.doesNotMatch(sec, /svc-checks|example-project/);
   assert.doesNotMatch(html, /checks its own data|every workflow I build/i);
   // Nothing that asks the visitor to pick a service; no per-service mini-demos.
   assert.doesNotMatch(html, /on its own or combined|Not sure where your problem fits|data-mini=|svc-try|data-svc-go/);
   const home = await src('home.js'); assert.doesNotMatch(home, /mountServices|mountSamples/);
-  assert.match(sec, /Google Apps Script/);
+  // Plain tools line in Services; the technical list lives in the AI/automation FAQ (11 Nov review).
+  assert.match(sec, /Works with what you already use:/);
+  assert.match(html.slice(html.indexOf('id="faq"')), /Google Apps Script/);
   assert.doesNotMatch(html, /KPI &amp; Operations Reporting|Reporting &amp; Data Automation|Workflow Improvements/);
 });
 
@@ -172,7 +173,7 @@ test('18.11 How I work: the reassurance line, the steps and the handover terms s
 
 test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, no platform pitch, privacy matches', async () => {
   const html = await page();
-  const main = html.slice(html.indexOf('<main'), html.indexOf('id="experience"'));
+  const main = html.slice(html.indexOf('<main'), html.indexOf('id="services"'));
   assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
   assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
   // The only mention of subscriptions is the cost-transparency line in the live example (final brief, 11 Nov).
@@ -186,21 +187,27 @@ test('problem cards: three, in the customer’s words, each pointing to its laye
   const fit = html.slice(html.indexOf('id="fit"'), html.indexOf('id="samples"'));
   const cards = [...fit.matchAll(/<a href="#(svc-\w+)"><strong>([^<]+)<\/strong>[\s\S]*?<em>([^<]+)</g)].map((m) => [m[1], m[2], m[3].trim()]);
   assert.deepEqual(cards, [
-    ['svc-data', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;', 'See &middot; Data &amp; Reporting'],
-    ['svc-workflow', '&ldquo;I&rsquo;m always chasing updates.&rdquo;', 'Move &middot; Workflows &amp; Processes'],
     ['svc-systems', '&ldquo;Everything is scattered.&rdquo;', 'Capture &middot; Business Tools &amp; Systems'],
+    ['svc-workflow', '&ldquo;I&rsquo;m always chasing updates.&rdquo;', 'Move &middot; Workflows &amp; Processes'],
+    ['svc-data', '&ldquo;I&rsquo;m always rebuilding reports.&rdquo;', 'See &middot; Data &amp; Reporting'],
   ]);
   assert.match(fit, /Most weeks it&rsquo;s all three at once, <a href="#services">and that&rsquo;s how I fix them<\/a>\./);
 });
 
 
-test('page: experience sits right after the live example, marked as previous professional experience', async () => {
+test('page order (11 Nov review): problem, proof, offer, process, person; previous roles live in About', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const order = ['id="samples"', 'id="experience"', 'id="services"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
+  const order = ['id="fit"', 'id="samples"', 'id="services"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
+  assert.ok(order.every((i) => i > 0));
   assert.deepEqual([...order].sort((a, b) => a - b), order);
-  const exp = html.slice(order[1], order[2]);
-  for (const t of ['Utility Billing &amp; Data Validation', 'Operational Reporting &amp; Analysis', 'Solar &amp; Energy Performance Analysis', 'Previous professional experience', 'not Rework Rescue client projects']) assert.ok(exp.includes(t), t);
+  assert.doesNotMatch(html, /id="experience"/, 'Experience merged into About');
+  const about = html.slice(order[4], order[5]);
+  for (const t of ['Before Rework Rescue', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.', 'not Rework Rescue client projects']) assert.ok(about.includes(t), t);
   assert.match(html, /Based in the Philippines\. Available for calls Monday to Friday/);
+  const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">/g)].map((m) => m[1]);
+  assert.deepEqual(nav, ['samples', 'services', 'how', 'about', 'faq'], 'nav follows the page');
+  const start = html.slice(order[6]);
+  assert.doesNotMatch(start.slice(0, start.indexOf('</section>')), /Prefer to write first\?/, 'contact details live in the footer');
 });
 
 test('page: no prices, testimonials or client results; service names kept; services kept short', async () => {
@@ -213,16 +220,18 @@ test('page: no prices, testimonials or client results; service names kept; servi
   // Middle option (9 Nov): CRM, websites and booking pages stay, framed as support for records and reporting.
   assert.match(html, /Simple CRM and customer records/);
   assert.match(html, /Forms, booking and request pages/);
-  assert.match(html, /Trackers, job registers and operational workbooks/);
-  assert.match(html, /Simple pages connected to your records/);
+  assert.match(html, /Trackers and job lists/);
+  // Three examples per part (11 Nov review).
+  assert.equal((html.slice(html.indexOf('id="services"'), html.indexOf('id="how"')).match(/<ul class="svc-have">/g) || []).length, 3);
+  for (const ul of html.match(/<ul class="svc-have">[\s\S]*?<\/ul>/g)) assert.equal((ul.match(/<li>/g) || []).length, 3);
   assert.doesNotMatch(html, /Better data\. Simpler workflows\./);
-  assert.match(html, /I don&#39;t automate consequential decisions about people\./);
+  assert.match(html, /I don&#39;t automate important decisions about people\./);
   assert.match(html, /30 days of fixes for issues where the solution does not work as agreed\./);
 });
 
 test('booking after the demo: one strip with the first-project line, using the existing pop-up link', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="experience"'));
+  const sec = html.slice(html.indexOf('id="samples"'), html.indexOf('id="services"'));
   const after = sec.slice(sec.indexOf('class="demo-after"'));
   assert.ok(sec.indexOf('class="demo-after"') > sec.indexOf('<!-- tracker:end -->'), 'after the live example');
   assert.match(after, /<strong>Your business may be different\. The problems are often familiar\.<\/strong> Rework Rescue helps businesses dealing with scattered information, manual processes, unclear follow-ups or reporting that takes too much effort to prepare\. The first step is a conversation about your actual process, not a commitment to buy software or an automation package\./);
@@ -231,20 +240,13 @@ test('booking after the demo: one strip with the first-project line, using the e
   assert.doesNotMatch(after, /weeks|days|[$₱]/i, 'no timeframe or price');
 });
 
-test('the example first project sits right after the services diagram, labelled as an illustration, growth optional', async () => {
+test('How I work: four steps; step 4 lists what you receive and the 30-day fixes terms (moved from Services, 11 Nov)', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
-  const ex = sec.slice(sec.indexOf('class="example-project"'), sec.indexOf('class="svc-foot"'));
-  assert.ok(sec.indexOf('class="svc-checks"') < sec.indexOf('class="example-project"'), 'after the diagram and checks');
-  assert.match(ex, /Where most projects start &middot; illustration/);
-  assert.match(ex, /not a client result/);
-  assert.match(ex, /each step is scoped and agreed separately, and stopping at the report is fine\./);
-  for (const t of ['Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(ex.includes(t), t);
-  assert.doesNotMatch(ex, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
-  assert.doesNotMatch(how, /example-project/);
   assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'How I work keeps its four steps');
+  for (const t of ['The working solution, set up in your tools or accounts.', 'Ownership of the delivered work', '30 days of fixes for issues where the solution does not work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
+  assert.doesNotMatch(how, /\d+\s?(hours|%|weeks|days to)/i, 'no invented results or timelines');
 });
 
 test('availability on the page matches the booking calendar rules', async () => {

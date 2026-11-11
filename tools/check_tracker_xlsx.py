@@ -60,7 +60,7 @@ def read_results(wb):
     for r in range(B.FIRST, B.LAST + 1):
         ref = ws.cell(r, 1).value
         if ref:
-            flags[ref] = ws.cell(r, 9).value or ''
+            flags[ref] = ws.cell(r, 10).value or ''
     keys = ['total', 'completed', 'outstanding', 'overdue', 'unassigned', 'missing', 'attention']
     metrics = {k: sm.cell(6 + i, 15).value for i, k in enumerate(keys)}
     attention = []
@@ -77,12 +77,12 @@ def records_from(wb_formulas):
     ws = wb_formulas[B.TRACKER]
     out = []
     for r in range(B.FIRST, B.LAST + 1):
-        vals = [ws.cell(r, c).value for c in range(1, 8)]
+        vals = [ws.cell(r, c).value for c in range(1, 9)]
         if vals[0] is None and all(v is None for v in vals[1:]):
             continue
-        ref, rec, task, cust, owner, due, status = vals
+        ref, rec, task, cust, owner, due, status, done = vals
         out.append({'ref': ref, 'received': d2s(rec), 'task': task or '', 'customer': cust or '', 'owner': owner or '',
-                    'due': d2s(due), 'status': status or ''})
+                    'due': d2s(due), 'status': status or '', 'completed': d2s(done)})
     return out
 
 
@@ -99,7 +99,7 @@ def compare(label, path):
         check(got[k] == expect[k], f'{label}: {k} match the website' + ('' if got[k] == expect[k] else f'\n         workbook {got[k]}\n         website  {expect[k]}'))
     m = expect['metrics']
     want_tiles = [m['completed'], m['outstanding'], m['attention'], f"Of the {m['outstanding']} still outstanding" if m['outstanding'] else '',
-                  f"{m['total']} record{'' if m['total'] == 1 else 's'} checked"]
+                  f"{m['total']} job{'' if m['total'] == 1 else 's'} checked"]
     check(got['tiles'] == want_tiles, f'{label}: report tiles and header' + ('' if got['tiles'] == want_tiles else f'\n         workbook {got["tiles"]}\n         expected {want_tiles}'))
     return got
 
@@ -142,19 +142,19 @@ def main():
     check(f"'{B.TRACKER}'!A1" in links and f"'{B.REPORT}'!A1" in links and f'{B.SITE}/contact/#contact-form-area' in links, f'Start here links to both sheets and the booking page: {links}')
     check(any('Excel 2010' in str(st.cell(r, 3).value) for r in range(19, 24)), 'Start here says which Excel versions it works in')
     t = ws.tables[B.TABLE]
-    check([c.name for c in t.tableColumns] == ['Ref', 'Date Received', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status', 'Notes / Next Step', 'Attention Flag'], 'table columns in order')
-    check(t.ref == f'A4:I{B.LAST}' and t.autoFilter is not None, f'Excel Table {t.ref} with filters')
-    check(t.tableColumns[8].calculatedColumnFormula is not None, 'Attention Flag is a calculated column (new rows get the formula)')
+    check([c.name for c in t.tableColumns] == ['Ref', 'Date Received', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status', 'Date Completed', 'Notes / Next Step', 'Attention Flag'], 'table columns in order')
+    check(t.ref == f'A4:J{B.LAST}' and t.autoFilter is not None, f'Excel Table {t.ref} with filters')
+    check(t.tableColumns[9].calculatedColumnFormula is not None, 'Attention Flag is a calculated column (new rows get the formula)')
     check(ws.freeze_panes == 'A5', 'header row frozen')
     got = records_from(wb)
     want = [dict(r, customer=r['customer']) for r in data['RECORDS']]
     check(got == want, '12 sample records exactly as in src/tracker/data.js')
     check(all(isinstance(ws.cell(r, c).value, dt.datetime) and ws.cell(r, c).number_format == 'dd-mmm-yyyy' for r in range(5, 17) for c in (2, 6)), 'dates are real dates, dd-mmm-yyyy')
-    check(all(str(ws.cell(r, 9).value).startswith('=') for r in range(B.FIRST, B.LAST + 1)), f'flag formula on all {B.ROWS} table rows')
+    check(all(str(ws.cell(r, 10).value).startswith('=') for r in range(B.FIRST, B.LAST + 1)), f'flag formula on all {B.ROWS} table rows')
     dvs = {str(d.sqref): d for d in ws.data_validations.dataValidation}
     check(dvs.get(f'G5:G{B.FMT_ROWS}') is not None and dvs[f'G5:G{B.FMT_ROWS}'].formula1 == '"Not Started,In Progress,Waiting,Completed"', 'Status dropdown')
     check(dvs.get(f'E5:E{B.FMT_ROWS}') is not None and dvs[f'E5:E{B.FMT_ROWS}'].formula1 == 'TeamList', 'Assigned To dropdown reads the team list')
-    check([ws.cell(r, 11).value for r in range(5, 9)] == data['OWNERS'], 'editable team list K5:K14 starts Ana, Mark, Sam, Unassigned')
+    check([ws.cell(r, 12).value for r in range(5, 9)] == data['OWNERS'], 'editable team list L5:L14 starts Ana, Mark, Sam, Unassigned')
     check('OFFSET' in wb.defined_names['TeamList'].attr_text, 'team list grows with the names entered')
     for n, cell in (('PeriodStart', '$D$4'), ('PeriodEnd', '$G$4'), ('AsAt', '$D$5')):
         check(wb.defined_names[n].attr_text == f"'{B.REPORT}'!{cell}", f'{n} → Weekly Report {cell}')
@@ -183,7 +183,7 @@ def main():
     check([c[2] for c in base['checks']] == ['\u2713 Passed', '! Flagged', '\u2713 Passed', '\u25CF Action required', '\u2713 Passed', '\u25CF Action required', '\u2713 Passed', '\u2713 Passed', '! Flagged'],
           'nine checks: Passed / Flagged / Passed · Action required / Passed / Action required · Passed / Passed / Flagged')
     check(base['byStatus'] == [7, 2, 2, 1], f'jobs by status 7 / 2 / 2 / 1: {base["byStatus"]}')
-    check(base['text'] == '12 records were received during the reporting period. 7 are marked as completed, while 5 remain outstanding. 3 records need attention.', 'summary sentence')
+    check(base['text'] == '12 jobs in this report. 7 are marked as completed, while 5 remain outstanding. 3 jobs need attention.', 'summary sentence')
 
     def set_(ref, col, v):
         return lambda ws, sm: ws.cell(row_of(ws, ref), col, v)
@@ -198,7 +198,7 @@ def main():
 
     def add_dup(ws, sm):
         r = B.FIRST + 12
-        for c, v in enumerate(['R-113', dt.datetime(2026, 11, 2), '  send UPDATED quotation ', 'northfield services', 'Sam', dt.datetime(2026, 11, 9), 'Not Started'], 1):
+        for c, v in enumerate(['R-113', dt.datetime(2026, 11, 2), '  send UPDATED quotation ', 'northfield services', 'Sam', dt.datetime(2026, 11, 9), 'Not Started', None], 1):
             ws.cell(r, c, v)
     s = scenario('new record R-113 matching R-101 (case and spaces differ)', add_dup)
     check(s['flags']['R-113'] == 'Possible duplicate' and s['flags']['R-101'] == 'Possible duplicate', 'both records flagged "Possible duplicate"')
@@ -213,6 +213,22 @@ def main():
 
     s = scenario('as-at date moved to 9 Nov', lambda ws, sm: sm.__setitem__('D5', dt.datetime(2026, 11, 9)))
     check(s['metrics']['overdue'] == 5, f'all five open items now overdue: {s["metrics"]["overdue"]}')
+    def next_week(ws, sm):
+        sm['D4'] = dt.datetime(2026, 11, 9)
+        sm['G4'] = dt.datetime(2026, 11, 13)
+        sm['D5'] = dt.datetime(2026, 11, 13)
+    s = scenario('next week (9–13 Nov): open jobs carry over', next_week)
+    check([s['metrics'][k] for k in ('total', 'completed', 'outstanding', 'overdue', 'attention')] == [5, 0, 5, 5, 5], f'5 open jobs carried over, all overdue: {s["metrics"]}')
+    check(any(a[0] == 'R-104' and a[4] == 'Overdue' for a in s['attention']), 'R-104 still on the report as overdue')
+
+    def done_next_week(ws, sm):
+        next_week(ws, sm)
+        r = row_of(ws, 'R-106')
+        ws.cell(r, 7, 'Completed')
+        ws.cell(r, 8, dt.datetime(2026, 11, 10))
+    s = scenario('next week, R-106 completed on 10 Nov', done_next_week)
+    check([s['metrics'][k] for k in ('total', 'completed', 'outstanding')] == [5, 1, 4], f'R-106 counts as completed that week: {s["metrics"]}')
+
     s = scenario('period ends 4 Nov', lambda ws, sm: sm.__setitem__('G4', dt.datetime(2026, 11, 4)))
     check(s['metrics']['total'] == 8, f'eight records received 2–4 Nov: {s["metrics"]["total"]}')
 
@@ -221,7 +237,7 @@ def main():
             ws.cell(r, 7, 'Completed')
         ws.cell(row_of(ws, 'R-111'), 4, 'Harbor Works')
     s = scenario('all completed and fixed', everything_done)
-    check(s['text'] == '12 records were received during the reporting period. All 12 are marked as completed. No records need attention.', 'sentence when nothing is outstanding')
+    check(s['text'] == '12 jobs in this report. All 12 are marked as completed. No jobs need attention.', 'sentence when nothing is outstanding')
 
     print()
     if FAILS:

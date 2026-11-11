@@ -14,7 +14,7 @@ import { appHtml, attentionItems, reportChecks, reportHtml, STAGES } from '../sr
 import { dataChecks } from '../src/demo/hero.js';
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
-const section = async () => { const h = await page(); return h.slice(h.indexOf('id="samples"'), h.indexOf('id="experience"')); };
+const section = async () => { const h = await page(); return h.slice(h.indexOf('id="samples"'), h.indexOf('id="services"')); };
 const figures = (s) => [s.total, s.completed, s.outstanding, s.overdue, s.unassigned, s.missing, s.attention];
 
 test('the sample: 12 fixed, frozen, industry-neutral records with the deliberate issues left in', () => {
@@ -40,7 +40,7 @@ test('acceptance figures: 12 records, 7 completed, 5 outstanding, 1 overdue, 1 u
     ['Check service notes', 'Missing customer · R-111', 'Add the missing customer or area details.'],
     ['Confirm outstanding item', 'No owner · R-112', 'Choose someone to take responsibility.'],
   ]);
-  assert.equal(s.text, '12 records were received during the reporting period. 7 are marked as completed, while 5 remain outstanding. 3 records need attention.');
+  assert.equal(s.text, '12 jobs in this report. 7 are marked as completed, while 5 remain outstanding. 3 jobs need attention.');
 });
 
 test('rules: overdue is before the as-at date only; due on the as-at date is not overdue; completed work is never overdue or unassigned', () => {
@@ -63,14 +63,14 @@ test('visitor changes recalculate everything: completing R-104, assigning R-112,
   let s = summarise(rec);
   assert.deepEqual(figures(s), [12, 8, 4, 0, 1, 1, 2]);
   assert.ok(!s.followUps.some((f) => f.ref === 'R-104'));
-  assert.equal(s.text, '12 records were received during the reporting period. 8 are marked as completed, while 4 remain outstanding. 2 records need attention.');
+  assert.equal(s.text, '12 jobs in this report. 8 are marked as completed, while 4 remain outstanding. 2 jobs need attention.');
   rec = setOwner(rec, 'R-112', 'Sam');
   s = summarise(rec);
   assert.deepEqual([s.unassigned, s.attention], [0, 1]);
   rec = setCustomer(rec, 'R-111', 'Harbor Works');
   s = summarise(rec);
   assert.deepEqual([s.missing, s.attention, s.followUps.length], [0, 0, 0]);
-  assert.equal(s.text, '12 records were received during the reporting period. 8 are marked as completed, while 4 remain outstanding. No records need attention.');
+  assert.equal(s.text, '12 jobs in this report. 8 are marked as completed, while 4 remain outstanding. No jobs need attention.');
   assert.equal(RECORDS[3].status, 'Waiting', 'the sample itself is untouched');
 });
 
@@ -97,10 +97,21 @@ test('a record with several issues shows every reason but counts once', () => {
   assert.equal(f.note, 'Due 5 November and still waiting. Add the missing customer or area details. Choose someone to take responsibility.');
 });
 
+test('next week: open jobs carry over, completed ones drop off, overdue stays visible (11 Nov 2026 review)', () => {
+  const next = { start: '2026-11-09', end: '2026-11-13', asAt: '2026-11-13' };
+  const s = summarise(RECORDS, next);
+  assert.deepEqual([s.total, s.completed, s.outstanding, s.overdue, s.attention], [5, 0, 5, 5, 5]);
+  assert.ok(s.followUps.some((f) => f.ref === 'R-104' && f.keys.includes('overdue')), 'R-104 is still overdue next week');
+  const done = summarise(setStatus(RECORDS, 'R-106', 'Completed').map((r) => (r.ref === 'R-106' ? { ...r, completed: '2026-11-10' } : r)), next);
+  assert.deepEqual([done.total, done.completed, done.outstanding], [5, 1, 4], 'completed next week counts as completed that week');
+  const earlier = summarise(RECORDS, { start: '2026-10-26', end: '2026-10-30', asAt: '2026-10-30' });
+  assert.equal(earlier.total, 0, 'nothing before it was received');
+});
+
 test('summary wording follows the figures and never claims more than the tracker shows', () => {
-  assert.equal(summaryText({ total: 1, completed: 0, outstanding: 1, attention: 1 }), '1 record was received during the reporting period. None are marked as completed yet, and 1 remains outstanding. 1 record needs attention.');
-  assert.equal(summaryText({ total: 12, completed: 12, outstanding: 0, attention: 0 }), '12 records were received during the reporting period. All 12 are marked as completed. No records need attention.');
-  assert.equal(summaryText({ total: 0, completed: 0, outstanding: 0, attention: 0 }), 'No records were received during the reporting period.');
+  assert.equal(summaryText({ total: 1, completed: 0, outstanding: 1, attention: 1 }), '1 job in this report. None are marked as completed yet, and 1 remains outstanding. 1 job needs attention.');
+  assert.equal(summaryText({ total: 12, completed: 12, outstanding: 0, attention: 0 }), '12 jobs in this report. All 12 are marked as completed. No jobs need attention.');
+  assert.equal(summaryText({ total: 0, completed: 0, outstanding: 0, attention: 0 }), 'No jobs in this report.');
   for (const owner of OWNERS) for (const status of STATUSES) assert.doesNotMatch(summarise(setStatus(setOwner(RECORDS, 'R-104', owner), 'R-104', status)).text, /this week|during the week|completed (this|during)/i);
 });
 
@@ -128,7 +139,7 @@ test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, t
     'First, let’s get the information right.', 'Missing information and duplicate records are identified before they create problems further down the process.',
     'Next, let’s make sure the work doesn’t get forgotten.', 'Clear responsibilities and visible follow-ups help prevent work from slipping through the cracks.',
     'Finally, know where your business stands.', 'Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.',
-    'Weekly operations report · Fictional sample', '2–6 November 2026 · 12 records checked', 'What needs attention',
+    'Weekly operations report · Fictional sample', '2–6 November 2026 · 12 jobs checked', 'What needs attention',
     'Know what&rsquo;s completed. See what&rsquo;s outstanding. Know what to do next.', 'See all 12 jobs (the tracker behind this report)',
     '<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>',
     'Not every business needs another system or complicated automation.',
@@ -151,7 +162,7 @@ test('stages: each one shows the actual records and the checks worked out from t
   // Capture: R-111's real fields, nothing invented (no customer name, no extra fields).
   const cap = textOf(panel('capture'));
   for (const t of ['Service request form Sample', 'Reference R-111', 'Received 6 Nov', 'Request Check service notes', 'Customer Missing', 'Job record, with checks applied', 'Customer: Missing', 'Customer details need completing. The missing information is flagged for follow-up and shown in the weekly report.',
-    'Duplicate job references No duplicates found Passed', 'Required information 11 of 12 complete · R-111 Flagged', 'Consistent formats 12 of 12 Passed']) assert.ok(cap.includes(t), t);
+    'No duplicate jobs None found Passed', 'Job details complete 11 of 12 complete · R-111 Flagged', 'Dates entered correctly 12 of 12 Passed']) assert.ok(cap.includes(t), t);
   assert.equal((panel('capture').match(/<dt>/g) || []).length, 4, 'only the four sample fields');
   // Move: the five outstanding jobs, with R-112 and R-104 flagged.
   const mv = panel('move');
@@ -160,12 +171,12 @@ test('stages: each one shows the actual records and the checks worked out from t
   assert.match(mv, /<span class="lx-blank">Unassigned<\/span>/);
   assert.doesNotMatch(mv, /Nobody/);
   const mvt = textOf(mv);
-  for (const t of ['Assigned owners No owner · R-112 Action required', 'Valid job statuses 12 of 12 Passed', 'Overdue follow-ups Overdue · R-104 Action required']) assert.ok(mvt.includes(t), t);
+  for (const t of ['Every open job has an owner No owner · R-112 Action required', 'Every job has a status 12 of 12 Passed', 'Follow-ups on time Overdue · R-104 Action required']) assert.ok(mvt.includes(t), t);
   assert.doesNotMatch(mv, /invoic/i);
-  assert.deepEqual(c.move.map((x) => x.label), ['Assigned owners', 'Valid job statuses', 'Overdue follow-ups'], 'no invoice check');
+  assert.deepEqual(c.move.map((x) => x.label), ['Every open job has an owner', 'Every job has a status', 'Follow-ups on time'], 'no invoice check');
   // See: simplified checks; the calculation is secondary (inside <details>).
   const see = textOf(panel('see'));
-  for (const t of ['All 12 records accounted for 12 of 12 counted Passed', 'Reporting totals checked 7 completed + 5 outstanding = 12 Passed', '3 exceptions visible Shown in the report, not hidden Flagged',
+  for (const t of ['Every job counted 12 of 12 counted Passed', 'Totals add up 7 done + 5 open = 12 Passed', 'Problems shown, not hidden 3 on the report Flagged',
     'The 3 needing attention are part of the 5 still outstanding, not extra jobs.']) assert.ok(see.includes(t), t);
   assert.deepEqual(STAGES.map((x) => x.name), ['Capture', 'Move', 'See']);
 });
@@ -184,7 +195,7 @@ test('the no-JavaScript version in index.html is exactly what the engine renders
   const sec = await section();
   const inner = sec.slice(sec.indexOf('<!-- tracker:start -->') + 22, sec.indexOf('<!-- tracker:end -->'));
   assert.equal(inner, appHtml(), 'run: node tools/render_tracker_static.mjs');
-  assert.deepEqual([...inner.matchAll(/<th scope="col">([^<]+)<\/th>/g)].slice(-6).map((m) => m[1]), ['Ref', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status']);
+  assert.deepEqual([...inner.matchAll(/<th scope="col">([^<]+)<\/th>/g)].slice(-7).map((m) => m[1]), ['Ref', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status', 'Date Completed']);
   assert.equal((inner.match(/<tr class="wt-row/g) || []).length, 12);
   assert.doesNotMatch(inner, /<button|<select|<input/, 'no controls without JavaScript');
   assert.equal((inner.match(/class="lx-panel"/g) || []).length, 3, 'all three stages shown');

@@ -7,8 +7,8 @@ import { attentionItems } from '../src/tracker/ui.js';
 
 // The workbook writes each check's status with a symbol, and uses the live example's wording for two checks.
 const MARK = { pass: '✓ ', flag: '! ', action: '● ' };
-const LABEL = { 'Required fields': 'Required information' };
-const DETAIL = { 'None found': 'No duplicates found' };
+const LABEL = {};
+const DETAIL = {};
 
 let input = '';
 process.stdin.on('data', (c) => { input += c; });

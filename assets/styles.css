@@ -1289,6 +1289,10 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .bk-who p, .bk-meet, .bk-meet strong, .bk-meet span { white-space: nowrap; }
   .bk-meet { font-size: 0.88rem; padding: 0.3rem 0.6rem; gap: 0.5rem; }
 }
+/* Narrow phones: the name and the meeting badge share the row only if both fit; otherwise the badge wraps below (11 Nov). */
+@media (max-width: 27rem) {
+  .bk-side { flex-wrap: wrap; justify-content: flex-start; }
+}
 @media (max-width: 23rem) {
   .bk-who strong { display: none; }
 }
@@ -4004,3 +4008,29 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .hx-result { position: static; }
   .hx-kpi strong { font-size: 1.6rem; }
 }
+
+/* Hero on phones (11 Nov review): compact. No file cards (the stage lists already name each problem), short caption. */
+.hx-cap-short { display: none; }
+@media (max-width: 40rem) {
+  .hx-scatter { display: none; }
+  .hx-cap-long { display: none; }
+  .hx-cap-short { display: inline; }
+}
+/* How I work, step 4: what you receive (moved from Services, 11 Nov review). Plain ticks, not numbered steps. */
+.steps-list .how-receive { list-style: none; margin: 0.3rem 0 0.5rem; padding: 0; display: grid; gap: 0.25rem; }
+.steps-list .how-receive li { counter-increment: none; display: block; position: relative; margin: 0; padding: 0 0 0 1.3rem; border: 0; background: none; font-size: 0.95rem; }
+.steps-list .how-receive li::before { content: "\2713"; position: absolute; left: 0; top: 0; display: inline; width: auto; height: auto; margin: 0; border-radius: 0; background: none; box-shadow: none; color: var(--teal); font-weight: 700; font-size: 0.95rem; }
+.steps-list .how-note { margin: 0.2rem 0 0; font-size: 0.82rem; color: var(--muted); }
+/* About: previous roles, merged in from the old Experience section (11 Nov review). */
+.about-k { margin: 1.1rem 0 0.35rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.about-roles { list-style: none; margin: 0 0 0.6rem; padding: 0; display: grid; gap: 0.35rem; }
+.about-roles li { margin: 0; padding-left: 0.9rem; border-left: 3px solid var(--svc-data, var(--teal)); }
+.about-bridge { font-weight: 600; color: var(--teal-dark); }
+.about-bridge span { display: block; margin-top: 0.2rem; font-size: 0.82rem; font-weight: 400; color: var(--muted); }
+@media (max-width: 40rem) {
+  /* Only the view on screen takes up space on phones (both views are stacked on larger screens to avoid jumps). */
+  .hx-is-today .hx-step > .hx-only-after, .hx-is-today .hx-after { display: none; }
+  .hx:not(.hx-is-today) .hx-step > .hx-only-today, .hx:not(.hx-is-today) .hx-today { display: none; }
+}
+/* Phone steps: everything in a step sits in the text column, next to the number. */
+.steps-row > li > * { grid-column: 2; }

@@ -12,7 +12,7 @@
 // Reduced motion: no autoplay, instant switch; the toggle still works. CSP: CSSOM setProperty only.
 
 import { getRecords, subscribe } from '../tracker/store.js';
-import { summarise, missingFields, isEmptyRow, inPeriod, byStatus } from '../tracker/engine.js';
+import { summarise, missingFields, isEmptyRow, inReport, byStatus } from '../tracker/engine.js';
 import { RECORDS, PERIOD, PERIOD_LABEL, BUSINESS, STATUSES, OWNERS } from '../tracker/data.js';
 
 /** The report's figures, all derived from the tracker records. */
@@ -32,7 +32,7 @@ const isoOk = (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '').trim()) || Strin
  */
 export function dataChecks(rec = RECORDS, p = PERIOD) {
   const f = heroFigures(rec, p);
-  const rows = rec.filter((r) => inPeriod(r, p) && !isEmptyRow(r));
+  const rows = rec.filter((r) => inReport(r, p) && !isEmptyRow(r));
   const complete = rows.filter((r) => !missingFields(r).length).length;
   const formatsOk = rows.filter((r) => isoOk(r.received) && isoOk(r.due) && STATUSES.includes(String(r.status).trim())).length;
   const statusOk = rows.filter((r) => STATUSES.includes(String(r.status).trim())).length;
@@ -41,19 +41,19 @@ export function dataChecks(rec = RECORDS, p = PERIOD) {
   const missRefs = refsOf(f, 'missing'); const ownRefs = refsOf(f, 'unassigned'); const lateRefs = refsOf(f, 'overdue');
   return {
     capture: [
-      { label: 'Duplicate job references', state: f.duplicates ? 'flag' : 'pass', detail: f.duplicates ? `${f.duplicates} found` : 'None found', answers: ['Duplicate job references', 'Multiple spreadsheet versions'] },
-      { label: 'Required fields', state: missRefs.length ? 'flag' : 'pass', detail: missRefs.length ? `${complete} of ${f.total} complete · ${refText(missRefs)}` : `${f.total} of ${f.total} complete`, answers: ['Missing service requests'] },
-      { label: 'Consistent formats', state: formatsOk === rows.length ? 'pass' : 'flag', detail: `${formatsOk} of ${rows.length}`, answers: ['Inconsistent information'] },
+      { label: 'No duplicate jobs', state: f.duplicates ? 'flag' : 'pass', detail: f.duplicates ? `${f.duplicates} found` : 'None found', answers: ['Duplicate job references', 'Multiple spreadsheet versions'] },
+      { label: 'Job details complete', state: missRefs.length ? 'flag' : 'pass', detail: missRefs.length ? `${complete} of ${f.total} complete · ${refText(missRefs)}` : `${f.total} of ${f.total} complete`, answers: ['Missing service requests'] },
+      { label: 'Dates entered correctly', state: formatsOk === rows.length ? 'pass' : 'flag', detail: `${formatsOk} of ${rows.length}`, answers: ['Inconsistent information'] },
     ],
     move: [
-      { label: 'Assigned owners', state: ownRefs.length ? 'action' : 'pass', detail: ownRefs.length ? `No owner · ${refText(ownRefs)}` : 'All open jobs', answers: ['Jobs without owners'] },
-      { label: 'Valid job statuses', state: statusOk === rows.length && ownersOk === rows.length ? 'pass' : 'flag', detail: `${statusOk} of ${rows.length}`, answers: ['Inconsistent statuses', 'Email updates not in records'] },
-      { label: 'Overdue follow-ups', state: lateRefs.length ? 'action' : 'pass', detail: lateRefs.length ? `Overdue · ${refText(lateRefs)}` : 'None overdue', answers: ['Overdue follow-ups'] },
+      { label: 'Every open job has an owner', state: ownRefs.length ? 'action' : 'pass', detail: ownRefs.length ? `No owner · ${refText(ownRefs)}` : 'All open jobs', answers: ['Jobs without owners'] },
+      { label: 'Every job has a status', state: statusOk === rows.length && ownersOk === rows.length ? 'pass' : 'flag', detail: `${statusOk} of ${rows.length}`, answers: ['Inconsistent statuses', 'Email updates not in records'] },
+      { label: 'Follow-ups on time', state: lateRefs.length ? 'action' : 'pass', detail: lateRefs.length ? `Overdue · ${refText(lateRefs)}` : 'None overdue', answers: ['Overdue follow-ups'] },
     ],
     see: [
-      { label: 'KPI calculation', state: f.completed + f.outstanding === f.total ? 'pass' : 'flag', detail: `${f.completed} + ${f.outstanding} = ${f.total}`, answers: ['Manual KPI compilation', 'Rebuilt every week'] },
-      { label: 'Record reconciliation', state: counted === f.total ? 'pass' : 'flag', detail: `${counted} of ${f.total} counted`, answers: ["Report figures don't match"] },
-      { label: 'Exceptions in the report', state: f.attention ? 'flag' : 'pass', detail: f.attention ? `${f.attention} shown, not hidden` : 'None this week', answers: [] },
+      { label: 'Totals add up', state: f.completed + f.outstanding === f.total ? 'pass' : 'flag', detail: `${f.completed} done + ${f.outstanding} open = ${f.total}`, answers: ['Figures added up by hand', 'Rebuilt every week'] },
+      { label: 'Every job counted', state: counted === f.total ? 'pass' : 'flag', detail: `${counted} of ${f.total} counted`, answers: ["Report figures don't match"] },
+      { label: 'Problems shown, not hidden', state: f.attention ? 'flag' : 'pass', detail: f.attention ? `${f.attention} on the report` : 'None this week', answers: [] },
     ],
   };
 }
@@ -93,6 +93,8 @@ export const summaryHtml = (bullets) => bullets.map((t) => `<li>${refs(t)}</li>`
 export function mountHero(fig) {
   if (!fig) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Phones (11 Nov review): no automatic switching while people scroll; open on the problem ("Today"), toggle to compare.
+  const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 40rem)').matches;
   const q = (s) => fig.querySelector(s);
   const btns = [...fig.querySelectorAll('[data-ws-mode]')];
   const pauseBtn = q('.hx-pause');
@@ -132,7 +134,7 @@ export function mountHero(fig) {
     fig.querySelectorAll('.hx-after, .hx-only-after').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'after')));
     paint();
   }
-  setMode('after');
+  setMode(phone ? 'today' : 'after');
   subscribe(() => paint());
 
   let manual = false; let paused = false; let onScreen = false; let timer = 0;
@@ -147,7 +149,7 @@ export function mountHero(fig) {
     if (pauseBtn && !pauseBtn.hidden) pauseBtn.textContent = 'Play animation';
     if (b.dataset.wsMode !== mode) setMode(b.dataset.wsMode);
   }));
-  if (reduce || typeof IntersectionObserver !== 'function') return;
+  if (reduce || phone || typeof IntersectionObserver !== 'function') return;
 
   if (pauseBtn) {
     pauseBtn.hidden = false;

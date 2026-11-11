@@ -2,14 +2,16 @@
 // The workbook's formulas (tools/build_tracker_xlsx.py) implement these same rules; tools/check_tracker_xlsx.py
 // recalculates the workbook and compares it with this file on the sample and on edited copies, so the two can't drift.
 //
-//   Total        records whose Date Received falls in the reporting period (start and end included)
+//   In the report  received by the period end, and either still open (carried over from earlier weeks too) or
+//                  completed in the period (Date Completed in the period; if it's blank, received in the period)
+//   Total        jobs in the report
 //   Completed    Status = Completed                     Outstanding  any other status
 //   Overdue      not Completed and Due Date earlier than the as-at date (due on the as-at date is not overdue yet)
 //   Unassigned   not Completed and Assigned To blank or "Unassigned"
 //   Missing      Date Received, Request / Task, Customer / Area or Due Date blank
 //   Duplicate    same Date Received, Customer / Area and Request / Task (case and outer spaces ignored); flagged only
 //   Attention    unique records with at least one of the four findings; each record counts once
-// Every figure counts records in the reporting period. Text is compared trimmed and case-insensitive, like Excel's "=".
+// Every figure counts jobs in the report. Text is compared trimmed and case-insensitive, like Excel's "=".
 
 import { RECORDS, PERIOD, COMPLETED, UNASSIGNED, FLAG, FLAG_SEP, STATUSES } from './data.js';
 
@@ -21,6 +23,9 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 export const isCompleted = (r) => low(r.status) === COMPLETED.toLowerCase();
 export const isEmptyRow = (r) => ['received', 'task', 'customer', 'owner', 'due', 'status'].every((k) => blank(r[k]));
 export const inPeriod = (r, p = PERIOD) => !blank(r.received) && r.received >= p.start && r.received <= p.end;
+/** In this week's report: received by the period end, and still open or completed in the period (11 Nov 2026). */
+export const inReport = (r, p = PERIOD) => !blank(r.received) && r.received <= p.end
+  && (!isCompleted(r) || (!blank(r.completed) ? t(r.completed) >= p.start : r.received >= p.start));
 export const isOverdue = (r, p = PERIOD) => !isEmptyRow(r) && !isCompleted(r) && !blank(r.due) && r.due < p.asAt;
 export const isUnassigned = (r) => !isEmptyRow(r) && !isCompleted(r) && (blank(r.owner) || low(r.owner) === UNASSIGNED.toLowerCase());
 export const missingFields = (r) => (isEmptyRow(r) ? [] : ['received', 'task', 'customer', 'due'].filter((k) => blank(r[k])));
@@ -61,7 +66,7 @@ function list(xs) { return xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join
 
 // The weekly figures, the follow-up list and the summary sentence, all from the records as they are now.
 export function summarise(records = RECORDS, p = PERIOD) {
-  const rows = records.filter((r) => inPeriod(r, p));
+  const rows = records.filter((r) => inReport(r, p));
   const followUps = rows.map((r) => ({ r, f: findings(r, records, p) })).filter((x) => x.f.length).map(({ r, f }) => ({
     ref: r.ref, title: t(r.task), owner: t(r.owner), due: r.due,
     labels: f.map((x) => x.label), keys: f.map((x) => x.key), note: f.map((x) => x.note).join(' '), reason: f.map((x) => x.label).join(FLAG_SEP),
@@ -81,13 +86,13 @@ export function summarise(records = RECORDS, p = PERIOD) {
 }
 
 export function summaryText({ total, completed, outstanding, attention }) {
-  const rec = (n) => `${n} record${n === 1 ? '' : 's'}`;
-  const a = `${rec(total)} ${total === 1 ? 'was' : 'were'} received during the reporting period.`;
+  const rec = (n) => `${n} job${n === 1 ? '' : 's'}`;
+  const a = `${rec(total)} in this report.`;
   const b = outstanding === 0 ? `All ${completed} are marked as completed.`
     : completed === 0 ? `None are marked as completed yet, and ${outstanding} ${outstanding === 1 ? 'remains' : 'remain'} outstanding.`
       : `${completed} ${completed === 1 ? 'is' : 'are'} marked as completed, while ${outstanding} ${outstanding === 1 ? 'remains' : 'remain'} outstanding.`;
-  const c = attention === 0 ? 'No records need attention.' : `${rec(attention)} ${attention === 1 ? 'needs' : 'need'} attention.`;
-  return total === 0 ? 'No records were received during the reporting period.' : `${a} ${b} ${c}`;
+  const c = attention === 0 ? 'No jobs need attention.' : `${rec(attention)} ${attention === 1 ? 'needs' : 'need'} attention.`;
+  return total === 0 ? 'No jobs in this report.' : `${a} ${b} ${c}`;
 }
 
 // ---- Editing (each returns new frozen records; the originals in data.js are never changed)
@@ -121,6 +126,6 @@ export function receivedByDay(records = RECORDS, p = PERIOD) {
 
 // Work by status, for the hero's workflow strip.
 export function byStatus(records = RECORDS, p = PERIOD) {
-  const rows = records.filter((x) => inPeriod(x, p));
+  const rows = records.filter((x) => inReport(x, p));
   return STATUSES.map((st) => ({ status: st, count: rows.filter((r) => low(r.status) === st.toLowerCase()).length }));
 }

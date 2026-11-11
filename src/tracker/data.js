@@ -3,7 +3,8 @@
 // workbook (tools/build_tracker_xlsx.py reads it through Node). Change the sample here, then rebuild the workbook.
 // Fictional business: Northstar Services (BUSINESS), a small service business; the name is shown in the hero report,
 // the live example and the workbook. The issues in R-104 (overdue), R-111 (blank Customer / Area) and
-// R-112 (Unassigned) are deliberate; don't fix them here.
+// R-112 (Unassigned) are deliberate; don't fix them here. Completed jobs carry their Date Completed (11 Nov 2026:
+// the report counts jobs completed this week and every job still open, wherever it started).
 
 const freeze = (rows) => Object.freeze(rows.map((r) => Object.freeze({ ...r })));
 
@@ -26,6 +27,7 @@ export const FIELDS = Object.freeze([
   { key: 'owner', label: 'Assigned To' },
   { key: 'due', label: 'Due Date', essential: true },
   { key: 'status', label: 'Status' },
+  { key: 'completed', label: 'Date Completed' },
 ].map(Object.freeze));
 
 // The words used for each finding, in the tracker's Attention Flag column (website and workbook alike); they match the
@@ -40,16 +42,16 @@ export const FLAG = Object.freeze({
 export const FLAG_SEP = ' · ';
 
 export const RECORDS = freeze([
-  { ref: 'R-101', received: '2026-11-02', task: 'Send updated quotation', customer: 'Northfield Services', owner: 'Ana', due: '2026-11-03', status: 'Completed' },
-  { ref: 'R-102', received: '2026-11-02', task: 'Confirm customer details', customer: 'Lakeside Trading', owner: 'Mark', due: '2026-11-04', status: 'Completed' },
-  { ref: 'R-103', received: '2026-11-02', task: 'Prepare monthly report', customer: 'Cedar & Co.', owner: 'Ana', due: '2026-11-06', status: 'Completed' },
-  { ref: 'R-104', received: '2026-11-03', task: 'Follow up on payment', customer: 'Harbor Works', owner: 'Mark', due: '2026-11-04', status: 'Waiting' },
-  { ref: 'R-105', received: '2026-11-03', task: 'Update customer records', customer: 'Brightline Studio', owner: 'Mark', due: '2026-11-06', status: 'Completed' },
-  { ref: 'R-106', received: '2026-11-04', task: 'Schedule service visit', customer: 'Northfield Services', owner: 'Ana', due: '2026-11-06', status: 'In Progress' },
-  { ref: 'R-107', received: '2026-11-04', task: 'Send invoice copy', customer: 'Lakeside Trading', owner: 'Mark', due: '2026-11-06', status: 'Completed' },
-  { ref: 'R-108', received: '2026-11-04', task: 'Review supplier quote', customer: 'Cedar & Co.', owner: 'Sam', due: '2026-11-06', status: 'Waiting' },
-  { ref: 'R-109', received: '2026-11-05', task: 'Confirm delivery date', customer: 'Harbor Works', owner: 'Ana', due: '2026-11-06', status: 'Completed' },
-  { ref: 'R-110', received: '2026-11-05', task: 'Prepare weekly update', customer: 'Brightline Studio', owner: 'Sam', due: '2026-11-06', status: 'Completed' },
-  { ref: 'R-111', received: '2026-11-06', task: 'Check service notes', customer: '', owner: 'Mark', due: '2026-11-06', status: 'In Progress' },
-  { ref: 'R-112', received: '2026-11-06', task: 'Confirm outstanding item', customer: 'Northfield Services', owner: 'Unassigned', due: '2026-11-06', status: 'Not Started' },
+  { ref: 'R-101', received: '2026-11-02', task: 'Send updated quotation', customer: 'Northfield Services', owner: 'Ana', due: '2026-11-03', status: 'Completed', completed: '2026-11-03' },
+  { ref: 'R-102', received: '2026-11-02', task: 'Confirm customer details', customer: 'Lakeside Trading', owner: 'Mark', due: '2026-11-04', status: 'Completed', completed: '2026-11-04' },
+  { ref: 'R-103', received: '2026-11-02', task: 'Prepare monthly report', customer: 'Cedar & Co.', owner: 'Ana', due: '2026-11-06', status: 'Completed', completed: '2026-11-06' },
+  { ref: 'R-104', received: '2026-11-03', task: 'Follow up on payment', customer: 'Harbor Works', owner: 'Mark', due: '2026-11-04', status: 'Waiting', completed: '' },
+  { ref: 'R-105', received: '2026-11-03', task: 'Update customer records', customer: 'Brightline Studio', owner: 'Mark', due: '2026-11-06', status: 'Completed', completed: '2026-11-06' },
+  { ref: 'R-106', received: '2026-11-04', task: 'Schedule service visit', customer: 'Northfield Services', owner: 'Ana', due: '2026-11-06', status: 'In Progress', completed: '' },
+  { ref: 'R-107', received: '2026-11-04', task: 'Send invoice copy', customer: 'Lakeside Trading', owner: 'Mark', due: '2026-11-06', status: 'Completed', completed: '2026-11-06' },
+  { ref: 'R-108', received: '2026-11-04', task: 'Review supplier quote', customer: 'Cedar & Co.', owner: 'Sam', due: '2026-11-06', status: 'Waiting', completed: '' },
+  { ref: 'R-109', received: '2026-11-05', task: 'Confirm delivery date', customer: 'Harbor Works', owner: 'Ana', due: '2026-11-06', status: 'Completed', completed: '2026-11-06' },
+  { ref: 'R-110', received: '2026-11-05', task: 'Prepare weekly update', customer: 'Brightline Studio', owner: 'Sam', due: '2026-11-06', status: 'Completed', completed: '2026-11-06' },
+  { ref: 'R-111', received: '2026-11-06', task: 'Check service notes', customer: '', owner: 'Mark', due: '2026-11-06', status: 'In Progress', completed: '' },
+  { ref: 'R-112', received: '2026-11-06', task: 'Confirm outstanding item', customer: 'Northfield Services', owner: 'Unassigned', due: '2026-11-06', status: 'Not Started', completed: '' },
 ]);

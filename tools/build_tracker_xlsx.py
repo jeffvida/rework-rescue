@@ -106,7 +106,7 @@ def build(data):
 
     # ---------------------------------------------------------------- Weekly Tracker
     headers = [x['label'] for x in data['FIELDS']] + ['Notes / Next Step', 'Attention Flag']
-    widths = [9, 14, 30, 24, 14, 13, 14, 34, 36, 3, 24]
+    widths = [9, 14, 30, 24, 14, 13, 14, 15, 30, 32, 3, 24]
     for i, w in enumerate(widths):
         ws.column_dimensions[chr(65 + i)].width = w
     ws['A1'] = 'Weekly Work & Follow-up Tracker'
@@ -115,16 +115,16 @@ def build(data):
                 'The attention flags will help identify items that need checking.')
     ws['A2'].font = f(10, color='475A60')
     ws['A2'].alignment = Alignment(wrap_text=True, vertical='top')
-    ws.merge_cells('A2:I2')
+    ws.merge_cells('A2:J2')
     ws.row_dimensions[1].height = 26
     ws.row_dimensions[2].height = 30
     ws['A3'] = (f"Sample data for {data['BUSINESS']}, a fictional business, for demonstration purposes. Type over it or delete it, and add new records in the next empty row. "
                 'Attention Flag fills in by itself; the reporting dates are at the top of the Weekly Report sheet.')
     ws['A3'].font = f(9, italic=True, color='475A60')
-    ws.merge_cells('A3:I3')
+    ws.merge_cells('A3:J3')
     ws.row_dimensions[3].height = 15
     for r in range(1, 4):
-        for c in range(1, 10):
+        for c in range(1, 11):
             ws.cell(r, c).fill = fill(IVORY)
 
     for i, h in enumerate(headers, start=1):
@@ -138,15 +138,15 @@ def build(data):
     for n in range(ROWS):
         r = FIRST + n
         rec = recs[n] if n < len(recs) else None
-        vals = [rec['ref'], iso(rec['received']), rec['task'], rec['customer'] or None, rec['owner'], iso(rec['due']), rec['status'], None] if rec else [None] * 8
+        vals = [rec['ref'], iso(rec['received']), rec['task'], rec['customer'] or None, rec['owner'], iso(rec['due']), rec['status'], iso(rec.get('completed')), None] if rec else [None] * 9
         for i, v in enumerate(vals, start=1):
             c = ws.cell(r, i, v)
             c.font = f(10)
             c.alignment = Alignment(vertical='center')
-            if i in (2, 6):
+            if i in (2, 6, 8):
                 c.number_format = 'dd-mmm-yyyy'
                 c.alignment = Alignment(horizontal='left', vertical='center')
-        ws.cell(r, 9).font = f(10, True, AMBER_INK)
+        ws.cell(r, 10).font = f(10, True, AMBER_INK)
 
     D, T, C, A, U, S = (this(x) for x in ('Date Received', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status'))
     empty = f'AND({D}="",TRIM({T})="",TRIM({C})="",TRIM({A})="",{U}="",TRIM({S})="")'
@@ -160,41 +160,42 @@ def build(data):
               f'&IF({miss},"{sep}"&IF({only_c},"{flag["missingCustomer"]}","{flag["missing"]}"),"")'
               f'&IF({un},"{sep}{flag["unassigned"]}","")&IF({dup},"{sep}{flag["duplicate"]}",""),{len(sep) + 1},300))')
     for r in range(FIRST, LAST + 1):
-        ws.cell(r, 9, flag_f)
+        ws.cell(r, 10, flag_f)
 
-    tab = Table(displayName=TABLE, ref=f'A4:I{LAST}')
+    tab = Table(displayName=TABLE, ref=f'A4:J{LAST}')
     tab.tableStyleInfo = TableStyleInfo(name='TableStyleLight1', showRowStripes=False, showColumnStripes=False)
     tab._initialise_columns()
     for tc, h in zip(tab.tableColumns, headers):
         tc.name = h
-    tab.tableColumns[8].calculatedColumnFormula = TableFormula(attr_text=flag_f[1:])   # Excel copies this into every new row
+    tab.tableColumns[9].calculatedColumnFormula = TableFormula(attr_text=flag_f[1:])   # Excel copies this into every new row
     ws.add_table(tab)
     ws.freeze_panes = 'A5'
 
     # Team names: the Assigned To dropdown reads this list (TeamList grows with it).
-    ws['K4'] = 'Team (edit names here)'
-    ws['K4'].font = f(10, True, 'FFFFFF')
-    ws['K4'].fill = fill(TEAL)
+    ws['L4'] = 'Team (edit names here)'
+    ws['L4'].font = f(10, True, 'FFFFFF')
+    ws['L4'].fill = fill(TEAL)
     owners = data['OWNERS']
     for i in range(10):
-        c = ws.cell(5 + i, 11, owners[i] if i < len(owners) else None)
+        c = ws.cell(5 + i, 12, owners[i] if i < len(owners) else None)
         c.font = f(10)
         c.border = BOX
-    ws['K16'] = 'Add or rename team members above. Keep "Unassigned" for work nobody owns yet.'
-    ws['K16'].font = f(8, italic=True, color='475A60')
-    ws['K16'].alignment = Alignment(wrap_text=True, vertical='top')
-    ws.merge_cells('K16:K18')
+    ws['L16'] = 'Add or rename team members above. Keep "Unassigned" for work nobody owns yet.'
+    ws['L16'].font = f(8, italic=True, color='475A60')
+    ws['L16'].alignment = Alignment(wrap_text=True, vertical='top')
+    ws.merge_cells('L16:L18')
 
     dv_s = DataValidation(type='list', formula1='"' + ','.join(data['STATUSES']) + '"', allow_blank=True,
                           errorTitle='Status', error='Choose a status from the list.', showErrorMessage=True)
     dv_s.add(f'G{FIRST}:G{FMT_ROWS}')
     dv_a = DataValidation(type='list', formula1='TeamList', allow_blank=True,
-                          errorTitle='Assigned To', error='Choose a name from the team list in column K (add new names there).', showErrorMessage=True)
+                          errorTitle='Assigned To', error='Choose a name from the team list in column L (add new names there).', showErrorMessage=True)
     dv_a.add(f'E{FIRST}:E{FMT_ROWS}')
     dv_d = DataValidation(type='date', operator='greaterThan', formula1='36526', allow_blank=True,
                           errorTitle='Date', error='Enter a date, for example 06-Nov-2026.', showErrorMessage=True)
     dv_d.add(f'B{FIRST}:B{FMT_ROWS}')
     dv_d.add(f'F{FIRST}:F{FMT_ROWS}')
+    dv_d.add(f'H{FIRST}:H{FMT_ROWS}')
     for dv in (dv_s, dv_a, dv_d):
         ws.add_data_validation(dv)
 
@@ -206,8 +207,11 @@ def build(data):
                                                                       border=Border(bottom=Side(style='thin', color='D9A441'))))
     cf.add(f'E{FIRST}:E{FMT_ROWS}', FormulaRule(formula=[f'AND(TRIM($G{FIRST})<>"Completed",OR(TRIM($E{FIRST})="",TRIM($E{FIRST})="Unassigned"),{used})'],
                                                 fill=fill(AMBER_BG), font=Font(color=AMBER_INK, bold=True)))
-    cf.add(f'A{FIRST}:H{FMT_ROWS}', FormulaRule(formula=[f'TRIM($G{FIRST})="Completed"'], font=Font(color=GREY)))
-    cf.add(f'I{FIRST}:I{FMT_ROWS}', FormulaRule(formula=[f'$I{FIRST}<>""'], fill=fill(AMBER_BG)))
+    # A completed job without its Date Completed: amber hint (the report needs it to count the job in the right week).
+    cf.add(f'H{FIRST}:H{FMT_ROWS}', FormulaRule(formula=[f'AND(TRIM($G{FIRST})="Completed",$H{FIRST}="")'], fill=fill(AMBER_BG),
+                                                border=Border(bottom=Side(style='thin', color='D9A441')), stopIfTrue=True))
+    cf.add(f'A{FIRST}:I{FMT_ROWS}', FormulaRule(formula=[f'TRIM($G{FIRST})="Completed"'], font=Font(color=GREY)))
+    cf.add(f'J{FIRST}:J{FMT_ROWS}', FormulaRule(formula=[f'$J{FIRST}<>""'], fill=fill(AMBER_BG)))
 
     ws.page_setup.orientation = 'landscape'
     ws.page_setup.fitToWidth = 1
@@ -306,12 +310,16 @@ def report_sheet(wb, sm, data):
     put(sm, 'F5:I5', 'Edit the dates to report on another week', f(8, italic=True, color=AMBER_INK), align=Alignment(vertical='center'))
     for name, cell in (('PeriodStart', 'D4'), ('PeriodEnd', 'G4'), ('AsAt', 'D5')):
         wb.defined_names[name] = DefinedName(name, attr_text=f"'{REPORT}'!${cell[0]}${cell[1:]}")
-    wb.defined_names['TeamList'] = DefinedName('TeamList', attr_text=f"OFFSET('{TRACKER}'!$K$5,0,0,COUNTA('{TRACKER}'!$K$5:$K$14),1)")
-    put(sm, 'J4:M4', '=O6&" record"&IF(O6=1,"","s")&" checked"', f(11, True, TEAL), align=Alignment(horizontal='right'))
+    wb.defined_names['TeamList'] = DefinedName('TeamList', attr_text=f"OFFSET('{TRACKER}'!$L$5,0,0,COUNTA('{TRACKER}'!$L$5:$L$14),1)")
+    put(sm, 'J4:M4', '=O6&" job"&IF(O6=1,"","s")&" checked"', f(11, True, TEAL), align=Alignment(horizontal='right'))
     put(sm, 'J5:M5', 'Calculated from the Weekly Tracker', f(8, italic=True, color=MUTED), align=Alignment(horizontal='right'))
 
     # Hidden helper figures (the same as the website's summarise()).
-    inp = f'ISNUMBER({col("Date Received")})*({col("Date Received")}>=PeriodStart)*({col("Date Received")}<=PeriodEnd)'
+    # Jobs in the report (src/tracker/engine.js inReport): received by the period end, and still open (carried over too)
+    # or completed in the period (Date Completed in the period; if blank, received in the period).
+    D, S, C = col('Date Received'), col('Status'), col('Date Completed')
+    inp = (f'ISNUMBER({D})*({D}<=PeriodEnd)*((TRIM({S})<>"Completed")+(TRIM({S})="Completed")*(ISNUMBER({C})*({C}>=PeriodStart)'
+           f'+(TRIM({C}&"")="")*({D}>=PeriodStart)))')
     notc = f'(TRIM({col("Status")})<>"Completed")'
     miss_c = f'{inp}*(((TRIM({col("Request / Task")})="")+(TRIM({col("Customer / Area")})="")+({col("Due Date")}=""))>0)'
     un_c = f'{inp}*{notc}*(((TRIM({col("Assigned To")})="")+(TRIM({col("Assigned To")})="Unassigned"))>0)'
@@ -390,22 +398,22 @@ def report_sheet(wb, sm, data):
     dup_c = f'{inp}*ISNUMBER(SEARCH("{flag["duplicate"]}",{col("Attention Flag")}))'
     r = CHECK0
     checks = [
-        ('Capture', 'Duplicate job references', f'=SUMPRODUCT({dup_c})', None,
-         '=IF(P{r}=0,"No duplicates found",P{r}&" found")', f'=IF(P{r}=0,"{PASS}","{FLAGGED}")'),
-        ('', 'Required information', f'=SUMPRODUCT({miss_c})', miss_c,
+        ('Capture', 'No duplicate jobs', f'=SUMPRODUCT({dup_c})', None,
+         '=IF(P{r}=0,"None found",P{r}&" found")', f'=IF(P{r}=0,"{PASS}","{FLAGGED}")'),
+        ('', 'Job details complete', f'=SUMPRODUCT({miss_c})', miss_c,
          '=IF(P{r}=0,$O$6&" of "&$O$6&" complete",($O$6-P{r})&" of "&$O$6&" complete · "&' + ref_list(None, 'P{r}', 'Q', 'R', '{r}') + ')',
          f'=IF(P{{r}}=0,"{PASS}","{FLAGGED}")'),
-        ('', 'Consistent formats', f'=SUMPRODUCT({inp}*{date_ok("Due Date")}*{status_ok})', None,
+        ('', 'Dates entered correctly', f'=SUMPRODUCT({inp}*{date_ok("Due Date")}*{status_ok})', None,
          '=P{r}&" of "&$O$6', f'=IF(P{{r}}=$O$6,"{PASS}","{FLAGGED}")'),
-        ('Move', 'Assigned owners', f'=SUMPRODUCT({un_c})', un_c,
+        ('Move', 'Every open job has an owner', f'=SUMPRODUCT({un_c})', un_c,
          '=IF(P{r}=0,"All open jobs","No owner · "&' + ref_list(None, 'P{r}', 'Q', 'R', '{r}') + ')', f'=IF(P{{r}}=0,"{PASS}","{ACTION}")'),
-        ('', 'Valid job statuses', f'=SUMPRODUCT({inp}*{status_ok})', None,
+        ('', 'Every job has a status', f'=SUMPRODUCT({inp}*{status_ok})', None,
          '=P{r}&" of "&$O$6', None),
-        ('', 'Overdue follow-ups', f'=SUMPRODUCT({od_c})', od_c,
+        ('', 'Follow-ups on time', f'=SUMPRODUCT({od_c})', od_c,
          '=IF(P{r}=0,"None overdue","Overdue · "&' + ref_list(None, 'P{r}', 'Q', 'R', '{r}') + ')', f'=IF(P{{r}}=0,"{PASS}","{ACTION}")'),
-        ('See', 'KPI calculation', '=$O$7+$O$8', None, '=$O$7&" + "&$O$8&" = "&$O$6', f'=IF(P{{r}}=$O$6,"{PASS}","{FLAGGED}")'),
-        ('', 'Record reconciliation', f'=SUM($E${STAT0}:$E${STAT0 + 3})', None, '=P{r}&" of "&$O$6&" counted"', f'=IF(P{{r}}=$O$6,"{PASS}","{FLAGGED}")'),
-        ('', 'Exceptions in the report', '=$O$12', None, '=IF(P{r}=0,"None this week",P{r}&" shown, not hidden")', f'=IF(P{{r}}=0,"{PASS}","{FLAGGED}")'),
+        ('See', 'Totals add up', '=$O$7+$O$8', None, '=$O$7&" done + "&$O$8&" open = "&$O$6', f'=IF(P{{r}}=$O$6,"{PASS}","{FLAGGED}")'),
+        ('', 'Every job counted', f'=SUM($E${STAT0}:$E${STAT0 + 3})', None, '=P{r}&" of "&$O$6&" counted"', f'=IF(P{{r}}=$O$6,"{PASS}","{FLAGGED}")'),
+        ('', 'Problems shown, not hidden', '=$O$12', None, '=IF(P{r}=0,"None this week",P{r}&" on the report")', f'=IF(P{{r}}=0,"{PASS}","{FLAGGED}")'),
     ]
     owners_ok = f'=SUMPRODUCT({inp}*(((COUNTIF(TeamList,TRIM({col("Assigned To")}))>0)+(TRIM({col("Assigned To")})=""))>0))'
     for i, (stage, label, count, cond, result, status) in enumerate(checks):
@@ -418,7 +426,7 @@ def report_sheet(wb, sm, data):
             sm.cell(r, 17, nth_ref(cond, 1))
             sm.cell(r, 18, nth_ref(cond, 2))
         put(sm, f'H{r}:K{r}', result.replace('{r}', str(r)), f(10, color=MUTED), align=Alignment(vertical='center'), border=top)
-        if label == 'Valid job statuses':
+        if label == 'Every job has a status':
             sm.cell(r, 18, owners_ok)          # team names in the list (or blank)
             status = f'=IF(AND(P{r}=$O$6,R{r}=$O$6),"{PASS}","{FLAGGED}")'
         put(sm, f'L{r}:M{r}', status.replace('{r}', str(r)), f(9, True, GREEN_INK), align=Alignment(vertical='center'), border=top)
@@ -463,11 +471,11 @@ def report_sheet(wb, sm, data):
     # Summary line, closing line, footer.
     section_head(sm, 51, 'SUMMARY')
     n, c_, o, a = 'O6', 'O7', 'O8', 'O12'
-    sentence = (f'=IF({n}=0,"No records were received during the reporting period.",'
-                f'{n}&" record"&IF({n}=1,"","s")&IF({n}=1," was"," were")&" received during the reporting period. "'
+    sentence = (f'=IF({n}=0,"No jobs in this report.",'
+                f'{n}&" job"&IF({n}=1,"","s")&" in this report. "'
                 f'&IF({o}=0,"All "&{c_}&" are marked as completed.",IF({c_}=0,"None are marked as completed yet, and "&{o}&IF({o}=1," remains"," remain")&" outstanding.",'
                 f'{c_}&IF({c_}=1," is"," are")&" marked as completed, while "&{o}&IF({o}=1," remains"," remain")&" outstanding."))'
-                f'&" "&IF({a}=0,"No records need attention.",{a}&" record"&IF({a}=1,"","s")&IF({a}=1," needs"," need")&" attention."))')
+                f'&" "&IF({a}=0,"No jobs need attention.",{a}&" job"&IF({a}=1,"","s")&IF({a}=1," needs"," need")&" attention."))')
     put(sm, 'B52:M52', sentence, f(10, color=INK), align=Alignment(wrap_text=True, vertical='top'))
     sm.row_dimensions[52].height = 30
     put(sm, 'B54:M54', 'Know what’s completed. See what’s outstanding. Know what to do next.', f(12, True, TEAL))
@@ -520,7 +528,7 @@ def start_sheet(wb, st, data):
             r += 1
     head(13, 'TRY IT IN ONE MINUTE')
     steps = ['Open the Weekly Report: 7 completed, 5 still outstanding, 3 need attention (R-104, R-112 and R-111).',
-             'On the Weekly Tracker, set R-112’s Assigned To to Sam. Back on the report, Need attention drops to 2 and "Assigned owners" shows Passed.',
+             'On the Weekly Tracker, set R-112’s Assigned To to Sam. Back on the report, Need attention drops to 2 and "Every open job has an owner" shows Passed.',
              'Replace the sample rows with your own, and change the reporting dates at the top of the Weekly Report.']
     for i, t in enumerate(steps):
         put(st, f'B{14 + i}', f'{i + 1}.', f(11, True, TEAL), align=Alignment(horizontal='right', vertical='top', indent=1))
@@ -528,7 +536,8 @@ def start_sheet(wb, st, data):
         st.row_dimensions[14 + i].height = 30
     head(18, 'GOOD TO KNOW')
     notes = ['Works in Microsoft Excel 2010 or later, on the desktop or Excel on the web. No macros or add-ins, and nothing is sent anywhere.',
-             'Add or rename team members in the Team list on the Weekly Tracker (column K); the Assigned To dropdown follows it.',
+             'Add or rename team members in the Team list on the Weekly Tracker (column L); the Assigned To dropdown follows it.',
+             'When a job is done, set Status to Completed and add the Date Completed. Jobs still open carry over to next week\u2019s report by themselves.',
              'Type new jobs in the next empty row of the tracker: the checks and the report include them automatically.',
              'Status colours: green Passed, amber Flagged, red Action required. Each status is also written out in words.',
              f"{data['BUSINESS']} and its records are fictional, for demonstration only."]

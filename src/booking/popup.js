@@ -87,7 +87,7 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
     return `
       <div class="bk-pick">
         <p class="bk-step" role="status">${empty ? 'No times are free in the next four weeks.' : 'Available times couldn&rsquo;t be loaded right now.'}</p>
-        <p>Email me and we&rsquo;ll find a time that works.</p>
+        <p>Email me and I&rsquo;ll find a time that works for you.</p>
         <p class="bk-done-actions"><a class="btn btn-primary" href="${esc(MAILTO_TIME)}">Email me</a>${empty ? '' : '<button type="button" class="bk-link" data-retry>Try again</button>'}</p>
       </div>`;
   }

@@ -13,7 +13,7 @@
 // no-JavaScript version (all three stages shown one after another). CSP: no inline style attributes.
 
 import { RECORDS, PERIOD_LABEL, BUSINESS, FLAG } from './data.js';
-import { summarise, findings, shortDate, day, isCompleted, inPeriod, isEmptyRow } from './engine.js';
+import { summarise, findings, shortDate, day, isCompleted, inReport, isEmptyRow } from './engine.js';
 import { dataChecks, heroFigures, STATE } from '../demo/hero.js';
 
 const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -35,8 +35,8 @@ export const STAGES = Object.freeze([
 ]);
 
 // Plain-language names for the checks shown in this example (the hero keeps its shorter labels).
-const LABEL = { 'Required fields': 'Required information' };
-const DETAIL = { 'None found': 'No duplicates found' };
+const LABEL = {};
+const DETAIL = {};
 
 /** What needs attention: one line per flagged record, in the report's order (from the hero's actionItems). */
 export function attentionItems(rec = RECORDS, { all = false, period } = {}) {
@@ -56,12 +56,7 @@ export function attentionItems(rec = RECORDS, { all = false, period } = {}) {
 /** The report's three plain-language checks, from the hero's See checks. */
 export function reportChecks(rec = RECORDS) {
   const [kpi, recon, exc] = dataChecks(rec).see;
-  const s = summarise(rec);
-  return [
-    { label: `All ${s.total} records accounted for`, state: recon.state, detail: recon.detail },
-    { label: 'Reporting totals checked', state: kpi.state, detail: `${s.completed} completed + ${s.outstanding} outstanding = ${s.total}` },
-    { label: `${s.attention} exception${s.attention === 1 ? '' : 's'} visible`, state: exc.state, detail: 'Shown in the report, not hidden' },
-  ];
+  return [recon, kpi, exc];   // Every job counted · Totals add up · Problems shown, not hidden
 }
 
 const checksHtml = (list) => `<ul class="lx-checks">${list.map((c) => `<li><span class="lx-chk-l">${esc(LABEL[c.label] || c.label)}</span><span class="lx-chk-d">${refs(DETAIL[c.detail] || c.detail)}</span>${pill(c.state)}</li>`).join('')}</ul>`;
@@ -101,7 +96,7 @@ function captureHtml(rec, checks) {
 }
 
 function moveHtml(rec, checks) {
-  const open = rec.filter((r) => inPeriod(r) && !isEmptyRow(r) && !isCompleted(r));
+  const open = rec.filter((r) => inReport(r) && !isEmptyRow(r) && !isCompleted(r));
   const row = (r) => {
     const keys = new Set(findings(r, rec).map((f) => f.key));
     const tags = [keys.has('unassigned') && pill('action', 'No owner'), keys.has('overdue') && pill('action', 'Overdue')].filter(Boolean).join(' ');
@@ -120,7 +115,7 @@ function seeHtml(rec, interactive) {
   const s = summarise(rec);
   return `<ul class="lx-checks">${list.map((c) => `<li><span class="lx-chk-l">${esc(c.label)}</span><span class="lx-chk-d">${refs(c.detail)}</span>${pill(c.state)}</li>`).join('')}</ul>`
     + '<details class="lx-how"><summary>How the totals are checked</summary><ul>'
-    + `<li>Every record received in the period is counted once: ${s.total} of ${s.total}.</li>`
+    + `<li>Every job in the report is counted once: ${s.total} of ${s.total}. That includes jobs still open from earlier weeks.</li>`
     + `<li>Completed plus still outstanding must equal the total: ${s.completed} + ${s.outstanding} = ${s.total}.</li>`
     + `<li>The ${s.attention} needing attention are part of the ${s.outstanding} still outstanding, not extra jobs.</li></ul></details>`
     + (interactive ? '<p class="lx-jump-see"><a href="#lx-rep-h">See the weekly report <span aria-hidden="true">&darr;</span></a></p>' : '');
@@ -141,7 +136,7 @@ export function reportHtml(rec = RECORDS) {
   const kpi = (key, n, label, cls, sub = '') => `<li class="lx-kpi ${cls}" data-kpi="${key}"><strong>${n}</strong><span>${label}</span>${sub ? `<small>${sub}</small>` : ''}</li>`;
   return '<section class="lx-report" aria-labelledby="lx-rep-h">'
     + `<p class="lx-rep-k">Weekly operations report · Fictional sample</p><h3 id="lx-rep-h" tabindex="-1">${esc(BUSINESS)}</h3>`
-    + `<p class="lx-rep-sub">${PERIOD_LABEL} · ${s.total} records checked</p>`
+    + `<p class="lx-rep-sub">${PERIOD_LABEL} · ${s.total} jobs checked</p>`
     + `<ul class="lx-kpis">${kpi('completed', s.completed, 'Completed this week', 'is-done')}${kpi('outstanding', s.outstanding, 'Still outstanding', 'is-open')}`
     + `${kpi('attention', s.attention, 'Need attention', s.attention ? 'is-att' : 'is-clear', s.outstanding ? `Of the ${s.outstanding} still outstanding` : '')}</ul>`
     + '<p class="lx-sub">What needs attention</p>'
@@ -158,13 +153,14 @@ export function rowHtml(r, all) {
   return `<tr class="${cls}" data-ref="${esc(r.ref)}"><td class="wt-ref">${esc(r.ref)}</td><td class="wt-task">${esc(r.task)}</td>`
     + `<td class="wt-cust">${r.customer ? esc(r.customer) : '<span class="wt-blank">Missing</span>'}</td>`
     + `<td class="wt-own">${keys.has('unassigned') ? '<span class="wt-blank">Unassigned</span>' : esc(r.owner)}</td>`
-    + `<td class="wt-due"><span>${esc(shortDate(r.due))}</span>${keys.has('overdue') ? ' <em class="wt-tag">Overdue</em>' : ''}</td><td class="wt-st">${esc(r.status)}</td></tr>`;
+    + `<td class="wt-due"><span>${esc(shortDate(r.due))}</span>${keys.has('overdue') ? ' <em class="wt-tag">Overdue</em>' : ''}</td><td class="wt-st">${esc(r.status)}</td>`
+    + `<td class="wt-done">${esc(shortDate(r.completed))}</td></tr>`;
 }
 
 const allHtml = (rec) => `<details class="lx-all"><summary>See all ${rec.length} jobs (the tracker behind this report)</summary>`
   + '<p class="lx-all-n">Read-only sample. Download the workbook below to try the tracker yourself.</p>'
   + `<div class="wt-scroll"><table class="wt-table"><caption class="sr-only">Sample work tracker: ${rec.length} jobs</caption>`
-  + '<thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th></tr></thead>'
+  + '<thead><tr><th scope="col">Ref</th><th scope="col">Request / Task</th><th scope="col">Customer / Area</th><th scope="col">Assigned To</th><th scope="col">Due Date</th><th scope="col">Status</th><th scope="col">Date Completed</th></tr></thead>'
   + `<tbody>${rec.map((r) => rowHtml(r, rec)).join('')}</tbody></table></div></details>`;
 
 const tabsHtml = (explored = new Set(), current = '', hint = '') => STAGES.map((st) => `<button type="button" class="lx-tab${current === st.id ? ' is-on' : ''}${explored.has(st.id) ? ' is-seen' : ''}${hint === st.id ? ' is-hint' : ''}" data-go="${st.id}" aria-controls="lx-p-${st.id}" aria-pressed="${current === st.id}">`

@@ -59,6 +59,11 @@ How a project works: free report review, written scope and price, the client's a
 Who: Jeff Herson Vida, Data & Operations Specialist (Reporting, Workflow & Automation), 8+ years in data operations, reporting, validation, analysis and process improvement (Excel, Power Query, Power BI, Python, Power Automate). Based in the Philippines; available for calls Monday to Friday, 8 am to 2 am Philippine time (UTC+8). Clients work directly with him.
 Confidential data: ordinary business information is fine through an agreed, authorized route; he will sign a reasonable confidentiality agreement; sensitive or regulated information needs a review of safeguards first. He doesn't automate consequential decisions about people.
 AI: Jeff uses automation and AI-assisted tools where they make sense, but not every problem needs AI.
+Written review instead of a call: the visitor can email Jeff a sample report with names and confidential details removed, and he sends a free one-page written review within 1 working day (where it breaks and what he'd fix first).
+Larger teams: yes, if the problem is the same (jobs in one system, reports put together in spreadsheets). He can combine trackers from several teams or regions into one weekly report, work on contract, sign an NDA and a data processing agreement, and work inside the client's own accounts and tools.
+If Jeff is unavailable: everything runs in the client's own accounts with tools their team already has, plus a run guide, so the team can keep it going.
+Client project data is never put into free AI tools or tools that train on the client's data.
+The scope, price and estimated timeline are emailed in writing after the review, so the visitor can share them internally.
 Prices and timelines depend on the scope and are agreed in writing after the free review.`;
 
 // ---- The fixed brief sent to the model with every message

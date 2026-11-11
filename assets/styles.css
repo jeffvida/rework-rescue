@@ -1959,18 +1959,14 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .svc-choose p { margin: 0; }
 
 /* Experience behind the work: compact, three short columns, no cards */
-.exp-list { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 2.2rem; }
-.exp { padding-top: 0.9rem; border-top: 3px solid var(--svc); }
-.exp h3 { font-size: 1.12rem; margin: 0 0 0.35rem; }
-.exp p { margin: 0; color: var(--ink-soft, var(--ink)); }
-.exp-note { margin: 1.4rem 0 0; font-size: 0.92rem; color: var(--muted); max-width: 46rem; }
-@media (max-width: 52rem) { .exp-list { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; } }
 
 /* How I work: the process heading above the four steps */
 .steps-h { margin: 2.6rem 0 0.4rem; font-size: clamp(1.2rem, 2vw, 1.45rem); }
 
 /* Booking: the second supporting line */
 .book-sub { margin: 0.6rem 0 0; max-width: 40em; color: rgba(255, 255, 255, 0.85); }
+.book-alt { margin: 0.6rem 0 0; max-width: 40em; font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); }
+.book-alt a { text-decoration: underline; text-underline-offset: 0.15em; }
 
 /* Live example report: what the Booked number counts, and the definitions */
 .dm-unit { display: block; font-size: 0.78rem; font-weight: 500; opacity: 0.8; margin-top: 0.1rem; }
@@ -2170,23 +2166,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 @keyframes pv-ring { 0% { filter: drop-shadow(0 0 0 rgba(63, 95, 143, 0.6)); } 50% { filter: drop-shadow(0 0 5px rgba(63, 95, 143, 0.55)); } 100% { filter: drop-shadow(0 0 0 rgba(63, 95, 143, 0)); } }
 
 /* ---- Experience: a dark band with the 8+ figure ---- */
-.section.experience { background: var(--ink); color: #dfe9e6; }
-.experience h2, .experience h3 { color: #fff; }
-.experience .lede { color: #dfe9e6; }
-.experience .exp p { color: #c9d8d4; }
-.experience .exp-note { color: #a9bdb8; }
-.exp-head { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1rem 3rem; align-items: center; }
-.exp-stat { margin: 0; display: grid; grid-template-columns: auto auto; justify-content: start; align-items: baseline; }
-.exp-num, .exp-plus { font-family: var(--display); font-weight: 600; font-size: clamp(4.5rem, 3rem + 5vw, 7.5rem); line-height: 0.9; color: var(--signal); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-.exp-plus { transition: opacity 0.3s ease, transform 0.4s var(--ease-out); }
-.motion .exp-head.rv .exp-plus { opacity: 0; transform: translateY(-6px); }
-.motion .exp-head.rv .exp-stat.is-counted .exp-plus { opacity: 1; transform: none; }
-.exp-stat-l { grid-column: 1 / -1; margin-top: 0.7rem; max-width: 15rem; font-weight: 600; color: #fff; line-height: 1.35; }
-.exp-intro h2 { margin-top: 0; }
-.experience .exp { border-top-width: 2px; }
-.experience .exp.svc-data { --svc: #78c2a4; } .experience .exp.svc-workflow { --svc: var(--signal); } .experience .exp.svc-systems { --svc: #9db6e0; }
-.exp-list { margin-top: 2.4rem; }
-@media (max-width: 52rem) { .exp-head { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---- How I work: a timeline that draws, with each step arriving as the line reaches it ---- */
 .how-section .steps-h { margin: 0.4rem 0 0; max-width: 40rem; }
@@ -2235,9 +2214,6 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 /* Buttons everywhere: a slightly springier lift */
 .btn:hover:not([disabled]) { transition-timing-function: var(--ease-out); }
 /* fixes after first QA */
-.exp-stat { display: block; }
-.exp-num, .exp-plus { display: inline-block; }
-.exp-stat-l { display: block; }
 .hero-actions { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; column-gap: 1.4rem; row-gap: 0.45rem; }
 .hero-cta-main { display: contents; }
 .hero-cta-main .btn { grid-column: 1; grid-row: 1; }
@@ -2423,9 +2399,6 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @media (max-width: 56rem) { .dm-report { top: var(--header-h); } }
 
 /* ==== Credibility pass (Nov 2026): demo at a glance, experience highlights, location ==== */
-.exp-kind { margin: 2.2rem 0 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal); }
-.exp-kind + .exp-list { margin-top: 0.9rem; }
-.exp-close { margin: 1.8rem 0 0; max-width: 46rem; font-size: 1.05rem; color: #fff; }
 .about-where { margin: 1rem 0 0; font-size: 0.92rem; color: var(--muted); }
 
 /* ==== Hero card: weekly operations report (Nov 2026). Figures and issue lines come from heroSummary(). ==== */
@@ -2504,20 +2477,6 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 
 
 /* ==== Expert-review pass (Nov 2026): example first project in How I work ==== */
-.example-project { max-width: 52rem; margin: 2.4rem 0 0; padding: 1.3rem 1.4rem 1.2rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
-.example-project-k { margin: 0 0 0.3rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
-.example-project .handover-h { margin: 0 0 0.9rem; }
-.example-project-dl { display: grid; gap: 0.8rem; margin: 0; }
-.example-project-dl > div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 0.2rem 1rem; }
-.example-project-dl dt { font-weight: 700; color: var(--ink); }
-.example-project-dl dd { margin: 0; }
-.example-project .handover-list { columns: 1; }
-.example-project .handover-list li { margin-bottom: 0.35rem; }
-.example-project .handover-note { margin-top: 0.9rem; }
-@media (max-width: 40rem) {
-  .example-project { padding: 1.1rem 1rem; }
-  .example-project-dl > div { grid-template-columns: minmax(0, 1fr); }
-}
 .cta-micro-2 { white-space: nowrap; }
 @media (max-width: 30rem) {
   .cta-micro-sep { display: none; }
@@ -3279,10 +3238,6 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .wt-due { width: 9.5rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .wt-row.is-flag .wt-ref { box-shadow: inset 3px 0 0 var(--warn-line); }
 .wt-row.is-done .wt-task, .wt-row.is-done .wt-cust, .wt-row.is-done .wt-due { color: var(--muted); }
-.wt-sel, .wt-in { width: 100%; min-height: 2.5rem; padding: 0.25rem 0.5rem; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; font-size: 0.9rem; color: var(--ink); }
-.wt-in::placeholder { color: #8a6516; opacity: 1; }
-.wt-sel.is-missing, .wt-in.is-missing { border-color: var(--warn-line); background: var(--warn-bg); }
-.wt-row.is-done .wt-sel { color: var(--muted); }
 .wt-tag { padding: 0.05rem 0.45rem; border-radius: 999px; background: var(--error-bg); color: var(--error); font-size: 0.72rem; font-style: normal; font-weight: 700; }
 .wt-blank { color: #8a6516; font-style: italic; }
 .wt-temp { margin: 0.6rem 0 0; font-size: 0.82rem; color: var(--muted); }
@@ -3392,6 +3347,8 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .lx-report h3 { margin: 0.15rem 0 0; font-size: 1.25rem; }
 .lx-report h3:focus { outline: none; }
 .lx-rep-sub { margin: 0.1rem 0 0.8rem; font-size: 0.88rem; color: var(--muted); }
+.lx-rep-sub:has(+ .lx-rep-carry) { margin-bottom: 0.15rem; }
+.lx-rep-carry { margin: 0 0 0.8rem; font-size: 0.85rem; color: var(--muted); }
 .lx-kpis { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 0.9rem; padding: 0; }
 .lx-kpi { display: grid; align-content: start; margin: 0; padding: 0.6rem 0.7rem; border-radius: 12px; line-height: 1.25; font-size: 0.84rem; font-weight: 600; color: var(--ink); }
 .lx-kpi strong { font-family: var(--display); font-size: 2.1rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
@@ -3549,22 +3506,12 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .svc-layer-tag { margin: auto 0 0; padding-top: 1rem; }
 .svc-layer-tag::before { content: ""; display: block; height: 1px; background: var(--line); margin-bottom: 0.8rem; }
 .svc-layer-tag { font-size: 0.86rem; font-weight: 700; color: var(--svc); }
-.svc-checks { position: relative; margin: 2.2rem 0 0; padding: 1.3rem 1.5rem 1.2rem; border-radius: 14px; background: #e8f1ef; border: 1px solid #b9d3cd; border-left: 6px solid var(--svc-data); }
-.svc-checks::before { content: ""; position: absolute; left: 12%; right: 12%; top: -1.2rem; height: 1.2rem; border: 2px dashed #9fc2ba; border-bottom: 0; border-radius: 12px 12px 0 0; }
-.svc-checks-k { margin: 0 0 0.35rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--svc-data); }
-.svc-checks h3 { font-size: 1.25rem; margin: 0 0 0.45rem; max-width: 40rem; }
-.svc-checks > p { margin: 0 0 0.8rem; color: var(--ink); max-width: 44rem; }
-.svc-checks-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.svc-checks-list li { margin: 0; padding: 0.3rem 0.8rem; border-radius: 999px; background: #fff; border: 1px solid #b9d3cd; font-size: 0.92rem; font-weight: 600; color: var(--ink); }
-#services .example-project { margin-top: 2.4rem; }
 @media (max-width: 56rem) {
   .svc-layers { grid-template-columns: minmax(0, 1fr); gap: 2.1rem; max-width: 40rem; }
   .svc-layer:not(:last-child)::after { content: "\2193"; right: auto; left: 50%; top: auto; bottom: -1.95rem; transform: translateX(-50%); }
-  .svc-checks::before { display: none; }
 }
 @media (max-width: 40rem) {
   .svc-layer { padding: 1.1rem 1rem 1rem; }
-  .svc-checks { padding: 1.1rem 1rem; }
 }
 @media (forced-colors: active) { .svc-layer-n { border: 1px solid CanvasText; } }
 @media print { .svc-layer-core { box-shadow: none; } }

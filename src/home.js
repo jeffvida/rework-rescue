@@ -2,7 +2,7 @@
 
 import { mountBooking } from './booking/popup.js';
 import { mountTracker } from './tracker/ui.js';
-import { mountHero } from './demo/hero.js';
+import { mountMessageDemo } from './demo/message.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 
@@ -67,7 +67,7 @@ document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventLi
 }));
 
 // Hero: Capture -> Move -> See overview, with figures following the tracker's state (src/demo/hero.js).
-mountHero(document.getElementById('hero-visual'));
+mountMessageDemo(document.getElementById('hero-visual'));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

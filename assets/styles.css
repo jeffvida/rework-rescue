@@ -3854,7 +3854,7 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .hx-result b { color: #a33b2f; margin-right: 0.25rem; }
 .hx-result svg { flex: none; width: 1.4rem; height: 1.4rem; fill: none; stroke: var(--red); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 /* Report */
-.hx-report { padding: 0.8rem; border-radius: 16px; background: #fff; border: 1px solid #cfe5d6; box-shadow: 0 16px 34px -22px rgba(36, 101, 92, 0.6); transition: opacity 0.4s ease 1.2s, transform 0.5s var(--ease-out) 1.2s; }
+.hx-report { padding: 0.8rem; border-radius: 16px; background: #fff; border: 1px solid #cfe5d6; box-shadow: 0 16px 34px -22px rgba(36, 101, 92, 0.6); transition: opacity 0.35s ease 0.55s, transform 0.45s var(--ease-out) 0.55s; } /* 2.5 s cycle (11 Nov): built by about 1.25 s */
 .hx-is-today .hx-report { opacity: 0; transform: translateY(12px) scale(0.97); transition-delay: 0s; transition-duration: 0.25s; }
 .hx-cols > * { transition: opacity 0.4s ease var(--d, 0s), transform 0.5s var(--ease-out) var(--d, 0s); }
 .hx-actions { --d: 1.45s; } .hx-sum { --d: 1.6s; }
@@ -3893,14 +3893,14 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .hx-pause:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 /* The transformation: issues give way to checks stage by stage (Capture, then Move, then See) */
 .hx-is-after .hx-checks li { animation: hx-in 0.4s var(--ease-out) both; }
-.hx-is-after .svc-systems .hx-checks li { animation-delay: calc(0.45s + var(--i, 0) * 0.08s); }
-.hx-is-after .svc-workflow .hx-checks li { animation-delay: calc(0.75s + var(--i, 0) * 0.08s); }
-.hx-is-after .svc-data .hx-checks li { animation-delay: calc(1.05s + var(--i, 0) * 0.08s); }
+.hx-is-after .svc-systems .hx-checks li { animation-delay: calc(0.15s + var(--i, 0) * 0.05s); }
+.hx-is-after .svc-workflow .hx-checks li { animation-delay: calc(0.3s + var(--i, 0) * 0.05s); }
+.hx-is-after .svc-data .hx-checks li { animation-delay: calc(0.45s + var(--i, 0) * 0.05s); }
 .hx-checks li:nth-child(2) { --i: 1; } .hx-checks li:nth-child(3) { --i: 2; } .hx-checks li:nth-child(4) { --i: 3; }
-.hx-is-after .svc-systems { animation: hx-glow 0.9s ease 0.35s both; }
-.hx-is-after .svc-workflow { animation: hx-glow 0.9s ease 0.65s both; }
-.hx-is-after .svc-data { animation: hx-glow 0.9s ease 0.95s both; }
-.hx-is-after .hx-valid { animation: hx-pop 0.5s var(--ease-out) 1.45s both; }
+.hx-is-after .svc-systems { animation: hx-glow 0.7s ease 0.1s both; }
+.hx-is-after .svc-workflow { animation: hx-glow 0.7s ease 0.25s both; }
+.hx-is-after .svc-data { animation: hx-glow 0.7s ease 0.4s both; }
+.hx-is-after .hx-valid { animation: hx-pop 0.4s var(--ease-out) 0.85s both; }
 @keyframes hx-in { from { opacity: 0; transform: translateX(-6px); } }
 @keyframes hx-glow { 0% { box-shadow: 0 0 0 0 rgba(31, 138, 85, 0.45); } 40% { box-shadow: 0 0 0 5px rgba(31, 138, 85, 0.25); } 100% { box-shadow: 0 8px 18px -14px rgba(18, 38, 43, 0.45); } }
 @keyframes hx-pop { 0% { transform: scale(0.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }

@@ -92,6 +92,9 @@ const refs = (t) => esc(t).replace(/R-\d+/g, (r) => `<span class="hx-ref">${r}</
 export const actionsHtml = (items) => items.map((x) => `<li><span class="hx-box" aria-hidden="true"></span><span>${refs(x.label)}</span>${x.priority ? `<em${x.priority === 'High' ? ' class="is-high"' : ''}>${x.priority}</em>` : ''}</li>`).join('');
 export const summaryHtml = (bullets) => bullets.map((t) => `<li>${refs(t)}</li>`).join('');
 
+// Autoplay: each state (Today / With Rework Rescue) shows for 2.5 s before switching (Jeff, 11 Nov 21:48).
+export const SWITCH_MS = 2500;
+
 export function mountHero(fig) {
   if (!fig) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -144,7 +147,7 @@ export function mountHero(fig) {
   function loop() {
     clearTimeout(timer);
     if (!canPlay()) return;
-    timer = setTimeout(() => { setMode(mode === 'today' ? 'after' : 'today'); loop(); }, mode === 'today' ? 5000 : 10000);
+    timer = setTimeout(() => { setMode(mode === 'today' ? 'after' : 'today'); loop(); }, SWITCH_MS);
   }
   btns.forEach((b) => b.addEventListener('click', () => {
     manual = true; clearTimeout(timer);

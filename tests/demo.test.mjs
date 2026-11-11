@@ -293,6 +293,8 @@ test('11 Nov PM round: new FAQs, written review without a call, scope you can sh
   // ChatGPT review follow-ups (11 Nov 21:02): ownership near the final button; carry-over rule visible on the report.
   assert.match(html, /<li>You own what I build<\/li>/);
   assert.match(html, /leave a run guide, so everyday use doesn&rsquo;t depend on me\./);
+  assert.equal((html.match(/At handover/g) || []).length, 1, 'handover line appears once');
+  assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph before another paragraph');
   assert.match(html, /<p class="lx-rep-carry">Open jobs from earlier weeks stay on the report until they&rsquo;re done\.<\/p>/);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   assert.match(priv, /Client project data is never put into free AI tools/);

@@ -190,6 +190,53 @@ test('"Problems I help fix" (11 Nov spec, replaces the live example): heading, c
     'Any additional software, subscriptions or implementation costs are discussed before the work begins.', 'Improving what you already use is a complete starting point on its own.']) assert.ok(svc.includes(t), t);
 });
 
+test('"Problems I help fix" round 2: three numbered cards in order, each with its own colour and illustration', async () => {
+  const sec = await section();
+  const cards = sec.match(/<li class="pc-card[\s\S]*?<\/details>\s*<\/li>/g) || [];
+  assert.equal(cards.length, 3);
+  const got = cards.map((c) => [c.match(/<li class="pc-card (pc-\w+)">/)[1], c.match(/<span class="pc-n">(\d+)<\/span>/)[1], c.match(/<h3>([^<]+)<\/h3>/)[1]]);
+  assert.deepEqual(got, [
+    ['pc-regions', '01', 'Multiple locations. Disconnected reports.'],
+    ['pc-sched', '02', 'Schedules, messages and missing updates.'],
+    ['pc-monthly', '03', 'Monthly reports across locations.'],
+  ]);
+  for (const c of cards) {
+    assert.match(c, /<svg class="pc-svg" viewBox="0 0 320 150" focusable="false">/);
+    for (const k of ['pc-wrong', 'pc-fix']) assert.equal((c.match(new RegExp(`<ul class="${k}">([\\s\\S]*?)</ul>`))[1].match(/<li>/g) || []).length, 4, k);
+  }
+  for (const t of ['Clearer tracking and accountability', 'A structured tracker showing what was scheduled, completed and still needs attention.', 'More consistent monthly reporting', 'One monthly management report with location-level comparisons and clearly identified items requiring attention.']) assert.ok(cards.join('').includes(t), t);
+  assert.match(cards[1], /Roster[\s\S]*Team chat[\s\S]*One tracker/, 'roster + chat into one tracker');
+  assert.match(cards[2], /Site A[\s\S]*Site C[\s\S]*Side by side/, 'monthly location reports into one comparison');
+  assert.doesNotMatch(sec, /\[\[SPEC/, 'every placeholder replaced with the spec wording');
+});
+
+test('sample written review: own page, opened in a new tab from the written-review option, fictional, signed by Jeff', async () => {
+  const sec = await section();
+  assert.match(sec, /<a class="pc-sample-link" href="sample-review\/" target="_blank" rel="noopener">See what a free written review looks like&nbsp;&rarr;<span class="sr-only"> \(opens in a new tab\)<\/span><\/a>/);
+  assert.ok(sec.indexOf('pc-sample-link') > sec.indexOf('Get a free written review') && sec.indexOf('pc-sample-link') < sec.indexOf('Book a free report review'), 'beside the written-review option');
+  const pg = await readFile(new URL('../sample-review/index.html', import.meta.url), 'utf8');
+  const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  const csp = (h) => h.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/)[1];
+  assert.equal(csp(pg), csp(priv), 'same CSP as the other pages');
+  assert.equal(pg.slice(pg.indexOf('<header'), pg.indexOf('</header>')), priv.slice(priv.indexOf('<header'), priv.indexOf('</header>')), 'same header and nav');
+  assert.equal(pg.slice(pg.indexOf('<footer')), priv.slice(priv.indexOf('<footer')), 'same footer');
+  assert.match(pg, /<title>Sample written review \| Rework Rescue<\/title>/);
+  assert.match(pg, /<link rel="canonical" href="https:\/\/rework-rescue\.vercel\.app\/sample-review">/);
+  assert.ok(pg.includes('<strong>Fictional sample.</strong> This document illustrates the format and type of recommendations a customer may receive.'), 'fictional label');
+  assert.ok(pg.includes('It does not represent an actual client engagement or achieved result.'));
+  assert.ok(pg.includes('<p class="sr-sign">Jeff Herson Vida<br>Rework Rescue &middot; Data and operations specialist</p>'), 'sign-off');
+  assert.ok(pg.includes('href="mailto:jeffhersonvida@gmail.com?subject=Written%20report%20review"'));
+  assert.ok(pg.includes('For healthcare and multi-clinic examples, I only work with de-identified exports.'));
+  assert.doesNotMatch(pg, /\sstyle="|<script(?! type="module" src="\.\.\/src\/nav\.js")/, 'no inline styles or extra scripts');
+  const main = pg.slice(pg.indexOf('<main'), pg.indexOf('</main>'));
+  assert.doesNotMatch(main, /\bwe\b|\bour\b|\[\[SPEC/i, 'first person; placeholders replaced');
+  const doc = main.slice(main.indexOf('<article'), main.indexOf('</article>'));
+  assert.deepEqual([...doc.matchAll(/<h2>([^<]+)<\/h2>/g)].map((m) => m[1]), ['1. What I found', '2. Why it matters', '3. What I&rsquo;d fix first', '4. Recommended improvement', '5. Suggested next step']);
+  assert.doesNotMatch(doc, /\d+\s?%|saved|savings|\$\d|testimonial/i, 'no invented results');
+  const map = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
+  assert.ok(map.includes('<loc>https://rework-rescue.vercel.app/sample-review</loc>'));
+});
+
 test('stages: each one shows the actual records and the checks worked out from them', () => {
   const html = appHtml();
   const panel = (id) => html.slice(html.indexOf(`id="lx-p-${id}"`), html.indexOf('</div><div class="lx-panel"', html.indexOf(`id="lx-p-${id}"`)) + 1 || undefined);

@@ -183,8 +183,8 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   // The only mentions of subscriptions are the cost-transparency lines (final brief, 11 Nov; cost FAQ, 11 Nov PM).
   assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('The written scope also lists any subscriptions you&#39;d need.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'The example is read-only.', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
-  assert.doesNotMatch(priv, /Reset sample|change an owner or a status|A clearer way to manage the work/, 'privacy page matches the read-only example');
+  for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'The examples are read-only.', 'not client case studies or claims of achieved results', 'sample-review/', 'no AI runs on this page', 'Rework-Rescue-Weekly-Work-Tracker.xlsx']) assert.ok(priv.includes(t), t);
+  assert.doesNotMatch(priv, /Reset sample|change an owner or a status|A clearer way to manage the work|live example|Capture, Move or See|full list of sample jobs/, 'privacy page describes the current examples, not the old live example');
 });
 
 test('problem cards: three, in the customer’s words, each pointing to its layer of the one solution (plain "See how I fix this" link, 11 Nov panel)', async () => {

@@ -69,7 +69,7 @@ function openingHtml(rec) {
   const card = (cls, kind, title, body, tag, tone) => `<li class="lx-art ${cls}"><p class="lx-art-k">${kind}</p><p class="lx-art-t">${title}</p><p class="lx-art-b">${body}</p><p class="lx-tag is-${tone}">${tag}</p></li>`;
   const sentence = (t) => t.toLowerCase().replace(/^./, (c) => c.toUpperCase());
   return '<div class="lx-open" data-lx="open">'
-    + `<p class="lx-open-h">This week at ${esc(BUSINESS)}: ${s.total} jobs, and ${s.attention} problems hiding in the information.</p>`
+    + `<p class="lx-open-h">${s.total} jobs this week. ${s.attention} issues that could easily be missed.</p>`
     + '<ul class="lx-arts">'
     + card('lx-a1', 'Job tracker', `${s.total} jobs this week`, `<span class="lx-ref">${r112.ref}</span> ${esc(r112.task)} · owner: ${esc(r112.owner.toLowerCase())}`, `<span class="lx-ref">${r112.ref}</span> · No owner`, 'action')
     + card('lx-a2', 'Service request form', `<span class="lx-ref">${r111.ref}</span> ${esc(r111.task)}`, `Received ${esc(shortDate(r111.received))} · customer left blank`, `<span class="lx-ref">${r111.ref}</span> · Missing customer`, 'flag')
@@ -88,10 +88,11 @@ function captureHtml(rec, checks) {
     + field('Reference', `<span class="lx-ref">${r.ref}</span>`) + field('Received', esc(shortDate(r.received)))
     + field('Request', esc(r.task)) + field('Customer', '', keys.has('missing')) + '</dl></figure>'
     + '<p class="lx-arrow" aria-hidden="true">&rarr;</p>'
-    + '<figure class="lx-rec"><figcaption>Job record, after the checks</figcaption>'
+    + '<figure class="lx-rec"><figcaption>Job record, with checks applied</figcaption>'
     + `<p class="lx-rec-row"><span class="lx-ref">${r.ref}</span> <b>${esc(r.task)}</b></p>`
     + `<p class="lx-rec-meta">Received ${esc(shortDate(r.received))} · ${esc(r.owner)} · ${esc(r.status)}</p>`
-    + `<p class="lx-rec-flag">${pill('flag')} <span>Customer missing: needs completing before it’s reported</span></p></figure>`
+    + `<p class="lx-rec-cust">Customer: ${keys.has('missing') ? '<span class="lx-blank">Missing</span>' : esc(r.customer)}</p>`
+    + `<p class="lx-rec-flag">${pill('flag')} <span>Customer details need completing. The missing information is flagged for follow-up and shown in the weekly report.</span></p></figure>`
     + '</div>' + checksHtml(checks);
 }
 
@@ -101,7 +102,7 @@ function moveHtml(rec, checks) {
     const keys = new Set(findings(r, rec).map((f) => f.key));
     const tags = [keys.has('unassigned') && pill('action', 'No owner'), keys.has('overdue') && pill('action', 'Overdue')].filter(Boolean).join(' ');
     return `<tr class="${tags ? 'is-flag' : ''}"><th scope="row"><span class="lx-ref">${r.ref}</span></th><td>${esc(r.task)}${tags ? `<span class="lx-row-tags">${tags}</span>` : ''}</td>`
-      + `<td data-l="Owner">${keys.has('unassigned') ? '<span class="lx-blank">Nobody</span>' : esc(r.owner)}</td><td data-l="Due">${esc(day(r.due))}</td><td data-l="Status">${esc(r.status)}</td></tr>`;
+      + `<td data-l="Owner">${keys.has('unassigned') ? '<span class="lx-blank">Unassigned</span>' : esc(r.owner)}</td><td data-l="Due">${esc(day(r.due))}</td><td data-l="Status">${esc(r.status)}</td></tr>`;
   };
   return `<figure class="lx-list"><figcaption>Work still outstanding <span>${open.length} jobs</span></figcaption><div class="lx-scroll">`
     + `<table><caption class="sr-only">The ${open.length} outstanding jobs with owner, due date and status</caption><thead><tr><th scope="col">Ref</th><th scope="col">Job</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>`

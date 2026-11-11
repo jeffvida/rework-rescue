@@ -124,7 +124,7 @@ test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, t
   const order = ['<p class="eyebrow">Live example &middot; Northstar Services, a fictional service business</p>',
     '<h2 id="samples-h">Your team is working hard. So why does everything still need chasing?</h2>',
     'Your information is spread across spreadsheets, emails and forms. Updates get missed, responsibilities become unclear and reporting takes time to pull together.',
-    'This week at Northstar Services: 12 jobs, and 3 problems hiding in the information.',
+    '12 jobs this week. 3 issues that could easily be missed.',
     'First, let’s get the information right.', 'Missing information and duplicate records are identified before they create problems further down the process.',
     'Next, let’s make sure the work doesn’t get forgotten.', 'Clear responsibilities and visible follow-ups help prevent work from slipping through the cracks.',
     'Finally, know where your business stands.', 'Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.',
@@ -141,7 +141,7 @@ test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, t
   assert.doesNotMatch(sec, /\sstyle="/);
   assert.doesNotMatch(sec, /\bwe\b|\bour\b/i, 'first person singular only');
   assert.doesNotMatch(sec.replace('Send invoice copy', ''), /invoic|CRM is|monitor|notification sent|automatically assign|saves? hours|time sav|%|live data|connected to your/i, 'nothing the sample does not do');
-  assert.doesNotMatch(sec, /\bAI\b(?! would make| to help sort)/, 'AI only as an option in "how it is put in place"');
+  assert.doesNotMatch(sec, /\bAI\b(?! would make| to assist with information processing)/, 'AI only as an option in "how it is put in place"');
 });
 
 test('stages: each one shows the actual records and the checks worked out from them', () => {
@@ -150,13 +150,15 @@ test('stages: each one shows the actual records and the checks worked out from t
   const c = dataChecks();
   // Capture: R-111's real fields, nothing invented (no customer name, no extra fields).
   const cap = textOf(panel('capture'));
-  for (const t of ['Service request form Sample', 'Reference R-111', 'Received 6 Nov', 'Request Check service notes', 'Customer Missing',
+  for (const t of ['Service request form Sample', 'Reference R-111', 'Received 6 Nov', 'Request Check service notes', 'Customer Missing', 'Job record, with checks applied', 'Customer: Missing', 'Customer details need completing. The missing information is flagged for follow-up and shown in the weekly report.',
     'Duplicate job references No duplicates found Passed', 'Required information 11 of 12 complete · R-111 Flagged', 'Consistent formats 12 of 12 Passed']) assert.ok(cap.includes(t), t);
   assert.equal((panel('capture').match(/<dt>/g) || []).length, 4, 'only the four sample fields');
   // Move: the five outstanding jobs, with R-112 and R-104 flagged.
   const mv = panel('move');
   assert.equal((mv.match(/<tr class=/g) || []).length, 5, 'the 5 outstanding jobs');
   assert.equal((mv.match(/<tr class="is-flag">/g) || []).length, 2);
+  assert.match(mv, /<span class="lx-blank">Unassigned<\/span>/);
+  assert.doesNotMatch(mv, /Nobody/);
   const mvt = textOf(mv);
   for (const t of ['Assigned owners No owner · R-112 Action required', 'Valid job statuses 12 of 12 Passed', 'Overdue follow-ups Overdue · R-104 Action required']) assert.ok(mvt.includes(t), t);
   assert.doesNotMatch(mv, /invoic/i);

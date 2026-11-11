@@ -3360,7 +3360,8 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .lx-arrow { margin: 0; font-size: 1.4rem; color: var(--teal); }
 .lx-rec p { margin: 0; }
 .lx-rec-meta { margin-top: 0.15rem !important; font-size: 0.86rem; color: var(--muted); }
-.lx-rec-flag { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.5rem !important; font-size: 0.86rem; }
+.lx-rec-cust { margin-top: 0.3rem !important; display: inline-block; padding: 0.1rem 0.45rem; border-radius: 6px; background: var(--lx-amber-bg); border: 1px dashed var(--lx-amber); font-size: 0.88rem; }
+.lx-rec-flag { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; margin-top: 0.5rem !important; font-size: 0.86rem; }
 .lx-scroll { overflow-x: auto; }
 .lx-list table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 .lx-list th, .lx-list td { padding: 0.35rem 0.4rem; text-align: left; border-bottom: 1px solid #efece3; white-space: nowrap; }
@@ -3443,6 +3444,14 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @keyframes lx-settle { from { transform: translate(var(--x), 0) rotate(var(--r)); } to { transform: none; } }
 @keyframes lx-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: none; } }
 @keyframes lx-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* Narrower desktops: keep the report easy to scan (one check per line, a little more room for the figures). */
+@media (min-width: 60.01rem) and (max-width: 80rem) {
+  .lx-grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+  .lx-rchecks { flex-direction: column; gap: 0.25rem; }
+  .lx-kpi { padding: 0.55rem 0.6rem; font-size: 0.8rem; }
+  .lx-kpi strong { font-size: 1.9rem; }
+  .lx-actions li { font-size: 0.92rem; }
+}
 @media (max-width: 60rem) {
   .lx-grid { grid-template-columns: minmax(0, 1fr); }
   .lx-report { position: static; }

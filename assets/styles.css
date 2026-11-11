@@ -3323,6 +3323,7 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .lx-tab-t b { font-size: 1rem; color: var(--teal-dark); }
 .lx-tab-t span { font-size: 0.82rem; color: var(--muted); }
 .lx-tab-ok { position: absolute; top: 0.45rem; right: 0.55rem; display: grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--lx-green); color: #fff; font-size: 0.7rem; }
+.lx-tab-next { position: absolute; top: -0.6rem; right: 0.6rem; padding: 0.05rem 0.5rem; border-radius: 999px; background: var(--teal-dark); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em; }
 .lx-tab.is-on { background: var(--teal-dark); border-color: var(--teal-dark); box-shadow: 0 10px 22px -16px rgba(20, 70, 64, 0.9); }
 .lx-tab.is-on b, .lx-tab.is-on .lx-tab-n { color: #fff; }
 .lx-tab.is-on .lx-tab-t span { color: #d9ece8; }

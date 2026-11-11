@@ -130,11 +130,11 @@ test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, t
     'Finally, know where your business stands.', 'Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.',
     'Weekly operations report · Fictional sample', '2–6 November 2026 · 12 records checked', 'What needs attention',
     'Know what&rsquo;s completed. See what&rsquo;s outstanding. Know what to do next.', 'See all 12 jobs (the tracker behind this report)',
-    'Download the free Excel tracker', '<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>',
+    '<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>',
     'Not every business needs another system or complicated automation.',
     'I start by improving the information, processes and reporting you already use. Where connecting tools or using automation and AI would make a meaningful difference, I&rsquo;ll recommend a practical approach based on your needs.',
     'Any additional software, subscriptions or implementation costs are discussed before the work begins.',
-    'Your business may be different. The problems are often familiar.', 'Book a free rework review', '30 minutes &middot; No obligation &middot; Practical next steps'];
+    'Your business may be different. The problems are often familiar.', 'Book a free rework review', '30 minutes &middot; No obligation &middot; Practical next steps', 'Download the free Excel tracker'];
   const at = order.map((t) => sec.indexOf(t));
   assert.ok(at.every((i) => i >= 0), order.filter((t, i) => at[i] < 0).join(' | '));
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'in order');

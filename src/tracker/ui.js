@@ -74,7 +74,7 @@ function openingHtml(rec) {
     + card('lx-a1', 'Job tracker', `${s.total} jobs this week`, `<span class="lx-ref">${r112.ref}</span> ${esc(r112.task)} · owner: ${esc(r112.owner.toLowerCase())}`, `<span class="lx-ref">${r112.ref}</span> · No owner`, 'action')
     + card('lx-a2', 'Service request form', `<span class="lx-ref">${r111.ref}</span> ${esc(r111.task)}`, `Received ${esc(shortDate(r111.received))} · customer left blank`, `<span class="lx-ref">${r111.ref}</span> · Missing customer`, 'flag')
     + card('lx-a3', 'Email update', `Re: ${esc(sentence(r104.task))}`, `${esc(r104.customer)} · due ${esc(shortDate(r104.due))} · still ${esc(r104.status.toLowerCase())}`, `<span class="lx-ref">${r104.ref}</span> · Overdue`, 'action')
-    + card('lx-a4', 'Follow-up note', 'Weekly report', 'Pulled together by hand from all of the above', 'Takes time every week', 'neutral')
+    + card('lx-a4', 'Follow-up note', 'Monday: rebuild the weekly report', 'Pulled together by hand from the tracker, forms and emails', 'Built by hand every week', 'neutral')
     + '</ul></div>';
 }
 
@@ -91,7 +91,7 @@ function captureHtml(rec, checks) {
     + '<figure class="lx-rec"><figcaption>Job record, after the checks</figcaption>'
     + `<p class="lx-rec-row"><span class="lx-ref">${r.ref}</span> <b>${esc(r.task)}</b></p>`
     + `<p class="lx-rec-meta">Received ${esc(shortDate(r.received))} · ${esc(r.owner)} · ${esc(r.status)}</p>`
-    + `<p class="lx-rec-flag">${pill('flag')} <span>Customer missing: completed before it’s reported</span></p></figure>`
+    + `<p class="lx-rec-flag">${pill('flag')} <span>Customer missing: needs completing before it’s reported</span></p></figure>`
     + '</div>' + checksHtml(checks);
 }
 
@@ -163,7 +163,7 @@ const allHtml = (rec) => `<details class="lx-all"><summary>See all ${rec.length}
   + `<tbody>${rec.map((r) => rowHtml(r, rec)).join('')}</tbody></table></div></details>`;
 
 const tabsHtml = (explored = new Set(), current = '', hint = '') => STAGES.map((st) => `<button type="button" class="lx-tab${current === st.id ? ' is-on' : ''}${explored.has(st.id) ? ' is-seen' : ''}${hint === st.id ? ' is-hint' : ''}" data-go="${st.id}" aria-controls="lx-p-${st.id}" aria-pressed="${current === st.id}">`
-  + `<span class="lx-tab-n">${st.n}</span><span class="lx-tab-t"><b>${st.name}</b><span>${esc(st.short)}</span></span>${explored.has(st.id) ? '<span class="lx-tab-ok" aria-hidden="true">&#10003;</span>' : ''}</button>`).join('');
+  + `<span class="lx-tab-n">${st.n}</span><span class="lx-tab-t"><b>${st.name}</b><span>${esc(st.short)}</span></span>${explored.has(st.id) ? '<span class="lx-tab-ok" aria-hidden="true">&#10003;</span>' : hint === st.id ? `<span class="lx-tab-next">${explored.size ? 'Next' : 'Start here'}</span>` : ''}</button>`).join('');
 
 /** The whole example. interactive=false is the no-JavaScript version (everything visible, no controls). */
 export function appHtml(rec = RECORDS, { interactive = false } = {}) {
@@ -242,9 +242,16 @@ export function mountTracker(host) {
 
   if (reduce || typeof IntersectionObserver !== 'function') { finish(); return null; }
   host.classList.add('lx-wait');
+  let safety = 0;
+  const start = () => { io.disconnect(); clearTimeout(safety); if (host.classList.contains('lx-wait')) play(); };
   const io = new IntersectionObserver((ents) => {
-    if (ents.some((x) => x.isIntersecting)) { io.disconnect(); play(); }
-  }, { threshold: 0.25 });
-  io.observe(host);
+    if (ents.some((x) => x.isIntersecting)) { start(); return; }
+  }, { threshold: 0 });
+  io.observe(q('[data-lx="tabs"]'));
+  // Safety net: once any part of the example is on screen, it never stays hidden for more than 1.5 s.
+  const near = new IntersectionObserver((ents) => {
+    if (ents.some((x) => x.isIntersecting)) { near.disconnect(); safety = setTimeout(() => { if (host.classList.contains('lx-wait')) { io.disconnect(); finish(); } }, 1500); }
+  }, { threshold: 0 });
+  near.observe(host);
   return null;
 }

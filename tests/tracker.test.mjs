@@ -154,87 +154,29 @@ test('every follow-up and figure comes from the current records (no fixed text l
 
 const textOf = (h) => h.replace(/<span aria-hidden="true">[^<]*<\/span>/g, '').replace(/<[^>]+>/g, ' ').replace(/&#\d+;/g, ' ').replace(/\s+/g, ' ');
 
-test('"Problems I help fix" (11 Nov spec, replaces the live example): heading, cards, fictional label, totals check, workbook, CTAs', async () => {
+test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, the report, how it is put in place, booking', async () => {
   const sec = await section();
-  const order = ['<p class="eyebrow">Problems I help fix</p>',
-    '<h2 id="samples-h">Different operations. Similar reporting problems.</h2>',
-    'Whether information comes from multiple locations, team schedules or recurring reports, I help turn disconnected information into something your business can actually use.',
-    '<ul class="pc-grid">', 'Multiple locations. Disconnected reports.', 'Four regions. Different spreadsheets. One consistent management report.',
-    'One consolidated report with regional breakdowns, validation checks and clearly identified exceptions.', '<summary>See how I&rsquo;d approach it</summary>',
-    'These are fictional examples of the kinds of operational and reporting problems I help with. They are not client case studies or claims of achieved results.',
-    'Do the totals actually add up?', 'Before a report is shared, the underlying figures should reconcile.',
-    'Want to see a practical example?', 'Download the free Excel tracker', 'Get a free written review', 'Book a free report review'];
+  const order = ['<p class="eyebrow">Live example &middot; Northstar Services, a fictional service business</p>',
+    '<h2 id="samples-h">Your team is working hard. So why does everything still need chasing?</h2>',
+    'Here&rsquo;s one sample week at Northstar Services, from scattered information to a report you can rely on.',
+    '12 jobs this week. 3 issues that could easily be missed.',
+    'First, let’s get the information right.', 'Missing information and duplicate records are identified before they create problems further down the process.',
+    'Next, let’s make sure the work doesn’t get forgotten.', 'Clear responsibilities and visible follow-ups help prevent work from slipping through the cracks.',
+    'Finally, know where your business stands.', 'Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.',
+    'Weekly operations report · Fictional sample', '2–6 November 2026 · 12 jobs checked', 'What needs attention',
+    'Know what&rsquo;s completed. See what&rsquo;s outstanding. Know what to do next.', 'See all 12 jobs (the tracker behind this report)',
+    'Your tracker keeps your own columns, such as site, supervisor or visit date. The checks work the same way.', 'Download the free Excel tracker'];
   const at = order.map((t) => sec.indexOf(t));
   assert.ok(at.every((i) => i >= 0), order.filter((t, i) => at[i] < 0).join(' | '));
-  assert.deepEqual([...at].sort((x, y) => x - y), at, 'in order');
-  // Each card: illustration (decorative), outcome tag, title, one line, what you'd get, details closed by default.
-  const cards = sec.match(/<li class="pc-card[\s\S]*?<\/details>\s*<\/li>/g) || [];
-  assert.ok(cards.length >= 1);
-  for (const c of cards) {
-    assert.match(c, /<div class="pc-art" aria-hidden="true">/);
-    for (const k of ['pc-tag', 'pc-d', 'pc-get']) assert.match(c, new RegExp(`class="${k}"`), k);
-    assert.match(c, /<h3>[^<]+<\/h3>/);
-    assert.match(c, /<details class="pc-more">/, 'closed by default (no open attribute)');
-    assert.equal((c.match(/<h4>/g) || []).length, 2, 'what usually goes wrong + how I would approach it');
-  }
-  // The old step-by-step walkthrough is gone.
-  assert.doesNotMatch(sec, /lx-panel|lx-stagelist|tracker:start|See all 12 jobs|12 jobs this week|R-1\d\d/);
+  assert.deepEqual([...at].sort((a, b) => a - b), at, 'in order');
   assert.doesNotMatch(sec, /\sstyle="/);
   assert.doesNotMatch(sec, /\bwe\b|\bour\b/i, 'first person singular only');
-  assert.doesNotMatch(sec, /Rework Rescue (can )?help/, 'first person, not third');
-  assert.doesNotMatch(sec.replace(/href="[^"]*"/g, ''), /saves? hours|time sav|%|\bclients? (said|say)|testimonial|automate everything|Power Query|n8n|\bMCP\b|\bAI\b/i, 'no claims, no tool pitch');
-  assert.doesNotMatch(sec, /plumb|leak|gutter|handyman|construction/i, 'no trades visuals or wording in this section');
+  assert.doesNotMatch(sec.replace('Send invoice copy', '').replace(/href="[^"]*"/g, ''), /invoic|CRM is|monitor|notification sent|automatically assign|saves? hours|time sav|%|live data|connected to your/i, 'nothing the sample does not do');
+  assert.doesNotMatch(sec, /\bAI\b/, 'no AI in the live example');
   const page = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const svc = page.slice(page.indexOf('id="services"'), page.indexOf('id="how"'));
   for (const t of ['<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>', 'Not every business needs another system or complicated automation.',
     'Any additional software, subscriptions or implementation costs are discussed before the work begins.', 'Improving what you already use is a complete starting point on its own.']) assert.ok(svc.includes(t), t);
-});
-
-test('"Problems I help fix" round 2: three numbered cards in order, each with its own colour and illustration', async () => {
-  const sec = await section();
-  const cards = sec.match(/<li class="pc-card[\s\S]*?<\/details>\s*<\/li>/g) || [];
-  assert.equal(cards.length, 3);
-  const got = cards.map((c) => [c.match(/<li class="pc-card (pc-\w+)">/)[1], c.match(/<span class="pc-n">(\d+)<\/span>/)[1], c.match(/<h3>([^<]+)<\/h3>/)[1]]);
-  assert.deepEqual(got, [
-    ['pc-regions', '01', 'Multiple locations. Disconnected reports.'],
-    ['pc-sched', '02', 'Schedules, messages and missing updates.'],
-    ['pc-monthly', '03', 'Monthly reports across locations.'],
-  ]);
-  for (const c of cards) {
-    assert.match(c, /<svg class="pc-svg" viewBox="0 0 320 150" focusable="false">/);
-    for (const k of ['pc-wrong', 'pc-fix']) assert.equal((c.match(new RegExp(`<ul class="${k}">([\\s\\S]*?)</ul>`))[1].match(/<li>/g) || []).length, 4, k);
-  }
-  for (const t of ['Clearer tracking and accountability', 'A structured tracker showing what was scheduled, completed and still needs attention.', 'More consistent monthly reporting', 'One monthly management report with location-level comparisons and clearly identified items requiring attention.']) assert.ok(cards.join('').includes(t), t);
-  assert.match(cards[1], /Roster[\s\S]*Team chat[\s\S]*One tracker/, 'roster + chat into one tracker');
-  assert.match(cards[2], /Site A[\s\S]*Site C[\s\S]*Side by side/, 'monthly location reports into one comparison');
-  assert.doesNotMatch(sec, /\[\[SPEC/, 'every placeholder replaced with the spec wording');
-});
-
-test('sample written review: own page, opened in a new tab from the written-review option, fictional, signed by Jeff', async () => {
-  const sec = await section();
-  assert.match(sec, /<a class="pc-sample-link" href="sample-review\/" target="_blank" rel="noopener">See what a free written review looks like&nbsp;&rarr;<span class="sr-only"> \(opens in a new tab\)<\/span><\/a>/);
-  assert.ok(sec.indexOf('pc-sample-link') > sec.indexOf('Get a free written review') && sec.indexOf('pc-sample-link') < sec.indexOf('Book a free report review'), 'beside the written-review option');
-  const pg = await readFile(new URL('../sample-review/index.html', import.meta.url), 'utf8');
-  const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  const csp = (h) => h.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/)[1];
-  assert.equal(csp(pg), csp(priv), 'same CSP as the other pages');
-  assert.equal(pg.slice(pg.indexOf('<header'), pg.indexOf('</header>')), priv.slice(priv.indexOf('<header'), priv.indexOf('</header>')), 'same header and nav');
-  assert.equal(pg.slice(pg.indexOf('<footer')), priv.slice(priv.indexOf('<footer')), 'same footer');
-  assert.match(pg, /<title>Sample written review \| Rework Rescue<\/title>/);
-  assert.match(pg, /<link rel="canonical" href="https:\/\/rework-rescue\.vercel\.app\/sample-review">/);
-  assert.ok(pg.includes('<strong>Fictional sample.</strong> This document illustrates the format and type of recommendations a customer may receive.'), 'fictional label');
-  assert.ok(pg.includes('It does not represent an actual client engagement or achieved result.'));
-  assert.ok(pg.includes('<p class="sr-sign">Jeff Herson Vida<br>Rework Rescue &middot; Data and operations specialist</p>'), 'sign-off');
-  assert.ok(pg.includes('href="mailto:jeffhersonvida@gmail.com?subject=Written%20report%20review"'));
-  assert.ok(pg.includes('For healthcare and multi-clinic examples, I only work with de-identified exports.'));
-  assert.doesNotMatch(pg, /\sstyle="|<script(?! type="module" src="\.\.\/src\/nav\.js")/, 'no inline styles or extra scripts');
-  const main = pg.slice(pg.indexOf('<main'), pg.indexOf('</main>'));
-  assert.doesNotMatch(main, /\bwe\b|\bour\b|\[\[SPEC/i, 'first person; placeholders replaced');
-  const doc = main.slice(main.indexOf('<article'), main.indexOf('</article>'));
-  assert.deepEqual([...doc.matchAll(/<h2>([^<]+)<\/h2>/g)].map((m) => m[1]), ['1. What I found', '2. Why it matters', '3. What I&rsquo;d fix first', '4. Recommended improvement', '5. Suggested next step']);
-  assert.doesNotMatch(doc, /\d+\s?%|saved|savings|\$\d|testimonial/i, 'no invented results');
-  const map = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
-  assert.ok(map.includes('<loc>https://rework-rescue.vercel.app/sample-review</loc>'));
 });
 
 test('stages: each one shows the actual records and the checks worked out from them', () => {
@@ -273,25 +215,22 @@ test('report: 7 / 5 / 3 (the 3 within the 5), the three action items in order, n
   assert.doesNotMatch(reportHtml(), /AI|summary draft/i, 'the report is the payoff, not an AI summary');
 });
 
-test('totals check on the page is the engine’s own 7 + 5 = 12, and the 3 needing attention sit inside the 5', async () => {
+test('the no-JavaScript version in index.html is exactly what the engine renders; read-only everywhere', async () => {
   const sec = await section();
-  const f = summarise(RECORDS);
-  const nums = [...sec.matchAll(/<span class="tot-n is-(\w+)"><strong>(\d+)<\/strong>/g)].map((m) => [m[1], Number(m[2])]);
-  assert.deepEqual(nums, [['done', f.completed], ['open', f.outstanding], ['all', f.total]]);
-  assert.equal(f.completed + f.outstanding, f.total, 'completed + still outstanding = total');
-  assert.ok(f.attention <= f.outstanding);
-  assert.match(sec, /<p class="lx-rep-carry">Open jobs from earlier weeks stay on the report until they&rsquo;re done\.<\/p>/);
-});
-
-test('the old live example module (src/tracker/ui.js) still renders read-only, but the page no longer loads it', async () => {
+  const inner = sec.slice(sec.indexOf('<!-- tracker:start -->') + 22, sec.indexOf('<!-- tracker:end -->'));
+  assert.equal(inner, appHtml(), 'run: node tools/render_tracker_static.mjs');
+  assert.deepEqual([...inner.matchAll(/<th scope="col">([^<]+)<\/th>/g)].slice(-7).map((m) => m[1]), ['Ref', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status', 'Date Completed']);
+  assert.equal((inner.match(/<tr class="wt-row/g) || []).length, 12);
+  assert.doesNotMatch(inner, /<button|<select|<input/, 'no controls without JavaScript');
+  assert.equal((inner.match(/class="lx-panel"/g) || []).length, 3, 'all three stages shown');
   const live = appHtml(RECORDS, { interactive: true });
   assert.doesNotMatch(live, /<select|<input|data-fix|data-wt-reset/, 'no tap-to-fix, no editing');
   assert.deepEqual([...live.matchAll(/class="lx-tab[^"]*" data-go="(\w+)"/g)].map((m) => m[1]), ['capture', 'move', 'see']);
-  assert.doesNotMatch(appHtml(), /<button|<select|<input/, 'no controls without JavaScript');
-  const home = await readFile(new URL('../src/home.js', import.meta.url), 'utf8');
-  assert.doesNotMatch(home, /from '\.\/tracker\/ui\.js'|mountTracker\(/, 'homepage does not load the old walkthrough');
-  const hero = await readFile(new URL('../src/demo/hero.js', import.meta.url), 'utf8');
-  assert.match(hero, /from '\.\.\/tracker\/store\.js'/, 'the hero still runs on the tracker records');
+  // The end of the Capture and Move panels leads on to the next stage (11 Nov PM review).
+  assert.deepEqual([...live.matchAll(/data-go="(\w+)" data-lx-next>Next: (\w+)/g)].map((m) => `${m[1]}:${m[2]}`), ['move:Move', 'see:See']);
+  for (const a of ['pause', 'skip', 'replay']) assert.match(live, new RegExp(`data-lx-act="${a}"`));
+  assert.match(live, /class="lx-jump" href="#lx-rep-h"/);
+  assert.equal((live.match(/role="region"[^>]*hidden/g) || []).length, 3, 'stage panels start hidden behind the opening');
 });
 
 test('the demo never changes the records (the hero stays at 12 / 7 / 5 / 3)', async () => {

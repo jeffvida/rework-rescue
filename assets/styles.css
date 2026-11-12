@@ -4277,3 +4277,15 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .fpanel-before .fp-steps li:not(:last-child)::after { content: "\2192" / ""; position: static; width: auto; margin-left: 0.5rem; margin-right: -0.35rem; }
   .fp-cap { margin-top: 0.6rem; }
 }
+
+/* ---- Bridge lines and the sample written scope (12 Nov, evening) ---- */
+.exp-bridge { margin: 0 0 1rem; max-width: 46rem; padding-left: 0.8rem; border-left: 3px solid var(--teal); font-size: 0.97rem; color: var(--muted); }
+.how-scope { margin: 1rem 0 0; }
+.scope-doc { margin: 0.7rem 0 0.3rem; padding: 1rem 1.1rem 0.9rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; max-width: 52rem; }
+.scope-title { margin: 0 0 0.4rem; font-weight: 700; color: var(--ink); }
+.scope-list { margin: 0; }
+.scope-list > div { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 0.2rem 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
+.scope-list dt { font-size: 0.9rem; font-weight: 700; color: var(--teal-dark); }
+.scope-list dd { margin: 0; font-size: 0.95rem; }
+.scope-note { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 40rem) { .scope-list > div { grid-template-columns: 1fr; } .scope-doc { padding: 0.8rem 0.8rem 0.7rem; } }

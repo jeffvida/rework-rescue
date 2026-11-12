@@ -253,6 +253,16 @@ test('page order (12 Nov eight-section page): hero, problems, how I can help (wi
   assert.doesNotMatch(exp, /\sstyle=|<script|<button|<input|<a /, 'static: no inline styles (CSP), no controls or links');
   assert.doesNotMatch(exp, /\d\s?%|saved|savings|per cent/i, 'no invented savings or percentages');
   assert.doesNotMatch(exp, /solar|irradiance|inverter|utility|TotalEnergies|SunPower|Eutility/i, 'generic wording, no employer or industry names');
+  assert.equal((exp.match(/<p class="exp-bridge">/g) || []).length, 2, 'one bridge line under each case intro');
+  assert.ok(exp.includes('In your business, the same idea could mean checking job and invoice records for gaps and mismatches before they reach a customer.'));
+  assert.ok(exp.includes('In your business, it could mean a weekly report that pulls from your tracker and checks itself, so Monday goes to understanding the numbers, not rebuilding them.'));
+  const how2 = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  const scope = how2.slice(how2.indexOf('class="fold how-scope"'), how2.indexOf('class="how-need"'));
+  assert.ok(scope.length > 100, 'sample written scope row exists before "What I need from you"');
+  assert.doesNotMatch(scope, /<details[^>]*\bopen\b/, 'scope row closed by default');
+  assert.match(scope, /<summary>Step 2 example: see a sample written scope<\/summary>/);
+  for (const t of ['Northstar Services (fictional)', 'Fictional example. Your own scope is written after the free review.', '30 days of post-handover support for defects within the agreed scope', 'This is an estimate and depends on receiving the required data, access and feedback.', 'Quoted after the free review and agreed in writing before work begins.']) assert.ok(scope.includes(t), t);
+  assert.doesNotMatch(scope, /milestone|deposit|proposal|\$|\d\s?%|from \d/i, 'no price, payment structure or proposal wording: Jeff has not set payment terms');
   const about = html.slice(order[5], order[6]);
   for (const t of ['Before Rework Rescue', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.', 'not Rework Rescue client projects']) assert.ok(about.includes(t), t);
   assert.match(about, /href="#experience">Operational problems I&rsquo;ve helped solve<\/a>/, 'About points to the experience section');
@@ -354,7 +364,7 @@ test('11 Nov PM round: new FAQs, written review without a call, scope you can sh
   // ChatGPT review follow-ups (11 Nov 21:02): ownership near the final button; carry-over rule visible on the report.
   assert.match(html, /<li>You own what I build<\/li>/);
   assert.match(html, /A handover call and a short run guide, so everyday use doesn&rsquo;t depend on me\./);
-  assert.equal((html.match(/run guide/g) || []).length, 3, 'run guide: What you get, How it works step 4, FAQ (unavailable)');
+  assert.equal((html.match(/run guide/g) || []).length, 4, 'run guide: What you get, How it works step 4, FAQ (unavailable), the sample written scope');
   assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph before another paragraph');
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   assert.match(priv, /Client project data is never put into free AI tools/);

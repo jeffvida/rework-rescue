@@ -191,7 +191,7 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
   assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
   // The only mentions of subscriptions are the cost-transparency lines.
-  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('payment arrangements and any subscriptions you&#39;d need', ''), /subscription|sign up for (the|our) platform/i);
+  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('payment arrangements and any subscriptions you&#39;d need', '').replace('You create the accounts and handle any paid subscriptions.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'no AI runs in it']) assert.ok(priv.includes(t), t);
   assert.doesNotMatch(priv, /live example|Weekly-Work-Tracker\.xlsx|Reset sample|change an owner or a status/, 'privacy page matches the page (12 Nov)');
@@ -269,10 +269,10 @@ test('booking (12 Nov): How I can help ends with one button; the closing section
   const start = html.slice(html.indexOf('id="start"'));
   assert.match(start, /<p class="book-sub">It can be a report, a tracker, an inbox or a follow-up list\.<\/p>/);
   assert.match(start, /<p class="book-sign">&mdash; Jeff<\/p>/);
-  assert.match(start, /<div class="book-written">[\s\S]*?Prefer writing\?[\s\S]*?within 1 working day: where it breaks and what I&rsquo;d fix first\. It&rsquo;s free, and there&rsquo;s no obligation to book a call afterwards\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>\s*<details class="fold fold-dark"><summary>No report to send\?<\/summary><p>Send a screenshot of your tracker or the task \(names hidden\)[\s\S]*?what I&rsquo;d leave alone\.<\/p><\/details>/);
+  assert.match(start, /<div class="book-written" id="written-review">[\s\S]*?Prefer writing\?[\s\S]*?within 1 working day: where it breaks and what I&rsquo;d fix first\. It&rsquo;s free, and there&rsquo;s no obligation to book a call afterwards\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>\s*<details class="fold fold-dark"><summary>No report to send\?<\/summary><p>Send a screenshot of your tracker or the task \(names hidden\)[\s\S]*?what I&rsquo;d leave alone\.<\/p><\/details>/);
   assert.match(start, /<ul class="cta-facts"><li>Work directly with me<\/li><li>Written scope and price before any work<\/li><li>You own what I build<\/li><\/ul>/, 'chips not repeated from the hero (UX review)');
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"') && start.indexOf('class="book-data"') > 0, 'data line beside the calendar');
-  assert.match(start, /No files, logins or prep needed for the call\. Please leave out anything confidential\./);
+  assert.match(start, /For the call, you don&rsquo;t need files or logins\. Please leave out anything confidential\./);
   assert.doesNotMatch(html, /small (service )?businesses/i, 'no "small businesses" on the page');
   assert.match(html, /<h2 id="cta-h">Bring me the task your team repeats every week\.<\/h2>/);
   assert.match(html, /<h2 id="fit-h">Good teams shouldn&rsquo;t have to fight their spreadsheets\.<\/h2>/);
@@ -305,9 +305,9 @@ test('11 Nov PM round: new FAQs, written review without a call, scope you can sh
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const faq = html.slice(html.indexOf('id="faq"'), html.indexOf('id="start"'));
   // 12 Nov: eight questions; the process answers moved to How it works, the written review to the closing section.
-  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'What if you&#39;re unavailable?', 'You&#39;re in the Philippines. How does working remotely work?', 'Do you work with larger teams?', 'Can you build a website, booking system or CRM?']);
+  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'What if you&#39;re unavailable?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?', 'Do you work with larger teams?', 'Can you build a website, booking system or CRM?']);
   assert.match(faq, /payment arrangements and any subscriptions you&#39;d need\. Work only begins once you&#39;ve agreed to it in writing/);
-  assert.match(faq, /I&#39;m happy to sign an NDA, and a data processing agreement before handling any personal data\./);
+  assert.match(faq, /I&#39;m happy to sign an NDA and a data processing agreement before handling any personal data\./);
   assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);
   assert.doesNotMatch(faq, /reply within|within \d+ hours/i, 'no reply-time promise (Jeff, 11 Nov)');
   for (const f of ['../index.html', '../contact/index.html']) {
@@ -363,10 +363,10 @@ test('AI and automation round (11 Nov late): automation and AI visible, data bac
   // About: data analyst first, automation builds from previous roles, current training, tools in small print.
   const about = html.slice(html.indexOf('id="about"'), html.indexOf('id="faq"'));
   assert.match(about, /<p class="about-lead">I&rsquo;m a data analyst who builds automation and AI workflows for service businesses\.<\/p>/);
-  assert.match(about, /<p class="about-title">Data and AI automation specialist<\/p>/);
+  assert.match(about, /<p class="about-title">Data analyst building AI and automation workflows<\/p>/);
   for (const t of ['Automated daily reporting.', 'Automated data checks.', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.']) assert.ok(about.includes(`<strong>${t}</strong>`), t);
   assert.match(about, /These are from my previous roles, not Rework Rescue client projects\./);
-  assert.match(about, /I&rsquo;m training in AI and automation and building with n8n\./);
+  assert.match(about, /I build AI and automation workflows with n8n, and I keep training as the tools change\./);
   assert.match(about, /<p class="about-tools"><strong>Tools I work with:<\/strong>/);
   // FAQ: "What can you automate?" sits near the top and keeps the limits.
   const faq = html.slice(html.indexOf('id="faq"'), html.indexOf('id="start"'));

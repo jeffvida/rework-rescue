@@ -106,11 +106,14 @@ export function mountAssistant({ base = './' } = {}) {
   let busy = false;
   let opener = fab;
 
+  const isFullScreen = () => typeof matchMedia === 'function' && matchMedia('(max-width: 40rem)').matches;
   const setOpen = (open, from) => {
     if (open) {
       opener = from || fab;
       hideInvite(true);
       panel.hidden = false;
+      // On phones the panel covers the whole screen, so it behaves as a modal dialog (12 Nov QA review).
+      panel.setAttribute('aria-modal', String(isFullScreen()));
       document.documentElement.classList.add('ast-open');
       fab.setAttribute('aria-expanded', 'true');
       if (mobileAsk) mobileAsk.setAttribute('aria-expanded', 'true');
@@ -163,7 +166,16 @@ export function mountAssistant({ base = './' } = {}) {
   // ---- Wiring
   fab.addEventListener('click', () => setOpen(panel.hidden, fab));
   closeBtn.addEventListener('click', () => setOpen(false));
-  panel.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); setOpen(false); } });
+  panel.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); setOpen(false); return; }
+    // Full-screen on phones: keep Tab inside the panel.
+    if (e.key !== 'Tab' || panel.getAttribute('aria-modal') !== 'true') return;
+    const items = [...panel.querySelectorAll('button, textarea, input:not([type="hidden"]):not([tabindex="-1"]), a[href]')].filter((x) => !x.disabled && x.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0]; const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   form.addEventListener('submit', (e) => { e.preventDefault(); submit(input.value); });
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); submit(input.value); } });
   input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = `${Math.min(input.scrollHeight, 120)}px`; });

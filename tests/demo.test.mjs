@@ -224,7 +224,13 @@ test('page order (12 Nov eight-section page): hero, problems, how I can help (wi
   assert.match(exp, /<p class="eyebrow">Previous professional experience<\/p>/);
   assert.match(exp, /<h2 id="experience-h">Operational problems I&rsquo;ve helped solve<\/h2>/);
   assert.match(exp, /not Rework Rescue client projects/);
-  assert.equal((exp.match(/<li class="built-card exp-card">/g) || []).length, 2, 'two case studies');
+  assert.equal((exp.match(/<article class="exp-case"/g) || []).length, 2, 'two full-width case studies');
+  assert.equal((exp.match(/Illustrative reconstruction &middot; Synthetic data/g) || []).length, 2, 'both dashboards labelled as synthetic reconstructions');
+  assert.match(exp, /Meter Data Exception Monitor/); assert.match(exp, /Site Performance Overview/);
+  assert.doesNotMatch(exp, /\sstyle=|<script|<button|<input|<a /, 'static dashboards: no inline styles (CSP), no controls');
+  assert.doesNotMatch(exp, /Severity|<th[^>]*>Severity/i, 'no severity column: the original tool had none');
+  assert.match(exp, /power was 0/, 'frozen-meter rule keeps the power condition');
+  assert.doesNotMatch(exp, /corrected automatically|auto-?correct/i, 'the tool did not correct meter issues');
   assert.equal((exp.match(/<summary>How the checks worked<\/summary>/g) || []).length, 2, 'a closed detail row in each card');
   assert.equal((exp.match(/<ol class="exp-flow"/g) || []).length, 2, 'a three-step strip in each card');
   assert.doesNotMatch(exp, /<a class="btn/, 'no button in the experience section');

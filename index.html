@@ -272,52 +272,87 @@
         <p class="eyebrow">Previous professional experience</p>
         <h2 id="experience-h">Operational problems I&rsquo;ve helped solve</h2>
         <p class="lede exp-lede">Two examples from my previous employment, not Rework Rescue client projects. They show the kind of operational problems I help businesses address: identifying data issues before they affect invoices, and turning repetitive reporting into a more reliable process.</p>
-        <ul class="built-cards built-cards-2 exp-cards">
-          <li class="built-card exp-card">
-            <p class="built-k">Data checks</p>
-            <h3>Catching bad meter data before it reaches an invoice</h3>
-            <p class="exp-row"><strong>Problem:</strong> Meter issues were often identified during stakeholders&rsquo; quarterly checks, after invoices had already been issued. This meant corrections could be delayed or missed.</p>
+
+        <article class="exp-case" aria-labelledby="exp1-h">
+          <p class="exp-cat">Data quality &amp; exception monitoring</p>
+          <h3 id="exp1-h">Catching bad meter data before it reaches an invoice</h3>
+          <p class="exp-problem"><strong>Problem:</strong> Meter issues were often identified during stakeholders&rsquo; quarterly checks, after invoices had already been issued. This meant corrections could be delayed or missed.</p>
+          <figure class="dash dash-exc">
+            <div class="dash-bar"><p class="dash-title">Meter Data Exception Monitor</p><p class="dash-sub">Illustrative reconstruction &middot; Synthetic data</p></div>
+            <ul class="dash-kpis">
+              <li><strong>1,000+</strong><span>Commercial meters checked</span></li>
+              <li><strong>10</strong><span>Typical issues surfaced per run (historical)</span></li>
+              <li><strong>4</strong><span>Example exception categories</span></li>
+              <li><strong>2&times; monthly</strong><span>Scheduled checking cycle</span></li>
+            </ul>
+            <div class="dash-panel">
+              <p class="dash-h">Exceptions for review</p>
+              <div class="dash-scroll" role="region" aria-label="Sample exception table" tabindex="0">
+                <table class="dash-table"><thead><tr><th scope="col">Meter reference</th><th scope="col">Site</th><th scope="col">Issue detected</th><th scope="col">Review status</th></tr></thead><tbody><tr><td data-l="Meter">MTR-1042</td><td data-l="Site">North Site</td><td data-l="Issue detected">Missing reading</td><td data-l="Review status"><span class="pill pill-neutral">For review</span></td></tr><tr><td data-l="Meter">MTR-1087</td><td data-l="Site">East Site</td><td data-l="Issue detected">Frozen reading</td><td data-l="Review status"><span class="pill pill-amber">Investigate</span></td></tr><tr><td data-l="Meter">MTR-1124</td><td data-l="Site">Central Site</td><td data-l="Issue detected">Unusual spike</td><td data-l="Review status"><span class="pill pill-neutral">For review</span></td></tr><tr><td data-l="Meter">MTR-1156</td><td data-l="Site">South Site</td><td data-l="Issue detected">Possible swapped meter</td><td data-l="Review status"><span class="pill pill-amber">Investigate</span></td></tr><tr><td data-l="Meter">MTR-1190</td><td data-l="Site">West Site</td><td data-l="Issue detected">Missing reading</td><td data-l="Review status"><span class="pill pill-ok">Reviewed</span></td></tr></tbody></table>
+              </div>
+            </div>
+            <ol class="exp-flow" aria-label="The process in three steps"><li>Readings received</li><li>Automated checks</li><li>Exceptions reviewed</li></ol>
+            <figcaption>Fictional sample records. Not a screenshot of the original software and not real customer data.</figcaption>
+          </figure>
+          <div class="exp-text">
             <p class="exp-row"><strong>What I built:</strong> A Python checking tool and Power BI exception dashboard covering more than 1,000 commercial meters. It compared each meter&rsquo;s start and end readings and ran on the 16th and 1st, ahead of the 10th invoicing cycle. It flagged missing readings, frozen meters, unusual spikes and potentially swapped meters.</p>
             <p class="exp-row"><strong>Result:</strong> Issues could be identified and investigated before invoicing, rather than discovered by customers afterwards. A typical run surfaced around 10 issues for review.</p>
-            <ol class="exp-flow" aria-label="The process in three steps">
-              <li>Readings in</li>
-              <li>Checks run</li>
-              <li>Fixed or escalated</li>
-            </ol>
-            <details class="fold exp-more"><summary>How the checks worked</summary>
-              <ul class="exp-checks">
-                <li><strong>Missing readings:</strong> a start or end reading was missing, so there was a gap.</li>
-                <li><strong>Frozen meters:</strong> the reading didn&rsquo;t change from start to end and power was 0. I flagged these for a check for an outage or work on site.</li>
-                <li><strong>Spikes:</strong> the added-up 5-minute intervals and the start-to-end difference disagreed by a large amount.</li>
-                <li><strong>Swapped meters:</strong> two meters&rsquo; readings were swapped because the site mapping was wrong.</li>
-              </ul>
-              <p>I reviewed each report, then resolved the issues or escalated them. If one wasn&rsquo;t resolved before invoices went out, I sent a note of the issue so the invoice was protected if the customer questioned it.</p>
-            </details>
-            <p class="built-tools">Python &middot; Power BI</p>
-          </li>
-          <li class="built-card exp-card">
-            <p class="built-k">Reporting</p>
-            <h3>Performance reports that build themselves</h3>
-            <p class="exp-row"><strong>Problem:</strong> Preparing the Monday report for the 10 largest sites took 2&ndash;3 hours of data extraction, copying, validation and note-writing.</p>
+          </div>
+          <details class="fold exp-more"><summary>How the checks worked</summary>
+            <ul class="exp-checks">
+              <li><strong>Missing readings:</strong> a start or end reading was missing, so there was a gap.</li>
+              <li><strong>Frozen meters:</strong> the reading didn&rsquo;t change between the start and end readings and power was 0. I flagged these for a check for an outage or work on site.</li>
+              <li><strong>Spikes:</strong> the added-up 5-minute intervals and the start-to-end difference disagreed by a large amount.</li>
+              <li><strong>Swapped meters:</strong> two meters&rsquo; readings appeared to be swapped because the site mapping was wrong.</li>
+            </ul>
+            <p>I reviewed each report, then resolved the issues or escalated them. If one wasn&rsquo;t resolved before invoices went out, I sent a note of the issue so the invoice was protected if the customer questioned it.</p>
+          </details>
+          <p class="built-tools">Python &middot; Power BI</p>
+        </article>
+
+        <article class="exp-case" aria-labelledby="exp2-h">
+          <p class="exp-cat">Reporting &amp; workflow automation</p>
+          <h3 id="exp2-h">Performance reports that build themselves</h3>
+          <p class="exp-problem"><strong>Problem:</strong> Preparing the Monday report for the 10 largest sites took 2&ndash;3 hours of data extraction, copying, validation and note-writing.</p>
+          <figure class="dash dash-perf">
+            <div class="dash-bar"><p class="dash-title">Site Performance Overview</p><p class="dash-sub">Illustrative reconstruction &middot; Synthetic data</p></div>
+            <ul class="dash-kpis">
+              <li><strong>10</strong><span>Largest sites monitored</span></li>
+              <li><strong>Daily</strong><span>Automated data extraction</span></li>
+              <li><strong>Automated</strong><span>Data validation</span></li>
+              <li><strong>2&ndash;3 hours</strong><span>Previous Monday report preparation time</span></li>
+            </ul>
+            <div class="dash-panel">
+              <p class="dash-h">Expected vs actual production</p>
+              <div class="bars" role="img" aria-label="Grouped bar chart of expected versus actual production for five illustrative sites: Site A expected 100, actual 96; Site B expected 120, actual 89; Site C expected 95, actual 103; Site D expected 110, actual 82; Site E expected 105, actual 108.">
+                <ul class="bars-plot" aria-hidden="true"><li class="bars-g"><div class="bars-pair"><span class="bar bar-exp b100"><b>100</b></span><span class="bar bar-act b96"><b>96</b></span></div><span class="bars-x">Site A</span></li><li class="bars-g"><div class="bars-pair"><span class="bar bar-exp b120"><b>120</b></span><span class="bar bar-act b89"><b>89</b></span></div><span class="bars-x">Site B</span></li><li class="bars-g"><div class="bars-pair"><span class="bar bar-exp b95"><b>95</b></span><span class="bar bar-act b103"><b>103</b></span></div><span class="bars-x">Site C</span></li><li class="bars-g"><div class="bars-pair"><span class="bar bar-exp b110"><b>110</b></span><span class="bar bar-act b82"><b>82</b></span></div><span class="bars-x">Site D</span></li><li class="bars-g"><div class="bars-pair"><span class="bar bar-exp b105"><b>105</b></span><span class="bar bar-act b108"><b>108</b></span></div><span class="bars-x">Site E</span></li></ul>
+                <p class="bars-key" aria-hidden="true"><span class="key key-exp">Expected</span><span class="key key-act">Actual</span><span class="bars-unit">Illustrative production units</span></p>
+              </div>
+            </div>
+            <div class="dash-panel">
+              <p class="dash-h">Underperformance checks</p>
+              <div class="dash-scroll" role="region" aria-label="Sample investigation table" tabindex="0">
+                <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Observation</th><th scope="col">Check performed</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td data-l="Site">Site A</td><td data-l="Observation">Slight underperformance</td><td data-l="Check performed">Weather comparison</td><td data-l="Outcome"><span class="pill pill-ok">Explained</span></td></tr><tr><td data-l="Site">Site B</td><td data-l="Observation">Underperformance</td><td data-l="Check performed">Work-order check</td><td data-l="Outcome"><span class="pill pill-amber">Further review</span></td></tr><tr><td data-l="Site">Site C</td><td data-l="Observation">Above expected output</td><td data-l="Check performed">Production comparison</td><td data-l="Outcome"><span class="pill pill-ok">Performing well</span></td></tr><tr><td data-l="Site">Site D</td><td data-l="Observation">Underperformance</td><td data-l="Check performed">Equipment/meter comparison</td><td data-l="Outcome"><span class="pill pill-amber">Investigate</span></td></tr><tr><td data-l="Site">Site E</td><td data-l="Observation">Above expected output</td><td data-l="Check performed">Production comparison</td><td data-l="Outcome"><span class="pill pill-ok">Performing well</span></td></tr></tbody></table>
+              </div>
+            </div>
+            <ol class="exp-flow" aria-label="The process in three steps"><li>Daily data extraction</li><li>Automated validation</li><li>Performance report</li></ol>
+            <figcaption>Fictional sites and illustrative values. Not a screenshot of the original software and not real company data.</figcaption>
+          </figure>
+          <div class="exp-text">
             <p class="exp-row"><strong>What I built:</strong> Power Automate ran a Python script daily at the start of the shift. Power BI brought the data together, formatted it and visualised performance. Automated checks compared production against expected output and weather conditions, and checked connected equipment against meter data. Underperformance was also cross-checked against open work orders, with deeper investigation where no work order explained the issue.</p>
             <p class="exp-row"><strong>Result:</strong> Less time was spent collecting and preparing data, leaving more time to investigate site performance and write detailed explanations of why sites were performing above or below expectations.</p>
-            <ol class="exp-flow" aria-label="The process in three steps">
-              <li>Data pulled daily</li>
-              <li>Checks run</li>
-              <li>Live visuals ready</li>
-            </ol>
-            <details class="fold exp-more"><summary>How the checks worked</summary>
-              <ul class="exp-checks">
-                <li><strong>Expected output:</strong> production was compared with what the site should have produced.</li>
-                <li><strong>Weather:</strong> the production trend was compared with weather conditions.</li>
-                <li><strong>Equipment against meters:</strong> the total of the connected equipment was compared with each meter.</li>
-                <li><strong>Work orders:</strong> underperformance was cross-checked against open work orders. If none explained it, a deeper investigation started.</li>
-              </ul>
-              <p>The checks ran automatically on a schedule. We looked at the results daily and did root cause analysis as issues appeared. The report and the meeting still happened every Monday, and other stakeholders could see live data and visuals in between.</p>
-            </details>
-            <p class="built-tools">Python &middot; Power Automate &middot; Power BI</p>
-          </li>
-        </ul>
+          </div>
+          <details class="fold exp-more"><summary>How the checks worked</summary>
+            <ul class="exp-checks">
+              <li><strong>Expected output:</strong> production was compared with what the site should have produced.</li>
+              <li><strong>Weather:</strong> production trends were compared with weather conditions.</li>
+              <li><strong>Equipment against meters:</strong> connected equipment totals were compared with meter data.</li>
+              <li><strong>Work orders:</strong> underperformance was cross-checked against open work orders. If none explained it, a deeper investigation started.</li>
+            </ul>
+            <p>The data extraction and checks ran automatically on a schedule. We looked at the results daily and did root cause analysis as issues appeared. The report and the meeting still happened every Monday, and other stakeholders could see live data and visuals in between.</p>
+          </details>
+          <p class="built-tools">Python &middot; Power Automate &middot; Power BI</p>
+        </article>
       </div>
     </section>
 

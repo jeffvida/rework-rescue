@@ -4238,3 +4238,41 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .exp-sample { padding: 0.7rem 0.7rem 0.6rem; }
   .dash-table th, .dash-table td { padding-left: 0.3rem; padding-right: 0.3rem; }
 }
+
+/* ---- Meter case study v4 (12 Nov): before/after panels as the centrepiece, supporting two-column row ---- */
+.flow2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 1rem; margin: 0 0 1.4rem; }
+.fpanel { border: 1px solid; border-radius: 14px; padding: 1rem 1rem 0.9rem; }
+.fpanel-before { background: #f7f0ed; border-color: #e6d3cb; }
+.fpanel-after { background: #eaf3f1; border-color: #b8d8d1; }
+.fp-head { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.8rem; }
+.fp-tag { padding: 0.15rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.fpanel-before .fp-tag { background: #ecd6cf; color: #8a2f25; }
+.fpanel-after .fp-tag { background: #cfe6e1; color: #17564b; }
+.fp-title { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+.fp-steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 1rem; }
+.fp-steps li { position: relative; flex: 1 1 0; min-width: 0; margin: 0; padding: 0.7rem 0.4rem 0.75rem; background: rgba(255, 255, 255, 0.8); border-radius: 10px; text-align: center; font-size: 0.9rem; font-weight: 700; line-height: 1.25; color: var(--ink); }
+.fp-steps li:not(:last-child)::after { content: "\2192" / ""; position: absolute; right: -0.95rem; top: 1.3rem; width: 0.9rem; text-align: center; color: var(--muted); font-weight: 700; }
+.fp-ico { display: block; margin: 0 auto 0.35rem; color: var(--teal); }
+.fpanel-before .fp-ico { color: #8a5a50; }
+.fp-ico svg { display: block; margin: 0 auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.fp-steps li.bad { background: var(--warn-bg); box-shadow: inset 0 0 0 1px var(--warn-line); color: #7a5410; }
+.fp-steps li.bad .fp-ico { color: #8a6516; }
+.fp-sub { display: block; margin-top: 0.3rem; font-size: 0.8rem; font-weight: 400; line-height: 1.3; color: var(--muted); }
+.fp-cap { margin: 0.8rem 0 0; font-size: 0.9rem; color: var(--muted); }
+.exp-h { margin: 0 0 0.5rem; font-size: 1.05rem; font-family: var(--sans); }
+.exp-built { margin: 0 0 0.6rem; padding-left: 1.2rem; display: grid; gap: 0.3rem; font-size: 0.98rem; }
+.exp-built li::marker { color: var(--teal); }
+.exp-evidence { margin: 0.6rem 0 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-size: 0.92rem; color: var(--muted); }
+.exp-evidence strong { font-size: 1.1rem; color: var(--teal-dark); }
+.exp-label { margin: 0 0 0.5rem; font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+.fold-lab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.7rem; }
+.fold-sub { font-size: 0.88rem; font-weight: 400; color: var(--muted); }
+@media (max-width: 900px) {
+  .flow2 { grid-template-columns: 1fr; }
+  .fp-steps { flex-direction: column; gap: 0.3rem; }
+  .fp-steps li { display: flex; align-items: flex-start; gap: 0.7rem; text-align: left; padding: 0.55rem 0.7rem; }
+  .fp-steps li:not(:last-child)::after { content: none; }
+  .fp-ico { margin: 0.05rem 0 0; flex: none; }
+  .fp-ico svg { margin: 0; width: 22px; height: 22px; }
+  .fp-sub { margin-top: 0.15rem; }
+}

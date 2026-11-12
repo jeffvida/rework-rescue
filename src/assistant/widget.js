@@ -182,13 +182,15 @@ export function mountAssistant({ base = './' } = {}) {
   });
 
   // ---- Invitation: once per visit, after the problems section (or, on pages without it, the hero) has been scrolled past,
-  // or after 45 seconds. It hides itself after 8 seconds unless the visitor is pointing at it or focused in it,
-  // so it never sits over the content for long. Never opens the chat itself.
+  // or after 45 seconds. It hides itself after 8 seconds, or once the visitor scrolls on (12 Nov UX review), unless they
+  // are pointing at it or focused in it, so it never sits over the content for long. Never opens the chat itself.
   let inviteTimer = null;
   let inviteHideTimer = null;
+  let inviteScroll = null;
   function hideInvite(seen) {
     if (inviteTimer) { clearTimeout(inviteTimer); inviteTimer = null; }
     if (inviteHideTimer) { clearTimeout(inviteHideTimer); inviteHideTimer = null; }
+    if (inviteScroll) { window.removeEventListener('scroll', inviteScroll); inviteScroll = null; }
     invite.hidden = true;
     dock.classList.remove('has-invite');
     if (seen) session.set(INVITE_KEY, '1');
@@ -205,6 +207,11 @@ export function mountAssistant({ base = './' } = {}) {
       }, INVITE_SHOW_MS);
     };
     autoHide();
+    const startY = window.scrollY;
+    inviteScroll = () => {
+      if (Math.abs(window.scrollY - startY) > 320 && !invite.matches(':hover') && !invite.contains(document.activeElement)) hideInvite(false);
+    };
+    window.addEventListener('scroll', inviteScroll, { passive: true });
   }
   inviteText.addEventListener('click', () => setOpen(true, fab));
   inviteClose.addEventListener('click', () => hideInvite(true));

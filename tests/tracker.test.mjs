@@ -155,13 +155,14 @@ test('every follow-up and figure comes from the current records (no fixed text l
 
 const textOf = (h) => h.replace(/<span aria-hidden="true">[^<]*<\/span>/g, '').replace(/<[^>]+>/g, ' ').replace(/&#\d+;/g, ' ').replace(/\s+/g, ' ');
 
-test('12 Nov seven-section page: the live example is gone; the implementation note stays in How I can help', async () => {
+test('12 Nov seven-section page: the live example is gone; the approach card sits in How it works (UX review)', async () => {
   const html = await page();
   assert.doesNotMatch(html, /samples-h|tracker:start|tracker-app|Live example|Explore the live example/);
-  const svc = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
-  for (const t of ['<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>', 'I fix the process first, then automate it, so you&rsquo;re not automating a mess.',
-    'Any additional software, subscriptions or implementation costs are discussed before the work begins.', 'Improving what you already use is a complete starting point on its own.']) assert.ok(svc.includes(t), t);
-  assert.match(svc, /<details class="fold svc-how">\s*<summary>How it&rsquo;s put in place<\/summary>/, 'in a closed row, nothing deleted');
+  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  const card = how.slice(how.indexOf('<div class="how-approach">'), how.indexOf('<ol class="steps-list'));
+  for (const t of ['The fix can be as simple as a spreadsheet that updates itself', 'Any additional software, subscriptions or implementation costs are discussed before the work begins.',
+    'Improving what you already use is a complete starting point on its own.', '<strong>Works with what you already use:</strong>']) assert.ok(card.includes(t), t);
+  assert.match(how, /<h2 id="how-h">You keep the tools you know\. I improve the process around them\.<\/h2>/, 'the heading carries "process first"');
 });
 
 test('stages: each one shows the actual records and the checks worked out from them', () => {

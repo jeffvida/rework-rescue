@@ -157,8 +157,9 @@ test('services (10 Nov; heading and card order 11 Nov PM): Capture -> Move -> Se
   assert.match(sec, /class="svc-layer svc-data svc-layer-core" id="svc-data"/);
   assert.match(sec, /A good place to start/);
   assert.doesNotMatch(html, /Most projects start|Most first projects|Where most projects start|first project usually/, 'no implied track record');
-  // 12 Nov: the implementation note sits in a closed row after the parts, the proof strip and "What you get".
-  assert.ok(sec.indexOf('class="fold svc-how"') > sec.indexOf('class="svc-layers"'));
+  // 12 Nov UX review: How I can help ends on the proof strip and one button; the approach card moved to How it works.
+  assert.doesNotMatch(sec, /svc-how|svc-foot|lx-impl-h/);
+  assert.ok(sec.indexOf('class="svc-layers"') < sec.indexOf('class="svc-get"') && sec.indexOf('class="svc-get"') < sec.indexOf('id="built"') && sec.indexOf('id="built"') < sec.indexOf('class="demo-after'));
   assert.equal((sec.match(/<details class="fold svc-ex"><summary>4 examples<\/summary>/g) || []).length, 3, 'examples in closed rows, none deleted');
   assert.match(sec, /<h3>What you get<\/h3>/);
   // The repeated checks band and the second weekly-report story stay removed (11 Nov review).
@@ -167,8 +168,8 @@ test('services (10 Nov; heading and card order 11 Nov PM): Capture -> Move -> Se
   // Nothing that asks the visitor to pick a service; no per-service mini-demos.
   assert.doesNotMatch(html, /on its own or combined|Not sure where your problem fits|data-mini=|svc-try|data-svc-go/);
   const home = await src('home.js'); assert.doesNotMatch(home, /mountServices|mountSamples/);
-  // Plain tools line in Services; the one technical tools list lives in About (12 Nov).
-  assert.match(sec, /Works with what you already use:/);
+  // Plain tools line in the How it works card; the one technical tools list lives in About (12 Nov).
+  assert.match(html.slice(html.indexOf('id="how"'), html.indexOf('id="about"')), /<div class="how-approach">[\s\S]*?<strong>Works with what you already use:<\/strong>/);
   assert.doesNotMatch(sec, /Automated with:/);
   const about = html.slice(html.indexOf('id="about"'), html.indexOf('id="faq"'));
   assert.match(about, /Google Apps Script[\s\S]*?picked to fit what you already have\./);
@@ -258,14 +259,18 @@ test('booking (12 Nov): How I can help ends with one button; the closing section
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   const after = sec.slice(sec.indexOf('class="demo-after'));
-  assert.ok(sec.indexOf('class="demo-after') > sec.indexOf('class="svc-foot"'), 'at the end of the section');
-  assert.match(after, /30 minutes &middot; No obligation &middot; Clear next steps/);
+  assert.ok(sec.indexOf('class="demo-after') > sec.indexOf('id="built"'), 'at the end of the section, after the proof strip');
+  assert.equal((html.match(/30 minutes &middot; No obligation &middot; Clear next steps/g) || []).length, 0, 'one button note everywhere (UX review)');
+  assert.match(after, /30 minutes &middot; Free &middot; No obligation/);
+  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  assert.match(how.slice(how.indexOf('class="how-need"')), /class="fold how-30"[\s\S]*?href="contact\/#contact-form-area">Book a free review</, 'How it works ends with a button (UX review)');
   assert.match(after, /href="contact\/#contact-form-area">Book a free review</);
   assert.doesNotMatch(after, /Rework Rescue helps|Your business may be different/);
   const start = html.slice(html.indexOf('id="start"'));
   assert.match(start, /<p class="book-sub">It can be a report, a tracker, an inbox or a follow-up list\.<\/p>/);
   assert.match(start, /<p class="book-sign">&mdash; Jeff<\/p>/);
-  assert.match(start, /<div class="book-written">[\s\S]*?Prefer writing\?[\s\S]*?within 1 working day: where it breaks and what I&rsquo;d fix first\. No report\? Send a screenshot of your tracker or the task \(names hidden\)[\s\S]*?what I&rsquo;d leave alone\. It&rsquo;s free, and there&rsquo;s no obligation to book a call afterwards\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>/);
+  assert.match(start, /<div class="book-written">[\s\S]*?Prefer writing\?[\s\S]*?within 1 working day: where it breaks and what I&rsquo;d fix first\. It&rsquo;s free, and there&rsquo;s no obligation to book a call afterwards\.[\s\S]*?<a class="btn btn-secondary" href="mailto:[^"]+subject=Written%20report%20review">Get a free written review<\/a>\s*<details class="fold fold-dark"><summary>No report to send\?<\/summary><p>Send a screenshot of your tracker or the task \(names hidden\)[\s\S]*?what I&rsquo;d leave alone\.<\/p><\/details>/);
+  assert.match(start, /<ul class="cta-facts"><li>Work directly with me<\/li><li>Written scope and price before any work<\/li><li>You own what I build<\/li><\/ul>/, 'chips not repeated from the hero (UX review)');
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"') && start.indexOf('class="book-data"') > 0, 'data line beside the calendar');
   assert.match(start, /No files, logins or prep needed for the call\. Please leave out anything confidential\./);
   assert.doesNotMatch(html, /small (service )?businesses/i, 'no "small businesses" on the page');
@@ -339,7 +344,7 @@ test('AI and automation round (11 Nov late): automation and AI visible, data bac
   assert.doesNotMatch(svc.match(/<h[23][^>]*>[\s\S]*?<\/h[23]>/g).join(' '), /n8n|Power Automate|Python|Gemini/, 'no tool names in headings');
   // "See it working on this page": two of Jeff's own builds, a strip inside How I can help (12 Nov; tracker card removed).
   assert.ok(html.indexOf('id="services"') < html.indexOf('id="built"') && html.indexOf('id="built"') < html.indexOf('id="how"'));
-  const built = html.slice(html.indexOf('id="built"'), html.indexOf('class="fold svc-how"'));
+  const built = html.slice(html.indexOf('id="built"'), html.indexOf('id="how"'));
   assert.equal((built.match(/<li class="built-card">/g) || []).length, 2);
   for (const t of ['The booking calendar', 'The chat assistant']) assert.ok(built.includes(`<h3>${t}</h3>`), t);
   assert.doesNotMatch(built, /The job tracker and weekly report/);

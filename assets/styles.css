@@ -4105,3 +4105,47 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 
 .book-solo { grid-template-columns: minmax(0, 1fr); max-width: 52rem; }
 .book-data { margin: 1.2rem 0 0.4rem; font-weight: 600; }
+
+/* ---- UX review fixes (12 Nov, senior UI/UX review) ---- */
+/* P1: the approach card in How it works (moved from the end of How I can help) */
+.how-approach { max-width: 52rem; margin: 1.4rem 0 0.4rem; padding: 1.2rem 1.4rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.how-approach p { margin: 0 0 0.5rem; }
+.how-approach p:last-child { margin-bottom: 0; }
+.how-approach-note { font-weight: 600; color: var(--lx-green, #1f6b43); }
+.how-approach .lx-impl-cost { font-size: 0.92rem; color: var(--muted); }
+.how-30 { max-width: 52rem; margin-top: 1rem; }
+.how-section .demo-after-solo { margin-top: 1.4rem; }
+#services .demo-after-solo { margin-top: 1.8rem; }
+/* P1: booking section starts on the same left edge as every other section */
+.container.book-solo { max-width: 70rem; }
+.book-solo > .book-main { max-width: 52rem; }
+/* P1: 44px tap target for the phone header button */
+@media (max-width: 52rem) { .header-cta { min-height: 44px; } }
+
+/* P2: the service cards' closed rows line up */
+.svc-layer .svc-job { flex: 1 0 auto; }
+.svc-layer .svc-ex { margin-top: auto; }
+/* P2: What you get, heading left and two columns on wide screens (no orphan row) */
+@media (min-width: 56.25rem) {
+  .svc-get { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: 1.4rem; align-items: start; }
+  .svc-get h3 { margin: 0.1rem 0 0; }
+  .svc-get ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* P2: the problems heading uses the shared H2 size */
+#fit h2 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); }
+/* P2: closing section, written review stacked under its own line */
+.book-written { display: block; margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+.book-written-t { margin: 0 0 0.8rem; }
+.fold-dark { border-top-color: rgba(255, 255, 255, 0.2); margin-top: 0.9rem; }
+.fold-dark > summary { color: #fff; }
+.fold-dark > summary::after { border-color: var(--signal); }
+.fold-dark p { margin: 0 0 0.6rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); }
+
+/* P3: About photo stays alongside the text on wide screens */
+@media (min-width: 52.01rem) { .about-section .photo-card { position: sticky; top: 6rem; } }
+/* P3: steps stay the same height (the 30-day terms sit under the steps) */
+@media (min-width: 52.01rem) { .steps-row li { align-self: start; } }
+/* P3: tighter proof cards on phones */
+@media (max-width: 40rem) { .built-strip { padding: 1.1rem 0.9rem 1rem; } .built-card { padding: 1rem 1rem 0.8rem; } }
+.svc-layer .svc-layer-tag { margin: 0 0 0.4rem; padding-top: 0; }
+.svc-layer .svc-layer-tag::before { display: none; }

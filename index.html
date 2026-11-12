@@ -321,33 +321,49 @@
           <p class="built-tools">Python &middot; Power BI</p>
         </article>
 
-        <article class="exp-case" aria-labelledby="exp2-h">
+        <article class="exp-case exp-feature" aria-labelledby="exp2-h">
           <div class="exp-top"><p class="exp-cat">Reporting &amp; workflow automation</p><p class="exp-pillars" aria-label="Pillars: Move and See"><span>Move</span><span>See</span></p></div>
           <h3 id="exp2-h">Performance reports that build themselves</h3>
-          <p class="exp-problem"><strong>Problem:</strong> Preparing the Monday report for the 10 largest sites took 2&ndash;3 hours of data extraction, copying, validation and note-writing.</p>
-          <div class="ba">
-            <div class="ba-row ba-before"><p class="ba-k">Before</p><ol class="ba-steps"><li>Extract data</li><li>Copy into the report</li><li>Validate</li><li class="bad">Write notes (2&ndash;3 hours every Monday)</li></ol></div>
-            <div class="ba-row ba-after"><p class="ba-k">After</p><ol class="ba-steps"><li>Daily data extraction</li><li>Automated checks</li><li>Performance comparison</li><li>Investigation</li><li>Ready-to-use report</li></ol></div>
+          <p class="exp-problem">I automated the data collection, checks and reporting for the 10 largest sites, so the team could spend less time preparing reports and more time investigating site performance.</p>
+          <div class="flow2">
+            <div class="fpanel fpanel-before">
+              <div class="fp-head"><span class="fp-tag">Before</span><p class="fp-title">The original process</p></div>
+              <ol class="fp-steps"><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span><span class="fp-lab">Extract data</span></li><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><rect x="8" y="8" width="11" height="13" rx="1.5"/><path d="M5 16V5a1.5 1.5 0 0 1 1.5-1.5H15"/></svg></span><span class="fp-lab">Copy into the report</span></li><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path d="M4 7l2 2 3-3.5M4 14l2 2 3-3.5M12 8h8M12 15h8"/></svg></span><span class="fp-lab">Validate data</span></li><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path d="M5 19l1-4 10-10 3 3L9 18z"/><path d="M14 7l3 3"/></svg></span><span class="fp-lab">Write notes</span></li></ol>
+              <p class="fp-cap">Preparing the Monday report for the 10 largest sites took 2&ndash;3 hours of data extraction, copying, validation and note-writing.</p>
+            </div>
+            <div class="fpanel fpanel-after">
+              <div class="fp-head"><span class="fp-tag">After</span><p class="fp-title">The automated process</p></div>
+              <ol class="fp-steps"><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/><circle cx="16" cy="16" r="2.6"/></svg></span><span class="fp-lab">Daily data extraction<span class="fp-sub">Power Automate runs a Python script at the start of the shift.</span></span></li><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span><span class="fp-lab">Automated checks<span class="fp-sub">Production compared with expected output and weather; equipment compared with meters.</span></span></li><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></span><span class="fp-lab">Investigation<span class="fp-sub">Underperformance cross-checked against open work orders; deeper investigation if none.</span></span></li><li><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path d="M5 20V11M11 20V5M17 20V13M3 20h18"/></svg></span><span class="fp-lab">Ready-to-use report<span class="fp-sub">Power BI combines, formats and visualises performance.</span></span></li></ol>
+              <p class="fp-cap">Extraction and checks ran daily. The report and the meeting still happened every Monday.</p>
+            </div>
           </div>
           <div class="exp-body">
             <div class="exp-text">
-              <p class="exp-row"><strong>What I built:</strong> Power Automate ran a Python script daily at the start of the shift. Power BI brought the data together, formatted it and visualised performance. Automated checks compared production against expected output and weather conditions, and checked connected equipment against meter data. Underperformance was also cross-checked against open work orders, with deeper investigation where no work order explained the issue.</p>
-              <p class="exp-row"><strong>Result:</strong> Less time was spent collecting and preparing data, leaving more time to investigate site performance and write detailed explanations of why sites were performing above or below expectations.</p>
+              <h4 class="exp-h">What I built</h4>
+              <ul class="exp-built">
+                <li>Power Automate ran a Python script daily at the start of the shift.</li>
+                <li>Power BI combined, formatted and visualised the data.</li>
+                <li>Automated checks compared production against expected output and weather conditions.</li>
+                <li>Checked connected equipment against meter data and cross-checked underperformance against open work orders.</li>
+              </ul>
+              <p class="exp-evidence"><span><strong>10</strong> largest sites in the Monday report</span><span><strong>2&ndash;3 hours</strong> of manual preparation before</span></p>
             </div>
             <figure class="exp-sample">
-              <p class="dash-h">Sample output</p>
-              <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Check performed</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Site A</td><td>Weather comparison</td><td><span class="pill pill-ok">Explained</span></td></tr><tr><td>Site B</td><td>Work-order check</td><td><span class="pill pill-amber">Further review</span></td></tr><tr><td>Site D</td><td>Equipment/meter comparison</td><td><span class="pill pill-amber">Investigate</span></td></tr></tbody></table>
-              <figcaption>Illustrative example &middot; Synthetic data. Fictional sites, not real company data.</figcaption>
+              <h4 class="exp-h">Sample report output</h4>
+              <p class="exp-label">Illustrative example &middot; Synthetic data</p>
+              <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Observation</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Site A</td><td><span class="obs-down">Slight underperformance</span><span class="cell-sub">Check: Weather comparison</span></td><td><span class="pill pill-ok">Explained</span></td></tr><tr><td>Site B</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Work-order check</span></td><td><span class="pill pill-amber">Further review</span></td></tr><tr><td>Site D</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Equipment/meter comparison</span></td><td><span class="pill pill-amber">Investigate</span></td></tr></tbody></table>
+              <figcaption>Fictional sites, not real company data.</figcaption>
             </figure>
           </div>
-          <details class="fold exp-more"><summary>How the checks worked</summary>
+          <details class="fold exp-more"><summary><span class="fold-lab"><span class="fold-title">Technical details</span> <span class="fold-sub">Implementation and automated checks</span></span></summary>
             <ul class="exp-checks">
+              <li><strong>Scheduled extraction:</strong> Power Automate ran the Python script automatically at the start of every shift. Power BI then combined and formatted the data and added the visuals.</li>
               <li><strong>Expected output:</strong> production was compared with what the site should have produced.</li>
               <li><strong>Weather:</strong> production trends were compared with weather conditions.</li>
               <li><strong>Equipment against meters:</strong> connected equipment totals were compared with meter data.</li>
               <li><strong>Work orders:</strong> underperformance was cross-checked against open work orders. If none explained it, a deeper investigation started.</li>
             </ul>
-            <p>The data extraction and checks ran automatically on a schedule. We looked at the results daily and did root cause analysis as issues appeared. The report and the meeting still happened every Monday, and other stakeholders could see live data and visuals in between.</p>
+            <p>We looked at the results daily and did root cause analysis as issues appeared. The report and the meeting still happened every Monday, and other stakeholders could see live data and visuals in between.</p>
           </details>
           <p class="built-tools">Python &middot; Power Automate &middot; Power BI</p>
         </article>

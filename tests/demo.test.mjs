@@ -235,9 +235,13 @@ test('page order (12 Nov eight-section page): hero, problems, how I can help (wi
   assert.match(c1, /<th scope="col">Meter ID<\/th><th scope="col">Issue detected<\/th>/);
   assert.doesNotMatch(c1, /Power Automate|Cleared for invoicing|cleared for invoic|automatically (fix|correct|approve)/i, 'meter case: Python and Power BI only; no auto-fix or clearing claims');
   const c2 = exp.slice(exp.indexOf('aria-labelledby="exp2-h"'));
-  assert.equal((c2.match(/<summary>How the checks worked<\/summary>/g) || []).length, 1);
-  assert.match(c2, /<li>Daily data extraction<\/li><li>Automated checks<\/li><li>Performance comparison<\/li><li>Investigation<\/li><li>Ready-to-use report<\/li>/);
-  assert.match(c2, /<div class="ba-row ba-before">[\s\S]*<div class="ba-row ba-after">/);
+  assert.match(c2, /<div class="fpanel fpanel-before">[\s\S]*<div class="fpanel fpanel-after">/, 'reporting case uses the same Before/After system');
+  for (const t of ['Extract data', 'Copy into the report', 'Validate data', 'Write notes', 'Daily data extraction', 'Automated checks', 'Investigation', 'Ready-to-use report', 'Sample report output', 'Preparing the Monday report for the 10 largest sites took 2&ndash;3 hours']) assert.ok(c2.includes(t), t);
+  assert.match(c2, /<span class="fold-title">Technical details<\/span> <span class="fold-sub">Implementation and automated checks<\/span>/);
+  for (const t of ['Site A', 'Site B', 'Site D']) assert.ok(c2.includes(`<td>${t}</td>`), t);
+  assert.doesNotMatch(c2, /Site C|Site E|\d%/, 'only the original synthetic rows, no invented percentages');
+  assert.equal((exp.match(/<details/g) || []).length, 2, 'two technical accordions');
+  assert.doesNotMatch(exp, /<details[^>]*\bopen\b/, 'accordions closed by default');
   assert.equal((exp.match(/Illustrative example &middot; Synthetic data/g) || []).length, 2, 'both small samples labelled synthetic');
   assert.equal((exp.match(/<figure class="exp-sample">/g) || []).length, 2);
   assert.equal((exp.match(/<span>Move<\/span><span>See<\/span>/g) || []).length, 2, 'Move and See tags');

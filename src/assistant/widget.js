@@ -181,7 +181,7 @@ export function mountAssistant({ base = './' } = {}) {
     setOpen(true, t);
   });
 
-  // ---- Invitation: once per visit, after the live example (or, on pages without it, the hero) has been scrolled past,
+  // ---- Invitation: once per visit, after the problems section (or, on pages without it, the hero) has been scrolled past,
   // or after 45 seconds. It hides itself after 8 seconds unless the visitor is pointing at it or focused in it,
   // so it never sits over the content for long. Never opens the chat itself.
   let inviteTimer = null;
@@ -210,7 +210,7 @@ export function mountAssistant({ base = './' } = {}) {
   inviteClose.addEventListener('click', () => hideInvite(true));
   if (!session.get(INVITE_KEY)) {
     inviteTimer = setTimeout(showInvite, INVITE_DELAY_MS);
-    const mark = document.getElementById('samples') || document.querySelector('.hero');
+    const mark = document.getElementById('fit') || document.querySelector('.hero');
     if (mark && typeof IntersectionObserver === 'function') {
       const io = new IntersectionObserver((entries) => {
         // Scrolled past = no longer on screen and above the viewport.

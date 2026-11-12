@@ -10,12 +10,11 @@
 const REVEAL = [
   '.hero-copy > *',
   '#fit .fit-eyebrow', '#fit h2', '.pain-bridge',
-  '#samples h2', '#samples .lede', '#samples .disclosure',
-  '#services h2', '#services .svc-intro', '.svc-foot',
+  '#services h2', '#services .svc-intro', '.svc-get', '.built-strip', '.svc-foot',
   '#how h2', '.steps-h', '.steps-row', '.handover-h', '.handover-list', '.handover-note',
   '.about-section .photo-card', '.about-copy',
   '#faq h2',
-  '.book-main', '.cta-contact',
+  '.book-main',
 ];
 // Groups whose children come in one after another.
 const STAGGER = [

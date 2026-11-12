@@ -4061,3 +4061,47 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .about-tools { font-size: 0.9rem; color: var(--muted); }
 .about-tools strong { color: var(--ink); }
 @media (max-width: 900px) { .built-cards { grid-template-columns: 1fr; } }
+
+/* ---- Seven-section page (12 Nov consolidation) ---- */
+/* Closed rows: examples, proof steps, implementation note, 30-day terms, previous roles. */
+.fold { margin-top: 0.8rem; border-top: 1px solid var(--line); }
+.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding: 0.55rem 0; font-weight: 700; color: var(--teal-dark); }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::after { content: ""; flex: none; width: 0.5rem; height: 0.5rem; margin-right: 0.3rem; border-right: 2px solid var(--teal); border-bottom: 2px solid var(--teal); transform: rotate(45deg) translateY(-2px); transition: transform 0.25s ease; }
+.fold[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+.fold > summary:hover { text-decoration: underline; text-underline-offset: 3px; }
+.fold > :not(summary) { margin-top: 0.2rem; }
+@media (prefers-reduced-motion: reduce) { .fold > summary::after { transition: none; } }
+
+.fit-who { margin: -0.4rem 0 1.4rem; font-size: 1.05rem; color: var(--muted); }
+
+.svc-get { margin: 2.2rem 0 0; padding: 1.3rem 1.4rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.svc-get h3 { margin: 0 0 0.7rem; font-size: 1.25rem; }
+.svc-get ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.45rem 1.4rem; }
+.svc-get li { position: relative; margin: 0; padding-left: 1.6rem; }
+.svc-get li::before { content: ""; position: absolute; left: 0.2rem; top: 0.35em; width: 0.45rem; height: 0.8rem; border-right: 2px solid var(--teal); border-bottom: 2px solid var(--teal); transform: rotate(45deg); }
+
+.built-strip { margin: 2.2rem 0 0; padding: 1.4rem 1.4rem 1.2rem; border-radius: 18px; background: #e9efeb; border: 1px solid var(--line); scroll-margin-top: 5rem; }
+.built-strip > h3 { margin: 0; font-size: 1.35rem; }
+.built-strip .anchor { display: block; position: relative; top: -5rem; }
+.built-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1rem; }
+.built-card .built-more { margin: 0 0 0.8rem; }
+.built-card .built-more .built-steps { margin-bottom: 0.4rem; }
+@media (max-width: 900px) { .built-cards-2 { grid-template-columns: 1fr; } }
+
+.svc-how { margin-top: 1.6rem; }
+.svc-how .lx-impl-t h3 { margin: 0.2rem 0 0.5rem; font-size: 1.2rem; }
+.svc-how .lx-impl-t p { margin: 0 0 0.5rem; }
+.demo-after-solo { justify-content: flex-start; background: transparent; border: 0; padding: 0; margin-left: 0; }
+
+.how-section .eyebrow + h2 { max-width: 40rem; }
+.how-30 { margin-top: 0.6rem; }
+.how-30 .how-note { margin: 0 0 0.4rem; }
+.how-need { margin: 1.6rem 0 0; max-width: 52rem; }
+
+.about-prev { margin: 0 0 0.4rem; }
+.about-more { margin: 0 0 1rem; }
+.about-more .about-roles { margin-top: 0.3rem; }
+
+.book-solo { grid-template-columns: minmax(0, 1fr); max-width: 52rem; }
+.book-data { margin: 1.2rem 0 0.4rem; font-weight: 600; }

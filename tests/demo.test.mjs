@@ -228,8 +228,9 @@ test('page order (12 Nov eight-section page): hero, problems, how I can help (wi
   const c1 = exp.slice(0, exp.indexOf('aria-labelledby="exp2-h"'));
   assert.match(c1, /<p class="exp-cat">Operational controls &amp; automation<\/p>/);
   assert.match(c1, /<div class="fpanel fpanel-before">[\s\S]*<div class="fpanel fpanel-after">/, 'Before comes first, then After');
-  for (const t of ['Invoice issued', 'Stakeholders&rsquo; quarterly check', 'Issue identified', 'Correction delayed or potentially missed', 'Readings received', 'Automated validation', 'Exceptions flagged', 'Human review', 'Invoice process', 'Scheduled checks on the 1st and 16th, ahead of the 10th invoicing cycle.', 'Meter issues were often discovered during quarterly checks, after invoices had already been issued.']) assert.ok(c1.includes(t), t);
+  for (const t of ['Invoice issued', 'Stakeholders&rsquo; quarterly check', 'Issue identified', 'Correction delayed or potentially missed', 'Readings received', 'Automated validation', 'Exceptions flagged', 'Human review', 'Invoice process', 'Scheduled validation runs on the 16th of the reporting month and the 1st of the following month, ahead of the 10th invoicing cycle.', 'Meter issues were often discovered during quarterly checks, after invoices had already been issued.']) assert.ok(c1.includes(t), t);
   assert.equal((c1.match(/<ol class="fp-steps">/g) || []).length, 2);
+  assert.doesNotMatch(c1, /1st and 16th|16th and 1st/, 'schedule: 16th of the reporting month, 1st of the following month');
   assert.match(c1, /<summary><span class="fold-lab"><span class="fold-title">Technical details<\/span> <span class="fold-sub">Implementation and detection checks<\/span><\/span><\/summary>/);
   assert.doesNotMatch(c1, /<details[^>]*\bopen\b/, 'technical details closed by default');
   assert.match(c1, /<th scope="col">Meter ID<\/th><th scope="col">Issue detected<\/th>/);

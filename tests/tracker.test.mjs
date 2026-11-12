@@ -1,5 +1,6 @@
-// Tests for the main example, the Weekly Work & Follow-up Tracker (implementation brief, 10 Nov 2026 evening):
-// the shared sample, the business rules, the follow-up list and summary, the page copy and the workbook download.
+// Tests for the Weekly Work & Follow-up Tracker (implementation brief, 10 Nov 2026 evening): the shared sample and the
+// business rules behind the hero illustration. The live example and the workbook download were taken off the page on
+// 12 Nov 2026 (seven-section page); src/tracker/ui.js and the workbook stay in the repo, unlinked.
 // The workbook's own formulas are checked against this engine by tools/check_tracker_xlsx.py (needs LibreOffice).
 
 import test from 'node:test';
@@ -154,29 +155,14 @@ test('every follow-up and figure comes from the current records (no fixed text l
 
 const textOf = (h) => h.replace(/<span aria-hidden="true">[^<]*<\/span>/g, '').replace(/<[^>]+>/g, ' ').replace(/&#\d+;/g, ' ').replace(/\s+/g, ' ');
 
-test('page copy (final brief, 11 Nov): problem first, then Capture, Move, See, the report, how it is put in place, booking', async () => {
-  const sec = await section();
-  const order = ['<p class="eyebrow">Live example &middot; Northstar Services, a fictional service business</p>',
-    '<h2 id="samples-h">Your team is working hard. So why does everything still need chasing?</h2>',
-    'Here&rsquo;s one sample week at Northstar Services, from scattered information to a report you can rely on.',
-    '12 jobs this week. 3 issues that could easily be missed.',
-    'First, let’s get the information right.', 'Missing information and duplicate records are identified before they create problems further down the process.',
-    'Next, let’s make sure the work doesn’t get forgotten.', 'Clear responsibilities and visible follow-ups help prevent work from slipping through the cracks.',
-    'Finally, know where your business stands.', 'Reliable information makes it easier to see what has been completed, what remains outstanding and what needs attention.',
-    'Weekly operations report · Fictional sample', '2–6 November 2026 · 12 jobs checked', 'What needs attention',
-    'Know what&rsquo;s completed. See what&rsquo;s outstanding. Know what to do next.', 'See all 12 jobs (the tracker behind this report)',
-    'Your tracker keeps your own columns, such as site, supervisor or visit date. The checks work the same way.', 'Download the free Excel tracker'];
-  const at = order.map((t) => sec.indexOf(t));
-  assert.ok(at.every((i) => i >= 0), order.filter((t, i) => at[i] < 0).join(' | '));
-  assert.deepEqual([...at].sort((a, b) => a - b), at, 'in order');
-  assert.doesNotMatch(sec, /\sstyle="/);
-  assert.doesNotMatch(sec, /\bwe\b|\bour\b/i, 'first person singular only');
-  assert.doesNotMatch(sec.replace('Send invoice copy', '').replace(/href="[^"]*"/g, ''), /invoic|CRM is|monitor|notification sent|automatically assign|saves? hours|time sav|%|live data|connected to your/i, 'nothing the sample does not do');
-  assert.doesNotMatch(sec, /\bAI\b/, 'no AI in the live example');
-  const page = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const svc = page.slice(page.indexOf('id="services"'), page.indexOf('id="how"'));
-  for (const t of ['<h3 id="lx-impl-h">Improve the process first. Automate where it helps.</h3>', 'I fix the process first, then automate it, so you&rsquo;re not automating a mess.',
-    'Any additional software, subscriptions or implementation costs are discussed before the work begins.', 'Improving what you already use is a complete starting point on its own.']) assert.ok(svc.includes(t), t);
+test('12 Nov seven-section page: the live example is gone; the approach card sits in How it works (UX review)', async () => {
+  const html = await page();
+  assert.doesNotMatch(html, /samples-h|tracker:start|tracker-app|Live example|Explore the live example/);
+  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
+  const card = how.slice(how.indexOf('<div class="how-approach">'), how.indexOf('<ol class="steps-list'));
+  for (const t of ['The fix can be as simple as a spreadsheet that updates itself', 'Any additional software, subscriptions or implementation costs are discussed before the work begins.',
+    'Improving what you already use is a complete starting point on its own.', '<strong>Works with what you already use:</strong>']) assert.ok(card.includes(t), t);
+  assert.match(how, /<h2 id="how-h">You keep the tools you know\. I improve the process around them\.<\/h2>/, 'the heading carries "process first"');
 });
 
 test('stages: each one shows the actual records and the checks worked out from them', () => {
@@ -215,22 +201,13 @@ test('report: 7 / 5 / 3 (the 3 within the 5), the three action items in order, n
   assert.doesNotMatch(reportHtml(), /AI|summary draft/i, 'the report is the payoff, not an AI summary');
 });
 
-test('the no-JavaScript version in index.html is exactly what the engine renders; read-only everywhere', async () => {
-  const sec = await section();
-  const inner = sec.slice(sec.indexOf('<!-- tracker:start -->') + 22, sec.indexOf('<!-- tracker:end -->'));
-  assert.equal(inner, appHtml(), 'run: node tools/render_tracker_static.mjs');
+test('tracker view (kept in the repo, not on the page): read-only, renders the 12 jobs', () => {
+  const inner = appHtml();
   assert.deepEqual([...inner.matchAll(/<th scope="col">([^<]+)<\/th>/g)].slice(-7).map((m) => m[1]), ['Ref', 'Request / Task', 'Customer / Area', 'Assigned To', 'Due Date', 'Status', 'Date Completed']);
   assert.equal((inner.match(/<tr class="wt-row/g) || []).length, 12);
   assert.doesNotMatch(inner, /<button|<select|<input/, 'no controls without JavaScript');
-  assert.equal((inner.match(/class="lx-panel"/g) || []).length, 3, 'all three stages shown');
   const live = appHtml(RECORDS, { interactive: true });
   assert.doesNotMatch(live, /<select|<input|data-fix|data-wt-reset/, 'no tap-to-fix, no editing');
-  assert.deepEqual([...live.matchAll(/class="lx-tab[^"]*" data-go="(\w+)"/g)].map((m) => m[1]), ['capture', 'move', 'see']);
-  // The end of the Capture and Move panels leads on to the next stage (11 Nov PM review).
-  assert.deepEqual([...live.matchAll(/data-go="(\w+)" data-lx-next>Next: (\w+)/g)].map((m) => `${m[1]}:${m[2]}`), ['move:Move', 'see:See']);
-  for (const a of ['pause', 'skip', 'replay']) assert.match(live, new RegExp(`data-lx-act="${a}"`));
-  assert.match(live, /class="lx-jump" href="#lx-rep-h"/);
-  assert.equal((live.match(/role="region"[^>]*hidden/g) || []).length, 3, 'stage panels start hidden behind the opening');
 });
 
 test('the demo never changes the records (the hero stays at 12 / 7 / 5 / 3)', async () => {
@@ -238,16 +215,13 @@ test('the demo never changes the records (the hero stays at 12 / 7 / 5 / 3)', as
   assert.doesNotMatch(js, /store\.|setOwner|setStatus|setCustomer/);
 });
 
-test('download: the button links to the real workbook in assets/downloads, nothing is sent anywhere', async () => {
-  const sec = await section();
-  const href = sec.match(/<a class="btn btn-secondary" href="([^"]+)" download[^>]*>Download the free Excel tracker<\/a>/)[1];
-  assert.equal(href, 'assets/downloads/Rework-Rescue-Weekly-Work-Tracker.xlsx');
-  const st = await stat(new URL(`../${href}`, import.meta.url));
-  assert.ok(st.size > 5000 && st.size < 200000, `${st.size} bytes`);
-  const head = (await readFile(new URL(`../${href}`, import.meta.url))).subarray(0, 2).toString();
-  assert.equal(head, 'PK', 'an .xlsx (zip) file');
-  const vi = await readFile(new URL('../.vercelignore', import.meta.url), 'utf8');
-  assert.doesNotMatch(vi, /assets/);
+test('workbook: kept in the repo but linked from no page; the tracker code sends nothing anywhere', async () => {
+  for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../assessment/index.html', '../brand/index.html']) {
+    const h = await readFile(new URL(f, import.meta.url), 'utf8');
+    assert.doesNotMatch(h, /Weekly-Work-Tracker\.xlsx|Download the free Excel tracker/, f);
+  }
+  const st = await stat(new URL('../assets/downloads/Rework-Rescue-Weekly-Work-Tracker.xlsx', import.meta.url));
+  assert.ok(st.size > 5000, 'file still in the repo (unlinked, Jeff 12 Nov)');
   for (const f of ['tracker/ui.js', 'tracker/store.js', 'tracker/engine.js']) {
     const js = await readFile(new URL(`../src/${f}`, import.meta.url), 'utf8');
     assert.doesNotMatch(js, /fetch\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|document\.cookie/, f);
@@ -257,6 +231,6 @@ test('download: the button links to the real workbook in assets/downloads, nothi
 test('services keep their names; no pricing, testimonials or invented results added', async () => {
   const html = await page();
   for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<p class="svc-short">${n}</p>`), n);
-  const sec = await section();
+  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   assert.doesNotMatch(sec, /[$₱€£]\s?\d|testimonial|saved \d|% faster|guarantee/i);
 });

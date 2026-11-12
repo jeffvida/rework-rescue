@@ -1,7 +1,6 @@
-// Homepage: the tracker example, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
+// Homepage: the hero illustration, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
 import { mountBooking } from './booking/popup.js';
-import { mountTracker } from './tracker/ui.js';
 import { mountHero } from './demo/hero.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
@@ -17,10 +16,7 @@ import { mountMotion } from './motion.js';
 export function mountMobileCta() {
   const bar = document.getElementById('mobile-cta');
   const hero = document.querySelector('.hero .hv-actions') || document.querySelector('.hero');
-  // In the live example it hides only while the example's own controls are on screen (stage buttons, Next buttons,
-  // the report links and the download), so it never sits over them but is still there while visitors read (11 Nov PM review).
   const end = [document.getElementById('start'), document.querySelector('.site-footer'),
-    ...document.querySelectorAll('#samples .lx-bar, #samples .lx-tabs, #samples .lx-jump, #samples .lx-next, #samples .lx-jump-see, #samples .lx-all > summary, #samples .wt-download'),
     ...document.querySelectorAll('main .btn[href*="contact-form-area"], main .btn[data-book]')].filter(Boolean);
   if (!bar || !hero || typeof IntersectionObserver !== 'function') return;
 
@@ -49,22 +45,11 @@ export function mountMobileCta() {
 }
 
 // ---- Start the homepage
-// The main example: the Weekly Work & Follow-up Tracker (src/tracker/), with its downloadable workbook.
-mountTracker(document.getElementById('tracker-app'));
 mountMobileCta();
 mountMotion();
 mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
-
-// "See how it works" in the hero: scroll to the example.
-document.querySelectorAll('[data-demo-check]').forEach((link) => link.addEventListener('click', (e) => {
-  e.preventDefault();
-  const target = document.getElementById('samples');
-  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  history.replaceState(null, '', '#samples');
-}));
 
 // Hero: Capture -> Move -> See overview, with figures following the tracker's state (src/demo/hero.js).
 mountHero(document.getElementById('hero-visual'));
@@ -84,7 +69,7 @@ if (inlineHost) {
   }
 }
 
-// Old links to the retired examples (#example-1, #example-2) land on the demo.
+// Old links to the retired examples (#example-1, #example-2) land on the proof strip in How I can help (#samples anchor).
 if (location.hash === '#example-1' || location.hash === '#example-2') {
   history.replaceState(null, '', `${location.pathname}${location.search}#samples`);
   requestAnimationFrame(() => document.getElementById('samples')?.scrollIntoView({ block: 'start' }));

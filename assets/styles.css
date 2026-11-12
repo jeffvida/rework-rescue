@@ -4177,3 +4177,8 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 }
 /* P3: LinkedIn button text centred when it wraps */
 .about-link .btn { text-align: center; justify-content: center; }
+
+/* B1: written-review link under hero buttons */
+.hero-actions .hv-written { grid-column: 1 / -1; margin: 0.15rem 0 0; font-size: 0.95rem; color: var(--muted, #5b6770); }
+.hero-actions .hv-written a { font-weight: 600; color: var(--teal-dark); text-decoration: underline; text-underline-offset: 0.2em; display: inline-block; padding: 0.7rem 0.2rem; margin: -0.7rem 0; }
+.book-written { scroll-margin-top: 6rem; }

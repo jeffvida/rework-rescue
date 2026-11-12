@@ -18,7 +18,7 @@ export const ASSISTANT_TEXT = {
     "My tools don't work well together",
     'I have a different question',
   ],
-  disclaimer: 'AI assistant (Google Gemini). It can make mistakes, and Google may review chats to improve its AI. Please leave out names, contact details and anything confidential.',
+  disclaimer: 'AI assistant (Google Gemini). It can make mistakes, and Google may review chats to improve its AI. Please leave out names, contact details and anything confidential. This website chat is separate from client work: client data never goes into it.',
   book: 'Book a free review',
   fallback: "Sorry, I didn't catch that. You can also book a free review below.",
   limitOffer: 'Thanks, that gives Jeff enough to go on. The best next step is a free 30-minute review, where he looks at it with you. Want to pick a time?',

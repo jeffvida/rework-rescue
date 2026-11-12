@@ -307,7 +307,7 @@ test('11 Nov PM round: new FAQs, written review without a call, scope you can sh
   // 12 Nov: eight questions; the process answers moved to How it works, the written review to the closing section.
   assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'What if you&#39;re unavailable?', 'You&#39;re in the Philippines. How does working remotely work?', 'Do you work with larger teams?', 'Can you build a website, booking system or CRM?']);
   assert.match(faq, /payment arrangements and any subscriptions you&#39;d need\. Work only begins once you&#39;ve agreed to it in writing/);
-  assert.match(faq, /I&#39;m happy to sign an NDA, and a data processing agreement before handling any personal data\./);
+  assert.match(faq, /I&#39;m happy to sign an NDA and a data processing agreement before handling any personal data\./);
   assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);
   assert.doesNotMatch(faq, /reply within|within \d+ hours/i, 'no reply-time promise (Jeff, 11 Nov)');
   for (const f of ['../index.html', '../contact/index.html']) {

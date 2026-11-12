@@ -4149,3 +4149,31 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @media (max-width: 40rem) { .built-strip { padding: 1.1rem 0.9rem 1rem; } .built-card { padding: 1rem 1rem 0.8rem; } }
 .svc-layer .svc-layer-tag { margin: 0 0 0.4rem; padding-top: 0; }
 .svc-layer .svc-layer-tag::before { display: none; }
+
+/* ---- QA fixes after go-live (12 Nov) ---- */
+/* P1: the hidden phone booking bar can't take keyboard focus */
+@media (max-width: 40rem) {
+  .mobile-cta { visibility: hidden; transition: transform 0.25s ease, visibility 0s linear 0.25s; }
+  .mobile-cta.is-shown { visibility: visible; transition-delay: 0s; }
+}
+/* P2: the chat button doesn't cover the hero caption on laptops */
+@media (min-width: 64rem) { .hx-cap { padding-right: 5rem; } }
+/* P2: no zoom on focus in iOS (16px), readable disclaimers */
+@media (max-width: 47.99rem) { .ast-input { font-size: 1rem; } }
+.hx-cap, .ast-note { font-size: 0.8125rem; }
+/* P3: tap targets */
+.nav-cta .btn { min-height: 44px; }
+.nav-toggle { min-height: 44px; }
+.hx-pause { min-height: 44px; }
+.ast-invite-close { width: 2.75rem; height: 2.75rem; }
+.footer-links a { min-height: 44px; line-height: 40px; }
+.cred-name { min-height: 44px; line-height: 44px; }
+/* P3: hero priority chips carry meaning, so at least 12px */
+.hx-actions em { font-size: 0.75rem; }
+/* P3: tablet widths line up */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .hero .hv-actions .btn { max-width: 22rem; }
+  .svc-layers { max-width: none; }
+}
+/* P3: LinkedIn button text centred when it wraps */
+.about-link .btn { text-align: center; justify-content: center; }

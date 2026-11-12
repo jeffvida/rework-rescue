@@ -241,9 +241,10 @@ test('page order (12 Nov eight-section page): hero, problems, how I can help (wi
   assert.match(c2, /<span class="fold-title">Technical details<\/span> <span class="fold-sub">Implementation and automated checks<\/span>/);
   for (const t of ['Site A', 'Site B', 'Site D']) assert.ok(c2.includes(`<td>${t}</td>`), t);
   assert.doesNotMatch(c2, /Site C|Site E|\d%/, 'only the original synthetic rows, no invented percentages');
-  assert.equal((exp.match(/<details/g) || []).length, 2, 'two technical accordions');
+  assert.equal((exp.match(/<details/g) || []).length, 4, 'two technical accordions and two phone sample rows');
   assert.doesNotMatch(exp, /<details[^>]*\bopen\b/, 'accordions closed by default');
-  assert.equal((exp.match(/Illustrative example &middot; Synthetic data/g) || []).length, 2, 'both small samples labelled synthetic');
+  assert.equal((exp.match(/Illustrative example &middot; Synthetic data/g) || []).length, 4, 'both samples (desktop figure and phone closed row) labelled synthetic');
+  assert.equal((exp.match(/<details class="fold exp-sample-m"><summary>/g) || []).length, 2, 'phones get the samples in closed rows');
   assert.equal((exp.match(/<figure class="exp-sample">/g) || []).length, 2);
   assert.equal((exp.match(/<span>Move<\/span><span>See<\/span>/g) || []).length, 2, 'Move and See tags');
   assert.doesNotMatch(exp, /dash-kpis|bars-|Power BI dashboard preview|Severity/i, 'no dashboard centrepiece, KPI cards, chart or severity column');

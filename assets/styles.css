@@ -4261,3 +4261,19 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .cell-sub { display: block; margin-top: 0.1rem; font-size: 0.8rem; font-weight: 400; color: var(--muted); }
 .obs-down { font-weight: 600; }
 .obs-down::before { content: "\25BC" / ""; margin-right: 0.35rem; font-size: 0.7rem; color: #a4161a; }
+
+/* ---- Compact on phones (12 Nov): same content, less scrolling. Desktop and tablet unchanged. ---- */
+.exp-sample-m { display: none; }
+@media (max-width: 40rem) {
+  .exp-sample { display: none; }
+  .exp-sample-m { display: block; margin: 0.2rem 0 0; }
+  .exp-sample-m .exp-label { margin-top: 0.2rem; }
+  .exp-sample-m figcaption, .exp-sample-m .exp-cap { margin: 0.5rem 0 0.4rem; font-size: 0.82rem; color: var(--muted); }
+  .m-hide { display: none; }
+  .fp-sub { display: none; }
+  .fpanel-before .fp-steps { flex-direction: row; flex-wrap: wrap; gap: 0.35rem 0.2rem; }
+  .fpanel-before .fp-steps li { flex: 0 0 auto; max-width: 100%; display: inline-flex; align-items: center; padding: 0.3rem 0.6rem; font-size: 0.85rem; text-align: left; }
+  .fpanel-before .fp-ico { display: none; }
+  .fpanel-before .fp-steps li:not(:last-child)::after { content: "\2192" / ""; position: static; width: auto; margin-left: 0.5rem; margin-right: -0.35rem; }
+  .fp-cap { margin-top: 0.6rem; }
+}

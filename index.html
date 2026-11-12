@@ -295,8 +295,8 @@
               <ul class="exp-built">
                 <li>Python checking tool to validate meter start and end readings.</li>
                 <li>Power BI exception dashboard for reviewing flagged meters.</li>
-                <li>Covered more than 1,000 commercial meters.</li>
-                <li>Scheduled validation runs on the 16th of the reporting month and the 1st of the following month, ahead of the 10th invoicing cycle.</li>
+                <li class="m-hide">Covered more than 1,000 commercial meters.</li>
+                <li class="m-hide">Scheduled validation runs on the 16th of the reporting month and the 1st of the following month, ahead of the 10th invoicing cycle.</li>
               </ul>
               <p class="exp-evidence"><span><strong>1,000+</strong> commercial meters covered</span><span><strong>~10</strong> issues surfaced for review in a typical run</span></p>
             </div>
@@ -306,6 +306,11 @@
               <table class="dash-table"><thead><tr><th scope="col">Meter ID</th><th scope="col">Issue detected</th></tr></thead><tbody><tr><td>MTR-1042</td><td><span class="pill pill-amber">Missing reading</span></td></tr><tr><td>MTR-1087</td><td><span class="pill pill-amber">Frozen reading</span></td></tr><tr><td>MTR-1156</td><td><span class="pill pill-amber">Possible swapped meter</span></td></tr></tbody></table>
               <figcaption>Fictional records, not real customer data.</figcaption>
             </figure>
+            <details class="fold exp-sample-m"><summary>See a sample of what the team received</summary>
+              <p class="exp-label">Illustrative example &middot; Synthetic data</p>
+              <table class="dash-table"><thead><tr><th scope="col">Meter ID</th><th scope="col">Issue detected</th></tr></thead><tbody><tr><td>MTR-1042</td><td><span class="pill pill-amber">Missing reading</span></td></tr><tr><td>MTR-1087</td><td><span class="pill pill-amber">Frozen reading</span></td></tr><tr><td>MTR-1156</td><td><span class="pill pill-amber">Possible swapped meter</span></td></tr></tbody></table>
+              <p class="exp-cap">Fictional records, not real customer data.</p>
+            </details>
           </div>
           <details class="fold exp-more"><summary><span class="fold-lab"><span class="fold-title">Technical details</span> <span class="fold-sub">Implementation and detection checks</span></span></summary>
             <ul class="exp-checks">
@@ -346,7 +351,7 @@
                 <li>Automated checks compared production against expected output and weather conditions.</li>
                 <li>Checked connected equipment against meter data and cross-checked underperformance against open work orders.</li>
               </ul>
-              <p class="exp-evidence"><span><strong>10</strong> largest sites in the Monday report</span><span><strong>2&ndash;3 hours</strong> of manual preparation before</span></p>
+              <p class="exp-evidence m-hide"><span><strong>10</strong> largest sites in the Monday report</span><span><strong>2&ndash;3 hours</strong> of manual preparation before</span></p>
             </div>
             <figure class="exp-sample">
               <h4 class="exp-h">Sample report output</h4>
@@ -354,6 +359,11 @@
               <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Observation</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Site A</td><td><span class="obs-down">Slight underperformance</span><span class="cell-sub">Check: Weather comparison</span></td><td><span class="pill pill-ok">Explained</span></td></tr><tr><td>Site B</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Work-order check</span></td><td><span class="pill pill-amber">Further review</span></td></tr><tr><td>Site D</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Equipment/meter comparison</span></td><td><span class="pill pill-amber">Investigate</span></td></tr></tbody></table>
               <figcaption>Fictional sites, not real company data.</figcaption>
             </figure>
+            <details class="fold exp-sample-m"><summary>See a sample report output</summary>
+              <p class="exp-label">Illustrative example &middot; Synthetic data</p>
+              <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Observation</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Site A</td><td><span class="obs-down">Slight underperformance</span><span class="cell-sub">Check: Weather comparison</span></td><td><span class="pill pill-ok">Explained</span></td></tr><tr><td>Site B</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Work-order check</span></td><td><span class="pill pill-amber">Further review</span></td></tr><tr><td>Site D</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Equipment/meter comparison</span></td><td><span class="pill pill-amber">Investigate</span></td></tr></tbody></table>
+              <p class="exp-cap">Fictional sites, not real company data.</p>
+            </details>
           </div>
           <details class="fold exp-more"><summary><span class="fold-lab"><span class="fold-title">Technical details</span> <span class="fold-sub">Implementation and automated checks</span></span></summary>
             <ul class="exp-checks">

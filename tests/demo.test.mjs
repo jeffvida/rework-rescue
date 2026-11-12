@@ -51,9 +51,8 @@ test('hero copy (mockup v3; AI and automation wording 11 Nov late): eyebrow, hea
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
   // Jeff, 11 Nov 23:46: target is small to medium businesses; headline "Less manual work."; automation and AI named in the subhead.
   assert.match(hero, /<p class="eyebrow hero-pill">For small and medium-sized service businesses\.<\/p>/);
-  // Option 1 (12 Nov, preview): the headline names the three problems; the subhead no longer repeats them.
-  assert.match(hero, /Stop chasing, re-typing and rebuilding\. <span class="h1-accent">Run the week from one place\./);
-  assert.match(hero, /<p class="hero-sub">I set up automation and AI that take the repeat work off your team, with checks so you can trust what comes out\.<\/p>/);
+  assert.match(hero, /Less manual work\. <span class="h1-accent">More time running the business\./);
+  assert.match(hero, /<p class="hero-sub">Chasing job updates\? Re-typing the same details\? Rebuilding reports every week\? I set up automation and AI that take the repeat work off your team, with checks so you can trust what comes out\.<\/p>/);
   assert.match(hero, /<span class="cred-role">8\+ years in data operations: checking, reporting and automating\.<\/span>/);
   assert.ok(hero.indexOf('Book a free review') < hero.indexOf('Explore the live example'));
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review<\/a>/);
@@ -63,59 +62,84 @@ test('hero copy (mockup v3; AI and automation wording 11 Nov late): eyebrow, hea
   assert.equal((html.match(/Northstar Services/g) || []).length >= 2, true, 'the hero and the live example name the same fictional business');
 });
 
-// 12 Nov 2026 (option 1, on preview): the hero panel is "A messy week, sorted." and a three-tap sample follows the
-// pain cards. The old Today / With Rework Rescue panel (src/demo/hero.js) is no longer mounted on the page.
-test('hero panel (option 1): three everyday messes, each fixed by automation, AI or a check; served complete; honest label', async () => {
+test('hero: one workspace, Today / With Rework Rescue toggle; Today shows the data issues of each stage and on each source file', async () => {
   const html = await page();
-  const a = html.indexOf('<figure class="hero-preview mw'); const fig = html.slice(a, html.indexOf('</figure>', a));
-  assert.ok(a > 0, 'the new panel is the hero figure');
-  assert.doesNotMatch(html, /data-ws-mode|hx-toggle|data-md=/, 'older hero panels are gone from the page');
-  assert.match(fig, /<p class="mw-title">A messy week, sorted\.<\/p>/);
-  // Three items, one per problem (workflow, automation, data and reporting), each served in its fixed state.
-  assert.equal((fig.match(/<li class="mw-item mw-(chase|retype|report) is-fixed">/g) || []).length, 3);
-  assert.deepEqual([...fig.matchAll(/<span class="mw-k">([^<]+)<\/span>/g)].map((m) => m[1]), ['Group chat', 'Two spreadsheets', 'Weekly report']);
-  assert.deepEqual([...fig.matchAll(/<span class="mw-tag">([^<]+)<\/span>/g)].map((m) => m[1]), ['Automation', 'AI', 'Check']);
-  assert.match(fig, /7 done \+ 5 open = 13\?/);
-  assert.match(fig, /7 \+ 5 = 12\. One unclear job sent to a person\./);
-  // Honest: a sample, no AI call, no savings or time claims, no industries, no inline styles.
-  assert.match(fig, /Sample with a fictional business\. No AI runs here\. <a href="#built">See my real builds<\/a>\./);
-  assert.doesNotMatch(fig, /saves?\b|hours|minutes|%|[$₱]|faster|clean|clinic|plumb/i);
-  assert.doesNotMatch(fig, /\sstyle="/);
-  const src = await readFile(new URL('../src/demo/week.js', import.meta.url), 'utf8');
-  const { MESS_MS, FIX_MS } = await import('../src/demo/week.js');
-  assert.ok(MESS_MS <= 2500 && MESS_MS + 2 * FIX_MS <= 5000, 'mess for about 2 s, all fixed within 5 s');
-  assert.match(src, /if \(!items\.length \|\| reduce\) return;/, 'no animation with reduced motion');
-  assert.match(src, /io\.disconnect\(\); play\(\);/, 'plays once, not in a loop');
-  assert.doesNotMatch(src, /setInterval|fetch\(|XMLHttpRequest|\.style\.|max-width/, 'no loop, no network call, no inline styles, same on phones');
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today<\/button>/);
+  assert.match(fig, /<button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue<\/button>/);
+  assert.match(fig, /What goes wrong today/);
+  assert.match(fig, /Checked at every step/);
+  for (const t of ['Job_Tracker_v3.xlsx', '3 versions', 'Re: Re: Job update?', 'Service request (form)', 'Completion records.pdf', 'Who&rsquo;s doing the Ridgeway job?', 'Weekly_Report_FINAL(2).xlsx', 'The result']) assert.ok(fig.includes(t), t);
+  assert.deepEqual([...fig.matchAll(/<em class="hx-tag is-(red|amber)">([^<]+)<\/em>/g)].map((m) => [m[2], m[1]]), [
+    ['Duplicates', 'red'], ['Not in the tracker', 'amber'], ['Missing record', 'red'], ['Manual check', 'amber'], ['No owner', 'red'], ['Manual rebuild', 'amber']]);
+  assert.match(fig, /<div class="hx-today" aria-hidden="true">/, 'hidden state hidden from screen readers by default');
+  assert.match(fig, /AI-assisted summary <small>Sample draft<\/small>/);
+  assert.match(fig, /Reviewed by a person before sharing/);
+  assert.match(fig, /In a project, an AI tool drafts the summary and a person checks it; here it&rsquo;s a sample written by simple rules\./);
+  assert.doesNotMatch(fig, /\b42\b/, 'no figures from the reference images');
 });
 
-test('three-tap sample (option 1): chasing updates, re-typing, reports; four tagged steps each; served complete', async () => {
+test('hero checks: every Today issue has a matching check in the same stage; states come from the records; exceptions stay visible', async () => {
   const html = await page();
-  const order = ['id="fit"', 'id="try"', 'id="samples"'].map((x) => html.indexOf(x));
-  assert.ok(order.every((i) => i > 0)); assert.deepEqual([...order].sort((x, y) => x - y), order, 'after the pain cards, before the sample week');
-  const sec = html.slice(order[1], order[2]);
-  assert.match(sec, /<h2 id="try-h">Pick the one that sounds like your week\.<\/h2>/);
-  const { SAMPLES, TAGS, STEP_MS } = await import('../src/demo/steps.js');
-  assert.deepEqual(SAMPLES.map((x) => x.chip), ['Chasing updates', 'Re-typing', 'Reports']);
-  assert.deepEqual([...sec.matchAll(/data-st-sample="(\w+)" aria-pressed="(true|false)">([^<]+)</g)].map((m) => [m[1], m[2], m[3]]), SAMPLES.map((x, i) => [x.key, String(i === 0), x.chip]));
-  const enc = (t) => t.replace(/’/g, '&rsquo;');
-  // The served HTML is the finished frame of the first sample.
-  assert.ok(sec.includes(`data-st="start">${enc(SAMPLES[0].start)}<`));
-  assert.deepEqual([...sec.matchAll(/<li class="st-row st-(\w+) is-on"><span class="st-tag">([^<]+)<\/span><span class="st-t">([^<]+)<\/span>/g)].map((m) => [m[2], m[3]]), SAMPLES[0].steps.map(([t, x]) => [t, enc(x)]));
-  for (const x of SAMPLES) {
-    assert.equal(x.steps.length, 4, x.key);
-    for (const [t] of x.steps) assert.ok(TAGS.includes(t), t);
-    assert.ok(x.steps.some(([t]) => t === 'Check') && x.steps.some(([t]) => t === 'Person'), `${x.key}: a check and a person in every sample`);
-    assert.ok(x.steps.some(([t]) => t === 'AI' || t === 'Automation'), x.key);
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const c = dataChecks(RECORDS);
+  const steps = fig.split('<li class="hx-step ').slice(1);
+  const names = { capture: 'svc-systems', move: 'svc-workflow', see: 'svc-data' };
+  for (const [k, cls] of Object.entries(names)) {
+    const step = steps.find((x) => x.startsWith(cls));
+    const issues = [...step.matchAll(/<li class="is-(?:red|amber)">([^<]+)<\/li>/g)].map((m) => m[1].replace('&rsquo;', "'"));
+    assert.ok(issues.length >= 3, `${k} shows its issues`);
+    for (const i of issues) assert.ok(c[k].some((x) => x.answers.includes(i)), `${k}: "${i}" has a matching check`);
+    assert.ok(step.includes(`data-ws-checks="${k}">${checksHtml(c[k])}</ul>`), `${k}: the page shows the computed checks`);
   }
-  assert.doesNotMatch(sec + JSON.stringify(SAMPLES), /saves?\b|hours|minutes|%|[$₱]|faster|clean|clinic|plumb/i, 'no savings claims, no industries');
-  assert.match(sec, /Sample with a fictional business\. No AI runs here\./);
-  assert.doesNotMatch(sec, /\sstyle="/);
-  assert.ok(STEP_MS * 5 <= 6000);
-  const src = await readFile(new URL('../src/demo/steps.js', import.meta.url), 'utf8');
-  assert.doesNotMatch(src, /setInterval|fetch\(|XMLHttpRequest|\.style\./);
-  const home = await readFile(new URL('../src/home.js', import.meta.url), 'utf8');
-  assert.match(home, /mountWeek\(document\.getElementById\('hero-visual'\)\)/); assert.match(home, /mountSteps\(document\.getElementById\('try-demo'\)\)/);
+  const all = Object.values(c).flat();
+  const st = Object.fromEntries(all.map((x) => [x.label, [x.state, x.detail]]));
+  assert.deepEqual(st['No duplicate jobs'], ['pass', 'None found']);
+  assert.deepEqual(st['Job details complete'], ['flag', '11 of 12 complete · R-111']);
+  assert.deepEqual(st['Every open job has an owner'], ['action', 'No owner · R-112']);
+  assert.deepEqual(st['Follow-ups on time'], ['action', 'Overdue · R-104']);
+  assert.ok(!('Completed, not invoiced' in st), 'invoice check removed (no invoice data in the sample)');
+  assert.deepEqual(st['Totals add up'], ['pass', '7 done + 5 open = 12']);
+  assert.deepEqual(st['Problems shown, not hidden'], ['flag', '3 on the report']);
+  for (const s of ['pass', 'flag', 'action']) assert.ok(all.some((x) => x.state === s), `uses the ${s} state`);
+  // Records that need attention are a subset of the open ones (not an extra category).
+  const f = heroFigures(RECORDS);
+  assert.ok(f.followUps.every((x) => RECORDS.find((r) => r.ref === x.ref).status !== 'Completed'));
+  // Fix the records and the checks pass.
+  const fixed = RECORDS.map((r) => ({ ...r, owner: r.ref === 'R-112' ? 'Ana' : r.owner, status: r.ref === 'R-104' ? 'Completed' : r.status, completed: r.ref === 'R-104' ? '2026-11-06' : r.completed, customer: r.ref === 'R-111' ? 'Harbor Works' : r.customer }));
+  assert.ok(Object.values(dataChecks(fixed)).flat().every((x) => x.state === 'pass' || x.state === 'none'));
+});
+
+test('hero report: Northstar Services, 7 / 5 / 3, action items named by record, summary from the same figures', async () => {
+  const html = await page();
+  const a = html.indexOf('<figure class="hero-preview hx'); const fig = html.slice(a, html.indexOf('</figure>', a));
+  const f = heroFigures(RECORDS);
+  assert.equal(BUSINESS, 'Northstar Services');
+  assert.deepEqual([f.total, f.completed, f.outstanding, f.attention], [12, 7, 5, 3]);
+  for (const k of ['business', 'period', 'total', 'completed', 'outstanding', 'attention']) assert.match(fig, new RegExp(`data-ws="${k}">${f[k]}<`), k);
+  const items = actionItems(f);
+  assert.deepEqual(items.map((x) => [x.label, x.priority]), [['Follow up R-104 (overdue)', 'High'], ['Assign an owner to R-112', 'High'], ['Complete customer details for R-111', 'Medium']]);
+  assert.ok(fig.includes(`<ul data-ws-actions>${actionsHtml(items)}</ul>`));
+  assert.deepEqual(summaryBullets(f, items), ['7 of 12 jobs completed this week.', '5 still outstanding; 3 of these need attention.', 'Next: follow up R-104 and assign an owner to R-112.']);
+  // KPI wording, and the 3 shown as part of the 5.
+  assert.match(fig, /<strong data-ws="completed">7<\/strong>Completed this week<\/p>/);
+  assert.match(fig, /<strong data-ws="outstanding">5<\/strong>Still outstanding<\/p>/);
+  assert.match(fig, /<strong data-ws="attention">3<\/strong>Need attention <small>of the <span data-ws="outstanding">5<\/span> still outstanding<\/small>/);
+  assert.ok(f.attention <= f.outstanding);
+  assert.doesNotMatch(fig, /class="hx-head"/, 'no state label inside the panel; the toggle shows it');
+  assert.ok(fig.includes(`<ul data-ws-summary>${summaryHtml(summaryBullets(f, items))}</ul>`));
+  assert.ok(html.includes('Northstar Services, a fictional service business'), 'the live example names the same business');
+});
+
+test('hero motion: autoplay only on screen, Pause button, toggle stops it, reduced motion switches instantly', async () => {
+  const c = await css();
+  const block = c.slice(c.indexOf('/* ---- Hero workspace (11 Nov 2026, data checks)'));
+  assert.match(block, /@media \(prefers-reduced-motion: reduce\) \{ \.hx, \.hx \* \{ animation: none !important; transition: none !important; \} \}/);
+  assert.doesNotMatch(block, /infinite/, 'no CSS loops');
+  const js = await src('demo/hero.js');
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /document\.hidden/); assert.match(js, /IntersectionObserver/);
+  assert.match(js, /Pause animation/); assert.match(js, /aria-pressed/); assert.match(js, /aria-hidden/);
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=/, 'CSP: CSSOM setProperty only');
 });
 
 test('services (10 Nov; heading and card order 11 Nov PM): Capture -> Move -> See, checks across all three, no choosing', async () => {

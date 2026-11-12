@@ -4182,3 +4182,19 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .hero-actions .hv-written { grid-column: 1 / -1; margin: 0.15rem 0 0; font-size: 0.95rem; color: var(--muted, #5b6770); }
 .hero-actions .hv-written a { font-weight: 600; color: var(--teal-dark); text-decoration: underline; text-underline-offset: 0.2em; display: inline-block; padding: 0.7rem 0.2rem; margin: -0.7rem 0; }
 .book-written { scroll-margin-top: 6rem; }
+
+/* ---- Previous professional experience (12 Nov): two case-study cards between How I can help and How it works ---- */
+.exp-section .eyebrow + h2 { max-width: 40rem; }
+.exp-lede { margin: 0.6rem 0 0; max-width: 46rem; font-size: 1.1rem; }
+.exp-cards { margin-top: 1.6rem; }
+.exp-card h3 { font-size: 1.2rem; margin-bottom: 0.7rem; }
+.exp-row { margin: 0 0 0.65rem; font-size: 0.97rem; }
+.exp-row strong { color: var(--teal-dark); }
+.exp-flow { list-style: none; margin: 0.4rem 0 0.2rem; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; counter-reset: expstep; }
+.exp-flow li { position: relative; counter-increment: expstep; margin: 0; padding: 0.5rem 0.55rem 0.5rem 1.9rem; background: var(--info-bg); border-radius: 8px; font-size: 0.85rem; font-weight: 600; line-height: 1.25; }
+.exp-flow li::before { content: counter(expstep); position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); width: 1.1rem; height: 1.1rem; border-radius: 50%; background: var(--teal); color: #fff; font-size: 0.72rem; line-height: 1.1rem; text-align: center; }
+.exp-more { margin: 0.4rem 0 0.8rem; }
+.exp-checks { list-style: none; margin: 0.2rem 0 0.7rem; padding: 0; display: grid; gap: 0.4rem; font-size: 0.95rem; }
+.exp-checks li { margin: 0; padding-left: 0.8rem; border-left: 3px solid var(--teal); }
+.exp-more p { margin: 0 0 0.5rem; font-size: 0.95rem; }
+@media (max-width: 40rem) { .exp-flow { grid-template-columns: 1fr; } }

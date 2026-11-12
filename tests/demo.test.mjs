@@ -213,16 +213,27 @@ test('problem cards: three, in the customer’s words, each pointing to its laye
 });
 
 
-test('page order (12 Nov seven-section page): hero, problems, how I can help (with proof), how it works, about, FAQ, book', async () => {
+test('page order (12 Nov eight-section page): hero, problems, how I can help (with proof), previous experience, how it works, about, FAQ, book', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const order = ['id="fit"', 'id="services"', 'id="built"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
+  const order = ['id="fit"', 'id="services"', 'id="built"', 'id="experience"', 'id="how"', 'id="about"', 'id="faq"', 'id="start"'].map((x) => html.indexOf(x));
   assert.ok(order.every((i) => i > 0));
   assert.deepEqual([...order].sort((a, b) => a - b), order);
-  assert.equal((html.match(/<section /g) || []).length, 7, 'seven sections');
+  assert.equal((html.match(/<section /g) || []).length, 8, 'eight sections');
   assert.match(html, /<div class="built-strip" id="built"[^>]*><span class="anchor" id="samples"><\/span>/, 'old #samples links (booking emails) land on the proof strip');
-  assert.doesNotMatch(html, /id="experience"/, 'Experience merged into About');
-  const about = html.slice(order[4], order[5]);
+  const exp = html.slice(order[3], order[4]);
+  assert.match(exp, /<p class="eyebrow">Previous professional experience<\/p>/);
+  assert.match(exp, /<h2 id="experience-h">Operational problems I&rsquo;ve helped solve<\/h2>/);
+  assert.match(exp, /not Rework Rescue client projects/);
+  assert.equal((exp.match(/<li class="built-card exp-card">/g) || []).length, 2, 'two case studies');
+  assert.equal((exp.match(/<summary>How the checks worked<\/summary>/g) || []).length, 2, 'a closed detail row in each card');
+  assert.equal((exp.match(/<ol class="exp-flow"/g) || []).length, 2, 'a three-step strip in each card');
+  assert.doesNotMatch(exp, /<a class="btn/, 'no button in the experience section');
+  assert.doesNotMatch(exp, /\d\s?%|saved|savings|per cent/i, 'no invented savings or percentages');
+  assert.doesNotMatch(exp, /solar|irradiance|inverter|utility|TotalEnergies|SunPower|Eutility/i, 'generic wording, no employer or industry names');
+  const about = html.slice(order[5], order[6]);
   for (const t of ['Before Rework Rescue', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.', 'not Rework Rescue client projects']) assert.ok(about.includes(t), t);
+  assert.match(about, /href="#experience">Operational problems I&rsquo;ve helped solve<\/a>/, 'About points to the experience section');
+  assert.doesNotMatch(about, /Automated daily reporting\.|Automated data checks\./, 'overlap with the experience cards removed from About');
   assert.match(about, /<details class="fold about-more"><summary>Before Rework Rescue<\/summary>/);
   assert.match(html, /Based in the Philippines\. Calls fit your working day in the US, the UK, Europe or Australia/);
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
@@ -231,7 +242,7 @@ test('page order (12 Nov seven-section page): hero, problems, how I can help (wi
     const h = await readFile(new URL(f, import.meta.url), 'utf8');
     assert.doesNotMatch(h, /Live example/, f); assert.match(h, /#how">How it works</, f);
   }
-  const start = html.slice(order[6]);
+  const start = html.slice(order[7]);
   assert.doesNotMatch(start.slice(0, start.indexOf('</section>')), /Prefer to write first\?|cta-person/, 'contact details in the footer; no name card (12 Nov)');
 });
 
@@ -364,7 +375,7 @@ test('AI and automation round (11 Nov late): automation and AI visible, data bac
   const about = html.slice(html.indexOf('id="about"'), html.indexOf('id="faq"'));
   assert.match(about, /<p class="about-lead">I&rsquo;m a data analyst who builds automation and AI workflows for service businesses\.<\/p>/);
   assert.match(about, /<p class="about-title">Data analyst building AI and automation workflows<\/p>/);
-  for (const t of ['Automated daily reporting.', 'Automated data checks.', 'Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.']) assert.ok(about.includes(`<strong>${t}</strong>`), t);
+  for (const t of ['Utility billing checks.', 'Operational reporting.', 'Solar and energy analysis.']) assert.ok(about.includes(`<strong>${t}</strong>`), t);
   assert.match(about, /These are from my previous roles, not Rework Rescue client projects\./);
   assert.match(about, /I build AI and automation workflows with n8n, and I keep training as the tools change\./);
   assert.match(about, /<p class="about-tools"><strong>Tools I work with:<\/strong>/);

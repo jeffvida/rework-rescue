@@ -246,7 +246,7 @@ test('page order (12 Nov eight-section page): hero, problems, how I can help (wi
   assert.equal((exp.match(/Illustrative example &middot; Synthetic data/g) || []).length, 4, 'both samples (desktop figure and phone closed row) labelled synthetic');
   assert.equal((exp.match(/<details class="fold exp-sample-m"><summary>/g) || []).length, 2, 'phones get the samples in closed rows');
   assert.equal((exp.match(/<figure class="exp-sample">/g) || []).length, 2);
-  assert.equal((exp.match(/<span>Move<\/span><span>See<\/span>/g) || []).length, 2, 'Move and See tags');
+  assert.doesNotMatch(exp, /exp-pillars|<span>Move<\/span>|<span>See<\/span>/, 'no Move/See tags on the experience cases (Jeff, 13 Nov)');
   assert.doesNotMatch(exp, /dash-kpis|bars-|Power BI dashboard preview|Severity/i, 'no dashboard centrepiece, KPI cards, chart or severity column');
   assert.doesNotMatch(exp, /exception handling|corrected automatically|auto-?correct/i, 'the tool flagged exceptions; it did not handle or correct them');
   assert.match(exp, /power was 0/, 'frozen-meter rule keeps the power condition');

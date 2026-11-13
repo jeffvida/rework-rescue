@@ -4190,8 +4190,6 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .exp-lede + .exp-case { margin-top: 1.6rem; }
 .exp-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 1rem; margin: 0 0 0.4rem; }
 .exp-cat { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-.exp-pillars { margin: 0; display: flex; gap: 0.35rem; }
-.exp-pillars span { padding: 0.1rem 0.55rem; border: 1px solid var(--teal); border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: var(--teal-dark); }
 .exp-case h3 { margin: 0 0 0.6rem; font-size: 1.5rem; max-width: 40rem; }
 .exp-problem { margin: 0 0 1rem; max-width: 46rem; }
 .exp-problem strong, .exp-row strong { color: var(--teal-dark); }

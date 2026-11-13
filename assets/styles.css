@@ -1,8 +1,8 @@
-/* Fonts: Inter (text) and Inter Display (headings), SIL Open Font License (assets/fonts/OFL-Inter.txt), Latin subset, self-hosted.
+/* Fonts: Inter (text) and Poppins Bold (headings, matching the logo wordmark), SIL Open Font License (assets/fonts/OFL-Inter.txt, OFL-Poppins.txt), Latin subset, self-hosted.
    One file per weight; the ranges map the stylesheet's heavier heading weights onto SemiBold so nothing is synthesised. */
 @font-face { font-family: "Inter"; src: url("fonts/inter-regular.woff") format("woff"); font-weight: 300 500; font-style: normal; font-display: swap; }
 @font-face { font-family: "Inter"; src: url("fonts/inter-semibold.woff") format("woff"); font-weight: 600 900; font-style: normal; font-display: swap; }
-@font-face { font-family: "Inter Display"; src: url("fonts/interdisplay-semibold.woff") format("woff"); font-weight: 500 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("fonts/poppins-bold.woff") format("woff"); font-weight: 500 900; font-style: normal; font-display: swap; }
 /* Restrained, high-contrast business styling. System fonts for body text; one self-hosted display font (no third-party requests). */
 :root {
   --ink: #0f3a3a;
@@ -28,7 +28,7 @@
   --error-bg: #fdeceb;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(28, 42, 46, 0.08);
-  --display: "Inter Display", "Inter", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --display: "Poppins", "Inter", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -4297,3 +4297,23 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
   .hero-v3 .hx { max-width: none; margin-inline: 0; }
   .hero-v3 .h1-accent { display: block; width: fit-content; }
 }
+
+/* ===== Direction A, logo-led (13 Nov 2026) =====
+   The logo sets the identity: Poppins Bold headings like the wordmark, deep teal text, teal green as the main accent,
+   warm gold only for small emphasis (headline underline, button edge). No blue, purple or brown as brand colours;
+   red, amber and green stay as status colours. */
+:root { --accent: #24655c; --svc-systems: #0f3a3a; --svc-workflow: #2e7d72; --svc-data: #1f7a4a; --gold-line: #d9a441; }
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
+.hero-v3 h1 { letter-spacing: -0.035em; line-height: 1.08; font-size: clamp(2.05rem, 4vw, 3.3rem); }
+.hero-v3 .h1-accent { color: var(--teal); }
+.hero-v3 .hero-pill { background: #dcefe4; color: var(--ink); }
+.hv-swoosh { stroke: var(--gold-line); stroke-width: 4; }
+.hx-hint { color: var(--teal) !important; }
+.hx-step.svc-systems, .hx-step.svc-workflow, .hx-step.svc-data { background: #f1f8f4; }
+.hx-step.svc-workflow .hx-ic, .hv-tile.svc-workflow > svg { stroke: var(--teal); }
+.hx-kpi.is-open { background: #e3efec; }
+.hx-sum { background: #f1f8f4; border-color: #cfe5d8; }
+.hx-sum .hx-col-t svg { stroke: var(--teal); fill: #dcefe4; }
+.hx-sum li::before { background: var(--teal); }
+.hx-sum small { color: var(--accent) !important; }
+.hx-review { background: #dcefe4; color: var(--ink); }

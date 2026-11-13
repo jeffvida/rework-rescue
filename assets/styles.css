@@ -4287,3 +4287,13 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .scope-list dd { margin: 0; font-size: 0.95rem; }
 .scope-note { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--muted); }
 @media (max-width: 40rem) { .scope-list > div { grid-template-columns: 1fr; } .scope-doc { padding: 0.8rem 0.8rem 0.7rem; } }
+/* Mid widths (tablets, small laptops, phones in "desktop site" mode ~980px): the hero stacks into one column.
+   Line the visual up with the copy on the left and let both use the full width, instead of a narrow text
+   column with a separately centred card and empty space on the right. */
+@media (min-width: 52.01rem) and (max-width: 75rem) {
+  .hero-v3 .hero-copy { max-width: none; }
+  .hero-v3 .hero-sub { max-width: 40rem; }
+  .hero-v3 .hv-cred { max-width: 40rem; }
+  .hero-v3 .hx { max-width: none; margin-inline: 0; }
+  .hero-v3 .h1-accent { display: block; width: fit-content; }
+}

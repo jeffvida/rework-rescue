@@ -232,8 +232,13 @@ test('15 Nov positioning: AI and Automation Specialist, task-based guidance labe
     'not a general website developer, CRM developer or generic software agency']) assert.ok(brief.includes(t), t);
   assert.doesNotMatch(KNOWLEDGE, /data analyst|small and medium|Data & Reporting|Workflows & Processes|Business Tools & Systems|simple CRM setup|simple web pages|sample report/i);
   assert.doesNotMatch(brief.replace('Never describe Jeff as a data analyst', ''), /data analyst|small and medium/i);
-  const { SERVICE_OPTIONS } = await import('../src/inquiry.js');
-  assert.deepEqual(SERVICE_OPTIONS.slice(1).map(([v, l]) => `${v}:${l}`), Object.values(SERVICES).map((x) => `${x.book}:${x.label}`), 'booking pop-up labels match the assistant');
+  const { SERVICE_OPTIONS, serviceCode, serviceLabel } = await import('../src/inquiry.js');
+  assert.deepEqual(SERVICE_OPTIONS.slice(1, 4).map(([v, l]) => `${v}:${l}`), Object.values(SERVICES).map((x) => `${x.book}:${x.label}`), 'booking pop-up labels match the assistant');
+  // 15 Nov: a fourth, customer-facing option. Its own value keeps the visitor's choice; it maps to the existing systems code.
+  assert.deepEqual(SERVICE_OPTIONS[4], ['websites', 'Websites, landing pages and customer trackers', 'systems']);
+  assert.equal(serviceCode('websites'), 'systems'); assert.equal(serviceLabel('websites'), 'Websites, landing pages and customer trackers');
+  assert.deepEqual([...new Set(SERVICE_OPTIONS.map((o) => o[2]).filter(Boolean))], ['data', 'workflow', 'systems'], 'n8n service codes unchanged');
+  for (const [v, , c] of SERVICE_OPTIONS.slice(1, 4)) assert.equal(c, v, 'existing values are their own codes');
   const wf = await import('node:fs/promises').then((f) => f.readFile(new URL('../n8n/rework-assistant.json', import.meta.url), 'utf8'));
   const code = JSON.parse(wf).nodes.filter((n) => ['Check request', 'Check reply'].includes(n.name)).map((n) => n.parameters.jsCode);
   assert.equal(code.length, 2);

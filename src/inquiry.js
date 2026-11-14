@@ -14,15 +14,20 @@ export const INQUIRY_MESSAGES = {
   unconfigured: "Message sending isn't set up on this site yet, so your message was not sent. Nothing has left this page.",
 };
 
-// The three types of work, asked (optionally) in the booking pop-up. Labels match the assistant (15 Nov); values unchanged.
+// The types of work, asked (optionally) in the booking pop-up. The first three labels match the assistant (15 Nov).
+// Each option is [value, label, n8n service code]. The n8n codes stay data / workflow / systems: the fourth option
+// (added 15 Nov) has its own value so the visitor's choice is kept, and maps to the existing `systems` code.
+// The booking sends the label text ("Help with: ...") inside the existing process field, so the payload is unchanged.
 // The empty value means "not sure yet": the review is where we work it out.
 export const SERVICE_OPTIONS = [
-  ['', 'Not sure yet'],
-  ['data', 'Reports and data checks'],
-  ['workflow', 'Follow-ups and routine workflows'],
-  ['systems', 'Emails, forms and connected tools'],
+  ['', 'Not sure yet', ''],
+  ['data', 'Reports and data checks', 'data'],
+  ['workflow', 'Follow-ups and routine workflows', 'workflow'],
+  ['systems', 'Emails, forms and connected tools', 'systems'],
+  ['websites', 'Websites, landing pages and customer trackers', 'systems'],
 ];
 export const serviceLabel = (value) => (SERVICE_OPTIONS.find(([v]) => v && v === value) || [])[1] || '';
+export const serviceCode = (value) => (SERVICE_OPTIONS.find(([v]) => v && v === value) || [])[2] || '';
 
 export const ROLE_OPTIONS = [
   ['', 'Choose one (optional)'],

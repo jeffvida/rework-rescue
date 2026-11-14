@@ -1,6 +1,7 @@
-// The homepage after the 15 Nov 2026 rework (Jeff + ChatGPT decisions, built on preview/final-page):
-// proof-first hero, five-step flow, What I automate, Automation with checks built in, proof (own builds, tools,
-// previous-role results), How it works, About, FAQ, Book. Copy from Jeff and ChatGPT is checked word for word.
+// The homepage after the 15 Nov 2026 rework (Jeff + ChatGPT decisions, built on preview/final-page), plus the
+// 15 Nov service expansion (preview/services-expansion): problem-led hero, five-step flow, Where I can make work
+// easier (six tiles), Start with the work (with the three-part visual), proof (own builds, tools, previous-role
+// results), How it works, About, FAQ, Book. Copy from Jeff and ChatGPT is checked word for word.
 // The guard rails from the earlier rounds stay: no prices, testimonials or invented results; first person; one
 // button wording; booking hours match the calendar; the build cards match the n8n workflows.
 
@@ -18,13 +19,15 @@ test('hero: Jeff and ChatGPT copy word for word, two buttons, proof line, no fra
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
   assert.match(hero, /<p class="eyebrow hero-pill">For business owners and operations teams<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
-  assert.match(hero, /<p class="hero-sub">I set up AI and automation that read your emails and forms, update your records, chase follow-ups and prepare weekly reports &mdash; with checks before anyone relies on the results\.<\/p>/);
+  assert.match(hero, /<p class="hero-sub">I help businesses organise customer enquiries, reduce repetitive admin and keep important work moving\. I build practical systems and workflows, using automation and AI where they make a real difference\.<\/p>/);
+  assert.doesNotMatch(hero.slice(0, hero.indexOf('hero-actions')), /website|landing page|CRM/i, 'hero leads with problems, not services');
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review<\/a>/);
   assert.match(hero, /<a class="btn btn-large hv-explore" href="#built">Try a live automation/);
   assert.ok(hero.indexOf('Book a free review') < hero.indexOf('Try a live automation'));
   assert.match(hero, /The booking and chat on this page run on automations I built\. <a href="#built">Try them\.<\/a>/);
   assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip/, 'hero kept to the approved elements');
-  assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
+  // "Capture and organise" (15 Nov three-part visual) is allowed; the old Capture / Move / See framework is not.
+  assert.doesNotMatch(html.replace('2. Capture and organise', ''), /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
 
 test('hero flow: five steps, ends on a person approving, labelled fictional; plays once, Skip/Replay, CSP-safe', async () => {
@@ -56,24 +59,36 @@ test('hero: only the five-step flow; the earlier Today / With panel is gone (15 
   assert.doesNotMatch(home, /mountHero|hero=panel|get\('hero'\)/);
   assert.match(home, /mountFlow\(document\.getElementById\('hero-flow'\)\)/);
 });
-test('What I automate: five tiles, the customer problem first, then what gets built (ChatGPT table)', async () => {
+test('Where I can make work easier: six tiles, the customer problem first, then what gets built; 3 / 2 / 1 columns', async () => {
   const sec = section(await page(), 'services', 'approach');
-  assert.match(sec, /<h2 id="services-h">What I automate<\/h2>/);
+  assert.match(sec, /<h2 id="services-h">Where I can make work easier<\/h2>/);
   assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
     ['Emails piling up', 'AI-assisted reading, classification and request tracking'],
     ['Information entered repeatedly', 'Automated data extraction and record updates'],
     ['Follow-ups getting missed', 'Automated reminders and follow-up workflows'],
     ['Requests getting stuck', 'Workflow routing and approval steps'],
     ['Reports taking hours to prepare', 'Automated reporting and data checks'],
+    ['Customer enquiries need a better home', 'Simple websites, landing pages, enquiry forms and lightweight customer trackers that help capture and organise new requests'],
   ]);
+  const c = await read('../assets/styles.css');
+  assert.match(c, /\.rr-tiles \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(c, /@media \(max-width: 62rem\) \{ \.rr-tiles \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \} \}/);
+  assert.match(c, /@media \(max-width: 40rem\) \{\n  \.rr-tiles \{ grid-template-columns: minmax\(0, 1fr\);/);
 });
 
 test('approach band: Start with the work, not the software (ChatGPT, 15 Nov); checks are not sold as the difference', async () => {
   const html = await page();
   const sec = section(html, 'approach', 'built');
   assert.match(sec, /<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
-  assert.match(sec, /<p>Before choosing a tool, I look at where work begins, where information gets repeated, where follow-ups get missed and which decisions need a person\.<\/p>/);
-  assert.match(sec, /<p>Then I build practical AI and automation solutions around the way your business operates\.<\/p>/);
+  assert.match(sec, /<p>Before choosing a tool or building a page, I look at how customers find you, how enquiries come in, where information gets repeated, where follow-ups get missed and which decisions need a person\.<\/p>/);
+  assert.match(sec, /<p>Then I build the simplest practical solution &mdash; whether that&rsquo;s a website, a customer tracker, an automated workflow or a combination\.<\/p>/);
+  assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
+    ['1. Reach customers', 'Simple website or landing page.'],
+    ['2. Capture and organise', 'Enquiry form and customer tracker.'],
+    ['3. Follow through', 'Reminders and workflow automation.'],
+  ]);
+  assert.ok(sec.indexOf('rr-approach-note') < sec.indexOf('class="rr-connect"'), 'visual sits under the highlighted line');
+  assert.match(sec, /<p class="rr-connect-note">Use one, or connect them when it makes sense\.<\/p>/);
   assert.match(sec, /<p class="rr-approach-note">AI where interpretation helps\. Automation where repetition gets in the way\.<\/p>/);
   assert.doesNotMatch(sec, /Practical solutions built around your business/);
   assert.doesNotMatch(html, /Automation with checks built in|Automation that checks itself|proprietary|my method|framework/i);
@@ -147,12 +162,14 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.match(about, /I build AI and automation workflows with n8n, and I keep training as the tools change\./);
   assert.match(about, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/);
   const faq = section(html, 'faq', 'start');
-  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
+  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'Can you build a website or set up a simple CRM?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
   assert.match(faq, /Not every problem needs AI\./);
+  assert.match(faq, /<p>Yes\. I can create straightforward, mobile-friendly business websites and landing pages, enquiry forms, and lightweight customer trackers or CRM setups using suitable existing tools\.<\/p><p>These can stand alone or connect\. For example, a website enquiry can be added to a customer tracker and trigger a follow-up reminder\.<\/p><p>I focus on clear layouts and practical features rather than complex designs or software\. For online stores, custom applications or advanced CRM systems, I&rsquo;ll explain when a specialist solution is needed\.<\/p>/);
   assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);
   assert.match(faq, /<summary>Will this replace anyone on my team\?<\/summary><p>No\./);
   const start = section(html, 'start');
-  assert.match(start, /<h2 id="cta-h">Bring me the task your team repeats every week\.<\/h2>/);
+  assert.match(start, /<h2 id="cta-h">Tell me what you&rsquo;d like to make easier\.<\/h2>/);
+  assert.match(start, /<p class="lede">Whether it&rsquo;s a repetitive task, a customer process that&rsquo;s hard to manage, a website or landing page, or a simple customer system your business is missing, I&rsquo;ll help you identify a practical solution\.<\/p>/);
   assert.match(start, /Describe the task or process your team repeats, or send a sample with confidential details removed\. I&rsquo;ll send a one-page written review within 1 working day, showing where the work gets stuck and what I&rsquo;d improve first\./);
   assert.match(start, /subject=Written%20task%20review">Get a free written review<\/a>/);
   const contact = await read('../contact/index.html');

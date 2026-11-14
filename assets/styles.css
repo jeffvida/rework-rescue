@@ -4382,10 +4382,10 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 }
 @media (prefers-reduced-motion: reduce) { .rf-step, .rf-card { transition: none; } }
 
-/* What I automate */
+/* Where I can make work easier (services tiles: 3 / 2 / 1 columns) */
 #services { padding-top: 2.5rem; }
-.rr-tiles { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
-.rr-tiles li { margin: 0; padding: 1.1rem 1rem 1.15rem; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.rr-tiles { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.rr-tiles li { margin: 0; padding: 1.2rem 1.2rem 1.25rem; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
 .rr-tiles svg { display: block; width: 2.6rem; height: 2.6rem; padding: 0.55rem; margin-bottom: 0.75rem; border-radius: 12px; background: #dcefe4; fill: none; stroke: var(--teal-dark); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .rr-tiles strong { display: block; font-family: var(--display); font-size: 1.06rem; line-height: 1.25; letter-spacing: -0.01em; margin-bottom: 0.35rem; }
 .rr-tiles span { display: block; font-size: 0.92rem; line-height: 1.45; color: var(--muted); }
@@ -4403,6 +4403,14 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-approach { max-width: 46rem; font-size: 1.12rem; line-height: 1.6; color: #e6f1ec; }
 .rr-approach p:last-child { margin-bottom: 0; color: #fff; font-weight: 600; }
 .rr-approach-note { margin: 1.3rem 0 0; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.16); max-width: 46rem; font-size: 0.98rem; color: var(--signal); }
+/* Three ways the work connects (static; not mandatory steps) */
+.rr-connect { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; max-width: 60rem; }
+.rr-connect li { margin: 0; padding: 1rem 1.1rem; display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: 0.1rem 0.8rem; align-items: start; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 14px; }
+.rr-connect svg { grid-row: span 2; width: 2.3rem; height: 2.3rem; padding: 0.45rem; border-radius: 10px; background: rgba(230, 192, 120, 0.16); fill: none; stroke: var(--signal); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.rr-connect strong { display: block; font-family: var(--display); font-size: 1.02rem; line-height: 1.3; color: #fff; }
+.rr-connect span { display: block; font-size: 0.93rem; line-height: 1.45; color: #cfe3da; }
+.rr-connect-note { margin: 0.9rem 0 0; font-size: 0.95rem; color: #cfe3da; }
+@media (max-width: 48rem) { .rr-connect { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; } }
 .rr-diff-list { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem 1.6rem; }
 .rr-diff-list li { margin: 0; display: flex; gap: 0.7rem; align-items: flex-start; font-size: 1.02rem; line-height: 1.45; }
 .rr-diff-list svg { flex: none; width: 1.8rem; height: 1.8rem; padding: 0.35rem; border-radius: 50%; background: rgba(230, 192, 120, 0.18); fill: none; stroke: var(--signal); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }

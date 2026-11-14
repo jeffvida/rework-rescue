@@ -4402,6 +4402,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-diff h2 { color: #fff; }
 .rr-approach { max-width: 46rem; font-size: 1.12rem; line-height: 1.6; color: #e6f1ec; }
 .rr-approach p:last-child { margin-bottom: 0; color: #fff; font-weight: 600; }
+.rr-approach-note { margin: 1.3rem 0 0; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.16); max-width: 46rem; font-size: 0.98rem; color: var(--signal); }
 .rr-diff-list { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem 1.6rem; }
 .rr-diff-list li { margin: 0; display: flex; gap: 0.7rem; align-items: flex-start; font-size: 1.02rem; line-height: 1.45; }
 .rr-diff-list svg { flex: none; width: 1.8rem; height: 1.8rem; padding: 0.35rem; border-radius: 50%; background: rgba(230, 192, 120, 0.18); fill: none; stroke: var(--signal); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }

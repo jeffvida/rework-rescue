@@ -33,7 +33,7 @@ test('hero flow: five steps, ends on a person approving, labelled fictional; pla
   assert.deepEqual([...fig.matchAll(/<span class="rf-n" aria-hidden="true">\d<\/span>([^<]+)<\/p>/g)].map((m) => m[1]),
     ['Request arrives', 'AI extracts the details', 'Record updated', 'Missing information flagged', 'A person reviews and approves']);
   assert.match(fig, /<li class="is-missing"><small>Phone<\/small>Missing<\/li>/, 'the missing detail is visible, not just a warning sign');
-  assert.match(fig, /No phone number for Dana Cruz/);
+  assert.match(fig, /No phone number &mdash; needed to arrange the repair/);
   assert.match(fig, /Approved by a person/);
   assert.match(fig, /<figcaption class="rf-cap" id="rf-cap">Fictional sample business\. Illustration only\./);
   // The HTML is the final frame: the "before" states are hidden from screen readers and from no-JS visitors.
@@ -49,15 +49,13 @@ test('hero flow: five steps, ends on a person approving, labelled fictional; pla
   assert.ok(total <= 9000, `about 8 seconds (${total} ms)`);
 });
 
-test('hero comparison: the earlier panel stays only behind ?hero=panel, without the framework names', async () => {
+test('hero: only the five-step flow; the earlier Today / With panel is gone (15 Nov decision)', async () => {
   const html = await page();
-  assert.match(html, /<figure class="hero-preview hx no-print" id="hero-visual" aria-labelledby="hx-cap" hidden>/);
-  assert.match(html, /<b>Records<\/b>[\s\S]*<b>Follow-ups<\/b>[\s\S]*<b>Weekly report<\/b>/);
+  assert.doesNotMatch(html, /id="hero-visual"|hx-toggle|With Rework Rescue/);
   const home = await read('../src/home.js');
-  assert.match(home, /get\('hero'\) === 'panel'/);
-  assert.match(await read('../src/demo/hero.js'), /setMode\('after'\);/, 'the panel opens on the result on phones too');
+  assert.doesNotMatch(home, /mountHero|hero=panel|get\('hero'\)/);
+  assert.match(home, /mountFlow\(document\.getElementById\('hero-flow'\)\)/);
 });
-
 test('What I automate: five tiles, the customer problem first, then what gets built (ChatGPT table)', async () => {
   const sec = section(await page(), 'services', 'approach');
   assert.match(sec, /<h2 id="services-h">What I automate<\/h2>/);
@@ -76,6 +74,8 @@ test('approach band: Start with the work, not the software (ChatGPT, 15 Nov); ch
   assert.match(sec, /<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
   assert.match(sec, /<p>Before choosing a tool, I look at where work begins, where information gets repeated, where follow-ups get missed and which decisions need a person\.<\/p>/);
   assert.match(sec, /<p>Then I build practical AI and automation solutions around the way your business operates\.<\/p>/);
+  assert.match(sec, /<p class="rr-approach-note">AI where interpretation helps\. Automation where repetition gets in the way\.<\/p>/);
+  assert.doesNotMatch(sec, /Practical solutions built around your business/);
   assert.doesNotMatch(html, /Automation with checks built in|Automation that checks itself|proprietary|my method|framework/i);
 });
 test('proof: own builds first, plain-text tools line, then two short previous-role results with details closed', async () => {
@@ -134,10 +134,10 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
     'Build and test: Implement the solution and test normal cases, exceptions and handoffs.',
     'Hand over: Document the workflow, explain how it works and provide the agreed solution.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
-  for (const t of ['Built-in checks flag missing, inconsistent or unexpected information.', 'People review and approve important decisions.', 'Workflows run in accounts controlled by the customer.']) assert.ok(std.includes(t), t);
+  assert.match(std, /<h3>In every project<\/h3>/);
+  for (const t of ['Built-in checks flag missing, inconsistent or unexpected information.', 'People review and approve important decisions.', 'Workflows run in accounts controlled by the customer.', '30 days of post-handover fixes for issues within the agreed scope.']) assert.ok(std.includes(t), t);
   assert.match(how, /<summary>Step 2 example: see a sample written scope<\/summary>/);
   assert.match(how, /No system logins to get started\./);
-  assert.match(how, /30 days of fixes for anything that doesn&rsquo;t work as agreed\./);
   assert.doesNotMatch(how, /how-approach/, 'intro paragraphs cut to one line');
   const about = section(html, 'about', 'faq');
   assert.match(about, /<p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions\.<\/p>/);

@@ -61,7 +61,8 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   // The only mentions of subscriptions are the cost-transparency lines.
   assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('payment arrangements and any subscriptions you&#39;d need', '').replace('You create the accounts and handle any paid subscriptions.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  for (const t of ['Northstar Services, a fictional service business', 'customers, jobs and team names are fictional', 'no AI runs in it']) assert.ok(priv.includes(t), t);
+  for (const t of ['The animated workflow at the top of the homepage is a fictional illustration', 'Dana Cruz, the repair request, address and record number are made up.', 'It does not call an AI service, update a real tracker, send a message or connect to any business system.']) assert.ok(priv.includes(t), t);
+  assert.doesNotMatch(priv, /workspace illustration|fixed rules from the sample/, 'privacy matches the 15 Nov hero');
   assert.doesNotMatch(priv, /live example|Weekly-Work-Tracker\.xlsx|Reset sample|change an owner or a status/, 'privacy page matches the page (12 Nov)');
 });
 

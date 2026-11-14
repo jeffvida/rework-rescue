@@ -152,7 +152,10 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.match(faq, /<summary>Will this replace anyone on my team\?<\/summary><p>No\./);
   const start = section(html, 'start');
   assert.match(start, /<h2 id="cta-h">Bring me the task your team repeats every week\.<\/h2>/);
+  assert.match(start, /Describe the task or process your team repeats, or send a sample with confidential details removed\. I&rsquo;ll send a one-page written review within 1 working day, showing where the work gets stuck and what I&rsquo;d improve first\./);
   assert.match(start, /Get a free written review<\/a>/);
+  assert.match(html, /<p class="built-what">Pick a time\. Booking, calendar invites and reminders are handled automatically\.<\/p>/);
+  for (const f of ['../index.html', '../404.html', '../assessment/index.html', '../contact/index.html', '../privacy/index.html']) assert.match(await read(f), /Jeff Herson Vida, AI and Automation Specialist/, f);
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));
 });
 

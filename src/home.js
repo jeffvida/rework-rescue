@@ -1,7 +1,7 @@
 // Homepage: the hero illustration, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
 import { mountBooking } from './booking/popup.js';
-import { mountHero } from './demo/hero.js';
+import { mountFlow } from './demo/flow.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 
@@ -51,8 +51,9 @@ mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// Hero: Capture -> Move -> See overview, with figures following the tracker's state (src/demo/hero.js).
-mountHero(document.getElementById('hero-visual'));
+// Hero (15 Nov): the five-step flow (src/demo/flow.js). The earlier Today / With panel was removed (ChatGPT + Jeff, 15 Nov);
+// src/demo/hero.js stays for its tested figure helpers.
+mountFlow(document.getElementById('hero-flow'));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

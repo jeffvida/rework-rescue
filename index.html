@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https:; form-action 'self'; base-uri 'none'">
   <meta name="referrer" content="no-referrer">
-  <title>Rework Rescue | Automation and AI for service businesses</title>
+  <title>Rework Rescue | AI and automation for business operations</title>
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/brand/favicon-32.png">
   <link rel="icon" type="image/png" sizes="64x64" href="./assets/brand/favicon-64.png">
   <link rel="apple-touch-icon" href="./assets/brand/apple-touch-icon.png">
   <meta name="theme-color" content="#0e5a5a">
-  <meta name="description" content="Less manual work for small and medium-sized service businesses. I set up automation and AI that take repeat work off your team, built on data that&rsquo;s been checked, so you can trust what comes out.">
+  <meta name="description" content="Less manual work. Smarter business operations. I set up AI and automation that read your emails and forms, update your records, chase follow-ups and prepare weekly reports, with checks before anyone relies on the results.">
   <!-- Share previews (LinkedIn, Slack, etc.). If the site address changes, update these URLs, robots.txt and sitemap.xml. -->
   <link rel="canonical" href="https://rework-rescue.vercel.app/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Rework Rescue">
-  <meta property="og:title" content="Rework Rescue | Automation and AI for service businesses">
-  <meta property="og:description" content="Less manual work for small and medium-sized service businesses. I set up automation and AI that take repeat work off your team, built on data that&rsquo;s been checked, so you can trust what comes out.">
+  <meta property="og:title" content="Rework Rescue | AI and automation for business operations">
+  <meta property="og:description" content="Less manual work. Smarter business operations. I set up AI and automation that read your emails and forms, update your records, chase follow-ups and prepare weekly reports, with checks before anyone relies on the results.">
   <meta property="og:url" content="https://rework-rescue.vercel.app/">
   <meta property="og:image" content="https://rework-rescue.vercel.app/assets/brand/share-card.png">
   <meta property="og:image:width" content="1200">
@@ -36,7 +36,8 @@
       <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" hidden><span class="nav-toggle-icon" aria-hidden="true"></span>Menu</button>
       <nav id="site-nav" aria-label="Main">
         <ul class="nav-list">
-          <li><a href="#services">How I can help</a></li>
+          <li><a href="#services">What I automate</a></li>
+          <li><a href="#built">See it working</a></li>
           <li><a href="#how">How it works</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#faq">FAQ</a></li>
@@ -47,187 +48,80 @@
   </header>
   <main id="main" tabindex="-1">
 
-    <section class="hero hero-cmv hero-v3" aria-labelledby="hero-title">
+    <section class="hero hero-v3 rr-hero" aria-labelledby="hero-title">
       <svg class="hv-hills" viewBox="0 0 800 600" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="hv-hill-a" d="M800 40 C640 60 560 150 600 260 C640 370 520 470 300 520 L0 600 H800 Z"/><path class="hv-hill-b" d="M800 330 C700 360 610 430 470 470 C320 510 200 540 0 560 V600 H800 Z"/></svg>
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow hero-pill">For small and medium-sized service businesses.</p>
-          <h1 id="hero-title">Less manual work. <span class="h1-accent">More time running the business.<svg class="hv-swoosh" viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 10 C60 2 150 1 217 7"/></svg></span></h1>
-          <p class="hero-sub">Chasing job updates? Re-typing the same details? Rebuilding reports every week? I set up automation and AI that take the repeat work off your team, with checks so you can trust what comes out.</p>
+          <p class="eyebrow hero-pill">For business owners and operations teams</p>
+          <h1 id="hero-title">Less manual work. <span class="h1-accent">Smarter business operations.<svg class="hv-swoosh" viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 10 C60 2 150 1 217 7"/></svg></span></h1>
+          <p class="hero-sub">I set up AI and automation that read your emails and forms, update your records, chase follow-ups and prepare weekly reports &mdash; with checks before anyone relies on the results.</p>
           <div class="hero-actions hv-actions">
             <a class="btn btn-primary btn-large hv-book" href="contact/#contact-form-area"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Book a free review</a>
-            <a class="btn btn-large hv-explore" href="#services">See how I can help <span aria-hidden="true">&darr;</span></a>
-            <p class="hv-written">Not ready for a call? <a href="#written-review">Get a free written review <span aria-hidden="true">&rarr;</span></a></p>
+            <a class="btn btn-large hv-explore" href="#built">Try a live automation <span aria-hidden="true">&darr;</span></a>
           </div>
-          <ul class="hv-chips" aria-label="About the free review">
-            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>30 minutes</li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>Free</li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 11l4-4 4 2 3-2 4 1 3 3"/><path d="M7 7v6l4 4 2-1 2 1 3-3"/><path d="M11 17l-1-1"/></svg>No obligation</li>
-          </ul>
-          <div class="cred-strip hv-cred">
-            <img class="cred-avatar" src="assets/photo/jeff-avatar.jpg" width="288" height="288" alt="">
-            <p><a class="cred-name" href="#about">Jeff Herson Vida</a><span class="cred-role">8+ years in data operations: checking, reporting and automating.</span></p>
-          </div>
+          <p class="rr-chip"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6 5.4-5.6"/></svg><span>The booking and chat on this page run on automations I built. <a href="#built">Try them.</a></span></p>
         </div>
-        <figure class="hero-preview hx no-print" id="hero-visual" aria-labelledby="hx-cap">
-          <div class="hx-top">
-            <div class="hx-toggle" role="group" aria-label="Compare a typical week today with the same week after the work">
-              <button type="button" class="hx-tg" data-ws-mode="today" aria-pressed="false">Today</button>
-              <button type="button" class="hx-tg" data-ws-mode="after" aria-pressed="true">With Rework Rescue</button>
-              <span class="hx-tg-pill" aria-hidden="true"></span>
-            </div>
-            <p class="hx-hint" aria-hidden="true"><svg viewBox="0 0 40 16" focusable="false"><path d="M38 9C28 3 16 3 4 8M4 8l6-5M4 8l7 3"/></svg>Switch to see the difference</p>
-          </div>
-          <div class="hx-panel">
-            <p class="hx-sec">
-              <span class="hx-only-today" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>What goes wrong today <span class="hx-legend"><i class="is-action"></i>Problem <i class="is-flag"></i>Warning</span></span>
-              <span class="hx-only-after"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8l7.5 3v5.6c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V5.8z"/><path d="M8.6 12.1l2.4 2.4 4.5-4.7"/></svg>Checked at every step <span class="hx-legend"><i class="is-pass"></i>Passed <i class="is-flag"></i>Flagged <i class="is-action"></i>Action required</span></span>
-            </p>
-            <ol class="hx-flow" aria-label="Capture, move, see">
-              <li class="hx-step svc-systems">
-                <p class="hx-step-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="hx-ic-doc" d="M6 3h9l4 4v14H6z"/><path class="hx-ic-doc" d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/><ellipse class="hx-ic-db" cx="12" cy="6" rx="7" ry="2.8"/><path class="hx-ic-db" d="M5 6v12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V6M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/></svg><span><b>Capture</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Details in multiple places</span><span class="hx-only-after">One organised record per job</span></span></span></p>
-                <ul class="hx-issues hx-only-today" aria-hidden="true"><li class="is-red">Duplicate job references</li><li class="is-red">Missing service requests</li><li class="is-amber">Inconsistent information</li><li class="is-amber">Multiple spreadsheet versions</li></ul>
-                <ul class="hx-checks hx-only-after" data-ws-checks="capture"><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">No duplicate jobs</span><span class="hx-chk-d">None found</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-flag"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Job details complete</span><span class="hx-chk-d">11 of 12 complete · R-111</span><span class="sr-only"> Flagged</span></li><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Dates entered correctly</span><span class="hx-chk-d">12 of 12</span><span class="sr-only"> Passed</span></li></ul>
-              </li>
-              <li class="hx-step svc-workflow">
-                <p class="hx-step-h"><svg class="hx-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3.5" y="16" width="5" height="5" rx="1"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><span><b>Move</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Chasing people for updates</span><span class="hx-only-after">Clear owners, status and follow-ups</span></span></span></p>
-                <ul class="hx-issues hx-only-today" aria-hidden="true"><li class="is-amber">Email updates not in records</li><li class="is-red">Jobs without owners</li><li class="is-amber">Inconsistent statuses</li><li class="is-red">Overdue follow-ups</li></ul>
-                <ul class="hx-checks hx-only-after" data-ws-checks="move"><li class="hx-chk is-action"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Every open job has an owner</span><span class="hx-chk-d">No owner · R-112</span><span class="sr-only"> Action required</span></li><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Every job has a status</span><span class="hx-chk-d">12 of 12</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-action"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Follow-ups on time</span><span class="hx-chk-d">Overdue · R-104</span><span class="sr-only"> Action required</span></li></ul>
-              </li>
-              <li class="hx-step svc-data">
-                <p class="hx-step-h"><svg class="hx-ic hx-ic-bars" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8.5" width="4" height="11.5" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg><span><b>See</b><span class="hx-swap"><span class="hx-only-today" aria-hidden="true">Rebuilding the Monday report</span><span class="hx-only-after">A Monday report you don&rsquo;t have to double-check</span></span></span></p>
-                <ul class="hx-issues hx-only-today" aria-hidden="true"><li class="is-amber">Figures added up by hand</li><li class="is-red">Report figures don&rsquo;t match</li><li class="is-amber">Rebuilt every week</li></ul>
-                <ul class="hx-checks hx-only-after" data-ws-checks="see"><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Totals add up</span><span class="hx-chk-d">7 done + 5 open = 12</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-pass"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Every job counted</span><span class="hx-chk-d">12 of 12 counted</span><span class="sr-only"> Passed</span></li><li class="hx-chk is-flag"><span class="hx-dot" aria-hidden="true"></span><span class="hx-chk-l">Problems shown, not hidden</span><span class="hx-chk-d">3 on the report</span><span class="sr-only"> Flagged</span></li></ul>
-              </li>
-            </ol>
-            <div class="hx-body">
-              <div class="hx-today" aria-hidden="true">
-                <ul class="hx-scatter">
-                  <li class="hx-card hx-c1"><svg class="hx-file is-xls" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span><b>Job_Tracker_v3.xlsx</b>3 versions in different folders<em class="hx-tag is-red">Duplicates</em></span></li>
-                  <li class="hx-card hx-c2"><svg class="hx-file is-mail" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span><b>Re: Re: Job update?</b>Sent 3 times<em class="hx-tag is-amber">Not in the tracker</em></span></li>
-                  <li class="hx-card hx-c3"><svg class="hx-file is-form" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span><b>Service request (form)</b>Not entered in the tracker<em class="hx-tag is-red">Missing record</em></span></li>
-                  <li class="hx-card hx-c4"><svg class="hx-file is-pdf" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 15.5h6"/></svg><span><b>Completion records.pdf</b>Checked against the tracker by hand<em class="hx-tag is-amber">Manual check</em></span></li>
-                  <li class="hx-card hx-c5 hx-sticky"><span><b>Who&rsquo;s doing the Ridgeway job?</b><em class="hx-tag is-red">No owner</em></span></li>
-                  <li class="hx-card hx-c6"><svg class="hx-file is-xls" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg><span><b>Weekly_Report_FINAL(2).xlsx</b>Rebuilt by hand every Monday<em class="hx-tag is-amber">Manual rebuild</em></span></li>
-                </ul>
-                <p class="hx-result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg><span><b>The result</b> Records that don&rsquo;t match, missed updates and hours rebuilding the weekly report.</span></p>
-              </div>
-              <div class="hx-after">
-                <div class="hx-report">
-                  <p class="hx-rep-head"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span><b><span data-ws="business">Northstar Services</span> &middot; Weekly operations report</b><small data-ws="period">2–6 November 2026</small></span><span class="hx-valid"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6 5.4-5.6"/></svg><span data-ws="total">12</span> jobs checked</span></p>
-                  <div class="hx-kpis">
-                    <p class="hx-kpi is-done"><strong data-ws="completed">7</strong>Completed this week</p>
-                    <p class="hx-kpi is-open"><strong data-ws="outstanding">5</strong>Still outstanding</p>
-                    <p class="hx-kpi is-att"><strong data-ws="attention">3</strong>Need attention <small>of the <span data-ws="outstanding">5</span> still outstanding</small></p>
-                  </div>
-                  <div class="hx-cols">
-                    <div class="hx-actions">
-                      <p class="hx-col-t"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>Action items</p>
-                      <ul data-ws-actions><li><span class="hx-box" aria-hidden="true"></span><span>Follow up <span class="hx-ref">R-104</span> (overdue)</span><em class="is-high">High</em></li><li><span class="hx-box" aria-hidden="true"></span><span>Assign an owner to <span class="hx-ref">R-112</span></span><em class="is-high">High</em></li><li><span class="hx-box" aria-hidden="true"></span><span>Complete customer details for <span class="hx-ref">R-111</span></span><em>Medium</em></li></ul>
-                    </div>
-                    <div class="hx-sum">
-                      <p class="hx-col-t"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>AI-assisted summary <small>Sample draft</small></p>
-                      <ul data-ws-summary><li>7 of 12 jobs completed this week.</li><li>5 still outstanding; 3 of these need attention.</li><li>Next: follow up <span class="hx-ref">R-104</span> and assign an owner to <span class="hx-ref">R-112</span>.</li></ul>
-                      <p class="hx-review"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>Reviewed by a person before sharing</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <figcaption class="hx-cap" id="hx-cap"><span class="hx-cap-short">Fictional sample business. An illustration, not real results.</span><span class="hx-cap-long">Fictional sample data for Northstar Services (2–6 November 2026). Check results are worked out from that data. An illustration, not real results. In a project, an AI tool drafts the summary and a person checks it; here it&rsquo;s a sample written by simple rules.</span> <button type="button" class="hx-pause" hidden>Pause animation</button></figcaption>
+        <figure class="hero-preview rf no-print" id="hero-flow" aria-labelledby="rf-cap">
+          <ol class="rf-steps" aria-label="Example: one request, from inbox to a reviewed reply">
+            <li class="rf-step" data-rf="1">
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">1</span>Request arrives</p>
+              <div class="rf-card rf-mail"><b>Email from Dana Cruz</b><span>&ldquo;Can someone fix the leaking tap at 14 Elm St on Thursday?&rdquo;</span></div>
+            </li>
+            <li class="rf-step" data-rf="2">
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">2</span>AI extracts the details</p>
+              <ul class="rf-card rf-fields"><li><small>Customer</small>Dana Cruz</li><li><small>Job</small>Leaking tap</li><li><small>Address</small>14 Elm St</li><li><small>Wanted</small>Thursday</li><li class="is-missing"><small>Phone</small>Missing</li></ul>
+            </li>
+            <li class="rf-step" data-rf="3">
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">3</span>Record updated</p>
+              <p class="rf-card rf-row"><span class="rf-ref">R-113</span><span>Leaking tap &middot; 14 Elm St &middot; Thu</span></p>
+            </li>
+            <li class="rf-step rf-flag" data-rf="4">
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">4</span>Missing information flagged</p>
+              <p class="rf-card rf-alert"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>No phone number &mdash; needed to arrange the repair</p>
+            </li>
+            <li class="rf-step rf-ok" data-rf="5">
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">5</span>A person reviews and approves</p>
+              <p class="rf-card rf-approve"><span>Reply drafted asking Dana for her phone number</span><span class="rf-pre rf-btn" aria-hidden="true">Approve</span><span class="rf-post rf-done"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Approved by a person</span></p>
+            </li>
+          </ol>
+          <figcaption class="rf-cap" id="rf-cap">Fictional sample business. Illustration only. <button type="button" class="rf-replay" hidden>Replay</button></figcaption>
         </figure>
       </div>
       <svg class="hv-edge" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 46 C260 10 520 6 760 34 C1000 62 1220 70 1440 30 V80 H0 Z"/></svg>
     </section>
 
-    <section class="section" id="fit" aria-labelledby="fit-h">
+    <section class="section" id="services" aria-labelledby="services-h">
       <div class="container">
-        <p class="eyebrow fit-eyebrow">Sound familiar?</p>
-        <h2 id="fit-h">Good teams shouldn&rsquo;t have to fight their spreadsheets.</h2>
-        <p class="fit-who">For service businesses whose week runs on spreadsheets, forms and an inbox.</p>
-        <ul class="pain-tiles pain-cards">
-          <li class="svc-systems"><a href="#svc-systems"><strong>&ldquo;Everything is scattered.&rdquo;</strong> <span>Jobs in a spreadsheet, updates in chat or email, invoices somewhere else. Nothing lines up without copying.</span> <em>See how I fix this <span aria-hidden="true">&rarr;</span></em></a></li>
-          <li class="svc-workflow"><a href="#svc-workflow"><strong>&ldquo;I&rsquo;m always chasing updates.&rdquo;</strong> <span>Requests sit open because nobody knows who owns the next step.</span> <em>See how I fix this <span aria-hidden="true">&rarr;</span></em></a></li>
-          <li class="svc-data"><a href="#svc-data"><strong>&ldquo;I&rsquo;m always rebuilding reports.&rdquo;</strong> <span>The Monday report is pasted together by hand, and there&rsquo;s still a column nobody trusts.</span> <em>See how I fix this <span aria-hidden="true">&rarr;</span></em></a></li>
+        <h2 id="services-h">What I automate</h2>
+        <ul class="rr-tiles">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><strong>Emails piling up</strong><span>AI-assisted reading, classification and request tracking</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="11" height="13" rx="1.5"/><path d="M5 16V5a1.5 1.5 0 0 1 1.5-1.5H15"/></svg><strong>Information entered repeatedly</strong><span>Automated data extraction and record updates</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><strong>Follow-ups getting missed</strong><span>Automated reminders and follow-up workflows</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/></svg><strong>Requests getting stuck</strong><span>Workflow routing and approval steps</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V4M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></svg><strong>Reports taking hours to prepare</strong><span>Automated reporting and data checks</span></li>
         </ul>
-        <p class="pain-cost">A job with no owner turns into a customer complaint. A follow-up that slips is money you&rsquo;re still waiting for. And every Monday spent rebuilding a report is a morning not spent running the business.</p>
-        <p class="pain-bridge">Most weeks it&rsquo;s all three at once. <a href="#services">That&rsquo;s why I fix them together</a>.</p>
       </div>
     </section>
 
-
-
-    <section class="section section-tint" id="services" aria-labelledby="services-h">
+    <section class="section rr-diff" id="approach" aria-labelledby="approach-h">
       <div class="container">
-        <p class="eyebrow">How I can help</p>
-        <h2 id="services-h">I fix the tools, the steps and the numbers.</h2>
-        <div class="svc-intro">
-          <p class="svc-intro-how">Automation and AI do the repeat work. Checks catch the mistakes. People make the decisions.</p>
-          <p class="svc-intro-key">You don&rsquo;t need to choose a service. I&rsquo;ll start with the part that&rsquo;s costing your business the most time and build from there.</p>
+        <h2 id="approach-h">Start with the work, not the software.</h2>
+        <div class="rr-approach">
+          <p>Before choosing a tool, I look at where work begins, where information gets repeated, where follow-ups get missed and which decisions need a person.</p>
+          <p>Then I build practical AI and automation solutions around the way your business operates.</p>
         </div>
-        <ol class="svc-layers" aria-label="How the three parts connect: capture, move, see">
-          <li class="svc-layer svc-systems" id="svc-systems">
-            <p class="svc-layer-k"><span class="svc-layer-n">01</span> Capture</p>
-            <h3>Fix the tools.</h3>
-            <p class="svc-short">Business Tools &amp; Systems</p>
-            <p class="svc-job">Record information once, in one organised place.</p>
-            <details class="fold svc-ex"><summary>4 examples</summary>
-            <ul class="svc-have">
-              <li><strong>Customer lists and records</strong> <span>Customer details, enquiries and follow-ups kept in one place that feeds your reports.</span></li>
-              <li><strong>Forms, booking and request pages</strong> <span>Requests and bookings that land straight in your records and calendar.</span></li>
-              <li><strong>Trackers and job lists</strong> <span>A shared place your team updates for jobs, requests, stock or routine tasks.</span></li>
-              <li><strong>Emails and documents read by AI</strong> <span>The details go into your records, and anything unclear comes to a person to check.</span></li>
-            </ul>
-            </details>
-          </li>
-          <li class="svc-layer svc-workflow" id="svc-workflow">
-            <p class="svc-layer-k"><span class="svc-layer-n">02</span> Move</p>
-            <h3>Fix the steps.</h3>
-            <p class="svc-short">Workflows &amp; Processes</p>
-            <p class="svc-job">Move work through the right steps.</p>
-            <details class="fold svc-ex"><summary>4 examples</summary>
-            <ul class="svc-have">
-              <li><strong>Reminders, notifications and follow-ups</strong> <span>The right person is told when something needs them, triggered by dates or status changes.</span></li>
-              <li><strong>Approvals and handoffs</strong> <span>Clear owners at every step, so requests don&rsquo;t sit waiting for someone.</span></li>
-              <li><strong>Updates between your tools</strong> <span>Mark a job done once, and the customer record, invoice list and report update themselves.</span></li>
-              <li><strong>Replies and summaries drafted by AI</strong> <span>Drafted from your records, for a person to approve before anything is sent.</span></li>
-            </ul>
-            </details>
-          </li>
-          <li class="svc-layer svc-data svc-layer-core" id="svc-data">
-            <p class="svc-layer-k"><span class="svc-layer-n">03</span> See</p>
-            <h3>Fix the numbers.</h3>
-            <p class="svc-short">Data &amp; Reporting</p>
-            <p class="svc-job">Reports you can rely on.</p>
-            <p class="svc-layer-tag">A good place to start</p>
-            <details class="fold svc-ex"><summary>4 examples</summary>
-            <ul class="svc-have">
-              <li><strong>Checks before the report goes out</strong> <span>Duplicates, missing records and figures that don&rsquo;t match are flagged before the report goes out.</span></li>
-              <li><strong>Weekly reports that rebuild themselves</strong> <span>Drop in this week&rsquo;s exports and the report updates the same way every time.</span></li>
-              <li><strong>Simple dashboards</strong> <span>Clear views of performance, outstanding work and what needs attention.</span></li>
-              <li><strong>A written summary of the week</strong> <span>Drafted by AI from checked figures, and reviewed before it goes out.</span></li>
-            </ul>
-            </details>
-          </li>
-        </ol>
-        <div class="svc-get">
-          <h3>What you get</h3>
-          <ul>
-            <li>Spreadsheets, trackers and reports, improved and set up in your own accounts.</li>
-            <li>Automations that connect your forms, inbox and tools.</li>
-            <li>Checks that flag missing, duplicate or mismatched records.</li>
-            <li>A simple written map of how the work now flows.</li>
-            <li>A handover call and a short run guide.</li>
-          </ul>
-        </div>
-        <div class="built-strip" id="built" aria-labelledby="built-h"><span class="anchor" id="samples"></span>
-          <h3 id="built-h">See it working on this page.</h3>
+        <p class="rr-approach-note">AI where interpretation helps. Automation where repetition gets in the way.</p>
+      </div>
+    </section>
+
+    <section class="section section-tint" id="built" aria-labelledby="built-h"><span class="anchor" id="samples"></span>
+      <div class="container">
+        <h2 id="built-h">See it working on this page.</h2>
           <ul class="built-cards built-cards-2">
             <li class="built-card">
               <p class="built-k">Automation</p>
               <h3>The booking calendar</h3>
-              <p class="built-what">Pick a time and the rest happens with nobody typing anything.</p>
+              <p class="built-what">Pick a time. Booking, calendar invites and reminders are handled automatically.</p>
               <details class="fold built-more"><summary>See the 4 steps</summary>
               <ol class="built-steps">
                 <li>Checks my calendar and shows free times in your time zone.</li>
@@ -257,27 +151,17 @@
               <p class="built-try" data-assistant-only hidden><a href="#built" data-assistant-open>Try it: ask the assistant <span aria-hidden="true">&rarr;</span></a></p>
             </li>
           </ul>
-          <p class="built-note">I built these for my own site. They aren&rsquo;t client projects.</p>
-        </div>
-        <div class="demo-after demo-after-solo">
-          <div class="demo-after-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free review</a><p class="cta-micro">30 minutes &middot; Free &middot; No obligation</p></div>
-        </div>
-      </div>
-    </section>
+        <p class="built-note">I built these for my own site. They aren&rsquo;t client projects.</p>
+        <p class="rr-tools"><span>Tools I work with</span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365</p>
 
-
-
-    <section class="section exp-section" id="experience" aria-labelledby="experience-h">
-      <div class="container">
-        <p class="eyebrow">Previous professional experience</p>
-        <h2 id="experience-h">Operational problems I&rsquo;ve helped solve</h2>
-        <p class="lede exp-lede">Examples from my previous professional experience, not Rework Rescue client projects. They show how I use data, process improvement and automation to solve everyday operational problems.</p>
-
-        <article class="exp-case exp-feature" aria-labelledby="exp1-h">
-          <div class="exp-top"><p class="exp-cat">Operational controls &amp; automation</p></div>
-          <h3 id="exp1-h">Catching bad meter data before it reaches an invoice</h3>
-          <p class="exp-problem">I built an automated checking process to identify potential meter issues earlier, giving the team an opportunity to investigate them before invoicing.</p>
-          <p class="exp-bridge">In your business, the same idea could mean checking job and invoice records for gaps and mismatches before they reach a customer.</p>
+        <h3 class="rr-results-h" id="experience">Examples from my previous employment, not Rework Rescue client projects.</h3>
+        <ul class="rr-results">
+          <li class="rr-result">
+            <h4>Catching bad meter data before it reaches an invoice</h4>
+            <p class="rr-nums"><span><strong>1,000+</strong> commercial meters covered</span><span><strong>~10</strong> issues surfaced for review in a typical run</span></p>
+            <p class="exp-bridge">In your business, the same idea could mean checking job and invoice records for gaps and mismatches before they reach a customer.</p>
+            <details class="fold rr-more"><summary>See how it worked</summary>
+              <p>I built an automated checking process to identify potential meter issues earlier, giving the team an opportunity to investigate them before invoicing.</p>
           <div class="flow2">
             <div class="fpanel fpanel-before">
               <div class="fp-head"><span class="fp-tag">Before</span><p class="fp-title">The original process</p></div>
@@ -290,29 +174,12 @@
               <p class="fp-cap">Scheduled validation runs on the 16th of the reporting month and the 1st of the following month, ahead of the 10th invoicing cycle.</p>
             </div>
           </div>
-          <div class="exp-body">
-            <div class="exp-text">
-              <h4 class="exp-h">What I built</h4>
-              <ul class="exp-built">
-                <li>Python checking tool to validate meter start and end readings.</li>
-                <li>Power BI exception dashboard for reviewing flagged meters.</li>
-                <li class="m-hide">Covered more than 1,000 commercial meters.</li>
-                <li class="m-hide">Scheduled validation runs on the 16th of the reporting month and the 1st of the following month, ahead of the 10th invoicing cycle.</li>
-              </ul>
-              <p class="exp-evidence"><span><strong>1,000+</strong> commercial meters covered</span><span><strong>~10</strong> issues surfaced for review in a typical run</span></p>
-            </div>
             <figure class="exp-sample">
               <h4 class="exp-h">What the team received</h4>
               <p class="exp-label">Illustrative example &middot; Synthetic data</p>
               <table class="dash-table"><thead><tr><th scope="col">Meter ID</th><th scope="col">Issue detected</th></tr></thead><tbody><tr><td>MTR-1042</td><td><span class="pill pill-amber">Missing reading</span></td></tr><tr><td>MTR-1087</td><td><span class="pill pill-amber">Frozen reading</span></td></tr><tr><td>MTR-1156</td><td><span class="pill pill-amber">Possible swapped meter</span></td></tr></tbody></table>
               <figcaption>Fictional records, not real customer data.</figcaption>
             </figure>
-            <details class="fold exp-sample-m"><summary>See a sample of what the team received</summary>
-              <p class="exp-label">Illustrative example &middot; Synthetic data</p>
-              <table class="dash-table"><thead><tr><th scope="col">Meter ID</th><th scope="col">Issue detected</th></tr></thead><tbody><tr><td>MTR-1042</td><td><span class="pill pill-amber">Missing reading</span></td></tr><tr><td>MTR-1087</td><td><span class="pill pill-amber">Frozen reading</span></td></tr><tr><td>MTR-1156</td><td><span class="pill pill-amber">Possible swapped meter</span></td></tr></tbody></table>
-              <p class="exp-cap">Fictional records, not real customer data.</p>
-            </details>
-          </div>
           <details class="fold exp-more"><summary><span class="fold-lab"><span class="fold-title">Technical details</span> <span class="fold-sub">Implementation and detection checks</span></span></summary>
             <ul class="exp-checks">
               <li><strong>Start and end readings compared:</strong> each meter&rsquo;s start and end readings were compared, instead of adding up every 5-minute interval.</li>
@@ -324,14 +191,15 @@
             </ul>
             <p>I reviewed each report, then resolved the issues or escalated them. If one wasn&rsquo;t resolved before invoices went out, I sent a note of the issue so the invoice was protected if the customer questioned it.</p>
           </details>
-          <p class="built-tools">Python &middot; Power BI</p>
-        </article>
-
-        <article class="exp-case exp-feature" aria-labelledby="exp2-h">
-          <div class="exp-top"><p class="exp-cat">Reporting &amp; workflow automation</p></div>
-          <h3 id="exp2-h">Performance reports that build themselves</h3>
-          <p class="exp-problem">I automated the data collection, checks and reporting for the 10 largest sites, so the team could spend less time preparing reports and more time investigating site performance.</p>
-          <p class="exp-bridge">In your business, it could mean a weekly report that pulls from your tracker and checks itself, so Monday goes to understanding the numbers, not rebuilding them.</p>
+              <p class="built-tools">Python &middot; Power BI</p>
+            </details>
+          </li>
+          <li class="rr-result">
+            <h4>Performance reports that build themselves</h4>
+            <p class="rr-nums"><span><strong>10</strong> largest sites in the Monday report</span><span><strong>2&ndash;3 hours</strong> of manual preparation before</span></p>
+            <p class="exp-bridge">In your business, it could mean a weekly report that pulls from your tracker and checks itself, so Monday goes to understanding the numbers, not rebuilding them.</p>
+            <details class="fold rr-more"><summary>See how it worked</summary>
+              <p>I automated the data collection, checks and reporting for the 10 largest sites, so the team could spend less time preparing reports and more time investigating site performance.</p>
           <div class="flow2">
             <div class="fpanel fpanel-before">
               <div class="fp-head"><span class="fp-tag">Before</span><p class="fp-title">The original process</p></div>
@@ -344,29 +212,12 @@
               <p class="fp-cap">Extraction and checks ran daily. The report and the meeting still happened every Monday.</p>
             </div>
           </div>
-          <div class="exp-body">
-            <div class="exp-text">
-              <h4 class="exp-h">What I built</h4>
-              <ul class="exp-built">
-                <li>Power Automate ran a Python script daily at the start of the shift.</li>
-                <li>Power BI combined, formatted and visualised the data.</li>
-                <li>Automated checks compared production against expected output and weather conditions.</li>
-                <li>Checked connected equipment against meter data and cross-checked underperformance against open work orders.</li>
-              </ul>
-              <p class="exp-evidence m-hide"><span><strong>10</strong> largest sites in the Monday report</span><span><strong>2&ndash;3 hours</strong> of manual preparation before</span></p>
-            </div>
             <figure class="exp-sample">
               <h4 class="exp-h">Sample report output</h4>
               <p class="exp-label">Illustrative example &middot; Synthetic data</p>
               <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Observation</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Site A</td><td><span class="obs-down">Slight underperformance</span><span class="cell-sub">Check: Weather comparison</span></td><td><span class="pill pill-ok">Explained</span></td></tr><tr><td>Site B</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Work-order check</span></td><td><span class="pill pill-amber">Further review</span></td></tr><tr><td>Site D</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Equipment/meter comparison</span></td><td><span class="pill pill-amber">Investigate</span></td></tr></tbody></table>
               <figcaption>Fictional sites, not real company data.</figcaption>
             </figure>
-            <details class="fold exp-sample-m"><summary>See a sample report output</summary>
-              <p class="exp-label">Illustrative example &middot; Synthetic data</p>
-              <table class="dash-table"><thead><tr><th scope="col">Site</th><th scope="col">Observation</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Site A</td><td><span class="obs-down">Slight underperformance</span><span class="cell-sub">Check: Weather comparison</span></td><td><span class="pill pill-ok">Explained</span></td></tr><tr><td>Site B</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Work-order check</span></td><td><span class="pill pill-amber">Further review</span></td></tr><tr><td>Site D</td><td><span class="obs-down">Underperformance</span><span class="cell-sub">Check: Equipment/meter comparison</span></td><td><span class="pill pill-amber">Investigate</span></td></tr></tbody></table>
-              <p class="exp-cap">Fictional sites, not real company data.</p>
-            </details>
-          </div>
           <details class="fold exp-more"><summary><span class="fold-lab"><span class="fold-title">Technical details</span> <span class="fold-sub">Implementation and automated checks</span></span></summary>
             <ul class="exp-checks">
               <li><strong>Scheduled extraction:</strong> Power Automate ran the Python script automatically at the start of every shift. Power BI then combined and formatted the data and added the visuals.</li>
@@ -377,8 +228,10 @@
             </ul>
             <p>We looked at the results daily and did root cause analysis as issues appeared. The report and the meeting still happened every Monday, and other stakeholders could see live data and visuals in between.</p>
           </details>
-          <p class="built-tools">Python &middot; Power Automate &middot; Power BI</p>
-        </article>
+              <p class="built-tools">Python &middot; Power Automate &middot; Power BI</p>
+            </details>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -387,18 +240,21 @@
         <p class="eyebrow">How it works</p>
         <h2 id="how-h">You keep the tools you know. I improve the process around them.</h2>
         <p class="lede steps-h">You&rsquo;ll know the scope and price in writing before any work starts.</p>
-        <div class="how-approach">
-          <p>The fix can be as simple as a spreadsheet that updates itself, or as connected as forms, reminders and AI that reads your emails. I&rsquo;ll recommend what fits your business.</p>
-          <p><strong>Works with what you already use:</strong> Excel or Google Sheets, plus the exports from your accounting software, customer list or job system. I improve them rather than replace them.</p>
-          <p class="how-approach-note">Improving what you already use is a complete starting point on its own.</p>
-          <p class="lx-impl-cost">Any additional software, subscriptions or implementation costs are discussed before the work begins.</p>
-        </div>
         <ol class="steps-list steps-row">
-          <li><h3>Start with a free review</h3><p>A 30-minute conversation about one report, task or process. I ask how it works today, where the time goes and where errors show up. You leave with practical recommendations, even if you decide not to work with me.</p></li>
-          <li><h3>Get a written scope and price</h3><p>If it&rsquo;s worth fixing, I email you the scope, price and timeline, so you can share it with whoever signs off. No obligation to go ahead.</p></li>
-          <li><h3>Build, test and refine</h3><p>I build what we agreed and test it with realistic examples. I plan a first project to take 2&ndash;3 weeks, covering one report or process.</p></li>
-          <li><h3>Handover with support</h3><ul class="how-receive"><li>The finished work, set up in your own accounts, and you own it.</li><li>A handover call and a short run guide, so everyday use doesn&rsquo;t depend on me.</li><li>30 days of fixes for anything that doesn&rsquo;t work as agreed.</li><li>Optional ongoing support after that.</li></ul></li>
+          <li><h3>Understand the work</h3><p>Identify the repetitive tasks, existing tools and operational problems.</p></li>
+          <li><h3>Map the solution</h3><p>Agree on the workflow, scope and what should be automated.</p></li>
+          <li><h3>Build and test</h3><p>Implement the solution and test normal cases, exceptions and handoffs.</p></li>
+          <li><h3>Hand over</h3><p>Document the workflow, explain how it works and provide the agreed solution.</p></li>
         </ol>
+        <div class="rr-standards">
+          <h3>In every project</h3>
+          <ul>
+            <li>Built-in checks flag missing, inconsistent or unexpected information.</li>
+            <li>People review and approve important decisions.</li>
+            <li>Workflows run in accounts controlled by the customer.</li>
+            <li>30 days of post-handover fixes for issues within the agreed scope.</li>
+          </ul>
+        </div>
         <details class="fold how-scope"><summary>Step 2 example: see a sample written scope</summary>
           <div class="scope-doc">
             <p class="scope-title">Sample written scope &middot; Northstar Services (fictional)</p>
@@ -423,21 +279,9 @@
           <div class="about-copy">
             <p class="eyebrow about-eyebrow">About</p>
             <h2 id="about-h">Jeff Herson Vida</h2>
-            <p class="about-lead">I&rsquo;m a data analyst who builds automation and AI workflows for service businesses.</p>
-            <p class="about-title">Data analyst building AI and automation workflows</p>
-            <p>Over 8 years in data and operations, I&#39;ve learned how to find problems in data and why processes break down. That&rsquo;s why the automation I build comes with checks: if the data going in is wrong, automating it only makes mistakes faster.</p>
-            <p class="about-prev">In previous roles, not Rework Rescue client projects, I built the two examples in <a href="#experience">Operational problems I&rsquo;ve helped solve</a>.</p>
-            <details class="fold about-more"><summary>Before Rework Rescue</summary>
-            <ul class="about-roles">
-              <li><strong>Utility billing checks.</strong> Matching invoices against usage records, tariffs and supplier data.</li>
-              <li><strong>Operational reporting.</strong> Building reports that show how work is going and what needs attention.</li>
-              <li><strong>Solar and energy analysis.</strong> Checking usage and generation data for gaps and inconsistencies.</li>
-            </ul>
-            <p class="about-bridge">Different industries, the same problem you probably have: repeat work done by hand, and numbers nobody quite trusts. <span>These are from my previous roles, not Rework Rescue client projects.</span></p></details>
-            <p class="about-k">Now</p>
-            <p>I build AI and automation workflows with n8n, and I keep training as the tools change. The booking calendar and chat assistant on this site are <a href="#built">my own builds</a>.</p>
-            <p>You&rsquo;ll work directly with me, from the first conversation to the handover, and I&rsquo;ll take the time to understand how your business works.</p>
-            <p class="about-tools"><strong>Tools I work with:</strong> n8n, Power Automate, Python, Google Apps Script, Excel and Power Query, VBA, Power BI, Google Sheets, and AI models such as Gemini, picked to fit what you already have.</p>
+            <p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions.</p>
+            <p>I bring over eight years of experience working with data, reporting and operational processes. I focus on finding where repetitive work can be simplified and building solutions that help businesses run more efficiently.</p>
+            <p>I build AI and automation workflows with n8n, and I keep training as the tools change. You&rsquo;ll work directly with me, from the first conversation to the handover.</p>
             <p class="about-where">Based in the Philippines. Calls fit your working day in the US, the UK, Europe or Australia: Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time (UTC+8). The booking calendar shows times in your own time zone.</p>
             <p class="about-link"><a class="btn btn-secondary" href="https://www.linkedin.com/in/jeffhersonvida" target="_blank" rel="noopener noreferrer">View my professional background on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a></p>
           </div>
@@ -449,15 +293,12 @@
       <div class="container faq-wrap">
         <p class="eyebrow">Questions</p>
         <h2 id="faq-h">Frequently asked questions</h2>
-        <details class="faq-item"><summary>What can you automate?</summary><p>Most repeat work that follows the same steps each time: moving details between your tools, reminders and follow-ups, booking and request forms, weekly reports, and reading emails or documents with AI.</p><p>A person reviews anything that matters before it&#39;s sent or changed. I start with the problem and choose the simplest fix that works. Not every problem needs AI.</p></details>
-        <details class="faq-item"><summary>How much does it cost, and is there a written agreement?</summary><p>I price each project in writing after the free review, before any work starts. I scope a first project around one report or one process, so you can see it working before deciding on anything bigger.</p><p>The written scope covers what will be built, what&#39;s included, the price, timeline, payment arrangements and any subscriptions you&#39;d need. Work only begins once you&#39;ve agreed to it in writing, and anything outside it is discussed and approved separately.</p><p>Everything I build runs in your own accounts, so it keeps working if you stop working with me.</p></details>
-        <details class="faq-item"><summary>Can you work with confidential or sensitive information?</summary><p>Ordinary business information, such as invoices, job lists and operational reports, can be handled through an agreed and authorized sharing method.</p><p>I can work inside your own accounts and tools rather than mine, and I&#39;m happy to sign an NDA and a data processing agreement before handling any personal data.</p><p>Sensitive or regulated information requires a review of the safeguards and project scope before implementation.</p><p>I only request the information needed for the agreed work, and before work starts, you and I agree how files are stored and when they are deleted.</p><p>Client project data is never put into free AI tools or tools that train on your data.</p><p>I don&#39;t automate important decisions about people. Automation may prepare information for a person to review and decide.</p></details>
-        <details class="faq-item"><summary>Will this replace anyone on my team?</summary><p>No. The aim is to reduce repetitive copying, checking and follow-ups so your team can spend more time on work that needs their attention.</p><p>Automation can prepare information and handle routine tasks, but people remain responsible for important business decisions.</p></details>
-        <details class="faq-item"><summary>What if you&#39;re unavailable?</summary><p>Everything I build runs in your own accounts, using tools your team already has, and comes with a short run guide. Your team can keep it going without me.</p></details>
-        <details class="faq-item"><summary>How do you handle access to our systems?</summary><p>You create the accounts and handle any paid subscriptions. I work through a user account you set up for me, with only the access the project needs.</p><p>What I build runs in your own accounts, so you stay in control of it. If you want ongoing changes or support after handover, we can agree a monthly retainer.</p></details>
-        <details class="faq-item"><summary>You&#39;re in the Philippines. How does working remotely work?</summary><p>We talk by video call (Google Meet). The booking calendar shows available times in your own time zone, and my call hours cover US mornings, the UK and European working day, and late morning into the evening on Australia&#39;s east coast.</p><p>During a project, you get progress updates in writing, and the work is set up in your own accounts, so you can see it as it&#39;s built.</p></details>
-        <details class="faq-item"><summary>Do you work with larger teams?</summary><p>Yes, if the problem is the same: jobs in one system and reports put together in spreadsheets. I can combine trackers from several teams or regions into one weekly report.</p></details>
-        <details class="faq-item"><summary>Can you build a website, booking system or CRM?</summary><p>Yes, when it supports how your business records and reports its work. Complex CRM migrations, replacing established enterprise systems, large custom applications and complex e-commerce are outside my current scope.</p><p>Within that, I build simple websites and landing pages, booking and request pages, and customer and enquiry tracking for small teams, connected to tools such as Google Sheets, Google Calendar and email.</p><p>Each project is scoped around a specific business need. For websites and pages, you own the accounts they run on, including your domain and hosting. Ongoing hosting, maintenance and security updates are only included if agreed in the written scope.</p></details>
+        <details class="faq-item"><summary>What can you automate?</summary><p>Most repeat work that follows the same steps each time: moving details between your tools, reminders and follow-ups, booking and request forms, weekly reports, and reading emails or documents with AI.</p><p>A person reviews anything that matters before it&#39;s sent or changed. Not every problem needs AI.</p></details>
+        <details class="faq-item"><summary>How much does it cost, and is there a written agreement?</summary><p>I price each project in writing after the free review, before any work starts. I scope a first project around one report or one process, so you can see it working before deciding on anything bigger.</p></details>
+        <details class="faq-item"><summary>Can you work with confidential or sensitive information?</summary><p>I can work inside your own accounts and tools rather than mine, and I&#39;m happy to sign an NDA and a data processing agreement before handling any personal data.</p><p>Client project data is never put into free AI tools or tools that train on your data.</p></details>
+        <details class="faq-item"><summary>Will this replace anyone on my team?</summary><p>No. The aim is to reduce repetitive copying, checking and follow-ups so your team can spend more time on work that needs their attention.</p></details>
+        <details class="faq-item"><summary>How do you handle access to our systems?</summary><p>You create the accounts and handle any paid subscriptions. I work through a user account you set up for me, with only the access the project needs.</p><p>Everything I build runs in your own accounts and comes with a short run guide. Your team can keep it going without me.</p></details>
+        <details class="faq-item"><summary>You&#39;re in the Philippines. How does working remotely work?</summary><p>We talk by video call (Google Meet). The booking calendar shows available times in your own time zone. During a project, you get progress updates in writing.</p></details>
       </div>
     </section>
 
@@ -468,16 +309,13 @@
           <p class="lede">Tell me what&rsquo;s taking too much time, creating unnecessary work or making your business harder to manage. I&rsquo;ll help you find what can be improved.</p>
           <p class="book-sign">&mdash; Jeff</p>
           <ul class="cta-facts"><li>Work directly with me</li><li>Written scope and price before any work</li><li>You own what I build</li></ul>
-          <p class="book-sub">It can be a report, a tracker, an inbox or a follow-up list.</p>
-          <p class="book-assess" data-assistant-only hidden>Not sure which process to bring? <a href="#start" data-assistant-open>Ask the assistant</a> first.</p>
           <p class="book-data">For the call, you don&rsquo;t need files or logins. Please leave out anything confidential.</p>
           <div class="book-inline" id="book-inline">
             <noscript><p><a class="btn btn-primary btn-large" href="mailto:jeffhersonvida@gmail.com?subject=Review%20request">Email me to book a review</a></p></noscript>
           </div>
           <div class="book-written" id="written-review">
-            <p class="book-written-t"><strong>Prefer writing?</strong> Send me a sample report with names removed, and I&rsquo;ll send a one-page written review within 1 working day: where it breaks and what I&rsquo;d fix first. It&rsquo;s free, and there&rsquo;s no obligation to book a call afterwards.</p>
-            <a class="btn btn-secondary" href="mailto:jeffhersonvida@gmail.com?subject=Written%20report%20review">Get a free written review</a>
-            <details class="fold fold-dark"><summary>No report to send?</summary><p>Send a screenshot of your tracker or the task (names hidden), or describe it in a few lines, and I&rsquo;ll tell you what I&rsquo;d automate and what I&rsquo;d leave alone.</p></details>
+            <p class="book-written-t"><strong>Prefer writing?</strong> Describe the task or process your team repeats, or send a sample with confidential details removed. I&rsquo;ll send a one-page written review within 1 working day, showing where the work gets stuck and what I&rsquo;d improve first. It&rsquo;s free, and there&rsquo;s no obligation to book a call afterwards.</p>
+            <a class="btn btn-secondary" href="mailto:jeffhersonvida@gmail.com?subject=Written%20task%20review">Get a free written review</a>
           </div>
         </div>
       </div>
@@ -487,7 +325,7 @@
     <div class="container footer-inner">
       <div>
         <p class="brand-footer"><img class="brand-logo" src="./assets/brand/logo-dark-header.webp" width="537" height="156" alt="Rework Rescue: Less rework. More real work."></p>
-        <p class="muted">Jeff Herson Vida, Data and AI automation specialist</p>
+        <p class="muted">Jeff Herson Vida, AI and Automation Specialist</p>
         <p class="muted footer-copy">&copy; 2026 Rework Rescue</p>
       </div>
       <div>

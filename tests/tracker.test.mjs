@@ -155,16 +155,6 @@ test('every follow-up and figure comes from the current records (no fixed text l
 
 const textOf = (h) => h.replace(/<span aria-hidden="true">[^<]*<\/span>/g, '').replace(/<[^>]+>/g, ' ').replace(/&#\d+;/g, ' ').replace(/\s+/g, ' ');
 
-test('12 Nov seven-section page: the live example is gone; the approach card sits in How it works (UX review)', async () => {
-  const html = await page();
-  assert.doesNotMatch(html, /samples-h|tracker:start|tracker-app|Live example|Explore the live example/);
-  const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
-  const card = how.slice(how.indexOf('<div class="how-approach">'), how.indexOf('<ol class="steps-list'));
-  for (const t of ['The fix can be as simple as a spreadsheet that updates itself', 'Any additional software, subscriptions or implementation costs are discussed before the work begins.',
-    'Improving what you already use is a complete starting point on its own.', '<strong>Works with what you already use:</strong>']) assert.ok(card.includes(t), t);
-  assert.match(how, /<h2 id="how-h">You keep the tools you know\. I improve the process around them\.<\/h2>/, 'the heading carries "process first"');
-});
-
 test('stages: each one shows the actual records and the checks worked out from them', () => {
   const html = appHtml();
   const panel = (id) => html.slice(html.indexOf(`id="lx-p-${id}"`), html.indexOf('</div><div class="lx-panel"', html.indexOf(`id="lx-p-${id}"`)) + 1 || undefined);
@@ -228,9 +218,8 @@ test('workbook: kept in the repo but linked from no page; the tracker code sends
   }
 });
 
-test('services keep their names; no pricing, testimonials or invented results added', async () => {
+test('services: no pricing, testimonials or invented results added', async () => {
   const html = await page();
-  for (const n of ['Data &amp; Reporting', 'Workflows &amp; Processes', 'Business Tools &amp; Systems']) assert.ok(html.includes(`<p class="svc-short">${n}</p>`), n);
   const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
   assert.doesNotMatch(sec, /[$₱€£]\s?\d|testimonial|saved \d|% faster|guarantee/i);
 });

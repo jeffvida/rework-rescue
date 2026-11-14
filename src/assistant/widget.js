@@ -3,10 +3,11 @@
 //
 // - Only appears when site-config.js has assistantUrl. Until then the page looks exactly as before.
 // - Preview mode: add ?assistant=preview to the address to see the widget with sample replies (no AI, nothing sent).
+//   It works on any page address, including Vercel previews where the live workflow refuses the browser (CORS).
 // - The conversation lives in this page's memory only. Nothing is stored in the browser except "invitation seen".
 // - It never books: "Book a free review" opens the normal booking pop-up (src/booking/popup.js, via data-book).
 import { SITE } from '../../site-config.js';
-import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L, SERVICES } from './rules.js';
+import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L, SERVICES, WEB_SERVICE } from './rules.js';
 
 const INVITE_KEY = 'rr-assistant-invite-seen';
 const INVITE_DELAY_MS = 45000;
@@ -53,14 +54,17 @@ async function askPreview(payload) {
   const asked = payload.history.filter((t) => t.role === 'assistant' && t.stage === 'asking').length;
   if (asked === 0) return { reply: 'Thanks. Roughly how often does that happen, and what usually goes wrong?', stage: 'asking', service: null, serviceLabel: '', bookService: '', showBooking: false };
   const said = [...payload.history.filter((t) => t.role === 'user').map((t) => t.content), payload.message].join(' ').toLowerCase();
-  const pick = /tool|website|form|calendar|crm|system|talk/.test(said) ? ['systems', SERVICES.systems.label, 'systems']
+  if (/website|landing page|crm|tracker|enquir/.test(said)) {
+    return { reply: 'Yes. I can help build straightforward, mobile-friendly business websites and landing pages with clear service information and enquiry forms. I can also connect enquiry forms to a simple customer tracker or follow-up workflow.\n\nI focus on practical, easy-to-use websites rather than complex ecommerce platforms or custom web applications. Tell me what you need the website to do, and I can help assess the scope.', stage: 'answered', service: 'systems', serviceLabel: WEB_SERVICE.label, bookService: WEB_SERVICE.book, showBooking: asked > 0 };
+  }
+  const pick = /tool|form|calendar|system|talk|email/.test(said) ? ['systems', SERVICES.systems.label, 'systems']
     : /task|follow|call|crack|handoff|remind|copy/.test(said) ? ['workflow', SERVICES.workflow.label, 'workflow']
       : ['data_reporting', SERVICES.data_reporting.label, 'data'];
-  return { reply: `That sounds like ${pick[1]}. In a free 30-minute review, Jeff can look at where it goes wrong with you and suggest a practical next step. Want to pick a time?`, stage: 'suggested', service: pick[0], serviceLabel: pick[1], bookService: pick[2], showBooking: true };
+  return { reply: `That sounds like ${pick[1]}. In a free 30-minute review, Jeff can look at it with you and suggest a practical next step.`, stage: 'suggested', service: pick[0], serviceLabel: pick[1], bookService: pick[2], showBooking: true };
 }
 
 export function mountAssistant({ base = './' } = {}) {
-  const preview = !SITE.assistantUrl && /(?:^|[?&])assistant=preview(?:&|$)/.test(location.search);
+  const preview = /(?:^|[?&])assistant=preview(?:&|$)/.test(location.search);
   if (!SITE.assistantUrl && !preview) return null;
   const ask = preview ? askPreview : (p) => askLive(SITE.assistantUrl, p);
   const icon = (size) => `${base}assets/brand/assistant-${size}.svg`;
@@ -78,9 +82,10 @@ export function mountAssistant({ base = './' } = {}) {
   // ---- Chat window
   const log = el('div', { class: 'ast-log', role: 'log', 'aria-live': 'polite', 'aria-relevant': 'additions' });
   const starters = el('div', { class: 'ast-starters' }, T.starters.map((s, i) => el('button', { type: 'button', class: 'ast-chip', 'data-starter': String(i), text: s })));
-  const input = el('textarea', { class: 'ast-input', rows: '1', maxlength: String(L.maxChars), 'aria-label': 'Your message', placeholder: 'Type your message' });
+  const input = el('textarea', { class: 'ast-input', rows: '1', maxlength: String(L.maxChars), 'aria-label': 'Your message', placeholder: T.placeholder });
   const trap = el('input', { type: 'text', name: 'website', class: 'ast-trap', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true' });
-  const send = el('button', { type: 'submit', class: 'ast-send', 'aria-label': 'Send' }, el('span', { 'aria-hidden': 'true', text: '➤' }));
+  const send = el('button', { type: 'submit', class: 'ast-send', 'aria-label': 'Send message' });
+  send.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h14M13 6l6 6-6 6"/></svg>';
   const form = el('form', { class: 'ast-form' }, input, trap, send);
   const closeBtn = el('button', { type: 'button', class: 'ast-close', 'aria-label': 'Close the assistant' }, el('span', { 'aria-hidden': 'true', text: '×' }));
   const panel = el('section', { id: 'ast-panel', class: 'ast-panel no-print', role: 'dialog', 'aria-modal': 'false', 'aria-labelledby': 'ast-title', hidden: true },
@@ -91,10 +96,15 @@ export function mountAssistant({ base = './' } = {}) {
       closeBtn),
     el('div', { class: 'ast-body' },
       el('div', { class: 'ast-welcome' }, el('img', { src: icon('full'), width: '64', height: '64', alt: '' }),
-        el('p', { class: 'ast-msg ast-msg-bot', text: T.opening })),
+        el('div', { class: 'ast-welcome-text' },
+          el('p', { class: 'ast-msg ast-msg-bot', text: T.opening }),
+          // Visible before the first message (15 Nov privacy brief); the full explanation is on the privacy page.
+          el('div', { class: 'ast-privacy', role: 'note', 'aria-labelledby': 'ast-privacy-t' },
+            el('p', { class: 'ast-privacy-t', id: 'ast-privacy-t', text: T.privacyTitle }),
+            el('p', { text: T.privacy }),
+            el('p', {}, el('a', { href: `${base}${T.privacyHref}`, text: T.privacyLink }))))),
       starters, log),
-    form,
-    el('p', { class: 'ast-note', text: T.disclaimer }));
+    form);
 
   document.body.append(dock, panel);
   const mobileAsk = document.querySelector('[data-assistant-ask]');
@@ -133,7 +143,7 @@ export function mountAssistant({ base = './' } = {}) {
     const b = el('button', { type: 'button', class: 'btn btn-primary ast-book', 'data-book': true, 'data-book-service': service || '', text: T.book });
     // Close the chat first; the click then reaches the booking pop-up's own listener.
     b.addEventListener('click', () => setOpen(false));
-    log.append(el('div', { class: 'ast-book-row' }, b));
+    log.append(el('div', { class: 'ast-book-row' }, el('p', { class: 'ast-book-q', text: T.bookPrompt }), b));
     scrollDown();
   };
   const lockInput = (text) => { input.disabled = true; send.disabled = true; input.placeholder = text; };
@@ -163,6 +173,19 @@ export function mountAssistant({ base = './' } = {}) {
     else input.focus();
   }
 
+  // ---- Phones: the panel fills the screen. Fit it to the visible area so the on-screen keyboard never covers the input.
+  const vv = window.visualViewport;
+  if (vv) {
+    const fit = () => {
+      if (panel.hidden || !isFullScreen()) { panel.style.removeProperty('height'); panel.style.removeProperty('top'); return; }
+      panel.style.height = `${Math.round(vv.height)}px`;
+      panel.style.top = `${Math.round(vv.offsetTop)}px`;
+    };
+    vv.addEventListener('resize', fit);
+    vv.addEventListener('scroll', fit);
+    input.addEventListener('focus', () => setTimeout(() => { fit(); scrollDown(); }, 250));
+  }
+
   // ---- Wiring
   fab.addEventListener('click', () => setOpen(panel.hidden, fab));
   closeBtn.addEventListener('click', () => setOpen(false));
@@ -182,7 +205,8 @@ export function mountAssistant({ base = './' } = {}) {
   starters.addEventListener('click', (e) => {
     const b = e.target.closest('[data-starter]');
     if (!b) return;
-    if (b.dataset.starter === String(T.starters.length - 1)) { starters.hidden = true; input.placeholder = 'Type your question'; input.focus(); return; }
+    // "Ask something else": just put the cursor in the message box.
+    if (b.dataset.starter === String(T.starters.length - 1)) { starters.hidden = true; input.focus(); return; }
     submit(b.textContent);
   });
   // Any "Ask the assistant" link or the phone bar's Ask button opens the chat.

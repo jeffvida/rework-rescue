@@ -1559,24 +1559,35 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .ast-body { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.7rem; overscroll-behavior: contain; }
 .ast-welcome { display: flex; gap: 0.65rem; align-items: flex-start; }
 .ast-welcome img { width: 56px; height: 56px; flex: none; }
+.ast-welcome-text { min-width: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.ast-welcome-text .ast-msg { max-width: 100%; }
+.ast-privacy { padding: 0.6rem 0.75rem; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); font-size: 0.8125rem; line-height: 1.45; color: var(--muted); }
+.ast-privacy p { margin: 0; }
+.ast-privacy p + p { margin-top: 0.3rem; }
+.ast-privacy .ast-privacy-t { font-weight: 600; color: var(--ink); }
+.ast-privacy a { color: var(--teal-dark); font-weight: 600; text-underline-offset: 2px; }
 .ast-log { display: flex; flex-direction: column; gap: 0.6rem; }
 .ast-msg { margin: 0; padding: 0.6rem 0.85rem; border-radius: 14px; max-width: 85%; font-size: 0.95rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ast-msg-bot { align-self: flex-start; background: var(--tint); color: var(--ink); border-top-left-radius: 4px; }
 .ast-msg-me { align-self: flex-end; background: var(--teal); color: #fff; border-top-right-radius: 4px; }
-.ast-starters { display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; padding-left: calc(56px + 0.65rem); }
-.ast-chip { background: var(--card); border: 1px solid var(--teal); color: var(--teal-dark); border-radius: 999px; padding: 0.45rem 0.95rem; font: inherit; font-size: 0.9rem; line-height: 1.3; text-align: left; cursor: pointer; }
+.ast-starters { display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; margin-top: 0.3rem; padding: 0.8rem 0 0 calc(56px + 0.65rem); border-top: 1px solid var(--line); }
+.ast-chip { min-height: 2.75rem; max-width: 100%; background: var(--card); border: 1px solid var(--teal); color: var(--teal-dark); border-radius: 999px; padding: 0.5rem 0.95rem; font: inherit; font-size: 0.9rem; line-height: 1.3; text-align: left; cursor: pointer; }
 .ast-chip:hover { background: var(--info-bg); }
-.ast-book-row { align-self: flex-start; }
+.ast-book-row { align-self: flex-start; display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; }
+.ast-book-q { margin: 0; font-size: 0.92rem; color: var(--ink); }
 .ast-book { font-size: 0.95rem; min-height: 2.5rem; padding: 0.45rem 1.1rem; }
 .ast-typing { display: inline-flex; gap: 0.3rem; padding: 0.75rem 0.9rem; }
 .ast-typing span { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--muted); opacity: 0.4; animation: ast-dot 1.2s infinite ease-in-out; }
 .ast-typing span:nth-child(2) { animation-delay: 0.15s; }
 .ast-typing span:nth-child(3) { animation-delay: 0.3s; }
 @keyframes ast-dot { 0%, 80%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
-.ast-form { position: relative; display: flex; align-items: flex-end; gap: 0.5rem; padding: 0.65rem 0.75rem 0.4rem; border-top: 1px solid var(--line); }
+.ast-form { position: relative; flex: none; display: flex; align-items: flex-end; gap: 0.5rem; padding: 0.65rem 0.75rem 0.75rem; border-top: 1px solid var(--line); background: var(--card); }
 .ast-input { flex: 1; min-height: 2.6rem; max-height: 120px; resize: none; border: 1px solid var(--line); border-radius: 10px; padding: 0.55rem 0.75rem; font: inherit; font-size: 0.95rem; line-height: 1.4; color: var(--ink); background: var(--card); }
 .ast-input:focus { border-color: var(--teal); }
-.ast-send { flex: none; width: 2.6rem; height: 2.6rem; border: 0; border-radius: 10px; background: var(--teal-dark); color: var(--signal); font-size: 1.05rem; cursor: pointer; }
+.ast-send { flex: none; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 0; border-radius: 10px; background: var(--teal-dark); color: #fff; cursor: pointer; }
+.ast-send svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ast-send:hover:not([disabled]) { background: var(--teal); }
+.ast-send:focus-visible, .ast-input:focus-visible, .ast-close:focus-visible, .ast-privacy a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .ast-send[disabled], .ast-input[disabled] { opacity: 0.55; cursor: not-allowed; }
 .ast-trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .ast-note { margin: 0; padding: 0 0.9rem 0.6rem; font-size: 0.75rem; line-height: 1.35; color: var(--muted); }
@@ -1586,7 +1597,10 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
   .ast-panel { inset: 0; width: 100%; height: 100%; height: 100dvh; border: 0; border-radius: 0; z-index: 60; }
   html.ast-open, html.ast-open body { overflow: hidden; }
   html.ast-open .mobile-cta { visibility: hidden; }
-  .ast-form { padding-bottom: calc(0.4rem + env(safe-area-inset-bottom)); }
+  .ast-form { padding-bottom: calc(0.75rem + env(safe-area-inset-bottom)); }
+  .ast-head { flex: none; }
+  .ast-starters { padding-left: 0; align-items: stretch; }
+  .ast-chip { justify-content: space-between; }
 }
 @media print { .ast-dock, .ast-panel { display: none !important; } }
 
@@ -4160,7 +4174,7 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 @media (min-width: 64rem) { .hx-cap { padding-right: 5rem; } }
 /* P2: no zoom on focus in iOS (16px), readable disclaimers */
 @media (max-width: 47.99rem) { .ast-input { font-size: 1rem; } }
-.hx-cap, .ast-note { font-size: 0.8125rem; }
+.hx-cap { font-size: 0.8125rem; }
 /* P3: tap targets */
 .nav-cta .btn { min-height: 44px; }
 .nav-toggle { min-height: 44px; }
@@ -4403,14 +4417,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-approach { max-width: 46rem; font-size: 1.12rem; line-height: 1.6; color: #e6f1ec; }
 .rr-approach p:last-child { margin-bottom: 0; color: #fff; font-weight: 600; }
 .rr-approach-note { margin: 1.3rem 0 0; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.16); max-width: 46rem; font-size: 0.98rem; color: var(--signal); }
-/* Three ways the work connects (static; not mandatory steps) */
-.rr-connect { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; max-width: 60rem; }
-.rr-connect li { margin: 0; padding: 1rem 1.1rem; display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: 0.1rem 0.8rem; align-items: start; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 14px; }
-.rr-connect svg { grid-row: span 2; width: 2.3rem; height: 2.3rem; padding: 0.45rem; border-radius: 10px; background: rgba(230, 192, 120, 0.16); fill: none; stroke: var(--signal); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.rr-connect strong { display: block; font-family: var(--display); font-size: 1.02rem; line-height: 1.3; color: #fff; }
-.rr-connect span { display: block; font-size: 0.93rem; line-height: 1.45; color: #cfe3da; }
-.rr-connect-note { margin: 0.9rem 0 0; font-size: 0.95rem; color: #cfe3da; }
-@media (max-width: 48rem) { .rr-connect { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; } }
+.rr-approach-more { margin: 1.1rem 0 0; max-width: 46rem; font-size: 1.02rem; line-height: 1.6; color: #e6f1ec; }
 .rr-diff-list { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem 1.6rem; }
 .rr-diff-list li { margin: 0; display: flex; gap: 0.7rem; align-items: flex-start; font-size: 1.02rem; line-height: 1.45; }
 .rr-diff-list svg { flex: none; width: 1.8rem; height: 1.8rem; padding: 0.35rem; border-radius: 50%; background: rgba(230, 192, 120, 0.18); fill: none; stroke: var(--signal); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
@@ -4446,3 +4453,4 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-standards li { position: relative; padding-left: 1.5rem; font-size: 0.95rem; }
 .rr-standards li::before { content: ""; position: absolute; left: 0.15rem; top: 0.35rem; width: 0.7rem; height: 0.4rem; border-left: 2px solid var(--teal); border-bottom: 2px solid var(--teal); transform: rotate(-45deg); }
 @media (max-width: 40rem) { .rr-standards ul { grid-template-columns: minmax(0, 1fr); } }
+#chat-assistant { scroll-margin-top: 5.5rem; }

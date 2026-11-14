@@ -96,7 +96,7 @@ test('the brief maps every service code to its visitor-facing name', () => {
 test('parseReply accepts the expected shape and rejects anything else', () => {
   assert.equal(parseReply(reply()).service, 'data_reporting');
   assert.equal(parseReply(JSON.parse(reply())).stage, 'suggested');
-  for (const bad of ['not json', '[]', reply({ stage: 'selling' }), reply({ service: 'crm' }), reply({ reply: '' }), reply({ show_booking: 'yes' }), reply({ summary: 5 }), reply({ reply: 'x'.repeat(800) })]) {
+  for (const bad of ['not json', '[]', reply({ stage: 'selling' }), reply({ service: 'crm' }), reply({ reply: '' }), reply({ show_booking: 'yes' }), reply({ summary: 5 }), reply({ reply: 'x'.repeat(1000) }), reply({ web_or_tracker: 'yes' })]) {
     assert.equal(parseReply(bad), null, bad.slice(0, 60));
   }
 });
@@ -202,8 +202,9 @@ test('log rows hold no message text and are safe for Sheets', () => {
   assert.ok(!Object.values(row).some((v) => String(v).includes('Want to pick a time')), 'reply text is not logged');
 });
 
-test('the page wording has four starters and keeps the approved review phrase', () => {
-  assert.equal(ASSISTANT_TEXT.starters.length, 4);
+test('the page wording has five starters (the last one only focuses the box) and keeps the approved review phrase', () => {
+  assert.equal(ASSISTANT_TEXT.starters.length, 5);
+  assert.equal(ASSISTANT_TEXT.starters.at(-1), 'Ask something else.');
   assert.equal(findUnsafe(ASSISTANT_TEXT.limitOffer), '');
   assert.equal(findUnsafe(ASSISTANT_TEXT.fallback), '');
 });
@@ -216,21 +217,27 @@ test('old area names in a model reply are shown with the current names', async (
   assert.equal(finishReply(raw2, 1).response.reply, 'Maybe Reports and data checks, Follow-ups and routine workflows or Emails, forms and connected tools.');
 });
 
-test('15 Nov positioning: AI and Automation Specialist, task-based guidance labels, new intro and written review; same codes', async () => {
+test('15 Nov positioning: AI and Automation Specialist, task-based guidance labels, virtual assistant wording and written review; same codes', async () => {
   const { KNOWLEDGE } = await import('../src/assistant/rules.js');
-  assert.equal(ASSISTANT_TEXT.subtitle, 'A guide to practical AI and automation');
-  assert.equal(ASSISTANT_TEXT.opening, 'Hi! What task does your team repeat, or what process takes more time than it should?');
-  assert.deepEqual(ASSISTANT_TEXT.starters, ['We repeat the same admin every week.', 'Information gets copied between tools.', 'Follow-ups are getting missed.', 'Reports take too long to prepare.']);
+  assert.equal(ASSISTANT_TEXT.title, 'Rework Rescue assistant');
+  assert.equal(ASSISTANT_TEXT.subtitle, 'Here to help you find a practical next step');
+  assert.equal(ASSISTANT_TEXT.opening, "Hi! Welcome to Rework Rescue. I'm your virtual assistant. I can answer questions about my services and help you explore practical ways to make your business easier to manage.\n\nWhat would you like help with?");
+  assert.deepEqual(ASSISTANT_TEXT.starters, ['How can I reduce repetitive admin?', 'Can you build a simple website or landing page?', 'How can I organise customer enquiries?', 'Can you help improve reports or business processes?', 'Ask something else.']);
+  assert.equal(ASSISTANT_TEXT.placeholder, "Tell me what you'd like help with...");
+  assert.equal(ASSISTANT_TEXT.privacyTitle, 'A quick privacy reminder');
+  assert.equal(ASSISTANT_TEXT.privacy, "This is an AI-powered chat. Replies can be inaccurate. Please don't share personal, customer or confidential information. Google may use chats to improve its services, and human review may occur.");
+  assert.equal(ASSISTANT_TEXT.privacyLink, 'How your chat information is handled');
+  assert.equal(ASSISTANT_TEXT.bookPrompt, 'Would you like to discuss this with Jeff?');
   assert.deepEqual(Object.entries(SERVICES).map(([k, v]) => `${k}:${v.book}:${v.label}`), [
     'data_reporting:data:Reports and data checks', 'workflow:workflow:Follow-ups and routine workflows', 'systems:systems:Emails, forms and connected tools']);
   const brief = assistantBrief(0);
-  for (const t of ['Jeff Herson Vida is an AI and Automation Specialist who helps business owners and operations teams reduce repetitive manual work',
+  for (const t of ['Jeff Herson Vida is an AI and Automation Specialist who helps business owners and operations teams reduce repetitive admin',
     'These eight-plus years refer to his data and operations experience, not eight years of AI experience.',
     'He builds with n8n, Google Apps Script and Power Automate, alongside Google Workspace, Microsoft 365 and AI models such as Gemini.',
     'Not every business problem needs AI.',
     'Jeff provides a free one-page written review within one working day, explaining where the work gets stuck and what he would improve first.',
-    'not a general website developer, CRM developer or generic software agency']) assert.ok(brief.includes(t), t);
-  assert.doesNotMatch(KNOWLEDGE, /data analyst|small and medium|Data & Reporting|Workflows & Processes|Business Tools & Systems|simple CRM setup|simple web pages|sample report/i);
+    'not a generic AI agency, a full-service web design agency or a custom software company']) assert.ok(brief.includes(t), t);
+  assert.doesNotMatch(KNOWLEDGE, /data analyst|small and medium|Data & Reporting|Workflows & Processes|Business Tools & Systems|simple web pages|sample report|general website builds/i);
   assert.doesNotMatch(brief.replace('Never describe Jeff as a data analyst', ''), /data analyst|small and medium/i);
   const { SERVICE_OPTIONS, serviceCode, serviceLabel } = await import('../src/inquiry.js');
   assert.deepEqual(SERVICE_OPTIONS.slice(1, 4).map(([v, l]) => `${v}:${l}`), Object.values(SERVICES).map((x) => `${x.book}:${x.label}`), 'booking pop-up labels match the assistant');
@@ -243,4 +250,69 @@ test('15 Nov positioning: AI and Automation Specialist, task-based guidance labe
   const code = JSON.parse(wf).nodes.filter((n) => ['Check request', 'Check reply'].includes(n.name)).map((n) => n.parameters.jsCode);
   assert.equal(code.length, 2);
   for (const c of code) { assert.ok(c.includes('AI and Automation Specialist'), 'n8n rebuilt'); assert.doesNotMatch(c, /Data and AI automation specialist|small and medium-sized service businesses/); }
+});
+
+// ---- 15 Nov 2026: virtual assistant upgrade (Jeff + ChatGPT brief)
+test('websites, landing pages and customer trackers: in scope, label shown, systems code kept, booking preselects the matching option', async () => {
+  const { finishReply, WEB_SERVICE, KNOWLEDGE } = await import('../src/assistant/rules.js');
+  const { SERVICE_OPTIONS, serviceCode } = await import('../src/inquiry.js');
+  assert.deepEqual(WEB_SERVICE, { code: 'systems', label: 'Websites, landing pages and customer trackers', book: 'websites' });
+  assert.deepEqual(SERVICE_OPTIONS.find(([v]) => v === WEB_SERVICE.book).slice(1), [WEB_SERVICE.label, 'systems'], 'same label and code as the booking pop-up');
+  const web = finishReply(JSON.stringify({ reply: 'A simple CRM sounds right.', stage: 'suggested', service: 'systems', web_or_tracker: true, summary: 'track customer enquiries', show_booking: true }), 1).response;
+  assert.deepEqual([web.service, web.serviceLabel, web.bookService, serviceCode(web.bookService)], ['systems', WEB_SERVICE.label, 'websites', 'systems']);
+  const mail = finishReply(JSON.stringify({ reply: 'Sounds like emails.', stage: 'suggested', service: 'systems', web_or_tracker: false, summary: 'x', show_booking: false }), 1).response;
+  assert.deepEqual([mail.serviceLabel, mail.bookService], ['Emails, forms and connected tools', 'systems']);
+  // The flag only counts with the systems code; an older model reply without it still works.
+  assert.equal(finishReply(JSON.stringify({ reply: 'Reports.', stage: 'suggested', service: 'data_reporting', web_or_tracker: true, summary: 'x', show_booking: false }), 1).response.bookService, 'data');
+  assert.equal(finishReply(JSON.stringify({ reply: 'Emails.', stage: 'suggested', service: 'systems', summary: 'x', show_booking: false }), 1).response.bookService, 'systems');
+  for (const t of ['Simple websites and landing pages', 'Customer trackers and lightweight CRM', 'Next actions and follow-up dates'.toLowerCase(), 'complex e-commerce platforms or online stores', 'enterprise CRM implementation or migration', 'large custom software applications', 'complex web application development']) assert.ok(KNOWLEDGE.toLowerCase().includes(t.toLowerCase()), t);
+});
+
+test('the brief: website answer word for word, honest about being an AI, answers first, books only through the button, no forced booking', () => {
+  const b = assistantBrief(0);
+  assert.ok(b.includes('"Yes. I can help build straightforward, mobile-friendly business websites and landing pages with clear service information and enquiry forms. I can also connect enquiry forms to a simple customer tracker or follow-up workflow.\n\nI focus on practical, easy-to-use websites rather than complex ecommerce platforms or custom web applications. Tell me what you need the website to do, and I can help assess the scope."'));
+  for (const t of ['an AI-powered virtual assistant, not Jeff and not a human', 'say you are an AI-powered assistant for Rework Rescue, and that Jeff handles the actual project discussions',
+    'Answer the visitor\'s actual question first', 'ask ONE short follow-up question', 'Never make the visitor choose a category', "Don't repeat questions the visitor has already answered",
+    "Don't offer it after every answer", 'Never say you will book, email or contact anyone, and never say a meeting is booked', 'Never claim to have seen, inspected or accessed',
+    'Never invent project examples, client results, prices or delivery timelines', "Don't pretend Jeff can deliver it", 'Would you like to discuss this with Jeff?']) assert.ok(b.includes(t), t);
+  assert.doesNotMatch(b, /website developer|general website build/);
+});
+
+test('booking is offered when the model says so, not forced after every suggestion; paragraphs survive', async () => {
+  const { finishReply } = await import('../src/assistant/rules.js');
+  const r = finishReply(JSON.stringify({ reply: 'It sounds like Follow-ups and routine workflows.', stage: 'suggested', service: 'workflow', web_or_tracker: false, summary: 'x', show_booking: false }), 0).response;
+  assert.equal(r.showBooking, false);
+  const p = finishReply(JSON.stringify({ reply: 'Yes. First paragraph.\n\nSecond\nparagraph.', stage: 'answered', service: null, web_or_tracker: false, summary: null, show_booking: false }), 0).response;
+  assert.equal(p.reply, 'Yes. First paragraph.\n\nSecond paragraph.');
+  assert.equal(findUnsafe(assistantBrief(0).match(/"Yes\. I can help build[\s\S]*?scope\."/)[0]), '', 'the website answer passes the price and promise check');
+});
+
+test('the n8n Code nodes carry the same rules (paste files match the workflow)', async () => {
+  const fs = await import('node:fs/promises');
+  const wf = JSON.parse(await fs.readFile(new URL('../n8n/rework-assistant.json', import.meta.url), 'utf8'));
+  for (const [node, file] of [['Check request', 'check-request.js'], ['Check reply', 'check-reply.js']]) {
+    const code = wf.nodes.find((n) => n.name === node).parameters.jsCode;
+    assert.equal(await fs.readFile(new URL(`../n8n/paste-2026-11-15-v2/${file}`, import.meta.url), 'utf8'), code, file);
+    assert.ok(code.includes("const WEB_SERVICE = { code: 'systems', label: 'Websites, landing pages and customer trackers', book: 'websites' };"));
+    assert.ok(code.includes('web_or_tracker'));
+  }
+});
+
+test('the chat window: welcome, visible privacy notice with a link to the privacy page, starters, clear send button, booking prompt', async () => {
+  const fs = await import('node:fs/promises');
+  const w = await fs.readFile(new URL('../src/assistant/widget.js', import.meta.url), 'utf8');
+  assert.match(w, /placeholder: T\.placeholder/);
+  assert.match(w, /el\('p', \{ class: 'ast-msg ast-msg-bot', text: T\.opening \}\),\s*\/\/[^\n]*\n\s*el\('div', \{ class: 'ast-privacy', role: 'note'/, 'privacy notice sits right under the welcome');
+  assert.ok(w.indexOf("class: 'ast-privacy'") < w.indexOf('starters, log'), 'notice shows before the starters and the chat');
+  assert.match(w, /href: `\$\{base\}\$\{T\.privacyHref\}`, text: T\.privacyLink/);
+  assert.doesNotMatch(w, /T\.disclaimer|ast-note/, 'the long disclaimer line is gone');
+  assert.match(w, /'aria-label': 'Send message'/);
+  assert.match(w, /text: T\.bookPrompt/);
+  assert.match(w, /visualViewport/, 'phones: the keyboard does not cover the input');
+  assert.match(w, /'data-book': true/, 'the booking button still opens the existing pop-up');
+  const privacy = await fs.readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
+  assert.equal(ASSISTANT_TEXT.privacyHref, 'privacy/#chat-assistant');
+  const sec = privacy.slice(privacy.indexOf('<h2 id="chat-assistant">'), privacy.indexOf('<h2', privacy.indexOf('<h2 id="chat-assistant">') + 5));
+  for (const t of ['AI-powered virtual assistant, not a person', 'together with the earlier messages in that chat, is sent to my automation service (n8n)', 'Gemini&rsquo;s free service', 'people at Google may review them',
+    "kept in the page's memory only", 'short log in my private Google Sheet', 'I delete log rows after 12 months', 'one-way code made from your IP address', 'separate from client work']) assert.ok(sec.includes(t), t);
 });

@@ -6,7 +6,7 @@
 // - The conversation lives in this page's memory only. Nothing is stored in the browser except "invitation seen".
 // - It never books: "Book a free review" opens the normal booking pop-up (src/booking/popup.js, via data-book).
 import { SITE } from '../../site-config.js';
-import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L } from './rules.js';
+import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L, SERVICES } from './rules.js';
 
 const INVITE_KEY = 'rr-assistant-invite-seen';
 const INVITE_DELAY_MS = 45000;
@@ -53,9 +53,9 @@ async function askPreview(payload) {
   const asked = payload.history.filter((t) => t.role === 'assistant' && t.stage === 'asking').length;
   if (asked === 0) return { reply: 'Thanks. Roughly how often does that happen, and what usually goes wrong?', stage: 'asking', service: null, serviceLabel: '', bookService: '', showBooking: false };
   const said = [...payload.history.filter((t) => t.role === 'user').map((t) => t.content), payload.message].join(' ').toLowerCase();
-  const pick = /tool|website|form|calendar|crm|system|talk/.test(said) ? ['systems', 'Business Tools & Systems', 'systems']
-    : /task|follow|call|crack|handoff|remind|copy/.test(said) ? ['workflow', 'Workflows & Processes', 'workflow']
-      : ['data_reporting', 'Data & Reporting', 'data'];
+  const pick = /tool|website|form|calendar|crm|system|talk/.test(said) ? ['systems', SERVICES.systems.label, 'systems']
+    : /task|follow|call|crack|handoff|remind|copy/.test(said) ? ['workflow', SERVICES.workflow.label, 'workflow']
+      : ['data_reporting', SERVICES.data_reporting.label, 'data'];
   return { reply: `That sounds like ${pick[1]}. In a free 30-minute review, Jeff can look at where it goes wrong with you and suggest a practical next step. Want to pick a time?`, stage: 'suggested', service: pick[0], serviceLabel: pick[1], bookService: pick[2], showBooking: true };
 }
 

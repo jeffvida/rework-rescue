@@ -85,7 +85,8 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.equal((sec.match(/<li class="built-card">/g) || []).length, 2);
   for (const t of ['The booking calendar', 'The chat assistant']) assert.ok(sec.includes(`<h3>${t}</h3>`), t);
   assert.match(sec, /I built these for my own site\. They aren&rsquo;t client projects\./);
-  assert.match(sec, /<p class="rr-tools"><span>Tools I work with<\/span> n8n &middot; Gemini &middot; Google Workspace &middot; Microsoft 365 &middot; Power Automate<\/p>/);
+  assert.match(sec, /<p class="rr-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);
+  assert.doesNotMatch(sec.match(/<p class="rr-tools">[\s\S]*?<\/p>/)[0], /Excel|Power Query|Python|Power BI/, 'main strip stays AI and automation');
   assert.doesNotMatch(sec, /<img[^>]+(logo|n8n|gemini)/i, 'tool names as text, no logos');
   assert.ok(sec.indexOf('built-card') < sec.indexOf('rr-tools') && sec.indexOf('rr-tools') < sec.indexOf('rr-results'));
   const res = sec.slice(sec.indexOf('class="rr-results-h"'));
@@ -153,7 +154,12 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   const start = section(html, 'start');
   assert.match(start, /<h2 id="cta-h">Bring me the task your team repeats every week\.<\/h2>/);
   assert.match(start, /Describe the task or process your team repeats, or send a sample with confidential details removed\. I&rsquo;ll send a one-page written review within 1 working day, showing where the work gets stuck and what I&rsquo;d improve first\./);
-  assert.match(start, /Get a free written review<\/a>/);
+  assert.match(start, /subject=Written%20task%20review">Get a free written review<\/a>/);
+  const contact = await read('../contact/index.html');
+  assert.match(contact, /<h2>Prefer to write first\?<\/h2>/);
+  assert.match(contact, /Describe the task or process your team repeats, or send a sample with confidential details removed\. I&rsquo;ll send a one-page written review within 1 working day, showing where the work gets stuck and what I&rsquo;d improve first\./);
+  assert.match(contact, /<a href="mailto:[^"]+\?subject=Written%20task%20review">Request a free written review/);
+  assert.doesNotMatch(contact, /Email me a sample report|screenshot of your roster|Written%20report%20review/);
   assert.match(html, /<p class="built-what">Pick a time\. Booking, calendar invites and reminders are handled automatically\.<\/p>/);
   for (const f of ['../index.html', '../404.html', '../assessment/index.html', '../contact/index.html', '../privacy/index.html']) assert.match(await read(f), /Jeff Herson Vida, AI and Automation Specialist/, f);
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));

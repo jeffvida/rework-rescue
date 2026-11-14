@@ -123,7 +123,7 @@ test('14: honest lines pass the price check, prices and promises do not', () => 
 test('finishReply passes a good suggestion through with the booking button and service names', () => {
   const { response, outcome } = finishReply(reply(), 1);
   assert.equal(outcome, 'ok');
-  assert.equal(response.serviceLabel, 'Data & Reporting');
+  assert.equal(response.serviceLabel, 'Reports and data checks');
   assert.equal(response.bookService, 'data');
   assert.equal(response.showBooking, true);
 });
@@ -198,7 +198,7 @@ test('log rows hold no message text and are safe for Sheets', () => {
   const row = logRow({ ...done, questionsAsked: 0, messageCount: 1 }, Date.parse('2026-11-01T02:00:00Z'));
   assert.equal(row['Time (PH)'], '2026-11-01 10:00');
   assert.equal(row.Summary, '\'=HYPERLINK("x")');
-  assert.equal(row.Service, 'Data & Reporting');
+  assert.equal(row.Service, 'Reports and data checks');
   assert.ok(!Object.values(row).some((v) => String(v).includes('Want to pick a time')), 'reply text is not logged');
 });
 
@@ -211,5 +211,31 @@ test('the page wording has four starters and keeps the approved review phrase', 
 test('old area names in a model reply are shown with the current names', async () => {
   const { finishReply } = await import('../src/assistant/rules.js');
   const raw = JSON.stringify({ reply: 'It sounds like Data & Reporting Rework is a good fit, or maybe Workflow Rework or Systems Rework.', stage: 'suggested', service: 'data_reporting', summary: 'x', show_booking: true });
-  assert.equal(finishReply(raw, 1).response.reply, 'It sounds like Data & Reporting is a good fit, or maybe Workflows & Processes or Business Tools & Systems.');
+  assert.equal(finishReply(raw, 1).response.reply, 'It sounds like Reports and data checks is a good fit, or maybe Follow-ups and routine workflows or Emails, forms and connected tools.');
+  const raw2 = JSON.stringify({ reply: 'Maybe Data & Reporting, Workflows & Processes or Business Tools & Systems.', stage: 'suggested', service: 'workflow', summary: 'x', show_booking: true });
+  assert.equal(finishReply(raw2, 1).response.reply, 'Maybe Reports and data checks, Follow-ups and routine workflows or Emails, forms and connected tools.');
+});
+
+test('15 Nov positioning: AI and Automation Specialist, task-based guidance labels, new intro and written review; same codes', async () => {
+  const { KNOWLEDGE } = await import('../src/assistant/rules.js');
+  assert.equal(ASSISTANT_TEXT.subtitle, 'A guide to practical AI and automation');
+  assert.equal(ASSISTANT_TEXT.opening, 'Hi! What task does your team repeat, or what process takes more time than it should?');
+  assert.deepEqual(ASSISTANT_TEXT.starters, ['We repeat the same admin every week.', 'Information gets copied between tools.', 'Follow-ups are getting missed.', 'Reports take too long to prepare.']);
+  assert.deepEqual(Object.entries(SERVICES).map(([k, v]) => `${k}:${v.book}:${v.label}`), [
+    'data_reporting:data:Reports and data checks', 'workflow:workflow:Follow-ups and routine workflows', 'systems:systems:Emails, forms and connected tools']);
+  const brief = assistantBrief(0);
+  for (const t of ['Jeff Herson Vida is an AI and Automation Specialist who helps business owners and operations teams reduce repetitive manual work',
+    'These eight-plus years refer to his data and operations experience, not eight years of AI experience.',
+    'He builds with n8n, Google Apps Script and Power Automate, alongside Google Workspace, Microsoft 365 and AI models such as Gemini.',
+    'Not every business problem needs AI.',
+    'Jeff provides a free one-page written review within one working day, explaining where the work gets stuck and what he would improve first.',
+    'not a general website developer, CRM developer or generic software agency']) assert.ok(brief.includes(t), t);
+  assert.doesNotMatch(KNOWLEDGE, /data analyst|small and medium|Data & Reporting|Workflows & Processes|Business Tools & Systems|simple CRM setup|simple web pages|sample report/i);
+  assert.doesNotMatch(brief.replace('Never describe Jeff as a data analyst', ''), /data analyst|small and medium/i);
+  const { SERVICE_OPTIONS } = await import('../src/inquiry.js');
+  assert.deepEqual(SERVICE_OPTIONS.slice(1).map(([v, l]) => `${v}:${l}`), Object.values(SERVICES).map((x) => `${x.book}:${x.label}`), 'booking pop-up labels match the assistant');
+  const wf = await import('node:fs/promises').then((f) => f.readFile(new URL('../n8n/rework-assistant.json', import.meta.url), 'utf8'));
+  const code = JSON.parse(wf).nodes.filter((n) => ['Check request', 'Check reply'].includes(n.name)).map((n) => n.parameters.jsCode);
+  assert.equal(code.length, 2);
+  for (const c of code) { assert.ok(c.includes('AI and Automation Specialist'), 'n8n rebuilt'); assert.doesNotMatch(c, /Data and AI automation specialist|small and medium-sized service businesses/); }
 });

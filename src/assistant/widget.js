@@ -99,7 +99,8 @@ export function mountAssistant({ base = './' } = {}) {
         el('div', { class: 'ast-welcome-text' },
           el('p', { class: 'ast-msg ast-msg-bot', text: T.opening }))),
       starters, log),
-    form);
+    form,
+    el('p', { class: 'ast-note' }, `${T.note} `, el('a', { href: `${base}${T.noteHref}`, text: T.noteLink })));
 
   document.body.append(dock, panel);
   const mobileAsk = document.querySelector('[data-assistant-ask]');

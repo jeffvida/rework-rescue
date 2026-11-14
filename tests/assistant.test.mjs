@@ -295,11 +295,14 @@ test('the n8n Code nodes carry the same rules (paste files match the workflow)',
   }
 });
 
-test('the chat window: welcome, starters, clear send button, booking prompt; no privacy notice in the window (Jeff, 15 Nov)', async () => {
+test('the chat window: welcome, starters, clear send button, booking prompt; one small privacy line under the box (Jeff, 15 Nov)', async () => {
   const fs = await import('node:fs/promises');
   const w = await fs.readFile(new URL('../src/assistant/widget.js', import.meta.url), 'utf8');
   assert.match(w, /placeholder: T\.placeholder/);
-  assert.doesNotMatch(w, /T\.disclaimer|ast-note|ast-privacy|T\.privacy/, 'no disclaimer or privacy notice in the chat window');
+  assert.doesNotMatch(w, /T\.disclaimer|ast-privacy|T\.privacy/, 'no long disclaimer or privacy box');
+  assert.equal(ASSISTANT_TEXT.note, "AI chat. Please don't share personal or confidential details.");
+  assert.equal(ASSISTANT_TEXT.noteLink, 'Privacy'); assert.equal(ASSISTANT_TEXT.noteHref, 'privacy/#chat-assistant');
+  assert.match(w, /form,\s*el\('p', \{ class: 'ast-note' \}, `\$\{T\.note\} `, el\('a', \{ href: `\$\{base\}\$\{T\.noteHref\}`, text: T\.noteLink \}\)\)\);/, 'the line sits under the message box');
   assert.match(w, /'aria-label': 'Send message'/);
   assert.match(w, /text: T\.bookPrompt/);
   assert.match(w, /visualViewport/, 'phones: the keyboard does not cover the input');

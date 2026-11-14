@@ -22,6 +22,10 @@ export const ASSISTANT_TEXT = {
     'Ask something else.',
   ],
   placeholder: "Tell me what you'd like help with...",
+  // One small line under the message box (Jeff, 15 Nov). Full details: privacy page, #chat-assistant.
+  note: "AI chat. Please don't share personal or confidential details.",
+  noteLink: 'Privacy',
+  noteHref: 'privacy/#chat-assistant',
   bookPrompt: 'Would you like to discuss this with Jeff?',
   book: 'Book a free review',
   fallback: "Sorry, I didn't catch that. You can also book a free review below.",

@@ -9,8 +9,7 @@
 // Single elements that fade up on their own.
 const REVEAL = [
   '.hero-copy > *',
-  '#fit .fit-eyebrow', '#fit h2', '.pain-bridge',
-  '#services h2', '#services .svc-intro', '.svc-get', '.built-strip',
+  '#services h2', '.rr-diff h2', '#built h2', '.built-cards', '.rr-tools', '.rr-results-h',
   '#how h2', '.steps-h', '.how-approach', '.steps-row', '.handover-h', '.handover-list', '.handover-note',
   '.about-section .photo-card', '.about-copy',
   '#faq h2',
@@ -18,8 +17,9 @@ const REVEAL = [
 ];
 // Groups whose children come in one after another.
 const STAGGER = [
-  ['.pain-tiles', 70],
-  ['.svc-layers', 90],
+  ['.rr-tiles', 70],
+  ['.rr-diff-list', 80],
+  ['.rr-results', 90],
   ['.about-copy', 35],
   ['.faq-wrap', 30, '.faq-item'],
   ['.book-main', 50],

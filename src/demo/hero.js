@@ -98,7 +98,8 @@ export const SWITCH_MS = 5000;
 export function mountHero(fig) {
   if (!fig) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Phones (11 Nov review): no automatic switching while people scroll; open on the problem ("Today"), toggle to compare.
+  // Phones: no automatic switching while people scroll. Opens on the result (15 Nov: the improved result must show
+  // on phones without a tap); the toggle still compares.
   const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 40rem)').matches;
   const q = (s) => fig.querySelector(s);
   const btns = [...fig.querySelectorAll('[data-ws-mode]')];
@@ -139,7 +140,7 @@ export function mountHero(fig) {
     fig.querySelectorAll('.hx-after, .hx-only-after').forEach((el) => el.setAttribute('aria-hidden', String(m !== 'after')));
     paint();
   }
-  setMode(phone ? 'today' : 'after');
+  setMode('after');
   subscribe(() => paint());
 
   let manual = false; let paused = false; let onScreen = false; let timer = 0;

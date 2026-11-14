@@ -2,6 +2,7 @@
 
 import { mountBooking } from './booking/popup.js';
 import { mountHero } from './demo/hero.js';
+import { mountFlow } from './demo/flow.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 
@@ -51,8 +52,17 @@ mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// Hero: Capture -> Move -> See overview, with figures following the tracker's state (src/demo/hero.js).
-mountHero(document.getElementById('hero-visual'));
+// Hero (15 Nov): the five-step flow (src/demo/flow.js). For the preview comparison, ?hero=panel shows the earlier
+// Today / With Rework Rescue panel instead (src/demo/hero.js), opening on the result on phones too.
+const flow = document.getElementById('hero-flow');
+const panel = document.getElementById('hero-visual');
+if (panel && new URLSearchParams(location.search).get('hero') === 'panel') {
+  if (flow) flow.hidden = true;
+  panel.hidden = false;
+  mountHero(panel);
+} else {
+  mountFlow(flow);
+}
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

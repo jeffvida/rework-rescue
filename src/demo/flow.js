@@ -2,7 +2,7 @@
 //   1 Email arrives · 2 AI reads it · 3 Tracker updated · 4 Check catches a problem · 5 A person approves.
 // The HTML is the finished picture (every step shown, the record approved), so without JavaScript, with reduced
 // motion, or before the hero is on screen, visitors see the end result. With motion allowed, the steps play once
-// (about 8 seconds) the first time the hero is on screen, on phones too, and the animation stops on the final frame.
+// (about 8 seconds) as soon as a fifth of it is on screen (phones: on load, so it never blanks mid-scroll), on phones too, and the animation stops on the final frame.
 // A "Skip" button shows while it plays and "Replay" afterwards (WCAG 2.2.2). CSP: classes only, no inline styles.
 
 export const STEP_MS = 1300;     // gap between steps
@@ -50,7 +50,7 @@ export function mountFlow(fig) {
     started = true;
     io.disconnect();
     play();
-  }, { threshold: 0.4 });
+  }, { threshold: 0.2 });
   io.observe(fig);
   document.addEventListener('visibilitychange', () => { if (document.hidden && playing) finish(); });
 }

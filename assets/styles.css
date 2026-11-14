@@ -4352,7 +4352,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rf-owner .rf-post { background: var(--green-bg); color: var(--green); }
 .rf-alert { display: flex; align-items: center; gap: 0.45rem; background: var(--amber-bg); border-color: #e7c27a; color: var(--amber); font-weight: 700; }
 .rf-alert svg, .rf-done svg { flex: none; width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.rf-approve { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.35rem 0.6rem; background: #fff; font-weight: 600; }
+.rf-approve { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.35rem 0.6rem; background: #fff; font-weight: 600; min-height: 4.2rem; align-content: center; }
 .rf-btn { padding: 0.25rem 0.8rem; border-radius: 999px; background: var(--teal); color: #fff; font-size: 0.8rem; font-weight: 700; }
 .rf-done { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 999px; background: var(--green-bg); color: var(--green); font-size: 0.8rem; font-weight: 700; }
 .rf-ok .rf-n { background: var(--green); }

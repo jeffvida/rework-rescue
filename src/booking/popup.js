@@ -199,7 +199,7 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
         <aside class="bk-side">
           <div class="bk-who"><img src="${base}assets/photo/jeff-avatar.jpg" width="56" height="56" alt=""><p><strong>Jeff Herson Vida</strong><span>Rework Rescue</span></p></div>
           <p class="bk-meet"><strong>Free review</strong><span>30 min</span></p>
-          <p class="bk-desc">Just bring one report or process. No preparation needed. I&rsquo;ll help you map it, find the main source of rework and identify a practical next step.</p>
+          <p class="bk-desc">Just bring one task or process that takes more time than it should. No preparation needed. I&rsquo;ll help you understand where the work gets stuck and identify a practical next step.</p>
           <ul class="bk-facts"><li>${LIVE ? 'Google Meet link comes with the calendar invite.' : 'Video call link comes with the calendar invite.'}</li><li>Times are shown in your time zone.</li></ul>
         </aside>
         <div class="bk-main">${main}</div>

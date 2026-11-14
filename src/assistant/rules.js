@@ -22,11 +22,6 @@ export const ASSISTANT_TEXT = {
     'Ask something else.',
   ],
   placeholder: "Tell me what you'd like help with...",
-  // For Gemini's unpaid service. If the Gemini API project moves to paid billing, update this and the privacy page together.
-  privacyTitle: 'A quick privacy reminder',
-  privacy: "This is an AI-powered chat. Replies can be inaccurate. Please don't share personal, customer or confidential information. Google may use chats to improve its services, and human review may occur.",
-  privacyLink: 'How your chat information is handled',
-  privacyHref: 'privacy/#chat-assistant',
   bookPrompt: 'Would you like to discuss this with Jeff?',
   book: 'Book a free review',
   fallback: "Sorry, I didn't catch that. You can also book a free review below.",

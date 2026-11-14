@@ -1561,11 +1561,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .ast-welcome img { width: 56px; height: 56px; flex: none; }
 .ast-welcome-text { min-width: 0; display: flex; flex-direction: column; gap: 0.55rem; }
 .ast-welcome-text .ast-msg { max-width: 100%; }
-.ast-privacy { padding: 0.6rem 0.75rem; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); font-size: 0.8125rem; line-height: 1.45; color: var(--muted); }
-.ast-privacy p { margin: 0; }
-.ast-privacy p + p { margin-top: 0.3rem; }
-.ast-privacy .ast-privacy-t { font-weight: 600; color: var(--ink); }
-.ast-privacy a { color: var(--teal-dark); font-weight: 600; text-underline-offset: 2px; }
 .ast-log { display: flex; flex-direction: column; gap: 0.6rem; }
 .ast-msg { margin: 0; padding: 0.6rem 0.85rem; border-radius: 14px; max-width: 85%; font-size: 0.95rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ast-msg-bot { align-self: flex-start; background: var(--tint); color: var(--ink); border-top-left-radius: 4px; }
@@ -1587,7 +1582,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .ast-send { flex: none; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 0; border-radius: 10px; background: var(--teal-dark); color: #fff; cursor: pointer; }
 .ast-send svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .ast-send:hover:not([disabled]) { background: var(--teal); }
-.ast-send:focus-visible, .ast-input:focus-visible, .ast-close:focus-visible, .ast-privacy a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.ast-send:focus-visible, .ast-input:focus-visible, .ast-close:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .ast-send[disabled], .ast-input[disabled] { opacity: 0.55; cursor: not-allowed; }
 .ast-trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .ast-note { margin: 0; padding: 0 0.9rem 0.6rem; font-size: 0.75rem; line-height: 1.35; color: var(--muted); }

@@ -97,12 +97,7 @@ export function mountAssistant({ base = './' } = {}) {
     el('div', { class: 'ast-body' },
       el('div', { class: 'ast-welcome' }, el('img', { src: icon('full'), width: '64', height: '64', alt: '' }),
         el('div', { class: 'ast-welcome-text' },
-          el('p', { class: 'ast-msg ast-msg-bot', text: T.opening }),
-          // Visible before the first message (15 Nov privacy brief); the full explanation is on the privacy page.
-          el('div', { class: 'ast-privacy', role: 'note', 'aria-labelledby': 'ast-privacy-t' },
-            el('p', { class: 'ast-privacy-t', id: 'ast-privacy-t', text: T.privacyTitle }),
-            el('p', { text: T.privacy }),
-            el('p', {}, el('a', { href: `${base}${T.privacyHref}`, text: T.privacyLink }))))),
+          el('p', { class: 'ast-msg ast-msg-bot', text: T.opening }))),
       starters, log),
     form);
 

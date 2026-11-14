@@ -224,9 +224,6 @@ test('15 Nov positioning: AI and Automation Specialist, task-based guidance labe
   assert.equal(ASSISTANT_TEXT.opening, "Hi! Welcome to Rework Rescue. I'm your virtual assistant. I can answer questions about my services and help you explore practical ways to make your business easier to manage.\n\nWhat would you like help with?");
   assert.deepEqual(ASSISTANT_TEXT.starters, ['How can I reduce repetitive admin?', 'Can you build a simple website or landing page?', 'How can I organise customer enquiries?', 'Can you help improve reports or business processes?', 'Ask something else.']);
   assert.equal(ASSISTANT_TEXT.placeholder, "Tell me what you'd like help with...");
-  assert.equal(ASSISTANT_TEXT.privacyTitle, 'A quick privacy reminder');
-  assert.equal(ASSISTANT_TEXT.privacy, "This is an AI-powered chat. Replies can be inaccurate. Please don't share personal, customer or confidential information. Google may use chats to improve its services, and human review may occur.");
-  assert.equal(ASSISTANT_TEXT.privacyLink, 'How your chat information is handled');
   assert.equal(ASSISTANT_TEXT.bookPrompt, 'Would you like to discuss this with Jeff?');
   assert.deepEqual(Object.entries(SERVICES).map(([k, v]) => `${k}:${v.book}:${v.label}`), [
     'data_reporting:data:Reports and data checks', 'workflow:workflow:Follow-ups and routine workflows', 'systems:systems:Emails, forms and connected tools']);
@@ -298,20 +295,16 @@ test('the n8n Code nodes carry the same rules (paste files match the workflow)',
   }
 });
 
-test('the chat window: welcome, visible privacy notice with a link to the privacy page, starters, clear send button, booking prompt', async () => {
+test('the chat window: welcome, starters, clear send button, booking prompt; no privacy notice in the window (Jeff, 15 Nov)', async () => {
   const fs = await import('node:fs/promises');
   const w = await fs.readFile(new URL('../src/assistant/widget.js', import.meta.url), 'utf8');
   assert.match(w, /placeholder: T\.placeholder/);
-  assert.match(w, /el\('p', \{ class: 'ast-msg ast-msg-bot', text: T\.opening \}\),\s*\/\/[^\n]*\n\s*el\('div', \{ class: 'ast-privacy', role: 'note'/, 'privacy notice sits right under the welcome');
-  assert.ok(w.indexOf("class: 'ast-privacy'") < w.indexOf('starters, log'), 'notice shows before the starters and the chat');
-  assert.match(w, /href: `\$\{base\}\$\{T\.privacyHref\}`, text: T\.privacyLink/);
-  assert.doesNotMatch(w, /T\.disclaimer|ast-note/, 'the long disclaimer line is gone');
+  assert.doesNotMatch(w, /T\.disclaimer|ast-note|ast-privacy|T\.privacy/, 'no disclaimer or privacy notice in the chat window');
   assert.match(w, /'aria-label': 'Send message'/);
   assert.match(w, /text: T\.bookPrompt/);
   assert.match(w, /visualViewport/, 'phones: the keyboard does not cover the input');
   assert.match(w, /'data-book': true/, 'the booking button still opens the existing pop-up');
   const privacy = await fs.readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
-  assert.equal(ASSISTANT_TEXT.privacyHref, 'privacy/#chat-assistant');
   const sec = privacy.slice(privacy.indexOf('<h2 id="chat-assistant">'), privacy.indexOf('<h2', privacy.indexOf('<h2 id="chat-assistant">') + 5));
   for (const t of ['AI-powered virtual assistant, not a person', 'together with the earlier messages in that chat, is sent to my automation service (n8n)', 'Gemini&rsquo;s free service', 'people at Google may review them',
     "kept in the page's memory only", 'short log in my private Google Sheet', 'I delete log rows after 12 months', 'one-way code made from your IP address', 'separate from client work']) assert.ok(sec.includes(t), t);

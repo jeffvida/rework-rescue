@@ -31,7 +31,9 @@ test('hero flow: five steps, ends on a person approving, labelled fictional; pla
   const html = await page();
   const fig = html.slice(html.indexOf('id="hero-flow"'), html.indexOf('</figure>', html.indexOf('id="hero-flow"')));
   assert.deepEqual([...fig.matchAll(/<span class="rf-n" aria-hidden="true">\d<\/span>([^<]+)<\/p>/g)].map((m) => m[1]),
-    ['Email arrives', 'AI reads it', 'Tracker updated', 'Check catches a problem', 'A person approves']);
+    ['Request arrives', 'AI extracts the details', 'Record updated', 'Missing information flagged', 'A person reviews and approves']);
+  assert.match(fig, /<li class="is-missing"><small>Phone<\/small>Missing<\/li>/, 'the missing detail is visible, not just a warning sign');
+  assert.match(fig, /No phone number for Dana Cruz/);
   assert.match(fig, /Approved by a person/);
   assert.match(fig, /<figcaption class="rf-cap" id="rf-cap">Fictional sample business\. Illustration only\./);
   // The HTML is the final frame: the "before" states are hidden from screen readers and from no-JS visitors.
@@ -57,7 +59,7 @@ test('hero comparison: the earlier panel stays only behind ?hero=panel, without 
 });
 
 test('What I automate: five tiles, the customer problem first, then what gets built (ChatGPT table)', async () => {
-  const sec = section(await page(), 'services', 'checks');
+  const sec = section(await page(), 'services', 'approach');
   assert.match(sec, /<h2 id="services-h">What I automate<\/h2>/);
   assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
     ['Emails piling up', 'AI-assisted reading, classification and request tracking'],
@@ -68,18 +70,14 @@ test('What I automate: five tiles, the customer problem first, then what gets bu
   ]);
 });
 
-test('Automation with checks built in: heading and four points word for word', async () => {
-  const sec = section(await page(), 'checks', 'built');
-  assert.match(sec, /<h2 id="checks-h">Automation with checks built in\.<\/h2>/);
-  assert.deepEqual([...sec.matchAll(/<\/svg><span>([^<]+)<\/span>/g)].map((m) => m[1]), [
-    'AI and automation handle repetitive tasks.',
-    'Built-in checks flag missing, inconsistent or unexpected information.',
-    'People review and approve important decisions.',
-    'Workflows run in accounts controlled by the customer.',
-  ]);
-  assert.doesNotMatch(await page(), /Automation that checks itself/);
+test('approach band: Start with the work, not the software (ChatGPT, 15 Nov); checks are not sold as the difference', async () => {
+  const html = await page();
+  const sec = section(html, 'approach', 'built');
+  assert.match(sec, /<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
+  assert.match(sec, /<p>Before choosing a tool, I look at where work begins, where information gets repeated, where follow-ups get missed and which decisions need a person\.<\/p>/);
+  assert.match(sec, /<p>Then I build practical AI and automation solutions around the way your business operates\.<\/p>/);
+  assert.doesNotMatch(html, /Automation with checks built in|Automation that checks itself|proprietary|my method|framework/i);
 });
-
 test('proof: own builds first, plain-text tools line, then two short previous-role results with details closed', async () => {
   const html = await page();
   const sec = section(html, 'built', 'how');
@@ -91,7 +89,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.doesNotMatch(sec, /<img[^>]+(logo|n8n|gemini)/i, 'tool names as text, no logos');
   assert.ok(sec.indexOf('built-card') < sec.indexOf('rr-tools') && sec.indexOf('rr-tools') < sec.indexOf('rr-results'));
   const res = sec.slice(sec.indexOf('class="rr-results-h"'));
-  assert.match(res, /From my previous roles, not Rework Rescue client projects\./);
+  assert.match(res, /Examples from my previous employment, not Rework Rescue client projects\./);
   assert.equal((res.match(/<li class="rr-result">/g) || []).length, 2);
   // Card face: title, numbers, bridge line. Tools only inside the closed row.
   for (const card of res.split('<li class="rr-result">').slice(1)) {
@@ -116,7 +114,7 @@ test('build cards match what the n8n workflows do', async () => {
 
 test('section order, nav and removed content', async () => {
   const html = await page();
-  const ids = ['services', 'checks', 'built', 'experience', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
+  const ids = ['services', 'approach', 'built', 'experience', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
   assert.ok(ids.every((i) => i > 0)); assert.deepEqual([...ids].sort((a, b) => a - b), ids);
   assert.equal((html.match(/<section /g) || []).length, 8, 'hero + seven sections');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
@@ -130,12 +128,21 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   const html = await page();
   const how = section(html, 'how', 'about');
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
-  assert.equal((how.match(/<li><h3>/g) || []).length, 4);
+  assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3><p>([^<]+)<\/p><\/li>/g)].map((m) => `${m[1]}: ${m[2]}`), [
+    'Understand the work: Identify the repetitive tasks, existing tools and operational problems.',
+    'Map the solution: Agree on the workflow, scope and what should be automated.',
+    'Build and test: Implement the solution and test normal cases, exceptions and handoffs.',
+    'Hand over: Document the workflow, explain how it works and provide the agreed solution.']);
+  const std = how.slice(how.indexOf('class="rr-standards"'));
+  for (const t of ['Built-in checks flag missing, inconsistent or unexpected information.', 'People review and approve important decisions.', 'Workflows run in accounts controlled by the customer.']) assert.ok(std.includes(t), t);
   assert.match(how, /<summary>Step 2 example: see a sample written scope<\/summary>/);
   assert.match(how, /No system logins to get started\./);
   assert.match(how, /30 days of fixes for anything that doesn&rsquo;t work as agreed\./);
   assert.doesNotMatch(how, /how-approach/, 'intro paragraphs cut to one line');
   const about = section(html, 'about', 'faq');
+  assert.match(about, /<p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions\.<\/p>/);
+  assert.match(about, /I bring over eight years of experience working with data, reporting and operational processes\./);
+  assert.doesNotMatch(about, /data analyst/);
   assert.match(about, /I build AI and automation workflows with n8n, and I keep training as the tools change\./);
   assert.match(about, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/);
   const faq = section(html, 'faq', 'start');

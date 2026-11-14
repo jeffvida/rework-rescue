@@ -130,7 +130,6 @@ test('18.11 How it works (12 Nov): the reassurance line, the steps and the hando
   const html = await page();
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /<h2 id="how-h">You keep the tools you know\. I improve the process around them\.<\/h2>/);
-  assert.match(how, /I email you the scope, price and timeline, so you can share it with whoever signs off\./);
   assert.match(how, /<strong>What I need from you:<\/strong>[\s\S]*?No system logins to get started\./);
 });
 
@@ -146,17 +145,15 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   assert.doesNotMatch(priv, /live example|Weekly-Work-Tracker\.xlsx|Reset sample|change an owner or a status/, 'privacy page matches the page (12 Nov)');
 });
 
-test('How it works: four steps; step 4 lists what you receive; the 30-day terms in a closed row (12 Nov)', async () => {
+test('How it works: four steps (ChatGPT, 15 Nov); the 30-day terms in a closed row; no invented results', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'four steps');
-  for (const t of ['The finished work, set up in your own accounts, and you own it.', 'A handover call and a short run guide, so everyday use doesn&rsquo;t depend on me.', '30 days of fixes for anything that doesn&rsquo;t work as agreed.', 'Optional ongoing support after that.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
+  for (const t of ['30 days of fixes for anything that doesn&rsquo;t work as agreed.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
   assert.match(how, /<details class="fold how-30"><summary>What the 30 days cover<\/summary>/);
-  assert.match(how, /I plan a first project to take 2&ndash;3 weeks/);
   assert.doesNotMatch(how, /usually takes|\d+\s?(hours|%|days to)/i, 'no invented results or implied track record');
 });
-
 test('availability on the page matches the booking calendar rules', async () => {
   const { RULES } = await import('../src/booking/slots.js');
   assert.deepEqual([RULES.days, RULES.start, RULES.end, RULES.hostOffsetHours], [[1, 2, 3, 4, 5], '08:00', '02:00', 8], 'if the booking hours change, update the availability lines');

@@ -1,5 +1,7 @@
-// Hero flow (15 Nov 2026): one fictional email, from inbox to an approved tracker record, in five steps.
-//   1 Email arrives · 2 AI reads it · 3 Tracker updated · 4 Check catches a problem · 5 A person approves.
+// Hero flow (15 Nov 2026, labels from ChatGPT): one fictional request, from inbox to a reviewed reply, in five steps.
+//   1 Request arrives · 2 AI extracts the details · 3 Record updated · 4 Missing information flagged (the phone number)
+//   · 5 A person reviews and approves (the reply asking for it). While it plays, steps not reached yet stay dimmed, so the
+//   whole story can be read at a glance without waiting for the end.
 // The HTML is the finished picture (every step shown, the record approved), so without JavaScript, with reduced
 // motion, or before the hero is on screen, visitors see the end result. With motion allowed, the steps play once
 // (about 8 seconds) as soon as a fifth of it is on screen (phones: on load, so it never blanks mid-scroll), on phones too, and the animation stops on the final frame.

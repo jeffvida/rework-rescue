@@ -62,26 +62,26 @@
           <p class="rr-chip"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6 5.4-5.6"/></svg><span>The booking and chat on this page run on automations I built. <a href="#built">Try them.</a></span></p>
         </div>
         <figure class="hero-preview rf no-print" id="hero-flow" aria-labelledby="rf-cap">
-          <ol class="rf-steps" aria-label="Example: one email, from inbox to approved">
+          <ol class="rf-steps" aria-label="Example: one request, from inbox to a reviewed reply">
             <li class="rf-step" data-rf="1">
-              <p class="rf-k"><span class="rf-n" aria-hidden="true">1</span>Email arrives</p>
-              <div class="rf-card rf-mail"><b>Dana Cruz</b><span>&ldquo;Can someone fix the leaking tap at 14 Elm St on Thursday?&rdquo;</span></div>
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">1</span>Request arrives</p>
+              <div class="rf-card rf-mail"><b>Email from Dana Cruz</b><span>&ldquo;Can someone fix the leaking tap at 14 Elm St on Thursday?&rdquo;</span></div>
             </li>
             <li class="rf-step" data-rf="2">
-              <p class="rf-k"><span class="rf-n" aria-hidden="true">2</span>AI reads it</p>
-              <ul class="rf-card rf-fields"><li><small>Customer</small>Dana Cruz</li><li><small>Job</small>Leaking tap</li><li><small>Address</small>14 Elm St</li><li><small>Wanted</small>Thursday</li></ul>
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">2</span>AI extracts the details</p>
+              <ul class="rf-card rf-fields"><li><small>Customer</small>Dana Cruz</li><li><small>Job</small>Leaking tap</li><li><small>Address</small>14 Elm St</li><li><small>Wanted</small>Thursday</li><li class="is-missing"><small>Phone</small>Missing</li></ul>
             </li>
             <li class="rf-step" data-rf="3">
-              <p class="rf-k"><span class="rf-n" aria-hidden="true">3</span>Tracker updated</p>
-              <p class="rf-card rf-row"><span class="rf-ref">R-113</span><span>Leaking tap &middot; Thu</span><span class="rf-owner"><span class="rf-pre" aria-hidden="true">Owner: &mdash;</span><span class="rf-post">Owner: Sam</span></span></p>
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">3</span>Record updated</p>
+              <p class="rf-card rf-row"><span class="rf-ref">R-113</span><span>Leaking tap &middot; 14 Elm St &middot; Thu</span></p>
             </li>
             <li class="rf-step rf-flag" data-rf="4">
-              <p class="rf-k"><span class="rf-n" aria-hidden="true">4</span>Check catches a problem</p>
-              <p class="rf-card rf-alert"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>No owner assigned</p>
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">4</span>Missing information flagged</p>
+              <p class="rf-card rf-alert"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>No phone number for Dana Cruz</p>
             </li>
             <li class="rf-step rf-ok" data-rf="5">
-              <p class="rf-k"><span class="rf-n" aria-hidden="true">5</span>A person approves</p>
-              <p class="rf-card rf-approve"><span>Assign to Sam?</span><span class="rf-pre rf-btn" aria-hidden="true">Approve</span><span class="rf-post rf-done"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Approved by a person</span></p>
+              <p class="rf-k"><span class="rf-n" aria-hidden="true">5</span>A person reviews and approves</p>
+              <p class="rf-card rf-approve"><span>Reply drafted asking Dana for her phone number</span><span class="rf-pre rf-btn" aria-hidden="true">Approve</span><span class="rf-post rf-done"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Approved by a person</span></p>
             </li>
           </ol>
           <figcaption class="rf-cap" id="rf-cap">Fictional sample business. Illustration only. <button type="button" class="rf-replay" hidden>Replay</button></figcaption>
@@ -171,15 +171,13 @@
       </div>
     </section>
 
-    <section class="section rr-diff" id="checks" aria-labelledby="checks-h">
+    <section class="section rr-diff" id="approach" aria-labelledby="approach-h">
       <div class="container">
-        <h2 id="checks-h">Automation with checks built in.</h2>
-        <ul class="rr-diff-list">
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>AI and automation handle repetitive tasks.</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Built-in checks flag missing, inconsistent or unexpected information.</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>People review and approve important decisions.</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Workflows run in accounts controlled by the customer.</span></li>
-        </ul>
+        <h2 id="approach-h">Start with the work, not the software.</h2>
+        <div class="rr-approach">
+          <p>Before choosing a tool, I look at where work begins, where information gets repeated, where follow-ups get missed and which decisions need a person.</p>
+          <p>Then I build practical AI and automation solutions around the way your business operates.</p>
+        </div>
       </div>
     </section>
 
@@ -223,7 +221,7 @@
         <p class="built-note">I built these for my own site. They aren&rsquo;t client projects.</p>
         <p class="rr-tools"><span>Tools I work with</span> n8n &middot; Gemini &middot; Google Workspace &middot; Microsoft 365 &middot; Power Automate</p>
 
-        <h3 class="rr-results-h" id="experience">From my previous roles, not Rework Rescue client projects.</h3>
+        <h3 class="rr-results-h" id="experience">Examples from my previous employment, not Rework Rescue client projects.</h3>
         <ul class="rr-results">
           <li class="rr-result">
             <h4>Catching bad meter data before it reaches an invoice</h4>
@@ -310,11 +308,20 @@
         <h2 id="how-h">You keep the tools you know. I improve the process around them.</h2>
         <p class="lede steps-h">You&rsquo;ll know the scope and price in writing before any work starts.</p>
         <ol class="steps-list steps-row">
-          <li><h3>Start with a free review</h3><p>A 30-minute conversation about one report, task or process. I ask how it works today, where the time goes and where errors show up. You leave with practical recommendations, even if you decide not to work with me.</p></li>
-          <li><h3>Get a written scope and price</h3><p>If it&rsquo;s worth fixing, I email you the scope, price and timeline, so you can share it with whoever signs off. No obligation to go ahead.</p></li>
-          <li><h3>Build, test and refine</h3><p>I build what we agreed and test it with realistic examples. I plan a first project to take 2&ndash;3 weeks, covering one report or process.</p></li>
-          <li><h3>Handover with support</h3><ul class="how-receive"><li>The finished work, set up in your own accounts, and you own it.</li><li>A handover call and a short run guide, so everyday use doesn&rsquo;t depend on me.</li><li>30 days of fixes for anything that doesn&rsquo;t work as agreed.</li><li>Optional ongoing support after that.</li></ul></li>
+          <li><h3>Understand the work</h3><p>Identify the repetitive tasks, existing tools and operational problems.</p></li>
+          <li><h3>Map the solution</h3><p>Agree on the workflow, scope and what should be automated.</p></li>
+          <li><h3>Build and test</h3><p>Implement the solution and test normal cases, exceptions and handoffs.</p></li>
+          <li><h3>Hand over</h3><p>Document the workflow, explain how it works and provide the agreed solution.</p></li>
         </ol>
+        <div class="rr-standards">
+          <h3>In every project</h3>
+          <ul>
+            <li>Built-in checks flag missing, inconsistent or unexpected information.</li>
+            <li>People review and approve important decisions.</li>
+            <li>Workflows run in accounts controlled by the customer.</li>
+            <li>30 days of fixes for anything that doesn&rsquo;t work as agreed.</li>
+          </ul>
+        </div>
         <details class="fold how-scope"><summary>Step 2 example: see a sample written scope</summary>
           <div class="scope-doc">
             <p class="scope-title">Sample written scope &middot; Northstar Services (fictional)</p>
@@ -339,8 +346,8 @@
           <div class="about-copy">
             <p class="eyebrow about-eyebrow">About</p>
             <h2 id="about-h">Jeff Herson Vida</h2>
-            <p class="about-lead">I&rsquo;m a data analyst who builds automation and AI workflows for service businesses.</p>
-            <p>Over 8 years in data and operations, I&#39;ve learned how to find problems in data and why processes break down. That&rsquo;s why the automation I build comes with checks: if the data going in is wrong, automating it only makes mistakes faster.</p>
+            <p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions.</p>
+            <p>I bring over eight years of experience working with data, reporting and operational processes. I focus on finding where repetitive work can be simplified and building solutions that help businesses run more efficiently.</p>
             <p>I build AI and automation workflows with n8n, and I keep training as the tools change. You&rsquo;ll work directly with me, from the first conversation to the handover.</p>
             <p class="about-where">Based in the Philippines. Calls fit your working day in the US, the UK, Europe or Australia: Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time (UTC+8). The booking calendar shows times in your own time zone.</p>
             <p class="about-link"><a class="btn btn-secondary" href="https://www.linkedin.com/in/jeffhersonvida" target="_blank" rel="noopener noreferrer">View my professional background on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a></p>

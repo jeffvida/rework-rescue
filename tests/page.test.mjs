@@ -135,7 +135,8 @@ test('section order, nav and removed content', async () => {
   assert.deepEqual(nav, ['services:How I help', 'built:Live demos', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
-  assert.match(html, /<title>Rework Rescue \| AI and automation for business operations<\/title>/);
+  assert.match(html, /<title>Rework Rescue \| Smarter Business Operations<\/title>/);
+  assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Business Operations">'), 'og:title matches the page title');
   const desc = 'Rework Rescue helps businesses reduce repetitive admin, organise information and improve everyday operations with practical automation, simple websites and customer tracking systems.';
   assert.ok(html.includes(`<meta name="description" content="${desc}">`)); assert.ok(html.includes(`<meta property="og:description" content="${desc}">`));
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html']) {
@@ -153,8 +154,11 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
     'Build and test: Implement the solution and test normal cases, exceptions and handoffs.',
     'Hand over: Document the workflow, explain how it works and provide the agreed solution.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
-  assert.match(std, /<h3>In every project<\/h3>/);
-  for (const t of ['Built-in checks flag missing, inconsistent or unexpected information.', 'People review and approve important decisions.', 'Workflows run in accounts controlled by the customer.', '30 days of post-handover fixes for issues within the agreed scope.']) assert.ok(std.includes(t), t);
+  assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
+  assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\. You&rsquo;ll receive:<\/p>/);
+  assert.deepEqual([...std.matchAll(/<li><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
+    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes']);
+  assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, exceptions and review steps your team needs to understand\. Third-party software and licensed components remain subject to their providers&rsquo; terms\.<\/p>/);
   assert.match(how, /<summary>Step 2 example: see a sample written scope<\/summary>/);
   assert.match(how, /No system logins to get started\./);
   assert.doesNotMatch(how, /how-approach/, 'intro paragraphs cut to one line');
@@ -162,12 +166,12 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.match(about, /<p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions\.<\/p>/);
   assert.match(about, /I bring over eight years of experience working with data, reporting and operational processes\./);
   assert.doesNotMatch(about, /data analyst/);
-  assert.match(about, /I build AI and automation workflows with n8n, and I keep training as the tools change\./);
+  assert.match(about, /I build AI and automation workflows with n8n, and I keep my skills current as the tools change\./);
   assert.match(about, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/);
   const faq = section(html, 'faq', 'start');
   assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'Can you build a website or set up a simple CRM?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
   assert.match(faq, /Not every problem needs AI\./);
-  assert.match(faq, /<p>Every project starts with a clearly defined improvement\. After the free review, I&rsquo;ll provide a written scope and price so you know exactly what&rsquo;s included before deciding to proceed\.<\/p>/);
+  assert.match(faq, /<p>Each project is priced around one clearly defined improvement\. Where the requirements and deliverables can be agreed upfront, I use a fixed project fee rather than an open-ended hourly rate\.<\/p><p>The price depends on the work involved, the tools to connect, and any setup, integration or data preparation required\.<\/p><p>After the free review, you&rsquo;ll receive a written proposal showing the deliverables, what&rsquo;s included and excluded, the estimated timeline, payment schedule and any third-party software, hosting or usage costs\.<\/p><p>Nothing starts until you approve the scope and price\.<\/p>/);
   assert.doesNotMatch(faq, /one report or one process/);
   assert.match(faq, /<p>Yes\. I can create straightforward, mobile-friendly business websites and landing pages, enquiry forms, and lightweight customer trackers or CRM setups using suitable existing tools\.<\/p><p>These can stand alone or connect\. For example, a website enquiry can be added to a customer tracker and trigger a follow-up reminder\.<\/p><p>I focus on clear layouts and practical features rather than complex designs or software\. For online stores, custom applications or advanced CRM systems, I&rsquo;ll explain when a specialist solution is needed\.<\/p>/);
   assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);

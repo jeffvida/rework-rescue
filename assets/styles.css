@@ -4508,3 +4508,10 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .rf-run.is-approved .rf-done svg path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: rr-tick 0.45s ease-out 0.1s forwards; }
 }
 @keyframes rr-tick { to { stroke-dashoffset: 0; } }
+
+/* ---- 15 Nov commercial clarity round: handover box reworked inside .rr-standards ---- */
+.rr-standards-intro { margin: 0.2rem 0 0.9rem; }
+.rr-standards li strong { display: block; margin-bottom: 0.15rem; }
+.rr-standards ul { gap: 0.8rem 1.4rem; }
+.rr-standards li { font-size: 0.95rem; line-height: 1.5; }
+.rr-standards-note { margin: 1rem 0 0; font-size: 0.88rem; color: var(--muted); }

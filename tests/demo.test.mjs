@@ -59,7 +59,7 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   assert.doesNotMatch(main, /W-10\d\d|INV-21|double entry|Weekly Management Report|weekly sales|S-10\d\d/i);
   assert.doesNotMatch(html, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
   // The only mentions of subscriptions are the cost-transparency lines.
-  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('payment arrangements and any subscriptions you&#39;d need', '').replace('You create the accounts and handle any paid subscriptions.', ''), /subscription|sign up for (the|our) platform/i);
+  assert.doesNotMatch(html.replace('Any additional software, subscriptions or implementation costs are discussed before the work begins.', '').replace('payment arrangements and any subscriptions you&#39;d need', '').replace('You create the accounts and handle any paid subscriptions.', '').replace('Third-party subscriptions and usage costs are separate.', ''), /subscription|sign up for (the|our) platform/i);
   const priv = await readFile(new URL('../privacy/index.html', import.meta.url), 'utf8');
   for (const t of ['The animated workflow at the top of the homepage is a fictional illustration', 'Dana Cruz, the repair request, address and record number are made up.', 'It does not call an AI service, update a real tracker, send a message or connect to any business system.']) assert.ok(priv.includes(t), t);
   assert.doesNotMatch(priv, /workspace illustration|fixed rules from the sample/, 'privacy matches the 15 Nov hero');
@@ -71,7 +71,7 @@ test('How it works: four steps (ChatGPT, 15 Nov); the 30-day terms in a closed r
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'four steps');
-  for (const t of ['30 days of post-handover fixes for issues within the agreed scope.', "They don&#39;t cover new features, scope changes or changes to third-party services."]) assert.ok(how.includes(t), t);
+  for (const t of ['30 calendar days after handover to report and correct defects that prevent the delivered solution from working as described in the approved scope.', 'It does not cover new features, changes to agreed requirements, issues caused by changes made by you or another provider after handover, third-party service outages or changes, or ongoing monitoring and maintenance.', 'These can be discussed and quoted separately.']) assert.ok(how.includes(t), t);
   assert.match(how, /<details class="fold how-30"><summary>What the 30 days cover<\/summary>/);
   assert.doesNotMatch(how, /usually takes|\d+\s?(hours|%|days to)/i, 'no invented results or implied track record');
 });

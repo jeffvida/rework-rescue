@@ -60,7 +60,7 @@ test('hero: only the five-step flow; the earlier Today / With panel is gone (15 
 });
 test('Where I can make work easier: six tiles, the customer problem first, then what gets built; 3 / 2 / 1 columns', async () => {
   const sec = section(await page(), 'services', 'approach');
-  assert.match(sec, /<h2 id="services-h">Where I can make work easier<\/h2>/);
+  assert.match(sec, /<p class="eyebrow">How I help<\/p>\s*<h2 id="services-h">Where I can make work easier<\/h2>/);
   assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
     ['Emails piling up', 'AI-assisted reading, classification and request tracking'],
     ['Information entered repeatedly', 'Automated data extraction and record updates'],
@@ -79,7 +79,8 @@ test('Where I can make work easier: six tiles, the customer problem first, then 
 test('approach band: Start with the work, not the software (ChatGPT, 15 Nov); checks are not sold as the difference', async () => {
   const html = await page();
   const sec = section(html, 'approach', 'built');
-  assert.match(sec, /<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
+  assert.match(sec, /<p class="eyebrow">My approach<\/p>\s*<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
+  assert.deepEqual([...sec.matchAll(/<\/svg>([^<]+)<\/li>/g)].map((m) => m[1]), ['Look at the work', 'Build the simplest solution', 'Keep it simple']);
   assert.match(sec, /<p>Before recommending a tool or building anything, I look at how work happens today &mdash; where information comes from, what gets repeated, where requests or follow-ups get stuck, and which decisions need a person\.<\/p>/);
   assert.match(sec, /<p>Then I build the simplest practical solution, whether that&rsquo;s a website, customer tracker or automated workflow &mdash; on its own or connected where useful\.<\/p>/);
   assert.match(sec, /<p class="rr-approach-note">[^<]+<\/p>\s*<p class="rr-approach-more">Some projects need just one improvement\. Others benefit from connecting a few simple tools\. I&rsquo;ll recommend what makes sense for your business, not add technology you don&rsquo;t need\.<\/p>/);
@@ -92,6 +93,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const html = await page();
   const sec = section(html, 'built', 'how');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
+  assert.match(sec, /<p class="eyebrow">Live demos<\/p>\s*<h2 id="built-h">See it working on this page\.<\/h2>/);
   assert.equal((sec.match(/<li class="built-card">/g) || []).length, 2);
   for (const t of ['The booking calendar', 'The chat assistant']) assert.ok(sec.includes(`<h3>${t}</h3>`), t);
   assert.match(sec, /I built these for my own site\. They aren&rsquo;t client projects\./);
@@ -130,14 +132,14 @@ test('section order, nav and removed content', async () => {
   assert.ok(ids.every((i) => i > 0)); assert.deepEqual([...ids].sort((a, b) => a - b), ids);
   assert.equal((html.match(/<section /g) || []).length, 8, 'hero + seven sections');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
-  assert.deepEqual(nav, ['services:Services', 'built:Live demos', 'how:How it works', 'about:About', 'faq:FAQ']);
+  assert.deepEqual(nav, ['services:How I help', 'built:Live demos', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
   assert.match(html, /<title>Rework Rescue \| AI and automation for business operations<\/title>/);
   const desc = 'Rework Rescue helps businesses reduce repetitive admin, organise information and improve everyday operations with practical automation, simple websites and customer tracking systems.';
   assert.ok(html.includes(`<meta name="description" content="${desc}">`)); assert.ok(html.includes(`<meta property="og:description" content="${desc}">`));
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html']) {
-    const t = await read(f); assert.doesNotMatch(t, /What I automate/, f); assert.match(t, /#services">Services<\/a>/, f); assert.match(t, /#built">Live demos<\/a>/, f);
+    const t = await read(f); assert.doesNotMatch(t, /What I automate/, f); assert.match(t, /#services">How I help<\/a>/, f); assert.match(t, /#built">Live demos<\/a>/, f);
   }
 });
 

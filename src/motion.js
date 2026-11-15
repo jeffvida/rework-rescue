@@ -57,6 +57,42 @@ export function mountMotion() {
 
   // When printing, show everything that hasn't been scrolled to yet.
   window.addEventListener('beforeprint', () => els.forEach((el) => el.classList.add('is-in')));
+
+  // 15 Nov visual round: the result numbers (1,000+ / ~10 / 10 / 2-3 hours) count up once when
+  // they scroll into view. Text only, no styles; skipped entirely with reduced motion (early
+  // return above) or without JavaScript, where the final numbers are already in the HTML.
+  const nums = [...document.querySelectorAll('.rr-nums strong')];
+  if (nums.length) {
+    const nio = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        countUp(e.target);
+        nio.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    nums.forEach((el) => nio.observe(el));
+  }
+}
+
+// Count the first number in the element up from 0, keeping any prefix (~), separators (1,000)
+// and suffix (+, "-3 hours") exactly as written. The final frame is the original text.
+function countUp(el) {
+  const text = el.textContent;
+  const m = text.match(/^([^0-9]*)([\d,]+)([\s\S]*)$/);
+  if (!m) return;
+  const target = parseInt(m[2].replace(/,/g, ''), 10);
+  if (!Number.isFinite(target) || target <= 0) return;
+  const grouped = m[2].includes(',');
+  const dur = 800;
+  const t0 = performance.now();
+  const tick = (t) => {
+    const p = Math.min(1, (t - t0) / dur);
+    const eased = 1 - (1 - p) * (1 - p);
+    const n = Math.round(target * eased);
+    el.textContent = p < 1 ? m[1] + (grouped ? n.toLocaleString('en-US') : String(n)) + m[3] : text;
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 function mountActiveNav() {

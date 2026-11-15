@@ -4452,3 +4452,38 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-standards li::before { content: ""; position: absolute; left: 0.15rem; top: 0.35rem; width: 0.7rem; height: 0.4rem; border-left: 2px solid var(--teal); border-bottom: 2px solid var(--teal); transform: rotate(-45deg); }
 @media (max-width: 40rem) { .rr-standards ul { grid-template-columns: minmax(0, 1fr); } }
 #chat-assistant { scroll-margin-top: 5.5rem; }
+
+/* ---- 15 Nov refinement round: customer clarity + light visual polish (Jeff + ChatGPT spec) ---- */
+/* Services: customer-tracker definition under the tiles */
+.rr-tracker-note { margin: 1.2rem auto 0; max-width: 52rem; font-size: 0.95rem; line-height: 1.55; color: var(--muted); }
+.rr-tracker-note strong { color: var(--ink); font-weight: 700; }
+
+/* Experience: heading + transparency note split (G) */
+.rr-results-note { margin: 0.35rem 0 1rem; font-size: 0.92rem; color: var(--muted); }
+
+/* Closing CTA: what you leave the free review with (B) — dark section */
+.book-outcome { margin: 1.1rem 0 0; max-width: 40rem; padding-left: 0.9rem; border-left: 3px solid var(--signal); color: rgba(255, 255, 255, 0.93); line-height: 1.55; }
+
+/* V3: the gold positioning line as a set-piece (dark approach band) */
+.rr-approach-note { border-top: 0; padding-top: 0; margin-top: 1.7rem; font-family: var(--display); font-weight: 700; font-size: 1.22rem; line-height: 1.45; letter-spacing: -0.01em; }
+.rr-approach-note::before { content: ""; display: block; width: 3rem; height: 3px; border-radius: 2px; background: var(--signal); margin-bottom: 0.85rem; }
+
+/* V6: demo "Try it" links read as small buttons */
+.built-try a { padding: 0.5rem 1.05rem; border: 1.5px solid var(--teal); border-radius: 999px; background: var(--card); text-decoration: none; }
+.built-try a:hover, .built-try a:focus-visible { background: var(--info-bg); color: var(--teal-dark); }
+
+/* A5: small arrow movement on hover (demo links) */
+.built-try a span[aria-hidden] { transition: transform 0.15s ease; }
+.built-try a:hover span[aria-hidden], .built-try a:focus-visible span[aria-hidden] { transform: translateX(3px); }
+
+/* A3: subtle service-tile hover lift */
+.rr-tiles li { transition: box-shadow 0.15s ease; }
+.rr-tiles li:hover { box-shadow: 0 6px 18px rgba(15, 58, 58, 0.12); }
+@media (prefers-reduced-motion: no-preference) {
+  .rr-tiles li { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .rr-tiles li:hover { transform: translateY(-3px); }
+}
+
+/* V5 (optional): About photo frame accent echoing the gold */
+.about-section .photo-card { position: relative; z-index: 0; }
+.about-section .photo-card::after { content: ""; position: absolute; inset: 1rem -0.85rem -0.85rem 1rem; border: 2px solid var(--signal); border-radius: 18px; z-index: -1; }

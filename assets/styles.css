@@ -4527,3 +4527,6 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-standards-cover { margin: 0 0 0.9rem; font-size: 0.95rem; line-height: 1.55; }
 .rr-standards .rr-standards-note { margin-bottom: 0.6rem; }
 @media (max-width: 40rem) { .rr-slow li { font-size: 1rem; } }
+/* 17 Nov: consolidated How I help section — numbered service labels. */
+.rr-services .rr-svc-n { display: block; margin: 0 0 0.25rem; font-family: var(--display); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); }
+.rr-services li > span:last-child { font-size: 0.95rem; }

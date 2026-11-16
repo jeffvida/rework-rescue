@@ -59,23 +59,24 @@ test('hero: only the five-step flow; the earlier Today / With panel is gone (15 
   assert.match(home, /mountFlow\(document\.getElementById\('hero-flow'\)\)/);
 });
 
-test('The work that slows a team down: five problems word for word, the assessment line; tiles and tracker note gone', async () => {
-  const sec = section(await page(), 'services', 'approach');
-  assert.match(sec, /<p class="eyebrow">How I help<\/p>\s*<h2 id="services-h">The work that slows a team down<\/h2>/);
-  assert.deepEqual([...sec.matchAll(/<\/svg>([^<]+)<\/li>/g)].map((m) => m[1]), [
-    'Re-typing the same customer or job details in several places.',
-    'Chasing approvals, updates or missing information.',
-    'Sorting a busy inbox to decide what needs attention.',
-    'Rebuilding weekly reports from spreadsheets.',
-    'Finding errors after information has passed to the next person or system.',
+test('Where I can make work easier: one consolidated section, intro, three numbered services in the fixed order, close', async () => {
+  const html = await page();
+  const sec = section(html, 'services', 'approach');
+  assert.match(sec, /<p class="eyebrow">How I help<\/p>\s*<h2 id="services-h">Where I can make work easier<\/h2>/);
+  assert.match(sec, /<p class="lede rr-build-intro">I help small businesses improve the work behind serving customers and running day to day&mdash;from handling information and follow-ups to reporting and customer enquiries\.<\/p>/);
+  assert.deepEqual([...sec.matchAll(/<span class="rr-svc-n">(\d\d)<\/span><strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]), [
+    ['01', 'Reporting &amp; workflow automation', 'When staff re-enter details, compile reports by hand or chase the next step, I build automated data capture, reporting, reminders and approval steps. Checks flag gaps and exceptions for a person to review.'],
+    ['02', 'Simple CRM &amp; business tools', 'When customer information and enquiries are scattered across inboxes and spreadsheets, I build practical CRM tools and trackers to keep contact details, requests, owners, status and next steps organised.'],
+    ['03', 'Websites &amp; landing pages', 'When customers struggle to understand your services, enquire or book, I build straightforward websites and landing pages with forms that send information where it needs to go.'],
   ]);
-  assert.match(sec, /<p class="rr-slow-note">These are the tasks I assess&mdash;looking for wasted effort, delays, duplicate entry and error-prone handoffs\.<\/p>/);
-  assert.doesNotMatch(sec, /rr-tiles|rr-tracker-note|What&rsquo;s a customer tracker/, 'the six tiles and the tracker definition were replaced (ChatGPT, 16 Nov)');
+  assert.match(sec, /<p class="rr-build-note">Every solution starts with understanding the problem\. Not every project needs AI or automation\.<\/p>/);
+  assert.doesNotMatch(html, /The work that slows a team down|rr-slow|id="build"|Practical tools to improve how your business works/, 'the preview problem list and the separate What I build section are gone (Jeff, 17 Nov)');
+  assert.equal((html.match(/Websites (&amp;|and) landing pages<\/strong>/g) || []).length, 1, 'services listed once');
 });
 
 test('approach band: shortened to the map line, Not every problem needs AI, the gold line and the review line', async () => {
   const html = await page();
-  const sec = section(html, 'approach', 'build');
+  const sec = section(html, 'approach', 'experience');
   assert.match(sec, /<p class="eyebrow">My approach<\/p>\s*<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
   assert.match(sec, /<p>I map each task: where information comes from, who handles it, what repeats, where it sticks and which decisions need a person\. I then identify what can change&mdash;and what should stay under human control\.<\/p>/);
   assert.match(sec, /<p>Not every problem needs AI\.<\/p>/);
@@ -83,18 +84,6 @@ test('approach band: shortened to the map line, Not every problem needs AI, the 
   assert.match(sec, /<p class="rr-approach-more">For client workflows: Reviewed by a person before sharing\.<\/p>/);
   assert.doesNotMatch(sec, /rr-approach-steps|Look at the work|Build the simplest solution|Keep it simple/, 'three-step labels removed');
   assert.doesNotMatch(html, /Automation with checks built in|Automation that checks itself|proprietary|my method|framework/i);
-});
-
-test('Practical tools to improve how your business works: Jeff’s restored section, three builds word for word', async () => {
-  const sec = section(await page(), 'build', 'experience');
-  assert.match(sec, /<p class="eyebrow">What I build<\/p>\s*<h2 id="build-h">Practical tools to improve how your business works<\/h2>/);
-  assert.match(sec, /<p class="lede rr-build-intro">Not every problem needs automation\. Sometimes the right improvement is a better tool\. Depending on what your business needs, I can build:<\/p>/);
-  assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
-    ['Websites and landing pages', 'Business websites and landing pages that make it easier for customers to understand your services, submit enquiries and take the next step.'],
-    ['Simple CRM and business tools', 'Practical systems to organise customer information, track enquiries, manage follow-ups and keep everyday work moving.'],
-    ['Reporting and workflow automation', 'Automated reports, connected processes and repetitive tasks handled with appropriate checks and human oversight.'],
-  ]);
-  assert.match(sec, /<p class="rr-build-note">Every build starts with understanding the problem, not choosing the technology\.<\/p>/);
 });
 
 test('previous roles: own section before the demos, two short prose cards with the numbers and bridge lines; details cut', async () => {
@@ -134,9 +123,9 @@ test('build cards match what the n8n workflows do', async () => {
 
 test('section order, nav and removed content', async () => {
   const html = await page();
-  const ids = ['services', 'approach', 'build', 'experience', 'built', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
+  const ids = ['services', 'approach', 'experience', 'built', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
   assert.ok(ids.every((i) => i > 0)); assert.deepEqual([...ids].sort((a, b) => a - b), ids);
-  assert.equal((html.match(/<section /g) || []).length, 10, 'hero + nine sections');
+  assert.equal((html.match(/<section /g) || []).length, 9, 'hero + eight sections');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
   assert.deepEqual(nav, ['services:How I help', 'built:Live demos', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);

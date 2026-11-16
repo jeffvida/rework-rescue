@@ -46,11 +46,12 @@ test('18.20 Business Tools sample: customers with related requests, records and 
 
 // ---- The page
 
-test('18.11 How it works (12 Nov): the reassurance line, the steps and the handover terms stay', async () => {
+test('18.11 How it works (17 Nov copy round): the review-first heading; the first-conversation line moved to Book', async () => {
   const html = await page();
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
-  assert.match(how, /<h2 id="how-h">You keep the tools you know\. I improve the process around them\.<\/h2>/);
-  assert.match(how, /<strong>What I need from you:<\/strong>[\s\S]*?No system logins to get started\./);
+  assert.match(how, /<h2 id="how-h">What happens after the free review<\/h2>/);
+  assert.doesNotMatch(how, /What I need from you/, 'folded into the final CTA (ChatGPT, 16 Nov)');
+  assert.match(html, /No files or logins needed for the first conversation\./);
 });
 
 test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, no platform pitch, privacy matches', async () => {
@@ -66,22 +67,24 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   assert.doesNotMatch(priv, /live example|Weekly-Work-Tracker\.xlsx|Reset sample|change an owner or a status/, 'privacy page matches the page (12 Nov)');
 });
 
-test('How it works: four steps (ChatGPT, 15 Nov); the 30-day terms in a closed row; no invented results', async () => {
+test('How it works: four steps (ChatGPT, 17 Nov); the 30-day terms consolidated into the handover box; no invented results', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
-  assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'four steps');
-  for (const t of ['30 calendar days after handover to report and correct defects that prevent the delivered solution from working as described in the approved scope.', 'It does not cover new features, changes to agreed requirements, issues caused by changes made by you or another provider after handover, third-party service outages or changes, or ongoing monitoring and maintenance.', 'These can be discussed and quoted separately.']) assert.ok(how.includes(t), t);
-  assert.match(how, /<details class="fold how-30"><summary>What the 30 days cover<\/summary>/);
+  for (const t of ['defects reported in that period that prevent the delivered solution from working as described in the approved scope.', 'This excludes new features, changed requirements, problems caused by post-handover changes, third-party outages or changes, and ongoing maintenance.']) assert.ok(how.includes(t), t);
+  assert.doesNotMatch(how, /how-30|What the 30 days cover/, 'the separate fold was merged into the handover box');
   assert.doesNotMatch(how, /usually takes|\d+\s?(hours|%|days to)/i, 'no invented results or implied track record');
 });
-test('availability on the page matches the booking calendar rules', async () => {
+test('availability on the contact page matches the booking calendar rules (hours cut from the homepage, 17 Nov)', async () => {
   const { RULES } = await import('../src/booking/slots.js');
   assert.deepEqual([RULES.days, RULES.start, RULES.end, RULES.hostOffsetHours], [[1, 2, 3, 4, 5], '08:00', '02:00', 8], 'if the booking hours change, update the availability lines');
+  const contact = await readFile(new URL('../contact/index.html', import.meta.url), 'utf8');
+  assert.match(contact, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/);
   for (const f of ['../index.html', '../contact/index.html']) {
     const html = await readFile(new URL(f, import.meta.url), 'utf8');
-    assert.match(html, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/, f);
     assert.doesNotMatch(html, /teams worldwide|across time zones/, f);
   }
+  const home = await page();
+  assert.match(home, /the booking calendar shows your local time/, 'the homepage points to the calendar instead of listing hours');
 });
 

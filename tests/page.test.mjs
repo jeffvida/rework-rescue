@@ -59,19 +59,26 @@ test('hero: only the five-step flow; the earlier Today / With panel is gone (15 
   assert.match(home, /mountFlow\(document\.getElementById\('hero-flow'\)\)/);
 });
 
-test('Where I can make work easier: one consolidated section, intro, three numbered services in the fixed order, close', async () => {
+test('Where I can make work easier: six problem-to-solution tiles word for word, in order; intro and close; nothing else', async () => {
   const html = await page();
   const sec = section(html, 'services', 'approach');
   assert.match(sec, /<p class="eyebrow">How I help<\/p>\s*<h2 id="services-h">Where I can make work easier<\/h2>/);
-  assert.match(sec, /<p class="lede rr-build-intro">I help small businesses improve the work behind serving customers and running day to day&mdash;from handling information and follow-ups to reporting and customer enquiries\.<\/p>/);
-  assert.deepEqual([...sec.matchAll(/<span class="rr-svc-n">(\d\d)<\/span><strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]), [
-    ['01', 'Reporting &amp; workflow automation', 'When staff re-enter details, compile reports by hand or chase the next step, I build automated data capture, reporting, reminders and approval steps. Checks flag gaps and exceptions for a person to review.'],
-    ['02', 'Simple CRM &amp; business tools', 'When customer information and enquiries are scattered across inboxes and spreadsheets, I build practical CRM tools and trackers to keep contact details, requests, owners, status and next steps organised.'],
-    ['03', 'Websites &amp; landing pages', 'When customers struggle to understand your services, enquire or book, I build straightforward websites and landing pages with forms that send information where it needs to go.'],
+  assert.match(sec, /<p class="lede rr-build-intro">I help small businesses reduce repetitive admin, keep information organised, manage customer enquiries and make everyday work easier\.<\/p>/);
+  assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
+    ['Emails piling up', 'Email sorting, request classification and tracking, using AI where it helps.'],
+    ['Information entered repeatedly', 'Automated data extraction and record updates to reduce duplicate entry.'],
+    ['Follow-ups getting missed', 'Automated reminders and follow-up workflows to keep the next steps visible.'],
+    ['Requests getting stuck', 'Workflow routing and approval steps to get work to the right person.'],
+    ['Reports taking hours to prepare', 'Automated reporting and data checks that flag missing or unusual information.'],
+    ['Customer enquiries are hard to manage', 'Websites, landing pages, enquiry forms and simple CRM tools to capture enquiries, organise customer information and track what happens next.'],
   ]);
-  assert.match(sec, /<p class="rr-build-note">Every solution starts with understanding the problem\. Not every project needs AI or automation\.<\/p>/);
-  assert.doesNotMatch(html, /The work that slows a team down|rr-slow|id="build"|Practical tools to improve how your business works/, 'the preview problem list and the separate What I build section are gone (Jeff, 17 Nov)');
-  assert.equal((html.match(/Websites (&amp;|and) landing pages<\/strong>/g) || []).length, 1, 'services listed once');
+  assert.match(sec, /<p class="rr-build-note">Every solution starts with understanding the problem\. Not every problem needs AI or automation\.<\/p>/);
+  const text = visibleText(sec).replace(/\s+/g, ' ').trim();
+  assert.equal(text.split(' ').length, visibleText(sec).trim().split(/\s+/).length);
+  assert.equal((sec.match(/<p[\s>]/g) || []).length, 3, 'eyebrow, intro, close: no other copy');
+  assert.doesNotMatch(html, /The work that slows a team down|rr-slow|id="build"|Practical tools to improve how your business works|rr-svc-n|Simple CRM &amp; business tools/, 'the two preview sections and the three-card version are gone (Jeff, 17 Nov)');
+  const c = await read('../assets/styles.css');
+  assert.match(c, /\.rr-tiles \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
 });
 
 test('approach band: shortened to the map line, Not every problem needs AI, the gold line and the review line', async () => {

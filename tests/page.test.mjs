@@ -209,3 +209,26 @@ test('guard rails: no prices, testimonials or invented results; first person; on
   assert.doesNotMatch(html, /\sstyle="/, 'CSP: no inline styles');
   assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph');
 });
+
+test('Clear Workbench (17 Nov visual round): tokens, quiet hero, five-panel workspace with tap-to-advance; copy unchanged', async () => {
+  const html = await page();
+  const c = await read('../assets/styles.css');
+  // Design tokens (ChatGPT art direction, Jeff 17 Nov); Poppins kept for headings.
+  for (const t of ['--teal-strong: #1f665d', '--teal-tint: #e8f0ec', '--paper: #f7f7f1', '--line: #d8dfd9', '--body: #334e4c', '--radius-panel: 24px', '--shadow-raised: 0 10px 28px rgba(15, 58, 58, 0.08)']) assert.ok(c.includes(t), t);
+  assert.match(c, /--display: "Poppins"/, 'heading font unchanged for now');
+  // Decorative hero shapes removed; the logo files are untouched.
+  assert.doesNotMatch(html, /hv-hills|hv-edge|hv-swoosh/);
+  assert.match(html, /<img class="brand-logo" src=".\/assets\/brand\/logo-header.webp"/);
+  // Workspace: one window, five panels, the fictional sample details kept (Jeff, 17 Nov).
+  assert.match(html, /<figure class="hero-preview rf rw no-print" id="hero-flow"/);
+  assert.match(html, /<div class="rw-bar" aria-hidden="true">/);
+  for (const t of ['Email from Dana Cruz', '14 Elm St', 'R-113', 'Reply drafted asking Dana for her phone number']) assert.ok(html.includes(t), t);
+  assert.match(c, /grid-template-areas: "a b d" "a c e"/, 'desktop: three columns');
+  assert.match(c, /grid-template-areas: "a" "b" "c" "d" "e"/, 'phone: stacked');
+  const js = await read('../src/demo/flow.js');
+  assert.match(js, /stage\?\.addEventListener\('click', advance\)/, 'tap or click moves one step on; no hover needed');
+  assert.match(c, /@media \(prefers-reduced-motion: reduce\) \{ \.rw \.rf-card, \.rw \.rf-step, \.rw \.rf-fields li \{ transition: none; \}/);
+  // Fade-ups trimmed to headings and main blocks.
+  const m = await read('../src/motion.js');
+  assert.doesNotMatch(m, /'\.hero-copy > \*'|\['\.faq-wrap'|\['\.about-copy'/);
+});

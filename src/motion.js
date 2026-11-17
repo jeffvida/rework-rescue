@@ -7,21 +7,18 @@
 // or with reduced motion turned on, everything simply shows.
 
 // Single elements that fade up on their own.
+// Clear Workbench (17 Nov): reveals only for section headings and the main blocks, once each. The hero shows at once
+// (its workspace has its own sequence), and paragraphs, About and the FAQ no longer fade in line by line.
 const REVEAL = [
-  '.hero-copy > *',
-  '#services h2', '.rr-diff h2', '.rr-approach', '.rr-standards', '#built h2', '.built-cards', '.rr-tools', '.rr-results-h',
-  '#how h2', '.steps-h', '.how-approach', '.steps-row', '.handover-h', '.handover-list', '.handover-note',
-  '.about-section .photo-card', '.about-copy',
+  '#services h2', '.rr-diff h2', '.rr-approach', '.rr-standards', '#built h2', '.built-cards', '.rr-results-h',
+  '#how h2', '.steps-row',
+  '.about-section .photo-card',
   '#faq h2',
-  '.book-main',
 ];
 // Groups whose children come in one after another.
 const STAGGER = [
-  ['.rr-tiles', 70],
+  ['.rr-tiles', 60],
   ['.rr-results', 90],
-  ['.about-copy', 35],
-  ['.faq-wrap', 30, '.faq-item'],
-  ['.book-main', 50],
 ];
 
 export function mountMotion() {

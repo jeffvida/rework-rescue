@@ -4620,3 +4620,153 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 }
 @media (min-width: 40.01rem) and (max-width: 62rem) { .sn-section .sn-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sn-section .sn-list > li:nth-child(5) { grid-column: 1 / -1; } }
 @media (max-width: 40rem) { .sn-section .sn-list { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- Hero story (17 Nov, Option A "From scattered work to clear operations"): the usual problem → a connected
+   workflow → the result. Built from HTML/SVG. The base styles are the finished picture; the entrance animation only
+   runs when motion is allowed and never hides anything once it ends. */
+.hero-v3 .hero-eyebrow { color: var(--teal-dark); letter-spacing: 0.1em; font-size: 0.85rem; margin: 0 0 1rem; }
+.hero-v3 .hero-eyebrow::after { content: ""; display: block; width: 2.6rem; height: 3px; margin-top: 0.55rem; border-radius: 2px; background: var(--teal); }
+.hero-note { display: flex; align-items: center; gap: 0.45rem; margin: 0; font-size: 0.95rem; color: var(--muted); }
+.hero-note svg { width: 1.05rem; height: 1.05rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.hero-v3 .hv-book span[aria-hidden] { margin-left: 0.1rem; }
+
+.hero-story { min-width: 0; }
+.story { --st-orange: #e8892b; --st-mint: #eef7f2; --st-green: #1f8a5b; margin: 0; display: grid; grid-template-columns: minmax(0, 0.92fr) 3.4rem minmax(0, 1.2fr); grid-template-areas: "problem arrow solution" "result result result"; align-items: center; column-gap: 0.2rem; }
+.story svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.story-problem { grid-area: problem; }
+.story-arrow { grid-area: arrow; color: var(--teal); }
+.story-solution { grid-area: solution; }
+.story-down { grid-area: down; display: none; }
+.story-result { grid-area: result; margin-top: 1.1rem; }
+.story-stage { min-width: 0; }
+
+.story-label { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0 0 0.6rem; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.3; }
+.story-label svg { width: 1rem; height: 1rem; }
+.story-label-muted { background: #4b5a5e; color: #fff; }
+.story-label-teal { background: var(--teal-dark); color: #fff; box-shadow: 0 8px 18px -10px rgba(15, 58, 58, 0.7); }
+.story-label-teal svg { color: #7fd1b3; }
+.story-label-warm { background: #fdebd3; color: #7a3f00; }
+.story-note { margin: 0 0 0.8rem; font-size: 0.9rem; color: var(--muted); line-height: 1.4; }
+
+/* Stage 1: three layered input cards on a small pile of papers */
+.story-inputs { position: relative; list-style: none; margin: 0; padding: 0.3rem 0.4rem 0.6rem 0; isolation: isolate; }
+.story-inputs::before, .story-inputs::after { content: ""; position: absolute; z-index: -1; inset: 0.6rem 0.3rem 0 0.5rem; border-radius: 12px; background: #fbf7ec; border: 1px solid #e9e2cf; transform: rotate(-4deg); }
+.story-inputs::after { transform: rotate(3deg); inset: 1.2rem 0 0.3rem 0.9rem; background: #f7f2e3; }
+.story-in { position: relative; display: flex; align-items: center; gap: 0.6rem; margin: 0; padding: 0.65rem 0.75rem; border-radius: 13px; background: #fff; border: 1px solid #e7e2d3; box-shadow: 0 10px 22px -16px rgba(15, 58, 58, 0.55); font-weight: 650; font-size: 0.95rem; color: var(--ink); }
+.story-in + .story-in { margin-top: 0.45rem; }
+.story-in:nth-child(1) { transform: rotate(-2deg) translateX(0.5rem); }
+.story-in:nth-child(2) { transform: rotate(1.4deg) translateX(-0.2rem); }
+.story-in:nth-child(3) { transform: rotate(-1deg) translateX(0.7rem); }
+.story-in > svg { flex: none; width: 2rem; height: 2rem; padding: 0.35rem; border-radius: 9px; stroke-width: 1.9; }
+.story-in-mail > svg { color: #b4641a; background: #fdeedd; }
+.story-in-sheet > svg { color: var(--st-green); background: #e2f3e9; }
+.story-in-form > svg { color: var(--svc-systems); background: #e6edf7; }
+.story-in em { margin-left: auto; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--st-orange); color: #3b1d00; font-style: normal; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em; }
+
+/* the arrow from the pile into the workflow */
+.story-arrow svg { display: block; width: 100%; height: auto; stroke-width: 3.5; }
+.story-arrow-head { stroke-width: 3.5; }
+
+/* Stage 2: the connected workflow, the focal point */
+.story-panel { position: relative; padding: 0.7rem 0.85rem 0.9rem; border-radius: 18px; background: linear-gradient(180deg, #ffffff 0%, var(--st-mint) 100%); border: 2px solid #9fd0bd; box-shadow: 0 0 0 6px rgba(46, 125, 114, 0.08), 0 28px 50px -26px rgba(15, 58, 58, 0.6); }
+.story-bar { display: flex; gap: 0.3rem; margin: 0 0 0.45rem; }
+.story-bar span { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #b9d9cb; }
+.story-panel-h { margin: 0 0 0.6rem; font-family: var(--display); font-weight: 700; font-size: 1.08rem; color: var(--teal-dark); letter-spacing: -0.01em; }
+.story-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.story-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1fr) 1.5rem; align-items: center; gap: 0.6rem; margin: 0; padding: 0.55rem 0.65rem; border-radius: 12px; background: #fff; border: 1px solid #d7ebe2; font-weight: 650; font-size: 0.95rem; line-height: 1.3; color: var(--ink); }
+.story-steps li > svg { width: 2rem; height: 2rem; padding: 0.35rem; border-radius: 9px; background: #e3f2ec; color: var(--teal); }
+.story-tick { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--st-green); }
+.story-tick svg { width: 1rem; height: 1rem; color: #fff; stroke-width: 3; }
+
+/* Stage 3: the result */
+.story-result { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 0.9rem; }
+.story-result .story-label { margin: 0; }
+.story-result-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.6rem 1rem; padding: 0.75rem 0.95rem; border-radius: 16px; background: #fff; border: 1px solid #e3ddcb; box-shadow: 0 16px 30px -22px rgba(15, 58, 58, 0.55); }
+.story-result-msg p { margin: 0; }
+.story-result-msg strong { font-family: var(--display); font-weight: 700; font-size: 1rem; line-height: 1.3; color: var(--teal-dark); }
+.story-team { display: flex; align-items: center; margin-top: 0.4rem !important; }
+.story-team span { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-right: -0.35rem; border-radius: 50%; border: 2px solid #fff; background: var(--teal); color: #fff; font-size: 0.7rem; font-weight: 800; }
+.story-team span:nth-child(2) { background: var(--st-orange); color: #3b1d00; }
+.story-team span:nth-child(3) { background: var(--teal-dark); }
+.story-team small { margin-left: 0.7rem; font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.story-tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+.story-tasks li { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.story-tasks svg { width: 1.05rem; height: 1.05rem; padding: 0.12rem; border-radius: 4px; background: #e2f3e9; color: var(--st-green); stroke-width: 3; }
+
+/* benefits strip */
+.story-benefits { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; margin: 1.3rem 0 0; padding: 0.7rem 0.6rem; border-radius: 16px; background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(46, 125, 114, 0.14); }
+.story-benefits li { display: flex; align-items: center; gap: 0.45rem; margin: 0; padding: 0.15rem 1rem; font-size: 0.9rem; font-weight: 650; color: var(--teal-dark); }
+.story-benefits li + li { border-left: 1px solid #d4e3dc; }
+.story-benefits svg { width: 1.3rem; height: 1.3rem; flex: none; fill: none; stroke: var(--teal); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.story-benefits li:first-child svg { stroke: #c96e17; }
+
+/* layouts */
+@media (min-width: 52.01rem) and (max-width: 75rem) { .hero-story { max-width: 46rem; } }
+@media (max-width: 52rem) {
+  .hero-copy > .hero-note { order: 4; margin: -0.8rem 0 1.8rem; }
+  .hero-grid > .hero-story { order: 5; margin: 0 0 0.5rem; }
+}
+@media (max-width: 40rem) {
+  .story { grid-template-columns: minmax(0, 1fr); grid-template-areas: "problem" "arrow" "solution" "down" "result"; }
+  .story-inputs { padding: 0; }
+  .story-inputs::before, .story-inputs::after { display: none; }
+  .story-in, .story-in:nth-child(n) { transform: none; }
+  .story-in + .story-in { margin-top: 0.4rem; }
+  .story-arrow { justify-self: center; width: 2.6rem; margin: 0.35rem 0; }
+  .story-arrow svg { transform: rotate(90deg); }
+  .story-down { display: block; justify-self: center; width: 2.2rem; margin: 0.35rem 0 0; color: var(--teal); }
+  .story-down svg { width: 100%; height: auto; stroke-width: 3; }
+  .story-result { margin-top: 0; grid-template-columns: minmax(0, 1fr); row-gap: 0.55rem; }
+  .story-result .story-label { justify-self: start; }
+  .story-result-card { grid-template-columns: minmax(0, 1fr); }
+  .story-benefits { flex-direction: column; align-items: flex-start; gap: 0.35rem; padding: 0.8rem 0.9rem; }
+  .story-benefits li { padding: 0; }
+  .story-benefits li + li { border-left: 0; }
+}
+
+/* entrance: cards arrive, the arrow draws, the workflow ticks through, the result lands. Once only, about 2 s. */
+@media (prefers-reduced-motion: no-preference) {
+  .story-in { animation: story-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .story-in:nth-child(1) { animation-delay: 0.15s; }
+  .story-in:nth-child(2) { animation-delay: 0.3s; }
+  .story-in:nth-child(3) { animation-delay: 0.45s; }
+  .story-arrow-line { stroke-dasharray: 70; animation: story-draw 0.5s ease-out 0.7s both; }
+  .story-arrow-head { animation: story-fade 0.2s ease-out 1.1s both; }
+  .story-panel { animation: story-glow 1.6s ease-out 0.8s both; }
+  .story-steps li { animation: story-rise 0.4s ease-out both; }
+  .story-steps li:nth-child(1) { animation-delay: 0.9s; }
+  .story-steps li:nth-child(2) { animation-delay: 1.05s; }
+  .story-steps li:nth-child(3) { animation-delay: 1.2s; }
+  .story-steps li:nth-child(4) { animation-delay: 1.35s; }
+  .story-result { animation: story-rise 0.5s ease-out 1.65s both; }
+}
+@keyframes story-in { from { opacity: 0; translate: -1.2rem 0; } }
+@keyframes story-draw { from { stroke-dashoffset: 70; } to { stroke-dashoffset: 0; } }
+@keyframes story-fade { from { opacity: 0; } }
+@keyframes story-rise { from { opacity: 0; translate: 0 0.6rem; } }
+@keyframes story-glow { 0% { box-shadow: 0 0 0 0 rgba(46, 125, 114, 0.35), 0 28px 50px -26px rgba(15, 58, 58, 0.6); } 100% { box-shadow: 0 0 0 6px rgba(46, 125, 114, 0.08), 0 28px 50px -26px rgba(15, 58, 58, 0.6); } }
+@media (forced-colors: active) { .story-in, .story-panel, .story-steps li, .story-result-card { border: 1px solid CanvasText; } }
+
+/* the Dana Cruz flow, now under How I help */
+.svc-example { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 1.5rem 2.5rem; align-items: center; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+.svc-example-copy h3 { margin: 0 0 0.4rem; font-size: 1.3rem; }
+.svc-example-copy p { margin: 0; color: var(--muted); max-width: 26rem; }
+.svc-example .rf { margin: 0; max-width: 36rem; }
+@media (max-width: 52rem) { .svc-example { grid-template-columns: minmax(0, 1fr); } .svc-example .rf { max-width: none; } }
+@media (min-width: 75.01rem) { .hero-v3 .hv-actions { flex-wrap: nowrap; } .hero-v3 .hv-actions .btn { padding-inline: 1rem; } }
+.story-result { display: block; }
+.story-result .story-label { margin: 0 0 0.55rem; }
+.story-result-card { grid-template-columns: minmax(0, 1fr) auto; }
+@media (min-width: 40.01rem) { .story-benefits { flex-wrap: nowrap; padding: 0.65rem 0.4rem; } .story-benefits li { padding: 0.1rem 0.8rem; font-size: 0.88rem; white-space: nowrap; } }
+@media (min-width: 40.01rem) and (max-width: 75rem) { .story-result-card { grid-template-columns: minmax(0, 1fr) auto; } }
+@media (max-width: 40rem) {
+  .story-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
+  .story-in, .story-in + .story-in { margin: 0; flex-direction: column; justify-content: flex-start; gap: 0.35rem; padding: 0.7rem 0.35rem 0.6rem; text-align: center; font-size: 0.82rem; line-height: 1.25; }
+  .story-in em { position: absolute; top: -0.45rem; right: -0.2rem; margin: 0; }
+  .story-note { margin-bottom: 0.7rem; }
+}
+@media (max-width: 40rem) { .story-result-card { grid-template-columns: minmax(0, 1fr); } .story-tasks { grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); } }
+.story-tasks svg { flex: none; }
+@media (max-width: 40rem) { .story-tasks { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; } }
+.svc-example { align-items: start; }
+.svc-example-copy { padding-top: 1rem; }

@@ -14,19 +14,44 @@ const page = () => read('../index.html');
 const section = (html, id, next) => html.slice(html.indexOf(`id="${id}"`), next ? html.indexOf(`id="${next}"`) : undefined);
 const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 
-test('hero: Jeff and ChatGPT copy word for word, two buttons, proof line, no framework', async () => {
+test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking note, no extra CTAs', async () => {
   const html = await page();
-  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
-  assert.match(hero, /<p class="eyebrow hero-pill">For business owners and operations teams<\/p>/);
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="hero-story">'));
+  assert.match(hero, /<p class="eyebrow hero-eyebrow">Data &amp; workflow improvement<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
-  assert.match(hero, /<p class="hero-sub">I take repetitive work off your team&rsquo;s hands using better data, practical automation and AI where it helps\. Every workflow has checks built in and keeps people involved where it matters, so your team spends less time checking and correcting work\.<\/p>/, 'Jeff, 17 Nov (benefit first): subhead verbatim');
-  assert.doesNotMatch(hero.slice(0, hero.indexOf('hero-actions')), /website|landing page|CRM/i, 'hero leads with problems, not services');
-  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review<\/a>/);
-  assert.match(hero, /<a class="btn btn-large hv-explore" href="#built">Try a live automation/);
-  assert.ok(hero.indexOf('Book a free review') < hero.indexOf('Try a live automation'));
-  assert.match(hero, /The booking and chat on this page run on automations I built\. <a href="#built">Try them\.<\/a>/);
-  assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip/, 'hero kept to the approved elements');
+  assert.match(hero, /<p class="hero-sub">I help small teams reduce repetitive admin, bring scattered information together and make everyday processes easier to manage &mdash; using better data, practical tools and automation where it helps\.<\/p>/);
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review <span aria-hidden="true">&rarr;<\/span><\/a>/);
+  assert.match(hero, /<a class="btn btn-large hv-explore" href="#services">See how I can help<\/a>/);
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how I can help'));
+  assert.match(hero, /<p class="hero-note">[\s\S]*?30 minutes &middot; No obligation<\/p>/);
+  assert.equal((hero.match(/<a /g) || []).length, 2, 'two calls to action, nothing else');
+  assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip|rr-chip/, 'hero kept to the approved elements');
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
+});
+
+test('hero story: problem → connected workflow → result, built from HTML (no image), no stats, motion optional', async () => {
+  const html = await page();
+  const fig = html.slice(html.indexOf('id="hero-story"'), html.indexOf('</figure>', html.indexOf('id="hero-story"')));
+  const txt = fig.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  for (const s of ['The usual problem', 'Work comes in from multiple places.', 'Emails', 'Spreadsheets', 'Forms &amp; requests',
+    'The Rework Rescue solution', 'A connected workflow', 'Information brought together', 'Important details checked',
+    'Next steps made clear', 'The right person notified', 'The result', 'Clear, organised work ready for your team.']) assert.ok(txt.includes(s), s);
+  assert.ok(txt.indexOf('The usual problem') < txt.indexOf('The Rework Rescue solution') && txt.indexOf('The Rework Rescue solution') < txt.indexOf('The result'));
+  assert.doesNotMatch(fig, /<img|background-image/, 'real elements, not a screenshot');
+  assert.doesNotMatch(txt, /\d+\s?%|\d+x\b|hours? saved|Dana/i, 'no invented figures; not the Dana example');
+  const strip = html.slice(html.indexOf('<ul class="story-benefits">'), html.indexOf('</ul>', html.indexOf('<ul class="story-benefits">')));
+  assert.deepEqual([...strip.matchAll(/<\/svg>([^<]+)<\/li>/g)].map((m) => m[1]), ['Less repetitive work', 'Fewer avoidable mistakes', 'Smoother everyday operations']);
+  const c = await read('../assets/styles.css');
+  assert.match(c, /@media \(prefers-reduced-motion: no-preference\) \{\n  \.story-in \{ animation/, 'the entrance only runs when motion is allowed');
+  assert.doesNotMatch(c.slice(c.indexOf('/* ---- Hero story')), /infinite/, 'no continuous movement');
+});
+
+test('the Dana Cruz example moved under How I help, still working', async () => {
+  const html = await page();
+  const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
+  assert.match(svc, /<h3>One request, step by step<\/h3>/);
+  assert.match(svc, /<figure class="rf no-print" id="hero-flow"/);
+  assert.ok(!html.slice(0, html.indexOf('id="services"')).includes('Dana Cruz'), 'not in the hero');
 });
 
 test('hero flow: five steps, ends on a person approving, labelled fictional; plays once, Skip/Replay, CSP-safe', async () => {
@@ -194,7 +219,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));
 });
 
-test('guard rails: no prices, testimonials or invented results; first person; one button wording; only confirmed tools', async () => {
+test('guard rails: no prices, testimonials or invented results; first person; one button wording (except the approved hero button, 17 Nov); only confirmed tools', async () => {
   const html = await page();
   const visible = visibleText(html);
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
@@ -204,7 +229,7 @@ test('guard rails: no prices, testimonials or invented results; first person; on
   assert.doesNotMatch(html, /Most projects start|Most first projects|first project usually/);
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../src/booking/popup.js', '../src/assistant/rules.js', '../n8n/rework-assistant.json']) {
     const t = await read(f);
-    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
+    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace('Book a free rework review <span', '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
   }
   assert.doesNotMatch(html, /\sstyle="/, 'CSP: no inline styles');
   assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph');

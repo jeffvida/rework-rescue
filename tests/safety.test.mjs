@@ -14,13 +14,13 @@ const page = () => read('../index.html');
 const between = (h, a, b) => h.slice(h.indexOf(a), h.indexOf(b, h.indexOf(a)));
 const text = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 
-test('hero: headline kept, benefit first; one quiet strip linking to the checks section (no failure talk up front)', async () => {
+test('hero: headline kept, benefit first, no failure talk up front; the checks link now sits with the step-by-step example', async () => {
   const h = await page();
   assert.match(h, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
+  const top = text(h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero'))));
+  assert.doesNotMatch(top, /fails?\b|failure|goes wrong|breaks?\b|retry/i, 'the hero sells confidence; failure handling is shown further down, as proof');
   const fig = between(h, 'id="hero-flow"', '</figure>');
   assert.match(fig, /<strong>Checks and control are built into every workflow\.<\/strong> <a href="#safety">See how/);
-  const top = text(between(h, '<section class="hero', '</figure>'));
-  assert.doesNotMatch(top, /fails?\b|failure|goes wrong|breaks?\b|retry/i, 'the hero sells confidence; failure handling is shown further down, as proof');
 });
 
 test('checks section: calm heading, memorable line, five customer-benefit headings with an example each, short limits line', async () => {

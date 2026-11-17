@@ -29,22 +29,28 @@ test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
 
-test('hero story: problem → connected workflow → result, built from HTML (no image), no stats, motion optional', async () => {
+test('hero transformation: mess → the Rework Rescue mark sweeps across → organised work; CSS-driven, plays once, reduced motion shows the end', async () => {
   const html = await page();
-  const fig = html.slice(html.indexOf('id="hero-story"'), html.indexOf('</figure>', html.indexOf('id="hero-story"')));
-  const txt = fig.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-  for (const s of ['The usual problem', 'Work comes in from multiple places.', 'Emails', 'Spreadsheets', 'Forms &amp; requests',
-    'The Rework Rescue solution', 'A connected workflow', 'Information brought together', 'Important details checked',
-    'Next steps made clear', 'The right person notified', 'The result', 'Clear, organised work ready for your team.']) assert.ok(txt.includes(s), s);
-  assert.ok(txt.indexOf('The usual problem') < txt.indexOf('The Rework Rescue solution') && txt.indexOf('The Rework Rescue solution') < txt.indexOf('The result'));
-  assert.doesNotMatch(fig, /<img|background-image/, 'real elements, not a screenshot');
-  assert.doesNotMatch(txt, /\d|hours? saved|Dana/i, 'no counts or invented figures; not the Dana example');
-  assert.doesNotMatch(fig, /story-panel|story-bar|story-tick|sticky|mug/, 'no app window, ticks or decorative props (17 Nov correction)');
-  const strip = html.slice(html.indexOf('<ul class="story-benefits">'), html.indexOf('</ul>', html.indexOf('<ul class="story-benefits">')));
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
+  assert.match(hero, /<section class="hero hero-v3 rr-hero rx"/);
+  const stage = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
+  const mess = stage.slice(stage.indexOf('rx-mess'), stage.indexOf('rx-order'));
+  const order = stage.slice(stage.indexOf('rx-order'));
+  assert.match(mess, /aria-hidden="true"/, 'the mess is decoration; the organised state is what assistive tech reads');
+  for (const s of ['Duplicate?', 'Phone: missing', 'Not updated', 'Follow up?', 'Who&rsquo;s handling this?']) assert.ok(mess.includes(s), s);
+  for (const s of ['This week&rsquo;s work', 'Checked', 'Next: confirm date', 'Needs review', 'Scheduled', 'Updated', 'Needs a person:']) assert.ok(order.includes(s), s);
+  assert.match(order, /rx-s-att">Needs review/, 'items needing a person stay visible: not everything "succeeds"');
+  assert.doesNotMatch(stage, /<img|background-image|\d+\s?%|hours? saved|Dana/i, 'built from HTML, no invented figures, not the Dana example');
+  assert.match(hero, /<span class="rx-runner"><img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark, undistorted');
+  const strip = hero.slice(hero.indexOf('<ul class="story-benefits">'), hero.indexOf('</ul>', hero.indexOf('<ul class="story-benefits">')));
   assert.deepEqual([...strip.matchAll(/<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work', 'Fewer avoidable mistakes', 'Smoother everyday operations']);
   const c = await read('../assets/styles.css');
-  assert.match(c, /@media \(prefers-reduced-motion: no-preference\) \{\n  \.story-in \{ animation/, 'the entrance only runs when motion is allowed');
-  assert.doesNotMatch(c.slice(c.indexOf('/* ---- Hero story')), /infinite/, 'no continuous movement');
+  assert.match(c, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'the end state is the default');
+  assert.match(c, /@media \(prefers-reduced-motion: no-preference\) \{\n  \.rx \{ animation: rx-sweep 2\.8s/, 'only animates when motion is allowed');
+  assert.doesNotMatch(c.slice(c.indexOf('/* ---- Hero: the transformation')), /infinite/, 'plays once');
+  const js = await read('../src/hero-sweep.js');
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /IntersectionObserver/);
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/, 'CSP: setProperty and classes only');
 });
 
 test('the Dana Cruz example moved under How I help, still working', async () => {

@@ -2,6 +2,7 @@
 
 import { mountBooking } from './booking/popup.js';
 import { mountFlow } from './demo/flow.js';
+import { mountSweep } from './hero-sweep.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 
@@ -54,6 +55,7 @@ mountAssistant();
 // Hero (15 Nov): the five-step flow (src/demo/flow.js). The earlier Today / With panel was removed (ChatGPT + Jeff, 15 Nov);
 // src/demo/hero.js stays for its tested figure helpers.
 mountFlow(document.getElementById('hero-flow'));
+mountSweep(document.querySelector('.hero.rx'));
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

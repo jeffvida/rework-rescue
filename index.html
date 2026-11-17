@@ -48,7 +48,7 @@
   </header>
   <main id="main" tabindex="-1">
 
-    <section class="hero hero-v3 rr-hero" aria-labelledby="hero-title">
+    <section class="hero hero-v3 rr-hero rx" aria-labelledby="hero-title">
       <svg class="hv-hills" viewBox="0 0 800 600" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="hv-hill-a" d="M800 40 C640 60 560 150 600 260 C640 370 520 470 300 520 L0 600 H800 Z"/><path class="hv-hill-b" d="M800 330 C700 360 610 430 470 470 C320 510 200 540 0 560 V600 H800 Z"/></svg>
       <div class="container hero-grid">
         <div class="hero-copy">
@@ -62,44 +62,47 @@
           <p class="hero-note"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>30 minutes &middot; No obligation</p>
         </div>
         <div class="hero-story">
-        <figure class="story" id="hero-story" aria-label="Work from emails, spreadsheets and forms is brought into one connected workflow, so your team gets clear, organised work.">
-          <svg class="story-lines" viewBox="0 0 640 460" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            <path class="story-in-line" d="M182 103 C236 103 236 137 279 137"/>
-            <path class="story-in-line" d="M214 181 C254 181 248 139 279 138"/>
-            <path class="story-in-line" d="M176 260 C246 260 246 141 279 139"/>
-            <path class="story-track" d="M300 137 V 368"/>
-          </svg>
-          <div class="story-problem">
-            <p class="story-label story-label-muted">The usual problem</p>
-            <p class="story-note">Work comes in from multiple places.</p>
-            <ul class="story-inputs">
-              <li class="story-in story-in-mail"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg><span>Emails</span></li>
-              <li class="story-in story-in-sheet"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M4 9h16M4 14.5h16M10 3.5v17"/></svg><span>Spreadsheets</span></li>
-              <li class="story-in story-in-form"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span>Forms &amp; requests</span></li>
-            </ul>
-          </div>
-          <div class="story-solution">
-            <p class="story-label story-label-teal">The Rework Rescue solution</p>
-            <p class="story-flow-h">A connected workflow</p>
-            <ol class="story-stops">
-              <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h9M5 12h14M5 17h9"/><path d="M16 4l3 3-3 3"/></svg><span>Information brought together</span></li>
-              <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l7 2.8v5c0 4.3-3 7.8-7 9-4-1.2-7-4.7-7-9v-5z"/><path d="M9 12l2.2 2.2L15.3 10"/></svg><span>Important details checked</span></li>
-              <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h12M13 7l5 5-5 5"/></svg><span>Next steps made clear</span></li>
-              <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.2"/><path d="M6 19.5c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg><span>The right person notified</span></li>
-            </ol>
-          </div>
-          <div class="story-result">
-            <p class="story-label story-label-warm">The result</p>
-            <p class="story-result-msg"><strong>Clear, organised work ready for your team.</strong><span class="story-team" aria-hidden="true"><span></span><span></span><span></span></span></p>
-          </div>
-        </figure>
-        <ul class="story-benefits">
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></svg><span>Less repetitive work</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8"/></svg><span>Fewer avoidable mistakes</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V14M9.5 20V10M15 20v-6M20.5 20V6"/></svg><span>Smoother everyday operations</span></li>
-        </ul>
+          <figure class="rx-stage" id="hero-story" aria-label="Scattered emails, spreadsheets and forms become one organised list of work with clear owners, next steps and an updated report.">
+            <div class="rx-layer rx-mess" aria-hidden="true">
+              <svg class="rx-broken" viewBox="0 0 600 430" preserveAspectRatio="none" focusable="false"><path d="M120 120 C160 160 150 200 200 210"/><path d="M250 230 C300 240 310 280 340 300"/><path d="M420 130 C450 170 470 180 500 190"/><path d="M90 330 C130 300 170 340 210 320"/></svg>
+              <div class="rx-m rx-m-mail1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg><span><b>Re: Fwd: job update</b><small>Which version is right?</small></span><i class="rx-dot"></i></div>
+              <div class="rx-m rx-m-mail2"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg><span><b>Where&rsquo;s my quote?</b><small>Second follow-up</small></span><i class="rx-dot"></i></div>
+              <div class="rx-m rx-m-sheet">
+                <p class="rx-m-h"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M4 9h16M4 14.5h16M10 3.5v17"/></svg><b>Customers_FINAL_v3</b></p>
+                <table><tr><td>Lee &amp; Co</td><td>Quote</td><td class="rx-gap"></td></tr><tr class="rx-dup"><td>Lee &amp; Co</td><td>Quote</td><td>Duplicate?</td></tr><tr><td>Park St</td><td class="rx-gap"></td><td>Pending</td></tr></table>
+              </div>
+              <div class="rx-m rx-m-form"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span><b>Web enquiry</b><small class="rx-miss">Phone: missing</small></span><i class="rx-warn"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg></i></div>
+              <div class="rx-m rx-m-report"><p class="rx-m-h"><b>Weekly report</b><small>Not updated</small></p><span class="rx-bars"><i></i><i></i><i></i><i></i><i></i></span></div>
+              <p class="rx-m rx-chip rx-chip-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Follow up?</p>
+              <p class="rx-m rx-chip rx-chip-2">Who&rsquo;s handling this?</p>
+            </div>
+            <div class="rx-layer rx-order">
+              <svg class="rx-joined" viewBox="0 0 600 430" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M62 62 V96"/><path d="M162 62 V96"/><path d="M262 62 V96"/></svg>
+              <ul class="rx-sources" aria-label="Sources brought together"><li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>Emails</li><li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M4 9h16M4 14.5h16M10 3.5v17"/></svg>Spreadsheets</li><li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg>Forms</li></ul>
+              <div class="rx-list">
+                <p class="rx-list-h">This week&rsquo;s work</p>
+                <ul>
+                  <li><span class="rx-t">Quote request &middot; Lee &amp; Co</span><span class="rx-o" title="Owner">JM</span><span class="rx-s rx-s-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 12.5l4 4 8-8.5"/></svg>Checked</span></li>
+                  <li><span class="rx-t">Job update &middot; Park St</span><span class="rx-o">AK</span><span class="rx-s rx-s-next">Next: confirm date</span></li>
+                  <li><span class="rx-t">Web enquiry</span><span class="rx-o">JM</span><span class="rx-s rx-s-att">Needs review</span></li>
+                  <li><span class="rx-t">Invoice follow-up</span><span class="rx-o">SR</span><span class="rx-s rx-s-next">Scheduled</span></li>
+                </ul>
+              </div>
+              <div class="rx-report"><p class="rx-m-h"><b>Weekly report</b><small class="rx-fresh"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 12.5l4 4 8-8.5"/></svg>Updated</small></p><span class="rx-bars"><i></i><i></i><i></i><i></i><i></i></span></div>
+              <p class="rx-attn"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg><span><b>Needs a person:</b> web enquiry missing a phone number</span></p>
+            </div>
+            <span class="rx-scan" aria-hidden="true"></span>
+          </figure>
+          <ul class="story-benefits">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></svg><span>Less repetitive work</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8"/></svg><span>Fewer avoidable mistakes</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V14M9.5 20V10M15 20v-6M20.5 20V6"/></svg><span>Smoother everyday operations</span></li>
+          </ul>
+          <button type="button" class="rx-replay" hidden>Replay the transformation</button>
         </div>
       </div>
+      <div class="rx-ghosts" aria-hidden="true"><span class="rx-g rx-g1">Re: Re: update</span><span class="rx-g rx-g2">copy of copy.xlsx</span><span class="rx-g rx-g3">Missing info</span><span class="rx-g rx-g4">Follow up?</span></div>
+      <div class="container rx-track-wrap" aria-hidden="true"><div class="rx-track"><span class="rx-line"></span><span class="rx-trail"></span><span class="rx-runner"><img src="./assets/brand/mark.png" width="324" height="214" alt="" decoding="async"></span></div></div>
       <svg class="hv-edge" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 46 C260 10 520 6 760 34 C1000 62 1220 70 1440 30 V80 H0 Z"/></svg>
     </section>
 

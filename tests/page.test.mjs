@@ -29,7 +29,7 @@ test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
 
-test('hero (round 9): one operation, before and after, driven by the real logo on the slider; no mascot, no copy of the six tiles', async () => {
+test('hero (round 10): one customer request, before and after, driven by the real logo on the slider; no mascot, no copy of the six tiles', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
   assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Rework Rescue logo: drag to transform the business operations" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
@@ -39,18 +39,20 @@ test('hero (round 9): one operation, before and after, driven by the real logo o
   assert.match(hero, /Watch Rework Rescue transform your workflow&hellip;/);
   assert.match(hero, /<span class="rx-pill rx-pill-start">Scattered work<\/span>[\s\S]*<span class="rx-pill rx-pill-end">Better operations<\/span>/);
   const stage = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
-  assert.deepEqual([...stage.matchAll(/<p class="ops-zh">[\s\S]*?<b>([^<]+)<\/b><em>([^<]+)<\/em><\/p>/g)].map((m) => [m[1], m[2]]),
-    [['Understand the work', 'AI-assisted'], ['Improve the process', 'Automated'], ['Check &amp; control', 'Checked']]);
-  for (const s of ['Re: Booking, Lee &amp; Co', 'No, keep Monday', 'New enquiry', 'Customers.xlsx', 'Jobs list', 'typed in again', 'Handover notes', 'Owner: ?', 'Chase Lee &amp; Co about the quote!', 'Not updated since last month',
-    '2 emails, read by AI', 'Phone number missing', 'Auto-updated', 'Follow-up set', 'Duplicate record found and merged', 'Report totals match the source', 'Phone missing: sent to JM', 'Records', 'Duplicate merged', 'totals match source', 'Needs review', 'JM notified']) assert.ok(stage.includes(s), s);
-  assert.match(stage, /<li class="att">[\s\S]*?Phone missing: sent to JM/, 'the missing detail stays an exception for a person, not a green tick');
-  assert.equal((stage.match(/class="ops-cp /g) || []).length, 3, 'manual re-keying shown with copy marks, not floating labels');
-  assert.doesNotMatch(stage, /Who owns this\?|Pending response|Copy &amp; paste, again/, 'fewer floating labels');
+  assert.match(stage, /<p class="sc-label sc-label-before"><span>Before<\/span>/); assert.match(stage, /<p class="sc-label sc-label-after"><span>After<\/span>/);
+  const steps = html.slice(html.indexOf('<ol class="sc-steps"'), html.indexOf('</ol>', html.indexOf('<ol class="sc-steps"')));
+  assert.deepEqual([...steps.matchAll(/<b>([^<]+)<\/b>/g)].map((m) => m[1]), ['Understand the work', 'Improve the process', 'Check and control']);
+  assert.match(steps, /AI reads the emails/); assert.match(steps, /Automation keeps one record/); assert.match(steps, /Checks catch the duplicate/);
+  for (const s of ['Re: Quote request', 'Re: Quote request (update?)', 'Fwd: Quote request', 'Customers.xlsx', 'duplicate?', 'Phone: <span class="miss">missing</span>', 'Owner: <span class="unk">?</span>', 'Copy to list', 'Not updated',
+    '<mark>Lee &amp; Co</mark>', '<mark>Quote</mark>', 'In progress', '<dd>Alex</dd>', 'Details captured', 'Follow-up scheduled', 'Duplicate merged', 'Phone number needed<small>Alex notified</small>', 'Updated after checks']) assert.ok(stage.includes(s), s);
+  assert.equal((stage.match(/Phone number needed/g) || []).length, 1, 'the missing-information warning appears once');
+  assert.doesNotMatch(stage.replace(/Lee &amp; Co/g, ''), /&amp; Co|Park St|Booking|Invoice|\b[A-Z]{2}\b<\/span>|\b(Mon|Tue|Wed|Thu|Fri)\b/, 'one customer, one request; no other businesses, initials or arbitrary days');
+  assert.match(stage, /<li class="af-c af-c4 att">/, 'the missing phone stays an exception for a person, not a green tick');
   const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
   for (const tile of [...svc.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])) assert.ok(!stage.includes(tile), `hero doesn't repeat the tile "${tile}"`);
   assert.doesNotMatch(stage, /<img|background-image|\d+\s?%|hours? saved|Dana/i);
   const c = await read('../assets/styles.css');
-  const css = c.slice(c.indexOf('/* ---- Hero (17 Nov, round 9)'));
+  const css = c.slice(c.indexOf('/* ---- Hero (17 Nov, round 10)'));
   assert.match(css, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'no JavaScript: the organised state');
   assert.match(css, /\.rx-control \{ display: none;[^}]*\}\n\.rx\.rx-js \.rx-control \{ display: block; \}/, 'the slider only shows when it works');
   assert.match(css, /\.rx-runner \{[^}]*touch-action: none;/, 'dragging the logo never scrolls the page');
@@ -61,7 +63,7 @@ test('hero (round 9): one operation, before and after, driven by the real logo o
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/, 'CSP: setProperty and classes only; plays once');
   const { describe, clamp01, MORPH_MS, RUN_MS, START_DELAY_MS } = await import('../src/hero-slider.js');
   assert.equal(clamp01(-1), 0); assert.equal(clamp01(2), 1);
-  assert.match(describe(0), /Scattered/); assert.match(describe(0.3), /AI reads/); assert.match(describe(0.5), /automation/); assert.match(describe(0.8), /missing phone sent to a person/); assert.match(describe(1), /Better operations/);
+  assert.match(describe(0), /Before: one quote request/); assert.match(describe(0.3), /AI reads/); assert.match(describe(0.5), /Alex assigned/); assert.match(describe(0.8), /Alex notified/); assert.match(describe(1), /Better operations/);
   assert.ok(START_DELAY_MS >= 700 && START_DELAY_MS <= 900); assert.ok(MORPH_MS + RUN_MS >= 4000 && MORPH_MS + RUN_MS <= 5000);
 });
 

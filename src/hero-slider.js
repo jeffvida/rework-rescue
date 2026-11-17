@@ -1,4 +1,4 @@
-// Hero (17 Nov 2026, round 9): one business operation, before and after; the Rework Rescue logo is the control. One value, --p on the hero (0 = scattered work, 1 = better
+// Hero (17 Nov 2026, round 10): one customer request, before and after: one business operation, before and after; the Rework Rescue logo is the control. One value, --p on the hero (0 = scattered work, 1 = better
 // operations), drives everything in CSS: the Bot's position, the mark unfolding into the Bot (--m), its stride
 // (sin of --p, so it runs at exactly the speed it moves, in either direction), and every object in the scene.
 // Autoplay and dragging write the same value; nothing else animates the scene.
@@ -12,11 +12,11 @@
 // Without JavaScript the slider stays hidden and the organised state shows. CSP: CSSOM setProperty and classes.
 
 const STAGES = [
-  [0.15, 'Scattered work: conflicting emails, re-typed spreadsheets, a duplicate record and missing details'],
-  [0.4, 'Understanding the work: AI reads the emails and flags the missing phone number'],
-  [0.6, 'Improving the process: automation updates the jobs list, routes the request and schedules the follow-up'],
-  [0.9, 'Checks and control: duplicate merged, report totals checked, missing phone sent to a person'],
-  [1.01, 'Better operations: connected, checked, with one item for a person to review'],
+  [0.08, 'Before: one quote request scattered across emails, a spreadsheet, a sticky note and an old report'],
+  [0.33, 'Understand the work: AI reads the emails and pulls out the customer and request'],
+  [0.62, 'Improve the process: one record, Alex assigned as owner, follow-up scheduled'],
+  [0.97, 'Check and control: duplicate merged, missing phone number flagged and Alex notified, report updated'],
+  [1.01, 'Better operations: one organised record, with the missing phone number flagged for Alex'],
 ];
 export const describe = (p) => STAGES.find(([max]) => p < max)[1];
 export const clamp01 = (v) => Math.min(1, Math.max(0, v));

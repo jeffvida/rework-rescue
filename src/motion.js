@@ -12,12 +12,13 @@ const REVEAL = [
   '#services h2', '.rr-diff h2', '.rr-approach', '.rr-standards', '#built h2', '.built-cards', '.rr-tools', '.rr-results-h',
   '#how h2', '.steps-h', '.how-approach', '.steps-row', '.handover-h', '.handover-list', '.handover-note',
   '.about-section .photo-card', '.about-copy',
-  '#faq h2',
+  '#faq h2', '#safety h2', '.sn-quote',
   '.book-main',
 ];
 // Groups whose children come in one after another.
 const STAGGER = [
   ['.rr-tiles', 70],
+  ['.sn-list', 80],
   ['.rr-results', 90],
   ['.about-copy', 35],
   ['.faq-wrap', 30, '.faq-item'],

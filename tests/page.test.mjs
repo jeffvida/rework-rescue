@@ -19,7 +19,7 @@ test('hero: Jeff and ChatGPT copy word for word, two buttons, proof line, no fra
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
   assert.match(hero, /<p class="eyebrow hero-pill">For business owners and operations teams<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
-  assert.match(hero, /<p class="hero-sub">I help businesses reduce repetitive admin, keep information organised and make sure important work doesn&rsquo;t get missed\. I build practical systems and workflows, using automation and AI only where they genuinely help\.<\/p>/);
+  assert.match(hero, /<p class="hero-sub">I take repeat work off your team using better data, practical automation and AI where it helps\. I build in checks for important results, so when a check fails or a step doesn&rsquo;t complete, affected work can be held for review and the right person can step in\.<\/p>/, 'Jeff, 17 Nov: subhead verbatim');
   assert.doesNotMatch(hero.slice(0, hero.indexOf('hero-actions')), /website|landing page|CRM/i, 'hero leads with problems, not services');
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review<\/a>/);
   assert.match(hero, /<a class="btn btn-large hv-explore" href="#built">Try a live automation/);
@@ -128,9 +128,9 @@ test('build cards match what the n8n workflows do', async () => {
 
 test('section order, nav and removed content', async () => {
   const html = await page();
-  const ids = ['services', 'approach', 'built', 'experience', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
+  const ids = ['services', 'approach', 'safety', 'built', 'experience', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
   assert.ok(ids.every((i) => i > 0)); assert.deepEqual([...ids].sort((a, b) => a - b), ids);
-  assert.equal((html.match(/<section /g) || []).length, 8, 'hero + seven sections');
+  assert.equal((html.match(/<section /g) || []).length, 9, 'hero + eight sections (safety net added 17 Nov)');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
   assert.deepEqual(nav, ['services:How I help', 'built:Live demos', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);
@@ -151,13 +151,13 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3><p>([^<]+)<\/p><\/li>/g)].map((m) => `${m[1]}: ${m[2]}`), [
     'Understand the work: Identify the repetitive tasks, existing tools and operational problems.',
     'Map the solution: Agree on the workflow, scope and what should be automated.',
-    'Build and test: Implement the solution and test normal cases, exceptions and handoffs.',
+    'Build and test: Implement the solution and test normal cases, exceptions and what happens when things go wrong.',
     'Hand over: Document the workflow, explain how it works and provide the agreed solution.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
   assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
   assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\. You&rsquo;ll receive:<\/p>/);
   assert.deepEqual([...std.matchAll(/<li><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
-    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes']);
+    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes', 'Safety net']);
   assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, exceptions and review steps your team needs to understand\. Third-party software and licensed components remain subject to their providers&rsquo; terms\.<\/p>/);
   assert.match(how, /<summary>Step 2 example: see a sample written scope<\/summary>/);
   assert.match(how, /No system logins to get started\./);
@@ -169,7 +169,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.match(about, /I build AI and automation workflows with n8n, and I keep my skills current as the tools change\./);
   assert.match(about, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/);
   const faq = section(html, 'faq', 'start');
-  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'Can you build a website or set up a simple CRM?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
+  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'What happens if the automation breaks?', 'Can you build a website or set up a simple CRM?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
   assert.match(faq, /Not every problem needs AI\./);
   assert.match(faq, /<p>Each project is priced around one clearly defined improvement\. Where the requirements and deliverables can be agreed upfront, I use a fixed project fee rather than an open-ended hourly rate\.<\/p><p>The price depends on the work involved, the tools to connect, and any setup, integration or data preparation required\.<\/p><p>After the free review, you&rsquo;ll receive a written proposal showing the deliverables, what&rsquo;s included and excluded, the estimated timeline, payment schedule and any third-party software, hosting or usage costs\.<\/p><p>Nothing starts until you approve the scope and price\.<\/p>/);
   assert.doesNotMatch(faq, /one report or one process/);

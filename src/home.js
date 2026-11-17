@@ -75,3 +75,10 @@ if (location.hash === '#example-1' || location.hash === '#example-2') {
   history.replaceState(null, '', `${location.pathname}${location.search}#samples`);
   requestAnimationFrame(() => document.getElementById('samples')?.scrollIntoView({ block: 'start' }));
 }
+
+// 17 Nov (Jeff + ChatGPT): the six tiles open into short example workflows, and the safety-net section plays its
+// failure drill once when it comes on screen (src/tiles.js, src/demo/drill.js).
+import { mountTiles } from './tiles.js';
+import { mountDrill } from './demo/drill.js';
+mountTiles(document.querySelector('#services .rr-tiles'));
+mountDrill(document.getElementById('sn-drill'));

@@ -27,7 +27,9 @@ test('checks section: calm heading, memorable line, five customer-benefit headin
   const h = await page();
   const s = between(h, 'id="safety"', '</section>');
   assert.match(s, /<h2 id="safety-h">Checks and control, built in\.<\/h2>/);
-  assert.match(s, /Automation should make everyday work easier, not create another thing your team has to worry about\./);
+  assert.match(s, /I look at the whole process &mdash; the information, the steps, the tools they rely on and the results\. I build in checks and clear next steps for anything that needs attention\./);
+  for (const eg of ['A request without a required contact detail is flagged for follow-up.', 'A report with totals that don&rsquo;t match the source is flagged before it&rsquo;s shared.', 'I walk through normal use, common exceptions and agreed recovery steps with you.']) assert.ok(s.includes(eg), eg);
+  assert.doesNotMatch(text(s), /repair|job request|job sheet/i, 'general business example, not repair-specific');
   assert.match(s, /<p class="sn-quote">I don&rsquo;t just automate the work\. I design what happens when the work doesn&rsquo;t go to plan\.<\/p>/);
   assert.deepEqual([...s.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]),
     ['Information checked', 'Problems made visible', 'Results checked', 'People stay involved', 'Ready for handover']);
@@ -36,19 +38,20 @@ test('checks section: calm heading, memorable line, five customer-benefit headin
   assert.ok(h.indexOf('id="approach"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="built"'), 'after the approach band, before the demos');
 });
 
-test('failure drill: optional (closed by default), outside cause, checked before retrying, held, person told, ends on recovery', async () => {
+test('failure drill: optional (closed by default), general example, pauses, person told, person recovers with a check', async () => {
   const h = await page();
   assert.match(h, /<details class="sn-more no-print">\s*<summary>See what happens when a step fails<\/summary>/, 'closed by default: visitors choose to open it');
   const d = between(h, 'id="sn-drill"', '</figure>');
-  assert.match(d, /When an outside tool goes down: an example/);
+  assert.match(d, /<p class="sn-drill-k">A practical example<\/p>/);
+  assert.match(d, /When a connected tool is temporarily unavailable/);
   const rows = [...d.matchAll(/<li class="sn-row[^"]*">([\s\S]*?)<\/li>/g)].map((m) => text(m[1]));
-  assert.equal(rows.length, 6);
-  assert.match(rows[1], /Google Sheets didn.{1,8}t respond/, 'the cause is an outside tool');
-  assert.match(rows[2], /nothing was saved, so it.*safe to try once more/, 'retry only because it is safe');
-  assert.match(rows[3], /held for review/);
-  assert.match(rows[4], /Ana \(Operations\) is alerted/); assert.match(rows[4], /backup steps/);
-  assert.match(rows[5], /Ana restarts the run\. The 4 requests are processed, checked and logged\./, 'a person restarts it; it ends on recovery');
-  assert.match(d, /Fictional example\. The checks in a real project are agreed in the scope\./);
+  assert.equal(rows.length, 4, 'four steps: short enough to scan');
+  assert.match(rows[0], /Four new requests arrive in the shared inbox/);
+  assert.match(rows[1], /so it pauses/); assert.match(rows[1], /original messages stay in the inbox/, 'nothing is deleted at the source');
+  assert.match(rows[2], /responsible person is notified/); assert.match(rows[2], /agreed backup process/);
+  assert.match(rows[3], /responsible person checks what.{1,8}s already recorded and processes the outstanding requests/, 'a person recovers it, checking first: no automatic recovery claimed');
+  assert.match(rows[3], /completed entries are checked and recorded/);
+  assert.match(d, /Fictional example\. The checks, backup process and recovery steps are agreed for each project\./);
   const js = await read('../src/demo/drill.js');
   assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /addEventListener\('toggle'/);
   assert.doesNotMatch(js, /IntersectionObserver/, 'no auto-play on scroll');
@@ -58,13 +61,15 @@ test('failure drill: optional (closed by default), outside cause, checked before
 test('process, handover and FAQ carry the safety net without new promises', async () => {
   const h = await page();
   assert.match(h, /<li><h3>Build and test<\/h3><p>Implement the solution and test normal cases, exceptions and what happens when things go wrong\.<\/p><\/li>/);
-  assert.match(h, /<li><strong>Safety net<\/strong>The safeguards configured for your workflow, operating and backup instructions, and a demonstration of the agreed failure tests\.<\/li>/);
+  assert.match(h, /<li><strong>Safety net<\/strong>The checks set up for your workflow, written backup steps, and a walk-through of the agreed failure tests\.<\/li>/);
   for (const k of ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes']) assert.ok(h.includes(`<li><strong>${k}</strong>`), `${k} kept`);
-  const faq = between(h, '<summary>What happens if the automation breaks?</summary>', '</details>');
-  assert.match(faq, /Alerts for failed runs are good practice, and I treat them as the minimum\./);
-  assert.match(faq, /affected work can be held for review/);
-  assert.match(faq, /ongoing monitoring and maintenance are available and quoted separately\./);
-  assert.match(faq, /No automation can prevent every outside service failure, and it doesn&rsquo;t replace human responsibility\./, 'the full honest limit lives in the FAQ');
+  const faq = between(h, '<summary>What happens if something breaks or a connected app changes?</summary>', '</details>');
+  assert.equal((h.match(/<summary>What happens if/g) || []).length, 1, 'one failure FAQ, not two');
+  assert.match(faq, /the person you choose is told what to do/);
+  assert.match(faq, /Connected apps and services are run by their providers/, 'honest about what depends on outside providers');
+  assert.match(faq, /no automation can prevent every outside service failure/);
+  assert.match(faq, /If a provider changes their service after handover, I&rsquo;ll quote any updates needed\./, 'ends on an offer, not a warning');
+  assert.doesNotMatch(text(faq), /API|token|rate limit|error code/i, 'no technical jargon');
 });
 
 test('six tiles: wording unchanged, one example workflow each (four steps + one safeguard), no prices or claims', async () => {
@@ -86,5 +91,5 @@ test('no overpromising anywhere on the page or in the examples', async () => {
     assert.doesNotMatch(t, /fixes itself|self-healing|catches every|detects every|every problem is (caught|detected)|never stops|never fails|exactly once|nothing (is |ever )?(gets )?lost|zero errors|100% (reliable|uptime|accurate)|before any loss/i);
   }
   const priv = await read('../privacy/index.html');
-  assert.match(priv, /Ana, the job sheet and the times are made up\. They run in your browser and don&rsquo;t send or save anything\./);
+  assert.match(priv, /The requests, people and times in them are made up\. They run in your browser and don&rsquo;t send or save anything\./);
 });

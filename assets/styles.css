@@ -4567,6 +4567,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 /* The drill: a run log */
 .sn-drill { position: sticky; top: 6rem; margin: 0; padding: 1.1rem 1.15rem 0.8rem; background: #0f3a3a; border-radius: 18px; color: #e8f2ee; box-shadow: 0 30px 60px -36px rgba(15, 58, 58, 0.8); }
 .sn-drill-k { margin: 0 0 0.8rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal); }
+.sn-drill-h { margin: -0.4rem 0 0.9rem; font-size: 1.02rem; line-height: 1.35; color: #fff; }
 .sn-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
 .sn-row { display: grid; grid-template-columns: 3rem 1.6rem minmax(0, 1fr); gap: 0.5rem; align-items: start; margin: 0; padding: 0.55rem 0.65rem; border-radius: 10px; background: rgba(255, 255, 255, 0.05); font-size: 0.9rem; line-height: 1.45; transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease; }
 .sn-row strong { color: #fff; }

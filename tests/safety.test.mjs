@@ -28,7 +28,7 @@ test('checks section: calm heading, memorable line, five customer-benefit headin
   const s = between(h, 'id="safety"', '</section>');
   assert.match(s, /<h2 id="safety-h">Checks and control, built in\.<\/h2>/);
   assert.match(s, /I look at the whole process &mdash; the information, the steps, the tools they rely on and the results\. I build in checks and clear next steps for anything that needs attention\./);
-  for (const eg of ['A request without a required contact detail is flagged for follow-up.', 'A report with totals that don&rsquo;t match the source is flagged before it&rsquo;s shared.', 'I walk through normal use, common exceptions and agreed recovery steps with you.']) assert.ok(s.includes(eg), eg);
+  for (const eg of ['A request without a required contact detail is flagged for follow-up.', 'A report with totals that don&rsquo;t match the source is flagged before it&rsquo;s shared.', 'I walk your team through the workflow and show them what to do when something needs attention.']) assert.ok(s.includes(eg), eg);
   assert.doesNotMatch(text(s), /repair|job request|job sheet/i, 'general business example, not repair-specific');
   assert.match(s, /<p class="sn-quote">I don&rsquo;t just automate the work\. I design what happens when the work doesn&rsquo;t go to plan\.<\/p>/);
   assert.deepEqual([...s.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]),

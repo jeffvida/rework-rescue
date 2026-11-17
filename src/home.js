@@ -75,3 +75,7 @@ if (location.hash === '#example-1' || location.hash === '#example-2') {
   history.replaceState(null, '', `${location.pathname}${location.search}#samples`);
   requestAnimationFrame(() => document.getElementById('samples')?.scrollIntoView({ block: 'start' }));
 }
+
+// Hero (17 Nov): "What's taking up your team's time?" — the visitor's own task as a workflow (src/demo/taskflow.js).
+// The five-step flow above stays as the example until they type. Nothing they type leaves the browser.
+import('./demo/taskflow.js').then(({ mountTaskBox }) => mountTaskBox(document.getElementById('task-box')));

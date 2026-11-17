@@ -4515,3 +4515,57 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-standards ul { gap: 0.8rem 1.4rem; }
 .rr-standards li { font-size: 0.95rem; line-height: 1.5; }
 .rr-standards-note { margin: 1rem 0 0; font-size: 0.88rem; color: var(--muted); }
+
+/* ---- "What's taking up your team's time?" hero box (17 Nov 2026, Jeff; src/demo/taskflow.js) ----
+   Hidden without JavaScript (the five-step example shows on its own). The box sits on a pale panel, like a
+   product's command bar; the visitor's task becomes a five-step workflow that builds in sequence. */
+.tw { position: relative; }
+.tw.tw-on { padding: 1.5rem; border-radius: 24px; background: linear-gradient(160deg, #eef5f1 0%, #e3efe9 100%); border: 1px solid #d5e5dc; }
+.tw-ask { margin: 0 0 1.25rem; }
+.tw-q-label { display: block; margin: 0 0 0.85rem; font-family: var(--display); font-weight: 700; font-size: clamp(1.35rem, 2vw, 1.7rem); line-height: 1.2; letter-spacing: -0.02em; color: var(--ink); text-align: center; }
+.tw-field { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.4rem 0.4rem 1.1rem; background: #fff; border: 1px solid #cfe0d7; border-radius: 16px; box-shadow: 0 12px 30px -16px rgba(15, 58, 58, 0.35); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.tw-field:focus-within { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(46, 125, 114, 0.15), 0 12px 30px -16px rgba(15, 58, 58, 0.35); }
+.tw-field input { flex: 1; min-width: 0; min-height: 2.9rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.02rem; color: var(--ink); }
+.tw-field input::placeholder { color: #7a8c89; }
+.tw-go { flex: none; display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border: 0; border-radius: 12px; background: var(--teal); color: #fff; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+.tw-go:hover { background: var(--teal-dark); }
+.tw-go:active { transform: scale(0.96); }
+.tw-go svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.tw-hint { margin: 0.55rem 0 0; font-size: 0.82rem; color: var(--muted); text-align: center; }
+.tw-chips { list-style: none; margin: 0.8rem 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.45rem; }
+.tw-chips li { margin: 0; }
+.tw-chips button { min-height: 2.25rem; padding: 0.35rem 0.85rem; border: 1px solid #cfe0d7; border-radius: 999px; background: rgba(255, 255, 255, 0.75); font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--teal-dark); cursor: pointer; transition: background-color 0.18s ease, border-color 0.18s ease; }
+.tw-chips button:hover { background: #fff; border-color: var(--teal); }
+.tw.tw-on .rf { max-width: none; margin: 0; box-shadow: 0 18px 40px -28px rgba(18, 38, 43, 0.5); }
+/* The visitor's workflow */
+.tw-result { padding: 1.2rem 1.3rem 1.1rem; background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 18px 40px -28px rgba(18, 38, 43, 0.5); outline: 0; }
+.tw-result-k { margin: 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
+.tw-quote { margin: 0.25rem 0 0.9rem; font-family: var(--display); font-weight: 700; font-size: 1.08rem; line-height: 1.35; color: var(--ink); overflow-wrap: anywhere; }
+.tw-steps { list-style: none; margin: 0; padding: 0; position: relative; }
+.tw-steps::before { content: ""; position: absolute; left: 0.85rem; top: 0.9rem; bottom: 1.2rem; width: 2px; background: #dcebe5; }
+.tw-step { position: relative; display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: 0.85rem; margin: 0; padding: 0 0 0.85rem; }
+.tw-step:last-child { padding-bottom: 0.2rem; }
+.tw-n { position: relative; z-index: 1; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--teal); color: #fff; font-size: 0.8rem; font-weight: 700; box-shadow: 0 0 0 4px #fff; }
+.tw-check .tw-n { background: #c98a12; }
+.tw-you .tw-n { background: #1f6b43; }
+.tw-body { min-width: 0; }
+.tw-t { margin: 0.12rem 0 0.1rem; font-weight: 700; font-size: 0.95rem; line-height: 1.3; color: var(--ink); }
+.tw-tag { display: inline-block; margin-left: 0.3rem; padding: 0.08rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; vertical-align: 0.1em; background: #e2f0ea; color: var(--teal-dark); }
+.tw-check .tw-tag { background: #fcefd6; color: #8a5200; }
+.tw-you .tw-tag { background: #e2f3e8; color: #1f6b43; }
+.tw-d { margin: 0; font-size: 0.88rem; line-height: 1.45; color: var(--muted); }
+.tw-note { margin: 0.85rem 0 0; padding-top: 0.6rem; border-top: 1px solid #eeeadf; font-size: 0.8rem; color: var(--muted); }
+.tw-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.1rem; margin-top: 0.8rem; }
+.tw-reset { min-height: 2.75rem; padding: 0 0.2rem; border: 0; background: none; font: inherit; font-weight: 700; color: var(--teal-dark); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+/* Building: each step lights up in turn, the line fills behind them */
+.tw-result.is-building .tw-step { opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.tw-result.is-building .tw-step.is-on { opacity: 1; transform: none; }
+.tw-result.is-building .tw-step.is-on .tw-n { animation: tw-pop 0.5s ease 1; }
+.tw-result .tw-steps::after { content: ""; position: absolute; left: 0.85rem; top: 0.9rem; bottom: 1.2rem; width: 2px; background: var(--teal); transform-origin: top; transform: scaleY(1); }
+.tw-result.is-building .tw-steps::after { transform: scaleY(0); animation: tw-fill 2.1s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards; }
+@keyframes tw-fill { to { transform: scaleY(1); } }
+@keyframes tw-pop { 0% { box-shadow: 0 0 0 4px #fff, 0 0 0 4px rgba(46, 125, 114, 0.5); } 100% { box-shadow: 0 0 0 4px #fff, 0 0 0 14px rgba(46, 125, 114, 0); } }
+@media (max-width: 52rem) { .tw.tw-on { padding: 1.1rem; border-radius: 20px; } .tw-q-label { font-size: 1.3rem; } .tw-result { scroll-margin-top: 5rem; } }
+@media (max-width: 30rem) { .tw-chips { justify-content: flex-start; } .tw-q-label, .tw-hint { text-align: left; } .tw-result { padding: 1rem; } }
+@media (prefers-reduced-motion: reduce) { .tw-result .tw-step, .tw-steps::after { transition: none; animation: none !important; transform: none !important; opacity: 1 !important; } }
+@media (max-width: 52rem) { .rr-hero .hero-grid > .tw { order: 6; margin: 0.3rem 0 1.6rem; } }

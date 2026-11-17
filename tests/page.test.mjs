@@ -19,7 +19,7 @@ test('hero: Jeff and ChatGPT copy word for word, two buttons, proof line, no fra
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<figure'));
   assert.match(hero, /<p class="eyebrow hero-pill">For business owners and operations teams<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
-  assert.match(hero, /<p class="hero-sub">I take repeat work off your team using better data, practical automation and AI where it helps\. I build in checks for important results, so when a check fails or a step doesn&rsquo;t complete, affected work can be held for review and the right person can step in\.<\/p>/, 'Jeff, 17 Nov: subhead verbatim');
+  assert.match(hero, /<p class="hero-sub">I take repetitive work off your team&rsquo;s hands using better data, practical automation and AI where it helps\. Every workflow has checks built in and keeps people involved where it matters, so your team spends less time checking and correcting work\.<\/p>/, 'Jeff, 17 Nov (benefit first): subhead verbatim');
   assert.doesNotMatch(hero.slice(0, hero.indexOf('hero-actions')), /website|landing page|CRM/i, 'hero leads with problems, not services');
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review<\/a>/);
   assert.match(hero, /<a class="btn btn-large hv-explore" href="#built">Try a live automation/);

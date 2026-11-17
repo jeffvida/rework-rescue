@@ -14,41 +14,45 @@ const page = () => read('../index.html');
 const between = (h, a, b) => h.slice(h.indexOf(a), h.indexOf(b, h.indexOf(a)));
 const text = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 
-test('hero: headline kept, one quiet strip linking to the safety net (no technical list in the hero)', async () => {
+test('hero: headline kept, benefit first; one quiet strip linking to the checks section (no failure talk up front)', async () => {
   const h = await page();
   assert.match(h, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
   const fig = between(h, 'id="hero-flow"', '</figure>');
-  assert.match(fig, /<strong>Every workflow has a safety net\.<\/strong> <a href="#safety">See what happens when something goes wrong/);
-  assert.doesNotMatch(fig, /Check the information|Catch failed steps|retry/i, 'the methodology lives in the safety-net section, not the hero');
+  assert.match(fig, /<strong>Checks and control are built into every workflow\.<\/strong> <a href="#safety">See how/);
+  const top = text(between(h, '<section class="hero', '</figure>'));
+  assert.doesNotMatch(top, /fails?\b|failure|goes wrong|breaks?\b|retry/i, 'the hero sells confidence; failure handling is shown further down, as proof');
 });
 
-test('safety-net section: heading, memorable line, five safeguards in order, each with an example; limits note', async () => {
+test('checks section: calm heading, memorable line, five customer-benefit headings with an example each, short limits line', async () => {
   const h = await page();
   const s = between(h, 'id="safety"', '</section>');
-  assert.match(s, /<h2 id="safety-h">Automation needs a safety net\.<\/h2>/);
+  assert.match(s, /<h2 id="safety-h">Checks and control, built in\.<\/h2>/);
+  assert.match(s, /Automation should make everyday work easier, not create another thing your team has to worry about\./);
   assert.match(s, /<p class="sn-quote">I don&rsquo;t just automate the work\. I design what happens when the work doesn&rsquo;t go to plan\.<\/p>/);
   assert.deepEqual([...s.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]),
-    ['Check the information', 'Catch failed steps', 'Check the results', 'Keep people informed and in control', 'Prepare for handover']);
+    ['Information checked', 'Problems made visible', 'Results checked', 'People stay involved', 'Ready for handover']);
   assert.equal((s.match(/class="sn-eg"/g) || []).length, 5, 'one plain example each');
-  assert.match(s, /No automation can prevent every outside service failure or replace human responsibility\./);
+  assert.match(s, /<p class="sn-limits">The checks are agreed for each workflow, based on its risks and the tools it connects to\.<\/p>/);
   assert.ok(h.indexOf('id="approach"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="built"'), 'after the approach band, before the demos');
 });
 
-test('failure drill: caught, checked before retrying, held, named person told what to do, restarted by a person, logged', async () => {
+test('failure drill: optional (closed by default), outside cause, checked before retrying, held, person told, ends on recovery', async () => {
   const h = await page();
+  assert.match(h, /<details class="sn-more no-print">\s*<summary>See what happens when a step fails<\/summary>/, 'closed by default: visitors choose to open it');
   const d = between(h, 'id="sn-drill"', '</figure>');
+  assert.match(d, /When an outside tool goes down: an example/);
   const rows = [...d.matchAll(/<li class="sn-row[^"]*">([\s\S]*?)<\/li>/g)].map((m) => text(m[1]));
-  assert.equal(rows.length, 7);
-  assert.match(rows[1], /didn.rsquo;t respond|didn’t respond|didn&rsquo;t respond/);
+  assert.equal(rows.length, 6);
+  assert.match(rows[1], /Google Sheets didn.{1,8}t respond/, 'the cause is an outside tool');
   assert.match(rows[2], /nothing was saved, so it.*safe to try once more/, 'retry only because it is safe');
   assert.match(rows[3], /held for review/);
   assert.match(rows[4], /Ana \(Operations\) is alerted/); assert.match(rows[4], /backup steps/);
-  assert.match(rows[5], /Ana restarts the run/, 'a person restarts it; it does not fix itself');
-  assert.match(rows[6], /Logged/);
-  assert.match(d, /Fictional example\. The safeguards in a real project are agreed in the scope\./);
+  assert.match(rows[5], /Ana restarts the run\. The 4 requests are processed, checked and logged\./, 'a person restarts it; it ends on recovery');
+  assert.match(d, /Fictional example\. The checks in a real project are agreed in the scope\./);
   const js = await read('../src/demo/drill.js');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /IntersectionObserver/);
-  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|setAttribute\('style'/, 'CSP: classes only; plays once, no loop');
+  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /addEventListener\('toggle'/);
+  assert.doesNotMatch(js, /IntersectionObserver/, 'no auto-play on scroll');
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|setAttribute\('style'/, 'CSP: classes only; no loop');
 });
 
 test('process, handover and FAQ carry the safety net without new promises', async () => {
@@ -60,6 +64,7 @@ test('process, handover and FAQ carry the safety net without new promises', asyn
   assert.match(faq, /Alerts for failed runs are good practice, and I treat them as the minimum\./);
   assert.match(faq, /affected work can be held for review/);
   assert.match(faq, /ongoing monitoring and maintenance are available and quoted separately\./);
+  assert.match(faq, /No automation can prevent every outside service failure, and it doesn&rsquo;t replace human responsibility\./, 'the full honest limit lives in the FAQ');
 });
 
 test('six tiles: wording unchanged, one example workflow each (four steps + one safeguard), no prices or claims', async () => {
@@ -70,6 +75,7 @@ test('six tiles: wording unchanged, one example workflow each (four steps + one 
   const all = FLOWS.flatMap((f) => [...f.steps, f.net]).join(' ');
   assert.doesNotMatch(all, /[$₱€£]\s?\d|\d+\s?%|save[sd]? \d|guarantee|never fails|always works/i);
   const js = await read('../src/tiles.js');
+  assert.match(js, /'Built-in check: '/);
   assert.match(js, /aria-expanded/); assert.match(js, /Escape/);
 });
 

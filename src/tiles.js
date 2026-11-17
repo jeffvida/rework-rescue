@@ -80,7 +80,7 @@ export function mountTiles(list) {
     f.steps.forEach((s) => { const li = document.createElement('li'); li.textContent = s; ol.append(li); });
     const net = document.createElement('p'); net.className = 'tile-flow-net';
     net.innerHTML = SHIELD; // fixed icon markup from this file, never visitor text
-    const strong = document.createElement('strong'); strong.textContent = 'Safety net: ';
+    const strong = document.createElement('strong'); strong.textContent = 'Built-in check: ';
     const words = document.createElement('span'); words.className = 'tile-flow-net-t';
     words.append(strong, f.net);
     net.append(words);

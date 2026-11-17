@@ -4600,3 +4600,22 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-tiles .tile-flow-net strong { font-weight: 700; }
 @media (max-width: 40rem) { .rr-tiles > li.tile-flow { padding: 0.95rem 0.9rem; } }
 @media (max-width: 40rem) { .rr-tiles.is-interactive > li:not(.tile-flow) { display: block; } }
+/* 17 Nov update: benefit-first section; the drill is optional proof behind a disclosure */
+.sn-section .sn-list { margin-top: 1.8rem; grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr)); }
+.sn-limits { margin-top: 1rem; }
+.sn-more { margin-top: 1.4rem; max-width: 46rem; }
+.sn-more > summary { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.55rem 1.1rem; border: 1px solid var(--teal); border-radius: 999px; background: #fff; font-weight: 700; color: var(--teal-dark); cursor: pointer; list-style: none; }
+.sn-more > summary::-webkit-details-marker { display: none; }
+.sn-more > summary::after { content: "\203A"; font-size: 1.2rem; line-height: 1; transition: transform 0.2s ease; }
+.sn-more[open] > summary::after { transform: rotate(90deg); }
+.sn-more > summary:hover { background: #eef6f2; }
+.sn-more .sn-drill { position: static; margin-top: 1rem; }
+.sn-end { background: rgba(47, 143, 91, 0.18); }
+@media (prefers-reduced-motion: reduce) { .sn-more > summary::after { transition: none; } }
+@media (min-width: 62.01rem) {
+  .sn-section .sn-list { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .sn-section .sn-list > li { grid-column: span 2; }
+  .sn-section .sn-list > li:nth-child(4), .sn-section .sn-list > li:nth-child(5) { grid-column: span 3; }
+}
+@media (min-width: 40.01rem) and (max-width: 62rem) { .sn-section .sn-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sn-section .sn-list > li:nth-child(5) { grid-column: 1 / -1; } }
+@media (max-width: 40rem) { .sn-section .sn-list { grid-template-columns: minmax(0, 1fr); } }

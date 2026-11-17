@@ -29,44 +29,39 @@ test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
 
-test('hero (round 11): a true before-and-after comparison; the real logo sets the boundary; no mascot, no copy of the six tiles', async () => {
+test('hero (round 12 = round 8 scene, slider under the illustration): one operation, before and after; no mascot, no copy of the six tiles', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
-  assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Rework Rescue logo: drag to move between scattered work and better operations" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
-  assert.match(hero, /<span class="rx-runner"[^>]*><img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark is the handle');
-  assert.doesNotMatch(hero, /bot-|robot|mascot/i);
+  assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Rework Rescue logo: drag to transform the business operations" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
+  assert.match(hero, /<span class="rx-runner"[^>]*><img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark is the control');
+  assert.doesNotMatch(hero, /bot-|robot|mascot/i, 'no robot or mascot');
   assert.match(hero, /<span class="rx-hint-drag">Drag the Rework Rescue logo to explore the transformation\.<\/span>/);
+  assert.match(hero, /Watch Rework Rescue transform your workflow&hellip;/);
   assert.match(hero, /<span class="rx-pill rx-pill-start">Scattered work<\/span>[\s\S]*<span class="rx-pill rx-pill-end">Better operations<\/span>/);
-  const fig = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
-  const before = fig.slice(fig.indexOf('cmp-before'), fig.indexOf('cmp-after'));
-  const after = fig.slice(fig.indexOf('cmp-after'));
-  assert.match(fig, /<div class="cmp-layer cmp-before" aria-hidden="true">/, 'screen readers get the after state; the before is described in the figure label');
-  // the same environment: every item exists in both layers, in the same place
-  for (const k of ['it-src', 'it-ai', 'it-st1', 'it-st2', 'it-st3', 'it-fu', 'it-rec', 'it-rep', 'it-rev']) {
-    assert.ok(new RegExp(`class="it ${k}\\b`).test(before), `before has ${k}`);
-    assert.ok(new RegExp(`class="it ${k}\\b`).test(after), `after has ${k}`);
-  }
-  for (const s of ['Re: Fwd: Re: quote?', 'phone number?', 'Follow up?', 'copy of Customers.xlsx', 'Not updated', 'Who&rsquo;s calling back?']) assert.ok(before.includes(s), s);
-  for (const s of ['Read by AI', 'Customer: Lee &amp; Co', 'Phone: missing', 'Understand the work', 'Improve the process', 'Check &amp; control', 'Follow-up scheduled', 'Records &middot; checked', 'Duplicate merged', 'Totals checked against the source', 'Needs review', 'Alex notified']) assert.ok(after.includes(s), s);
-  assert.equal((after.match(/Needs review/g) || []).length, 1);
+  const stage = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
+  assert.deepEqual([...stage.matchAll(/<li class="ops-st[^"]*">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2]]),
+    [['Understand the work', 'AI where interpretation helps'], ['Improve the process', 'Automation where repetition gets in the way'], ['Check &amp; control', 'Checks and people where they matter']]);
+  for (const s of ['Re: Fwd: update', 'Details missing', 'Orders.xlsx', 'Orders_copy.xlsx', 'copy &amp; paste', 'Handoff notes', 'Check this?', 'Follow up?', 'Who owns this?', 'Out of date',
+    'Read by AI', 'Phone: missing', 'Records &middot; checked', 'Follow-up scheduled', 'Needs review', 'JM notified', 'Updated']) assert.ok(stage.includes(s), s);
   const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
-  for (const tile of [...svc.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])) assert.ok(!fig.includes(tile), `hero doesn't repeat the tile "${tile}"`);
-  assert.doesNotMatch(fig, /<img|background-image|\d+\s?%|hours? saved|Dana|\b(JM|AK|SR)\b/);
+  for (const tile of [...svc.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])) assert.ok(!stage.includes(tile), `hero doesn't repeat the tile "${tile}"`);
+  assert.doesNotMatch(stage, /<img|background-image|\d+\s?%|hours? saved|Dana/i);
+  const story = html.slice(html.indexOf('<div class="hero-story">'), html.indexOf('<div class="container rx-track-wrap">'));
+  assert.ok(story.indexOf('id="hero-story"') < story.indexOf('<div class="rx-control">'), 'the slider sits directly under the illustration, inside the same column');
   const c = await read('../assets/styles.css');
-  const css = c.slice(c.indexOf('/* ---- Hero (17 Nov, round 11)'));
-  assert.match(css, /\.cmp-before \{ clip-path: inset\(0 0 0 calc\(var\(--p\) \* 100%\)\);/, 'before shows to the right of the boundary');
-  assert.match(css, /\.cmp-after \{ clip-path: inset\(0 calc\(\(1 - var\(--p\)\) \* 100%\) 0 0\);/, 'after shows to the left of the boundary');
-  assert.match(css, /\.rx-runner \{[^}]*left: calc\(var\(--p\) \* 100% - 1\.8rem\);/, "the logo's centre is the boundary");
-  assert.match(css, /\.cmp-edge \{[^}]*left: calc\(var\(--p\) \* 100%\);/);
-  assert.match(css, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'no JavaScript: the after state');
-  assert.match(css, /\.rx-runner \{[^}]*touch-action: none;/); assert.match(css, /\.rx-track \{[^}]*touch-action: pan-y;/);
-  assert.doesNotMatch(css.slice(0, css.indexOf('/* the Dana Cruz flow')), /infinite/);
+  assert.match(c, /\.hero-story \.rx-runner \{[^}]*left: calc\(var\(--p\) \* 100% - 1\.8rem\);/, "the logo's centre runs edge to edge of the illustration");
+  const css = c.slice(c.indexOf('/* ---- Hero (17 Nov, round 8)'));
+  assert.match(css, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'no JavaScript: the organised state');
+  assert.match(c, /\.hero-story \.rx-control \{ display: none;[^}]*\}\n\.rx\.rx-js \.hero-story \.rx-control \{ display: block; \}/, 'the slider only shows when it works');
+  assert.match(c, /\.hero-story \.rx-runner \{[^}]*touch-action: none;/, 'dragging the logo never scrolls the page');
+  assert.match(c, /\.hero-story \.rx-track \{[^}]*touch-action: pan-y;/, 'the rest of the line still lets the page scroll');
+  assert.doesNotMatch(css.slice(0, css.indexOf('/* the Dana Cruz flow')), /infinite/, 'nothing loops');
   const js = await read('../src/hero-slider.js');
   for (const k of ['ArrowRight', 'ArrowLeft', 'PageUp', 'PageDown', 'Home', 'End', 'aria-valuenow', 'aria-valuetext', 'setPointerCapture', 'prefers-reduced-motion: reduce', 'takeOver']) assert.ok(js.includes(k), k);
-  assert.match(js, /return clamp01\(\(x - r\.left\) \/ Math\.max\(1, r\.width\)\);/, 'pointer position maps straight onto the boundary');
-  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/);
-  const { describe, MORPH_MS, RUN_MS, START_DELAY_MS } = await import('../src/hero-slider.js');
-  assert.match(describe(0), /Scattered work/); assert.match(describe(0.5), /Halfway: organised work on the left, scattered work on the right/); assert.match(describe(1), /Better operations/);
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/, 'CSP: setProperty and classes only; plays once');
+  const { describe, clamp01, MORPH_MS, RUN_MS, START_DELAY_MS } = await import('../src/hero-slider.js');
+  assert.equal(clamp01(-1), 0); assert.equal(clamp01(2), 1);
+  assert.match(describe(0), /Scattered/); assert.match(describe(0.3), /AI reads/); assert.match(describe(0.5), /automation/); assert.match(describe(0.8), /one exception sent to a person/); assert.match(describe(1), /Better operations/);
   assert.ok(START_DELAY_MS >= 700 && START_DELAY_MS <= 900); assert.ok(MORPH_MS + RUN_MS >= 4000 && MORPH_MS + RUN_MS <= 5000);
 });
 

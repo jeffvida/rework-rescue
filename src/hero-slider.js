@@ -1,4 +1,4 @@
-// Hero (17 Nov 2026, round 11): a true before-and-after comparison; the logo's centre is the boundary: one business operation, before and after; the Rework Rescue logo is the control. One value, --p on the hero (0 = scattered work, 1 = better
+// Hero (17 Nov 2026, round 12): the round-8 scene; the slider sits under the illustration, the logo's centre tracks progress: one business operation, before and after; the Rework Rescue logo is the control. One value, --p on the hero (0 = scattered work, 1 = better
 // operations), drives everything in CSS: the Bot's position, the mark unfolding into the Bot (--m), its stride
 // (sin of --p, so it runs at exactly the speed it moves, in either direction), and every object in the scene.
 // Autoplay and dragging write the same value; nothing else animates the scene.
@@ -12,11 +12,11 @@
 // Without JavaScript the slider stays hidden and the organised state shows. CSP: CSSOM setProperty and classes.
 
 const STAGES = [
-  [0.05, 'Scattered work: the whole picture shows the messy before state'],
-  [0.35, 'Boundary near the start: incoming work gathered and the email read by AI'],
-  [0.65, 'Halfway: organised work on the left, scattered work on the right'],
-  [0.95, 'Most of the picture organised: checked records and an updated report coming into view'],
-  [1.01, 'Better operations: the whole picture is organised, with one item for a person to review'],
+  [0.15, 'Scattered work: emails, forms, copied spreadsheets and notes handled by hand'],
+  [0.4, 'Understanding the work: AI reads and extracts the information'],
+  [0.6, 'Improving the process: automation moves the work and schedules follow-ups'],
+  [0.9, 'Checks and control: records checked, one exception sent to a person'],
+  [1.01, 'Better operations: connected, checked, with one item for a person to review'],
 ];
 export const describe = (p) => STAGES.find(([max]) => p < max)[1];
 export const clamp01 = (v) => Math.min(1, Math.max(0, v));
@@ -30,7 +30,7 @@ export function mountSlider(hero) {
   const track = hero.querySelector('.rx-track');
   const knob = hero.querySelector('.rx-runner');
   const replay = hero.querySelector('.rx-reset');
-  const stage = hero.querySelector('.cmp');
+  const stage = hero.querySelector('.rx-stage');
   if (!track || !knob) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -86,7 +86,7 @@ export function mountSlider(hero) {
   }
 
   const fromX = (x) => {
-    // the slider is exactly as wide as the canvas: the logo's centre is the before/after boundary
+    // the slider is exactly as wide as the illustration: the logo's centre tracks progress across it
     const r = track.getBoundingClientRect();
     return clamp01((x - r.left) / Math.max(1, r.width));
   };

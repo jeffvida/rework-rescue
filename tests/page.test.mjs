@@ -43,12 +43,20 @@ test('hero flow: five steps, ends on a person approving, labelled fictional; pla
   const c = await read('../assets/styles.css');
   assert.match(c, /\.rf-pre \{ display: none !important; \}/);
   assert.match(c, /@media \(prefers-reduced-motion: reduce\) \{ \.rf-step, \.rf-card \{ transition: none; \} \}/);
+  // Lit workflow (Jeff, 17 Nov): scroll-driven light, hover spotlight, click/tap to a step; reduced motion = finished picture.
   const js = await read('../src/demo/flow.js');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /IntersectionObserver/); assert.match(js, /'Replay'/); assert.match(js, /'Skip'/);
-  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval/, 'CSP: classes only; plays once, no loop');
-  const { STEP_MS, APPROVE_MS, STEPS } = await import('../src/demo/flow.js');
-  const total = 250 + (STEPS - 1) * STEP_MS + APPROVE_MS + 900;
-  assert.ok(total <= 9000, `about 8 seconds (${total} ms)`);
+  assert.match(js, /prefers-reduced-motion: reduce/);
+  assert.match(js, /addEventListener\('scroll'/); assert.match(js, /pointerenter/); assert.match(js, /s\.addEventListener\('click'/);
+  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|setAttribute\('style'/, 'CSP: classes and SVG attributes only; no loop');
+  const { progressFromHold, progressFromAnchor, APPROVE_AT, STEPS } = await import('../src/demo/flow.js');
+  assert.equal(STEPS, 5);
+  assert.equal(progressFromHold(0, 600), 0, 'desktop hold starts on step 1');
+  assert.ok(progressFromHold(600, 600) >= APPROVE_AT, 'the end of the hold lands the approval');
+  assert.equal(progressFromAnchor(100, 200, 600), 0, 'phones: nothing past step 1 before the flow reaches mid-screen');
+  assert.equal(progressFromAnchor(400, 200, 600), 2, 'halfway down the line = step 3');
+  assert.ok(progressFromAnchor(640, 200, 600) >= 4.5, 'past the last step = approved');
+  assert.match(c, /\.hero\.rf-hold > \.container \{ position: sticky;/);
+  assert.match(c, /@media \(prefers-reduced-motion: reduce\) \{ \.hero\.rf-hold \{ height: auto; \}/);
 });
 
 test('hero: only the five-step flow; the earlier Today / With panel is gone (15 Nov decision)', async () => {

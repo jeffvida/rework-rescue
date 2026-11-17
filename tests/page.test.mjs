@@ -32,9 +32,12 @@ test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking
 test('hero slider: the real logo is a draggable, keyboard-accessible slider that moves every object from mess to organised', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
-  assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Transform the workflow" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
+  assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Rework Rescue Bot: drag to transform the workflow" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
   assert.match(hero, /<img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark, undistorted');
-  assert.match(hero, /<p class="rx-hint" id="rx-hint">Drag the Rework Rescue logo to transform your workflow <span aria-hidden="true">&rarr;<\/span><\/p>/);
+  assert.match(hero, /<p class="rx-hint" id="rx-hint">Drag the Rework Rescue Bot to explore the transformation\.<\/p>/);
+  assert.match(hero, /<p class="rx-ends" aria-hidden="true"><span>Scattered work<\/span><span>Better operations<\/span><\/p>/);
+  for (const k of ['bot-head', 'bot-visor', 'bot-ant', 'bot-arm-l', 'bot-arm-r', 'bot-leg-l', 'bot-leg-r', 'bot-chest']) assert.ok(hero.includes(k), k);
+  for (const s of ['Read by AI', 'Routed automatically', 'A person decides', 'JM notified', 'Pending response']) assert.ok(hero.includes(s), s);
   const stage = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
   for (const k of ['mx-job', 'mx-quote', 'mx-web', 'mx-fu', 'mx-sheet', 'mx-report']) assert.match(stage, new RegExp(`class="mx ${k}"`), k);
   for (const s of ['Re: Fwd: job update', 'Phone: missing', 'Duplicate?', 'Duplicate found', 'Not updated', 'Follow up?',
@@ -52,7 +55,11 @@ test('hero slider: the real logo is a draggable, keyboard-accessible slider that
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/, 'CSP: setProperty and classes only');
   const { describe, clamp01 } = await import('../src/hero-slider.js');
   assert.equal(clamp01(-1), 0); assert.equal(clamp01(2), 1);
-  assert.match(describe(0), /Scattered/); assert.match(describe(0.5), /Duplicate found/); assert.match(describe(1), /one item for a person to review/);
+  assert.match(describe(0), /Scattered/); assert.match(describe(0.3), /AI reading/); assert.match(describe(0.5), /Duplicate found/); assert.match(describe(0.8), /routed automatically/); assert.match(describe(1), /Better operations/);
+  const { MORPH_MS, RUN_MS, START_DELAY_MS } = await import('../src/hero-slider.js');
+  assert.ok(START_DELAY_MS >= 700 && START_DELAY_MS <= 900, 'short look at the mess first');
+  assert.ok(MORPH_MS + RUN_MS >= 4000 && MORPH_MS + RUN_MS <= 5000, 'about 4–5 s');
+  assert.match(js, /takeOver/, 'any input stops autoplay'); assert.doesNotMatch(js, /setInterval/, 'plays once');
 });
 
 test('the Dana Cruz example moved under How I help, still working', async () => {

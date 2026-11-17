@@ -4799,6 +4799,91 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 @media (forced-colors: active) { .rx-beam, .rx-trail, .rx-bg { display: none; } .rx-runner { border: 2px solid CanvasText; } }
 @media print { .rx-track-wrap, .rx-ghosts, .rx-bg { display: none; } }
 
+/* ---- Round 6: the Rework Rescue Bot. The slider handle is the real brand mark; as --p leaves 0 it unfolds into
+   the Bot (--m): the round badge squares into a chest plate, a navy head with a teal visor rises from behind it,
+   arms and legs unfold. Its stride is a function of position (sin of --p), so it runs forwards and backwards exactly
+   as fast as it moves and stands still when it stops; at the far right it settles. Sizes in em so phones get a
+   smaller Bot from one font-size. */
+.rx { --m: clamp(0, calc(var(--p) / 0.07), 1); --amp: clamp(0, min(var(--m), calc((1 - var(--p)) * 25)), 1); --cyc: 11; --s: sin(calc(var(--p) * var(--cyc) * 6.2832rad)); }
+.rx-track { height: 9.5em; font-size: 16px; }
+.rx-line, .rx-trail { top: auto; bottom: 1.7rem; margin-top: 0; }
+.rx-line { margin-bottom: -1px; }
+.rx-trail { margin-bottom: -2px; width: calc(var(--p) * (100% - 4em) + 2em); }
+.rx-runner { top: auto; bottom: calc(1.7rem - 2em); margin-top: 0; width: 4em; height: 4em; left: calc(var(--p) * (100% - 4em)); background: none; box-shadow: none !important; border-radius: 50%; }
+.rx-beam { bottom: calc(1.7rem + 5.6em * var(--m)); left: calc(var(--p) * (100% - 4em) + 2em); }
+.bot { position: absolute; inset: 0; transform-origin: 50% 100%; transform: translateY(calc(var(--m) * -3.45em - var(--s) * var(--s) * var(--amp) * 0.22em)) rotate(calc(var(--amp) * 5deg)); }
+.bot > span { position: absolute; display: block; }
+.bot-chest { inset: 0; z-index: 3; display: grid; place-items: center; background: #fff; border-radius: calc(50% - var(--m) * 24%); box-shadow: 0 0 0 calc(0.25em - var(--m) * 0.1em) rgba(47, 165, 143, 0.2), 0 10px 22px -10px rgba(15, 58, 58, 0.6), inset 0 calc(var(--m) * -0.25em) 0 rgba(15, 58, 58, 0.08); }
+.bot-chest img { width: 74%; height: auto; pointer-events: none; }
+.bot-head { z-index: 2; left: 50%; bottom: 84%; width: 3em; height: 1.75em; margin-left: -1.5em; border-radius: 0.85em 0.85em 0.6em 0.6em; background: linear-gradient(180deg, #1a4f4b, #0f3a3a); box-shadow: 0 6px 14px -8px rgba(15, 58, 58, 0.7); opacity: var(--m); transform: translateY(calc((1 - var(--m)) * 1.5em)) scale(calc(0.45 + var(--m) * 0.55)); transform-origin: 50% 100%; }
+.bot-visor { position: absolute; left: 0.32em; right: 0.32em; top: 0.48em; height: 0.66em; display: flex; align-items: center; justify-content: center; gap: 0.5em; border-radius: 1em; background: linear-gradient(90deg, #17665d, #2fa58f); box-shadow: 0 0 calc(var(--m) * 12px) rgba(127, 209, 179, 0.75); }
+.bot-visor i { width: 0.36em; height: 0.36em; border-radius: 50%; background: #e6fff6; }
+.bot-ant { position: absolute; left: 50%; bottom: 100%; width: 2px; height: 0.55em; margin-left: -1px; background: #1a4f4b; }
+.bot-ant::after { content: ""; position: absolute; left: 50%; top: -0.3em; width: 0.42em; height: 0.42em; margin-left: -0.21em; border-radius: 50%; background: #e8892b; box-shadow: 0 0 8px rgba(232, 137, 43, 0.6); }
+.bot-arm { z-index: 1; top: 36%; width: 0.44em; height: 1.75em; border-radius: 0.3em; background: linear-gradient(180deg, #2a8f80, #1b6b62); transform-origin: 50% 0.2em; }
+.bot-arm-l { left: -0.12em; transform: rotate(calc(16deg + var(--s) * var(--amp) * 42deg)) scaleY(var(--m)); }
+.bot-arm-r { right: -0.12em; transform: rotate(calc(-16deg + var(--s) * var(--amp) * 42deg)) scaleY(var(--m)); }
+.bot-leg { z-index: 0; top: 84%; width: 0.6em; height: 2.15em; border-radius: 0.32em; background: linear-gradient(180deg, #1a4f4b, #0f3a3a); transform-origin: 50% 0.2em; }
+.bot-leg-l { left: 27%; transform: rotate(calc(var(--s) * var(--amp) * 34deg)) scaleY(var(--m)); }
+.bot-leg-r { right: 27%; transform: rotate(calc(var(--s) * var(--amp) * -34deg)) scaleY(var(--m)); }
+.bot-leg i { position: absolute; bottom: -0.1em; left: -0.08em; width: 0.95em; height: 0.34em; border-radius: 0.3em; background: #0f3a3a; }
+.rx-runner:focus-visible { outline: none; }
+.rx-runner:focus-visible .bot-chest { outline: 3px solid var(--focus); outline-offset: 3px; }
+.rx.rx-dragging .bot-chest, .rx-runner:hover .bot-chest { box-shadow: 0 0 0 0.4em rgba(47, 165, 143, 0.22), 0 12px 26px -10px rgba(15, 58, 58, 0.7); }
+.rx-runner, .rx-runner:hover { animation: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .rx.rx-ready:not(.rx-touched) .bot { animation: bot-wave 1.2s ease-in-out 0.6s 1; }
+}
+@keyframes bot-wave { 0%, 100% { rotate: 0deg; } 30% { rotate: -6deg; } 60% { rotate: 4deg; } }
+
+/* hint and end labels */
+.rx-hint { opacity: 0; transition: opacity 0.5s ease; }
+.rx.rx-ready .rx-hint { opacity: 0.9; }
+.rx.rx-ready.rx-touched .rx-hint { opacity: 0.5; }
+.rx-control { position: relative; }
+.rx-ends { display: flex; justify-content: space-between; margin: -1.3rem 0 0; pointer-events: none; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.rx-ends span:first-child { color: #a1550f; opacity: calc(0.45 + (1 - var(--p)) * 0.55); }
+.rx-ends span:last-child { color: var(--teal); opacity: calc(0.45 + var(--p) * 0.55); }
+.rx-reset { position: absolute; right: 0; top: 0; }
+
+/* AI reading: each piece glows teal while the Bot is working on it */
+.mx::after { content: ""; position: absolute; inset: -3px; z-index: 2; border-radius: calc(1.8 * var(--u)); pointer-events: none; box-shadow: 0 0 0 2px rgba(47, 165, 143, 0.85), 0 0 22px 2px rgba(47, 165, 143, 0.45); opacity: calc(sin(calc(var(--l) * 3.1416rad)) * 0.95); }
+/* the key: AI reads, automation routes, a person decides */
+.mx-legend { position: absolute; left: 0; top: calc(50.6 * var(--k)); width: calc(60 * var(--k)); display: flex; justify-content: space-between; gap: calc(1.2 * var(--u)); list-style: none; margin: 0; padding: 0; font-size: calc(1.85 * var(--u)); font-weight: 700; }
+.mx-legend li { display: flex; align-items: center; gap: calc(0.7 * var(--u)); margin: 0; white-space: nowrap; }
+.mx-legend svg { width: calc(2.8 * var(--u)); height: calc(2.8 * var(--u)); }
+.lg-ai { color: #1d6f64; opacity: clamp(0, calc((var(--p) - 0.12) / 0.15), 1); }
+.lg-auto { color: var(--teal-dark); opacity: clamp(0, calc((var(--p) - 0.5) / 0.15), 1); }
+.lg-person { color: #a1550f; opacity: clamp(0, calc((var(--p) - 0.82) / 0.12), 1); }
+.mx-attn em { font-style: normal; font-weight: 800; color: #1d5f58; white-space: nowrap; }
+/* more everyday friction, gone once the Bot has passed */
+.mx-xtra { position: absolute; margin: 0; padding: calc(0.9 * var(--u)) calc(1.8 * var(--u)); border-radius: 999px; border: 1px dashed #d4b98a; background: #fff8ea; color: #7a4a10; font-weight: 700; font-size: calc(2 * var(--u)); white-space: nowrap; }
+.mx-pend { left: calc(80 * var(--k)); top: calc(1 * var(--k)); transform: rotate(4deg); opacity: calc(1 - clamp(0, calc((var(--p) - 0.66) / 0.12), 1)); }
+.mx-copy { left: calc(81 * var(--k)); top: calc(56 * var(--k)); transform: rotate(-4deg); opacity: calc(1 - clamp(0, calc((var(--p) - 0.74) / 0.12), 1)); }
+/* a missing figure in the old report */
+.rx-bars .rx-bar-miss { background: color-mix(in srgb, #2a9580 calc(var(--t) * 100%), transparent); box-shadow: inset 0 0 0 1.5px rgba(201, 118, 28, calc(1 - var(--t))); }
+
+@media (max-width: 40rem) {
+  .rx-track { font-size: 13px; height: 9.5em; }
+  .rx-stage { aspect-ratio: 100 / 118; }
+  .mx-xtra { display: none; }
+  .mx-legend { top: calc(66.6 * var(--k)); width: calc(100 * var(--k)); font-size: calc(1.65 * var(--u)); }
+  .mx-sheet { --ay: 74; }
+  .mx-report { --ay: 74; }
+  .mx-attn { top: calc(94 * var(--k)); }
+  .rx-ends { font-size: 0.62rem; }
+}
+@media (forced-colors: active) { .mx::after { display: none; } .bot-chest { border: 2px solid CanvasText; } }
+
+.bot > .bot-chest { display: grid; place-items: center; }
+.bot-chest img { width: 70%; }
+@media (min-width: 75.01rem) { .rx-track { font-size: 18px; } }
+.rx-beam { opacity: calc(clamp(0, calc((var(--p) - 0.4) * 12), 1) * clamp(0, calc((1 - var(--p)) * 10), 1) * 0.85); }
+.rx-reset { right: 5.5rem; }
+@media (max-width: 40rem) { .rx-reset { right: 4.2rem; } }
+
+@media (max-width: 40rem) { .mx-legend { font-size: calc(1.5 * var(--u)); gap: calc(0.8 * var(--u)); } .mx-legend svg { width: calc(2.3 * var(--u)); height: calc(2.3 * var(--u)); } }
+
 /* the Dana Cruz flow, now under How I help */
 .svc-example { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 1.5rem 2.5rem; align-items: start; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); }
 .svc-example-copy { padding-top: 1rem; }

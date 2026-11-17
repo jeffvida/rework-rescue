@@ -20,37 +20,39 @@ test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking
   assert.match(hero, /<p class="eyebrow hero-eyebrow">Data &amp; workflow improvement<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
   assert.match(hero, /<p class="hero-sub">I help small teams reduce repetitive admin, bring scattered information together and make everyday processes easier to manage &mdash; using better data, practical tools and automation where it helps\.<\/p>/);
-  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free review <span aria-hidden="true">&rarr;<\/span><\/a>/);
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review <span aria-hidden="true">&rarr;<\/span><\/a>/);
   assert.match(hero, /<a class="btn btn-large hv-explore" href="#services">See how I can help<\/a>/);
-  assert.ok(hero.indexOf('Book a free review') < hero.indexOf('See how I can help'));
+  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how I can help'));
   assert.match(hero, /<p class="hero-note">[\s\S]*?30 minutes &middot; No obligation<\/p>/);
   assert.equal((hero.match(/<a /g) || []).length, 2, 'two calls to action, nothing else');
   assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip|rr-chip/, 'hero kept to the approved elements');
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
 
-test('hero transformation: mess → the Rework Rescue mark sweeps across → organised work; CSS-driven, plays once, reduced motion shows the end', async () => {
+test('hero slider: the real logo is a draggable, keyboard-accessible slider that moves every object from mess to organised', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
-  assert.match(hero, /<section class="hero hero-v3 rr-hero rx"/);
+  assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Transform the workflow" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
+  assert.match(hero, /<img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark, undistorted');
+  assert.match(hero, /<p class="rx-hint" id="rx-hint">Drag the Rework Rescue logo to transform your workflow <span aria-hidden="true">&rarr;<\/span><\/p>/);
   const stage = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
-  const mess = stage.slice(stage.indexOf('rx-mess'), stage.indexOf('rx-order'));
-  const order = stage.slice(stage.indexOf('rx-order'));
-  assert.match(mess, /aria-hidden="true"/, 'the mess is decoration; the organised state is what assistive tech reads');
-  for (const s of ['Duplicate?', 'Phone: missing', 'Not updated', 'Follow up?', 'Who&rsquo;s handling this?']) assert.ok(mess.includes(s), s);
-  for (const s of ['This week&rsquo;s work', 'Checked', 'Next: confirm date', 'Needs review', 'Scheduled', 'Updated', 'Needs a person:']) assert.ok(order.includes(s), s);
-  assert.match(order, /rx-s-att">Needs review/, 'items needing a person stay visible: not everything "succeeds"');
-  assert.doesNotMatch(stage, /<img|background-image|\d+\s?%|hours? saved|Dana/i, 'built from HTML, no invented figures, not the Dana example');
-  assert.match(hero, /<span class="rx-runner"><img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark, undistorted');
-  const strip = hero.slice(hero.indexOf('<ul class="story-benefits">'), hero.indexOf('</ul>', hero.indexOf('<ul class="story-benefits">')));
-  assert.deepEqual([...strip.matchAll(/<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work', 'Fewer avoidable mistakes', 'Smoother everyday operations']);
+  for (const k of ['mx-job', 'mx-quote', 'mx-web', 'mx-fu', 'mx-sheet', 'mx-report']) assert.match(stage, new RegExp(`class="mx ${k}"`), k);
+  for (const s of ['Re: Fwd: job update', 'Phone: missing', 'Duplicate?', 'Duplicate found', 'Not updated', 'Follow up?',
+    'Job update &middot; Park St', 'Quote request &middot; Lee &amp; Co', 'Needs review', 'Scheduled', 'Next: confirm date', 'Checked &middot; duplicate merged', 'Updated', 'Needs a person:']) assert.ok(stage.includes(s), s);
+  assert.doesNotMatch(stage, /<img|background-image|\d+\s?%|hours? saved|Dana/i);
   const c = await read('../assets/styles.css');
-  assert.match(c, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'the end state is the default');
-  assert.match(c, /@media \(prefers-reduced-motion: no-preference\) \{\n  \.rx \{ animation: rx-sweep 2\.8s/, 'only animates when motion is allowed');
-  assert.doesNotMatch(c.slice(c.indexOf('/* ---- Hero: the transformation')), /infinite/, 'plays once');
-  const js = await read('../src/hero-sweep.js');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /IntersectionObserver/);
+  const css = c.slice(c.indexOf('/* ---- Hero: drag the logo'));
+  assert.match(css, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'no JavaScript: the organised state');
+  assert.match(css, /\.rx-control \{ display: none; \}\n\.rx\.rx-js \.rx-control \{ display: block; \}/, 'the slider only shows when it works');
+  assert.match(css, /\.rx-runner \{[^}]*touch-action: none;/, 'dragging the logo never scrolls the page');
+  assert.match(css, /\.rx-track \{[^}]*touch-action: pan-y;/, 'the rest of the line still lets the page scroll');
+  assert.doesNotMatch(css, /infinite/, 'nothing loops');
+  const js = await read('../src/hero-slider.js');
+  for (const k of ['ArrowRight', 'ArrowLeft', 'PageUp', 'PageDown', 'Home', 'End', 'aria-valuenow', 'aria-valuetext', 'setPointerCapture', 'prefers-reduced-motion: reduce']) assert.ok(js.includes(k), k);
   assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/, 'CSP: setProperty and classes only');
+  const { describe, clamp01 } = await import('../src/hero-slider.js');
+  assert.equal(clamp01(-1), 0); assert.equal(clamp01(2), 1);
+  assert.match(describe(0), /Scattered/); assert.match(describe(0.5), /Duplicate found/); assert.match(describe(1), /one item for a person to review/);
 });
 
 test('the Dana Cruz example moved under How I help, still working', async () => {
@@ -226,7 +228,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));
 });
 
-test('guard rails: no prices, testimonials or invented results; first person; one button wording; only confirmed tools', async () => {
+test('guard rails: no prices, testimonials or invented results; first person; one button wording (the hero button says "rework review", approved 17 Nov); only confirmed tools', async () => {
   const html = await page();
   const visible = visibleText(html);
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
@@ -236,7 +238,7 @@ test('guard rails: no prices, testimonials or invented results; first person; on
   assert.doesNotMatch(html, /Most projects start|Most first projects|first project usually/);
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../src/booking/popup.js', '../src/assistant/rules.js', '../n8n/rework-assistant.json']) {
     const t = await read(f);
-    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
+    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace('Book a free rework review <span', '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
   }
   assert.doesNotMatch(html, /\sstyle="/, 'CSP: no inline styles');
   assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph');

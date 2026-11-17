@@ -3553,11 +3553,16 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .hero-v3 .h1-accent { position: relative; display: inline; color: var(--svc-workflow); }
 .hv-swoosh { display: block; width: 58%; max-width: 15rem; height: 0.8rem; margin: 0.35rem 0 0 18%; fill: none; stroke: var(--svc-workflow); stroke-width: 3.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .hv-swoosh path { vector-effect: non-scaling-stroke; }
+@media (prefers-reduced-motion: no-preference) {
+  .hv-swoosh path { stroke-dasharray: 100; stroke-dashoffset: 100; animation: hv-draw 0.8s ease-out 0.45s 1 forwards; }
+  @keyframes hv-draw { to { stroke-dashoffset: 0; } }
+}
 .hero-v3 .hero-sub { max-width: 30rem; font-size: clamp(1.05rem, 1.4vw, 1.18rem); margin-bottom: 1.5rem; }
 .hero-v3 .hv-actions { display: flex; flex-wrap: wrap; gap: 0.75rem 0.9rem; margin: 0 0 1.1rem; }
 .hero-v3 .hv-actions .btn { display: inline-flex; align-items: center; gap: 0.55rem; white-space: nowrap; }
 .hero-v3 .hv-actions svg { width: 1.15rem; height: 1.15rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.hero-v3 .hv-book { box-shadow: 0 10px 22px -12px rgba(15, 58, 58, 0.6), 0 2px 0 var(--signal); }
+.hero-v3 .hv-book { box-shadow: 0 10px 22px -12px rgba(15, 58, 58, 0.6), 0 2px 0 var(--signal); transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.hero-v3 .hv-book:hover { transform: translateY(-2px); box-shadow: 0 16px 28px -12px rgba(46, 125, 114, 0.55), 0 2px 0 var(--signal); }
 .hero-v3 .hv-explore { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal-dark); }
 .hero-v3 .hv-explore:hover { background: var(--card); color: var(--teal-dark); }
 .hero-v3 .hv-explore svg { fill: currentColor; stroke: none; }
@@ -4638,7 +4643,12 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rx .hero-grid { position: relative; z-index: 2; }
 .hero-story { position: relative; min-width: 0; }
 .rx-ghosts { display: none; }
-.rx-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(42rem 26rem at 76% 42%, rgba(186, 228, 211, calc(0.2 + var(--p) * 0.5)), transparent 70%); }
+/* round 13: the hero's light follows the story — a warm, slightly dim office cast over the scattered state that
+   clears into the airy teal glow as --p rises. Same element, same value; nothing new moves. */
+.rx-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; background:
+  radial-gradient(42rem 26rem at 76% 42%, rgba(186, 228, 211, calc(0.1 + var(--p) * 0.6)), transparent 70%),
+  radial-gradient(50rem 30rem at 70% 30%, rgba(188, 156, 96, calc((1 - var(--p)) * 0.14)), transparent 72%),
+  linear-gradient(180deg, rgba(134, 124, 96, calc((1 - var(--p)) * 0.07)), rgba(110, 104, 84, calc((1 - var(--p)) * 0.04))); }
 
 /* the stage */
 .rx-stage { --k: 1cqi; --u: 1cqi; position: relative; margin: 0; aspect-ratio: 100 / 64; container-type: inline-size; }
@@ -4665,7 +4675,10 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .mx-report { --a: 0.68; --d: 0.26; --bx: 67; --by: 41; --bw: 27; --bh: 15; --br: -2; --ax: 78; --ay: 32; --aw: 22; --ah: 17; }
 
 /* the mess */
-.mx-card { display: flex; align-items: center; gap: calc(1.3 * var(--u)); padding: 0 calc(1.7 * var(--u)); border-radius: calc(1.5 * var(--u)); background: #fff; border: 1px solid #e3ddcd; box-shadow: 0 12px 24px -16px rgba(40, 40, 20, 0.5); font-size: calc(2 * var(--u)); line-height: 1.3; color: #3c4a4d; }
+.mx-card { display: flex; align-items: center; gap: calc(1.3 * var(--u)); padding: 0 calc(1.7 * var(--u)); border-radius: calc(1.5 * var(--u)); background: #fffdf6; border: 1px solid #e3ddcd; box-shadow: 0 var(--el, 12px) calc(var(--el, 12px) * 2) -16px rgba(74, 52, 16, 0.5); font-size: calc(2 * var(--u)); line-height: 1.3; color: #3c4a4d; }
+/* round 13: the loose pieces sit at different heights, so the pile reads as a pile, not a grid */
+.mx-m1 .mx-card { --el: 10px; } .mx-form .mx-card { --el: 16px; } .mx-doc .mx-card { --el: 20px; }
+.mx-m2 .mx-card { --el: 14px; } .mx-sheetA .mx-card { --el: 18px; } .mx-sheetB .mx-card { --el: 11px; }
 .mx-card > svg, .rx-m-h > svg { flex: none; width: calc(3.2 * var(--u)); height: calc(3.2 * var(--u)); color: #7d8a8c; }
 .mx-card b { display: block; font-weight: 700; color: #2f3d40; white-space: nowrap; }
 .mx-card small { display: block; font-size: 0.88em; color: #6b787a; white-space: nowrap; }
@@ -4719,7 +4732,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 /* after-pieces */
 .ops-in { display: flex; align-items: center; gap: calc(1 * var(--u)); padding: 0 calc(1.2 * var(--u)); border-radius: calc(1.2 * var(--u)); background: #f2f9f6; border: 1px solid #d3e9df; color: var(--teal-dark); font-weight: 700; font-size: calc(1.8 * var(--u)); }
 .ops-in svg { flex: none; width: calc(2.6 * var(--u)); height: calc(2.6 * var(--u)); color: var(--teal); }
-.ops-ext { padding: calc(1.2 * var(--u)) calc(1.5 * var(--u)); border-radius: calc(1.6 * var(--u)); background: #fff; border: 1px solid #bfe3d7; box-shadow: 0 16px 30px -22px rgba(15, 58, 58, 0.5); }
+.ops-ext { padding: calc(1.2 * var(--u)) calc(1.5 * var(--u)); border-radius: calc(1.6 * var(--u)); background: #fff; border: 1px solid #bfe3d7; box-shadow: 0 24px 44px -24px rgba(15, 58, 58, 0.62), 0 0 0 1px rgba(47, 165, 143, 0.12); }
 .ops-ext-h { display: flex; align-items: center; gap: calc(0.8 * var(--u)); margin: 0 0 calc(0.9 * var(--u)); font-weight: 800; font-size: calc(1.75 * var(--u)); letter-spacing: 0.04em; text-transform: uppercase; color: #1d6f64; }
 .ops-ext-h svg { width: calc(2.6 * var(--u)); height: calc(2.6 * var(--u)); }
 .ops-fields { display: flex; flex-wrap: wrap; gap: calc(0.7 * var(--u)); margin: 0; }
@@ -4823,7 +4836,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .story-benefits li + li { border-left: 0; }
   .story-benefits svg { width: 1.5rem; height: 1.5rem; }
 }
-@media (forced-colors: active) { .mx::after, .rx-bg, .ops-token { display: none; } .rx-runner { border: 2px solid CanvasText; } }
+@media (forced-colors: active) { .mx::after, .rx-bg, .ops-token, .rx-sweep { display: none; } .rx-runner { border: 2px solid CanvasText; } }
 @media print { .rx-control { display: none; } }
 
 /* round 8 fit */
@@ -4867,6 +4880,31 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .rx-ends { gap: 0.3rem; }
   .rx-ends .rx-pill { font-size: 0.58rem; padding: 0.35rem 0.5rem; letter-spacing: 0.02em; }
   .rx-ends .rx-reset { margin: 0 auto; font-size: 0.78rem; }
+}
+
+/* round 13 (17 Nov): the sweep and the arrival. A soft light-front inside the stage at the logo's x — the slider
+   is exactly as wide as the illustration, so order visibly spreads from wherever the logo passes. Driven by the
+   same --p; sin() fades it out at both ends, so the resting states (0, 1, reduced motion, no JS) show nothing.
+   At --p ≈ 1 the hero gets .rx-done (hero-slider.js) and the end state settles once: board brightens, the
+   checkmarks and the "Better operations" pill pulse one time. Nothing loops. */
+.rx-sweep { position: absolute; z-index: 4; top: calc(1 * var(--k)); bottom: calc(1 * var(--k)); left: calc(var(--p) * 100%); width: calc(16 * var(--k)); margin-left: calc(-8 * var(--k)); pointer-events: none; background: linear-gradient(90deg, transparent, rgba(63, 209, 176, 0.14) 35%, rgba(255, 255, 255, 0.38) 50%, rgba(63, 209, 176, 0.14) 65%, transparent); opacity: calc(sin(calc(var(--p) * 3.1416rad))); }
+@media (max-width: 40rem) {
+  .rx-sweep { top: calc(var(--p) * 100%); bottom: auto; left: 0; right: 0; width: auto; margin-left: 0; height: calc(18 * var(--k)); margin-top: calc(-9 * var(--k)); background: linear-gradient(180deg, transparent, rgba(63, 209, 176, 0.14) 35%, rgba(255, 255, 255, 0.38) 50%, rgba(63, 209, 176, 0.14) 65%, transparent); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rx-done .ops-board { animation: rx-settle 0.9s ease-out 1; }
+  .rx-done .ops-rec .rx-m-h svg, .rx-done .ops-done svg { animation: rx-tick 0.55s ease-out 1; }
+  .rx-done .rx-pill-end { animation: rx-pop 0.5s ease-out 1; }
+}
+@keyframes rx-settle { 35% { border-color: #8fd0ba; box-shadow: 0 30px 70px -38px rgba(15, 58, 58, 0.65), 0 0 0 7px rgba(63, 209, 176, 0.16); } }
+@keyframes rx-tick { 40% { transform: scale(1.25); } }
+@keyframes rx-pop { 40% { transform: scale(1.1); } }
+/* the slider track reads as the journey: three faint stops where the stations sit (desktop widths only) */
+@media (min-width: 40.01rem) {
+  .hero-story .rx-track::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background:
+    radial-gradient(circle at 31% 50%, #fff 0 2px, #8fb8ab 2px 3.5px, transparent 4.5px),
+    radial-gradient(circle at 46.5% 50%, #fff 0 2px, #8fb8ab 2px 3.5px, transparent 4.5px),
+    radial-gradient(circle at 62% 50%, #fff 0 2px, #d9a441 2px 3.5px, transparent 4.5px); }
 }
 
 /* the Dana Cruz flow, now under How I help */

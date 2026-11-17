@@ -35,10 +35,11 @@ test('hero story: problem → connected workflow → result, built from HTML (no
   const txt = fig.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   for (const s of ['The usual problem', 'Work comes in from multiple places.', 'Emails', 'Spreadsheets', 'Forms &amp; requests',
     'The Rework Rescue solution', 'A connected workflow', 'Information brought together', 'Important details checked',
-    'Next steps made clear', 'The right person notified', 'The result', 'Clear, organised work ready for your team.', 'Copy and update', 'Make a report']) assert.ok(txt.includes(s), s);
+    'Next steps made clear', 'The right person notified', 'The result', 'Clear, organised work ready for your team.']) assert.ok(txt.includes(s), s);
   assert.ok(txt.indexOf('The usual problem') < txt.indexOf('The Rework Rescue solution') && txt.indexOf('The Rework Rescue solution') < txt.indexOf('The result'));
   assert.doesNotMatch(fig, /<img|background-image/, 'real elements, not a screenshot');
-  assert.doesNotMatch(txt, /\d+\s?%|\d+x\b|hours? saved|Dana/i, 'no invented figures; not the Dana example');
+  assert.doesNotMatch(txt, /\d|hours? saved|Dana/i, 'no counts or invented figures; not the Dana example');
+  assert.doesNotMatch(fig, /story-panel|story-bar|story-tick|sticky|mug/, 'no app window, ticks or decorative props (17 Nov correction)');
   const strip = html.slice(html.indexOf('<ul class="story-benefits">'), html.indexOf('</ul>', html.indexOf('<ul class="story-benefits">')));
   assert.deepEqual([...strip.matchAll(/<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work', 'Fewer avoidable mistakes', 'Smoother everyday operations']);
   const c = await read('../assets/styles.css');

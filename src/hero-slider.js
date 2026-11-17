@@ -1,4 +1,4 @@
-// Hero (17 Nov 2026, round 7): the Rework Rescue Bot, after Jeff's concept image. One value, --p on the hero (0 = scattered work, 1 = better
+// Hero (17 Nov 2026, round 8): one business operation, before and after; the Rework Rescue logo is the control. One value, --p on the hero (0 = scattered work, 1 = better
 // operations), drives everything in CSS: the Bot's position, the mark unfolding into the Bot (--m), its stride
 // (sin of --p, so it runs at exactly the speed it moves, in either direction), and every object in the scene.
 // Autoplay and dragging write the same value; nothing else animates the scene.
@@ -12,11 +12,11 @@
 // Without JavaScript the slider stays hidden and the organised state shows. CSP: CSSOM setProperty and classes.
 
 const STAGES = [
-  [0.15, 'Scattered work: emails, spreadsheets and forms everywhere'],
-  [0.4, 'AI reading the incoming work; information coming together'],
-  [0.6, 'Duplicate found and missing phone number flagged'],
-  [0.9, 'Work routed automatically: owners and next steps assigned'],
-  [1.01, 'Better operations: organised, with one item for a person to review'],
+  [0.15, 'Scattered work: emails, forms, copied spreadsheets and notes handled by hand'],
+  [0.4, 'Understanding the work: AI reads and extracts the information'],
+  [0.6, 'Improving the process: automation moves the work and schedules follow-ups'],
+  [0.9, 'Checks and control: records checked, one exception sent to a person'],
+  [1.01, 'Better operations: connected, checked, with one item for a person to review'],
 ];
 export const describe = (p) => STAGES.find(([max]) => p < max)[1];
 export const clamp01 = (v) => Math.min(1, Math.max(0, v));

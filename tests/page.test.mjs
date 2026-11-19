@@ -212,15 +212,15 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3><p>([^<]+)<\/p><\/li>/g)].map((m) => `${m[1]}: ${m[2]}`), [
     'Discovery: Understand how the work happens today and where it gets stuck.',
-    'Technical assessment: Check existing tools, data, access and integrations to establish what&rsquo;s feasible.',
+    'Technical assessment: Check your existing tools, data and access, and whether they can support the solution.',
     'Written scope and agreement: Confirm deliverables, exclusions, testing plan, fixed project fee and estimated delivery date.',
-    'Build and test: Test normal cases, exceptions and agreed failure scenarios.',
-    'Handover and defect fixes: Explain the solution, provide documentation and include 30 days of in-scope defect fixes.']);
+    'Build and test: Test the usual cases, unusual situations and what happens when something goes wrong.',
+    'Handover and 30-day fixes: Explain the solution, provide documentation and include 30 days of fixes.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
   assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
   assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\. You&rsquo;ll receive:<\/p>/);
   assert.deepEqual([...std.matchAll(/<li><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
-    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes', 'Safety net']);
+    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of fixes', 'Safety net']);
   assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, unusual cases and review steps your team needs to know\.<\/p>/);
   assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);
@@ -242,7 +242,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   const start = section(html, 'start');
   assert.match(start, /<h2 id="cta-h">Tell me what you&rsquo;d like to make easier\.<\/h2>/);
   assert.match(start, /<p class="lede">What&rsquo;s taking too much time, getting missed or harder to manage than it should be\? I&rsquo;ll help you work out whether a simpler process, customer tracker, website or automation would help\.<\/p>/);
-  assert.match(start, /<p class="book-outcome">Leave with a clearer picture of where work is getting stuck and one practical improvement worth considering &mdash; whether or not you and I work together\.<\/p>/);
+  assert.match(start, /<p class="book-outcome">Leave with a clearer picture of where work is getting stuck and one practical improvement worth considering &mdash; whether or not you decide to work with me\.<\/p>/);
   assert.match(start, /Describe the task or process your team repeats, or send a sample with confidential details removed\. I&rsquo;ll send a one-page written review within 1 working day, showing where the work gets stuck and what I&rsquo;d improve first\./);
   assert.match(start, /subject=Written%20task%20review">Get a free written review<\/a>/);
   const contact = await read('../contact/index.html');
@@ -257,7 +257,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));
 });
 
-test('guard rails: no prices, testimonials or invented results; first person; one button wording (the hero button says "rework review", approved 17 Nov); only confirmed tools', async () => {
+test('guard rails: no prices, testimonials or invented results; first person; one button wording ("Book a free rework review" on every booking button, 19 Nov); only confirmed tools', async () => {
   const html = await page();
   const visible = visibleText(html);
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
@@ -267,7 +267,7 @@ test('guard rails: no prices, testimonials or invented results; first person; on
   assert.doesNotMatch(html, /Most projects start|Most first projects|first project usually/);
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../src/booking/popup.js', '../src/assistant/rules.js', '../n8n/rework-assistant.json']) {
     const t = await read(f);
-    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace('Book a free rework review <span', '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
+    assert.doesNotMatch(t.replace(/Written(%20| )report(%20| )review/g, '').replace(/Book a (free rework |<span class="cta-long">free rework <\/span>)review/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '), /(report|rework) review/i, f);
   }
   assert.doesNotMatch(html, /\sstyle="/, 'CSP: no inline styles');
   assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph');

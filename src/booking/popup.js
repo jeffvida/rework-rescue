@@ -1,4 +1,4 @@
-// Booking pop-up, opened by every "Book a free review" link (homepage, contact page, assessment result).
+// Booking pop-up, opened by every "Book a free rework review" link (homepage, contact page, assessment result).
 //
 // Two modes, chosen by site-config.js:
 //  - LIVE (bookingAvailabilityUrl and bookingRequestUrl set): free times come from the n8n workflow
@@ -192,7 +192,7 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
       return;
     }
     dlg.innerHTML = `
-      <div class="bk-head"><div><p class="eyebrow">Book a free review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
+      <div class="bk-head"><div><p class="eyebrow">Book a free rework review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
         <button type="button" class="bk-x" data-close aria-label="Close">&times;</button></div>
       ${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
       <div class="bk-body">

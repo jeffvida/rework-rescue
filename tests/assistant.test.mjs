@@ -289,7 +289,7 @@ test('the n8n Code nodes carry the same rules (paste files match the workflow)',
   const wf = JSON.parse(await fs.readFile(new URL('../n8n/rework-assistant.json', import.meta.url), 'utf8'));
   for (const [node, file] of [['Check request', 'check-request.js'], ['Check reply', 'check-reply.js']]) {
     const code = wf.nodes.find((n) => n.name === node).parameters.jsCode;
-    assert.equal(await fs.readFile(new URL(`../n8n/paste-2026-11-15-v2/${file}`, import.meta.url), 'utf8'), code, file);
+    assert.equal(await fs.readFile(new URL(`../n8n/paste-2026-11-19/${file}`, import.meta.url), 'utf8'), code, file);
     assert.ok(code.includes("const WEB_SERVICE = { code: 'systems', label: 'Websites, landing pages and customer trackers', book: 'websites' };"));
     assert.ok(code.includes('web_or_tracker'));
   }

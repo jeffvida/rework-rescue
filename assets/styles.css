@@ -4888,16 +4888,10 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .hz .story-benefits li { font-size: 1rem; }
 }
 
-/* 19 Nov evening refinements: promises heading; two overlapping spreadsheet files; tracker room; new benefits */
+/* 19 Nov evening refinements: promises heading; tracker room; new benefits */
 .hz-pr-title { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.15rem, 1.35vw, 1.35rem); line-height: 1.25; color: var(--ink); }
 .hz-pr-title::after { content: ""; display: block; width: 2.4rem; height: 3px; margin-top: 0.5rem; border-radius: 2px; background: var(--gold-line, #e6c078); }
 .hz-pr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.3rem; }
-/* the spreadsheet card: an older copy of the same file sits behind it, its tab showing above */
-.hz-items { row-gap: 1.6rem; }
-.hz-items li.hz-in-sheet { overflow: visible; }
-.hz-sheet-copy { position: absolute; left: 0.9rem; right: -0.5rem; bottom: 100%; display: flex; align-items: center; gap: 0.35rem; height: 1.45rem; padding: 0 0.6rem; border: 1px solid #e3d6d1; border-bottom: 0; border-radius: 10px 10px 0 0; background: #f6efe9; font-size: 0.8125rem; line-height: 1; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 -4px 10px -8px rgba(60, 30, 20, 0.35); }
-.hz-sheet-copy svg { width: 0.95rem; height: 0.95rem; flex: none; color: #1f8a4c; opacity: 0.7; }
-.hz-in-sheet { box-shadow: 0 6px 14px -10px rgba(60, 30, 20, 0.35), 6px 6px 0 -1px #f6efe9, 6px 6px 0 0 #e3d6d1; }
 /* tracker: a touch more room on desktop so the four columns read cleanly */
 @media (min-width: 75.01rem) {
   .hz-table th, .hz-table td { padding-top: 0.6rem; padding-bottom: 0.6rem; }
@@ -4913,7 +4907,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .hz .story-benefits li + li { border-left: 0; }
   .hz .container.hz-benefits { text-align: left; }
 }
-@media (max-width: 40rem) { .hz-items { row-gap: 1.7rem; } .hz-pr-list { gap: 1rem; } .hz-pr-title { font-size: 1.1rem; } }
+@media (max-width: 40rem) { .hz-pr-list { gap: 1rem; } .hz-pr-title { font-size: 1.1rem; } }
 
 /* the Dana Cruz flow, now under How I help */
 .svc-example { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 1.5rem 2.5rem; align-items: start; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); }

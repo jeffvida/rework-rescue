@@ -51,7 +51,6 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   ]);
   assert.deepEqual([...fig.matchAll(/<ul class="hz-flags">[\s\S]*?<\/ul>/g)].flatMap((m) => [...m[0].matchAll(/<\/svg>([^<]+)<\/li>/g)].map((x) => x[1])), ['Duplicate?', 'Missing detail?', 'Who owns this?']);
   assert.doesNotMatch(fig, /Phone missing|Phone: missing/, 'the universal "Missing detail", not a phone example');
-  assert.match(fig, /<li class="hz-in-sheet"><span class="hz-sheet-copy">[\s\S]*?Customer list \(v2\)<\/span>[\s\S]*?Customer list \(v3\)\.xlsx/, 'two overlapping spreadsheet files show the duplicate');
   // the three roles, each with its job, in the colour language order
   assert.deepEqual([...fig.matchAll(/<li class="hz-(ai|auto|human)">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2], m[3]]), [
     ['ai', 'AI', 'Reads and interprets details'],

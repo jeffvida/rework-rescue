@@ -222,7 +222,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.deepEqual([...std.matchAll(/<li><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
     ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes', 'Safety net']);
   assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, exceptions and review steps your team needs to understand\. Third-party software and licensed components remain subject to their providers&rsquo; terms\.<\/p>/);
-  assert.match(how, /<summary>Step 3 example: see a sample written scope<\/summary>/);
+  assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);
   assert.doesNotMatch(how, /how-approach/, 'intro paragraphs cut to one line');
   const about = section(html, 'about', 'faq');

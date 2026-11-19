@@ -4728,16 +4728,6 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 @keyframes hz-lit-win { 0%, 76% { box-shadow: 0 14px 30px -22px rgba(15, 58, 58, 0.55); } 86% { box-shadow: 0 0 0 4px rgba(46, 125, 114, 0.22), 0 14px 30px -22px rgba(15, 58, 58, 0.55); } 98%, 100% { box-shadow: 0 14px 30px -22px rgba(15, 58, 58, 0.55); } }
 @keyframes hz-dash { to { background-position: 7px 0; } }
 
-/* Desktop: copy in two columns (headline | supporting line), buttons under */
-@media (min-width: 64.01rem) {
-  .hz .hero-copy { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); grid-template-areas: "eye eye" "title sub" "cta cta"; column-gap: 3rem; align-items: center; }
-  .hz .hero-eyebrow { grid-area: eye; }
-  .hz h1 { grid-area: title; margin-bottom: 1.4rem; }
-  .hz .hero-sub { grid-area: sub; margin: 0 0 1.4rem; padding-left: 2rem; border-left: 1px solid var(--line); max-width: 36rem; }
-  .hz .hz-cta { grid-area: cta; }
-  .hz .hz-cta .hero-note { padding-left: 1.4rem; border-left: 1px solid var(--line); }
-}
-@media (min-width: 64.01rem) { .hero-v3.hz h1 { font-size: clamp(2.2rem, 3.45vw, 3.15rem); } }
 /* Small laptops (1200–1365 px): the three zones stay side by side, a little tighter */
 @media (min-width: 75.01rem) and (max-width: 85.3rem) {
   .hz { --hz-pad: 1.5rem; }
@@ -4772,15 +4762,6 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .hz-win { width: 100%; max-width: 52rem; margin: 0 auto; }
 }
 @media (max-width: 52rem) { .hz-items { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hz-items li:nth-child(odd)::after { display: block; } }
-
-/* Tablets: buttons on one row, the booking note under them; the benefits stack once they no longer fit on one line */
-@media (max-width: 64rem) { .hz-cta { display: block; } .hz-cta .hero-note { margin-top: 0.9rem; } }
-@media (min-width: 40.01rem) { .hz .hv-actions { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 0.75rem 0.9rem; } .hz .hv-actions .btn { width: auto; } }
-@media (max-width: 60rem) {
-  .hz .story-benefits { display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; padding: 0.85rem 1rem; border-radius: 16px; }
-  .hz .story-benefits li { padding: 0; }
-  .hz .story-benefits li + li { border-left: 0; }
-}
 
 /* Phones: stacked stops, tracker rows become compact records */
 @media (max-width: 40rem) {
@@ -4825,6 +4806,87 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 }
 @media (forced-colors: active) { .hz-link::after { display: none; } .hz-zone, .hz-steps li, .hz-win, .hz-tag, .hz-arrow { border: 1px solid CanvasText; } }
 @media print { .hz-link::after { display: none; } }
+
+/* ---- Hero v2 (19 Nov, 15:22 reference): headline, subhead and one booking button left; three promises right;
+   the three-zone scene full width under them; the benefits strip at the bottom. Input icons in recognisable colours. ---- */
+.hz { --hz-max: 92rem; }
+.hz .container.hz-wrap { max-width: 106rem; padding-left: clamp(1rem, 1.8vw, 1.75rem); padding-right: clamp(1rem, 1.8vw, 1.75rem); }
+.hz .container.hero-grid, .hz .container.hz-benefits { max-width: 106rem; padding-left: clamp(1rem, 4.4vw, 4.6rem); padding-right: clamp(1rem, 4.4vw, 4.6rem); }
+.hz .container.hero-grid { display: block; }
+.hz .hero-eyebrow { display: inline-block; margin: 0 0 1.1rem; padding: 0.45rem 1rem; border-radius: 999px; background: #e3f1ea; border: 1px solid #cfe5d8; color: var(--teal-dark); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; }
+.hz .hero-eyebrow::after { content: none; }
+.hero-v3.hz h1 { color: var(--ink); margin-bottom: 1.1rem; }
+.hero-v3.hz .h1-accent { display: block; width: auto; color: var(--ink); }
+.hz .hz-mark { position: relative; display: inline-block; }
+.hz .hz-mark .hv-swoosh { position: absolute; left: -0.02em; bottom: -0.2em; width: 100%; max-width: none; height: 0.34em; margin: 0; stroke: #2fa58f; stroke-width: 4.5; }
+.hz .hero-sub { max-width: 46rem; margin: 0 0 1.5rem; font-size: clamp(1.05rem, 1.35vw, 1.2rem); }
+.hz-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem 1.4rem; }
+.hz-cta .hero-note { padding-left: 1.4rem; border-left: 1px solid var(--line); }
+/* the three promises */
+.hz-promises { list-style: none; margin: 2rem 0 0; padding: 1.6rem 1.8rem; display: grid; gap: 1.4rem; border-radius: 24px; background: rgba(255, 255, 255, 0.72); border: 1px solid #e1ebe5; box-shadow: 0 24px 50px -36px rgba(15, 58, 58, 0.45); }
+.hz-promises li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; column-gap: 1.2rem; row-gap: 0.15rem; margin: 0; }
+.hz-promises b { align-self: end; }
+.hz-promises li > span:last-child { align-self: start; }
+.hz-pr-ic { grid-row: span 2; display: grid; place-items: center; width: 4.2rem; height: 4.2rem; border-radius: 50%; background: var(--teal-tint); color: var(--teal); }
+.hz-pr-ic svg { width: 2.05rem; height: 2.05rem; }
+.hz-pr-2 .hz-pr-ic { background: var(--ai-tint); color: var(--ai); }
+.hz-pr-3 .hz-pr-ic { background: var(--human-tint); color: var(--human-dark); }
+.hz-promises b { font-family: var(--display); font-size: clamp(1.1rem, 1.25vw, 1.3rem); line-height: 1.25; color: var(--ink); }
+.hz-promises li > span:last-child { font-size: clamp(0.95rem, 1vw, 1.05rem); line-height: 1.4; color: var(--muted); }
+@media (min-width: 64.01rem) {
+  .hz .container.hero-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; }
+  .hz-promises { margin: 0; }
+  .hero-v3.hz h1 { font-size: clamp(2.4rem, 3.4vw, 3.8rem); }
+}
+/* the band: equal-ish zones, green tags, coloured inputs */
+.hz-wrap { margin-top: 2.2rem; }
+@media (min-width: 75.01rem) { .hz-flow { grid-template-columns: minmax(0, 0.95fr) 2.6rem minmax(0, 1fr) 2.6rem minmax(0, 1.2fr); } }
+.hz-b .hz-tag, .hz-c .hz-tag { background: var(--teal); }
+.hz-b .hz-tag svg { color: #fff; }
+.hz-items li { grid-template-columns: auto minmax(0, 1fr); column-gap: 0.65rem; align-items: center; }
+.hz-items .hz-ic { grid-row: span 2; width: 2.3rem; height: 2.3rem; margin: 0; background: none; }
+.hz-items .hz-ic svg { width: 2rem; height: 2rem; stroke-width: 1.8; }
+.hz-in-mail .hz-ic { color: var(--teal); }
+.hz-in-form .hz-ic { color: var(--ai); }
+.hz-in-sheet .hz-ic { color: #1f8a4c; }
+.hz-in-note .hz-ic { color: #d08a1e; }
+.hz-flags { flex-wrap: nowrap; }
+@media (max-width: 95rem) { .hz-flags { flex-wrap: wrap; } .hz-items li { column-gap: 0.5rem; padding-inline: 0.6rem; } .hz-items .hz-ic { width: 1.8rem; height: 1.8rem; } .hz-items .hz-ic svg { width: 1.65rem; height: 1.65rem; } }
+.hz-flags li { font-size: 0.8125rem; padding: 0.34rem 0.65rem 0.34rem 0.5rem; }
+.hz-table tbody tr:last-child th svg { color: #1f8a4c; }
+/* benefits at the bottom of the hero */
+.hz .container.hz-benefits { margin-top: 2.2rem; text-align: center; }
+.hz .story-benefits { display: inline-flex; justify-content: center; margin: 0; padding: 0.75rem 1rem; border-radius: 18px; }
+.hz .story-benefits li { padding: 0 2.2rem; font-size: 1.1rem; }
+.hz .story-benefits svg { width: 1.6rem; height: 1.6rem; stroke: #1f8a4c; }
+/* small laptops: inputs a little smaller, badges may wrap */
+@media (min-width: 75.01rem) and (max-width: 85.3rem) {
+  .hz-items li { grid-template-columns: minmax(0, 1fr); } .hz-items .hz-ic { grid-row: auto; margin-bottom: 0.3rem; }
+  .hz-flags { flex-wrap: wrap; }
+  .hz .story-benefits li { padding: 0 1.3rem; }
+}
+/* tablets: zones stacked (rules above); buttons and note on one line */
+@media (max-width: 64rem) { .hz-promises { max-width: 40rem; } }
+@media (max-width: 60rem) {
+  .hz .story-benefits { flex-direction: column; align-items: flex-start; gap: 0.6rem; padding: 0.9rem 1.1rem; text-align: left; }
+  .hz .story-benefits li { padding: 0; }
+  .hz .story-benefits li + li { border-left: 0; }
+  .hz .container.hz-benefits { text-align: left; }
+}
+@media (max-width: 52rem) { .hz-flags { flex-wrap: wrap; } }
+@media (max-width: 40rem) {
+  .hz .hero-eyebrow { font-size: 0.8125rem; padding: 0.4rem 0.8rem; letter-spacing: 0.03em; }
+  .hz-cta { display: block; }
+  .hz-cta .hero-note { margin-top: 0.8rem; padding-left: 0; border-left: 0; }
+  .hz-promises { padding: 1.1rem 1rem; gap: 1rem; border-radius: 18px; }
+  .hz-promises li { grid-template-columns: 2.8rem minmax(0, 1fr); column-gap: 0.8rem; }
+  .hz-pr-ic { width: 2.8rem; height: 2.8rem; } .hz-pr-ic svg { width: 1.4rem; height: 1.4rem; }
+  .hz-promises b { font-size: 1.02rem; }
+  .hz-items li { grid-template-columns: minmax(0, 1fr); }
+  .hz-items .hz-ic { grid-row: auto; margin-bottom: 0.3rem; }
+  .hz-items .hz-ic svg { width: 1.7rem; height: 1.7rem; }
+  .hz .story-benefits li { font-size: 1rem; }
+}
 
 /* the Dana Cruz flow, now under How I help */
 .svc-example { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 1.5rem 2.5rem; align-items: start; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); }

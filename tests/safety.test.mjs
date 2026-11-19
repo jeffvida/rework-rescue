@@ -16,7 +16,7 @@ const text = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' 
 
 test('hero: headline kept, benefit first, no failure talk up front; the checks link now sits with the step-by-step example', async () => {
   const h = await page();
-  assert.match(h, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
+  assert.match(h, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg[\s\S]*?<\/svg><\/span> business operations\./);
   const top = text(h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero'))));
   assert.doesNotMatch(top, /fails?\b|failure|goes wrong|breaks?\b|retry/i, 'the hero sells confidence; failure handling is shown further down, as proof');
   const fig = between(h, 'id="hero-flow"', '</figure>');

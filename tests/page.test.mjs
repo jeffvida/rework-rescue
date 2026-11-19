@@ -14,17 +14,20 @@ const page = () => read('../index.html');
 const section = (html, id, next) => html.slice(html.indexOf(`id="${id}"`), next ? html.indexOf(`id="${next}"`) : undefined);
 const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 
-test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking note, no extra CTAs', async () => {
+test('hero (19 Nov reference v2): approved copy word for word, one booking button, booking note, three promises', async () => {
   const html = await page();
-  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="container hz-benefits">'));
-  assert.match(hero, /<p class="eyebrow hero-eyebrow">Data &amp; workflow improvement<\/p>/);
-  assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
-  assert.match(hero, /<p class="hero-sub">I help small teams reduce repetitive admin, bring scattered information together and make everyday processes easier to manage &mdash; using better data, practical tools and automation where it helps\.<\/p>/);
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="container hz-wrap">'));
+  assert.match(hero, /<p class="eyebrow hero-eyebrow">AI &amp; automation for business operations<\/p>/);
+  assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg class="hv-swoosh"[^>]*>[\s\S]*?<\/svg><\/span> business operations\.<\/span><\/h1>/);
+  assert.match(hero, /<p class="hero-sub">I improve the way your business works by understanding your processes first, then applying practical AI and automation where they make a real difference\.<\/p>/);
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review <span aria-hidden="true">&rarr;<\/span><\/a>/);
-  assert.match(hero, /<a class="btn btn-large hv-explore" href="#services">See how I can help<\/a>/);
-  assert.ok(hero.indexOf('Book a free rework review') < hero.indexOf('See how I can help'));
   assert.match(hero, /<p class="hero-note">[\s\S]*?30 minutes &middot; No obligation<\/p>/);
-  assert.equal((hero.match(/<a /g) || []).length, 2, 'two calls to action, nothing else');
+  assert.equal((hero.match(/<a /g) || []).length, 1, 'one call to action, nothing else');
+  assert.deepEqual([...hero.matchAll(/<li class="hz-pr-\d">[\s\S]*?<b>([^<]+)<\/b><span>([^<]+)<\/span><\/li>/g)].map((m) => [m[1], m[2]]), [
+    ['Understand the work.', 'See where time and effort are being wasted.'],
+    ['Agree the solution.', 'A clear scope, cost and expected delivery.'],
+    ['Deliver and hand over.', 'A tested solution, guide and 30 days of in-scope fixes.'],
+  ]);
   assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip|rr-chip/, 'hero kept to the approved elements');
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
@@ -35,9 +38,9 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   const txt = (h) => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   assert.doesNotMatch(hero, /role="slider"|rx-runner|rx-reset|Replay|mark\.png/, 'the logo slider and Replay are gone');
   assert.doesNotMatch(hero, /bot-|robot|mascot/i, 'no robot or mascot');
-  // benefits strip unchanged, under the buttons, before the scene
-  assert.ok(hero.indexOf('class="hz-cta"') < hero.indexOf('class="story-benefits"') && hero.indexOf('class="story-benefits"') < hero.indexOf('id="hero-story"'));
-  assert.deepEqual([...hero.matchAll(/<li><svg[^>]*>[\s\S]*?<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work.', 'Fewer avoidable mistakes.', 'Smoother everyday operations.']);
+  // benefits strip at the bottom of the hero, after the scene
+  assert.ok(hero.indexOf('id="hero-story"') < hero.indexOf('class="story-benefits"'));
+  assert.deepEqual([...hero.matchAll(/<li><svg[^>]*>[\s\S]*?<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work', 'Fewer avoidable mistakes', 'Smoother everyday operations']);
   const fig = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
   const zones = [...fig.matchAll(/<p class="hz-tag">[\s\S]*?<\/svg>([^<]+)<\/p>[\s\S]*?<p class="hz-desc">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]);
   assert.deepEqual(zones, [
@@ -49,9 +52,9 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   assert.doesNotMatch(fig, /Phone missing|Phone: missing/, 'the universal "Missing detail", not a phone example');
   // the three roles, each with its job, in the colour language order
   assert.deepEqual([...fig.matchAll(/<li class="hz-(ai|auto|human)">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2], m[3]]), [
-    ['ai', 'AI', 'Reads emails and forms and picks out the details'],
-    ['auto', 'Automation', 'Updates records, moves work on and sends reminders'],
-    ['human', 'Human review', 'Your team checks exceptions and approves decisions'],
+    ['ai', 'AI', 'Reads and interprets details'],
+    ['auto', 'Automation', 'Updates records and moves work forward'],
+    ['human', 'Human review', 'Checks exceptions and approves important decisions'],
   ]);
   // the tracker: owners are team roles, never the automation or AI
   const rows = [...fig.matchAll(/<tr><th scope="row">[\s\S]*?<\/svg>([^<]+)<\/th><td data-label="Owner">([^<]+)<\/td><td><span class="hz-st[^"]*">([^<]+)<\/span><\/td><td data-label="Next">([^<]+)<\/td><\/tr>/g)].map((m) => m.slice(1));

@@ -215,7 +215,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
     'Technical assessment: Check your existing tools, data and access, and whether they can support the solution.',
     'Written scope and agreement: Confirm deliverables, exclusions, testing plan, fixed project fee and estimated delivery date.',
     'Build and test: Test the usual cases, unusual situations and what happens when something goes wrong.',
-    'Handover and 30-day fixes: Explain the solution, provide documentation and include 30 days of fixes.']);
+    'Handover and 30&#8209;day fixes: Explain the solution, provide documentation and include 30 days of fixes.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
   assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
   assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\. You&rsquo;ll receive:<\/p>/);

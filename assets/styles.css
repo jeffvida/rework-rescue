@@ -1790,7 +1790,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .steps-row::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 2px; background: var(--teal); transform-origin: left center; }
 .motion .steps-row.rv::before { transform: scaleX(0); transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s; }
 .motion .steps-row.rv.is-in::before { transform: scaleX(1); }
-.motion .steps-row.rv li::before { transform: scale(0.6); opacity: 0; transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1), opacity 0.25s ease; }
+.motion .steps-row.rv li::before { transform: scale(0.85); opacity: 0; transition: transform 0.28s var(--ease-out), opacity 0.2s ease; }
 .motion .steps-row.rv.is-in li::before { transform: none; opacity: 1; }
 .motion .steps-row.rv.is-in li:nth-child(1)::before { transition-delay: 0.25s; }
 .motion .steps-row.rv.is-in li:nth-child(2)::before { transition-delay: 0.6s; }
@@ -2207,9 +2207,9 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 .about-eyebrow { margin: 0 0 0.3rem; }
 .about-section h2 { margin: 0 0 0.2rem; }
 .motion .about-section .photo-card.rv { opacity: 1; transform: none; }
-.motion .about-section .photo-card.rv .photo-frame { clip-path: inset(0 0 100% 0 round 18px); transition: clip-path 0.9s var(--ease-io); }
+.motion .about-section .photo-card.rv .photo-frame { clip-path: inset(0 0 100% 0 round 14px); transition: clip-path 0.9s var(--ease-io); }
 .motion .about-section .photo-card.rv .about-photo { transform: scale(1.08); transition: transform 1.2s var(--ease-out); }
-.motion .about-section .photo-card.rv.is-in .photo-frame { clip-path: inset(0 0 0 0 round 18px); }
+.motion .about-section .photo-card.rv.is-in .photo-frame { clip-path: inset(0 0 0 0 round 14px); }
 .motion .about-section .photo-card.rv.is-in .about-photo { transform: none; }
 .motion .about-copy > .rv { transition-delay: calc(var(--rv-delay, 0ms) + 0.25s); }
 @media (min-width: 52.01rem) { .about-section .about-grid { grid-template-columns: minmax(0, 19rem) minmax(0, 1fr); gap: 3.5rem; } }
@@ -2249,7 +2249,7 @@ main a:not(.btn) { text-underline-offset: 0.18em; transition: color 0.2s ease, t
 /* How I work: line draws in 0.6 s; each step (number + text) lands as it passes; all four in by ~0.8 s */
 .motion .steps-row.rv::before { transition: transform 0.6s var(--ease-io) 0s; }
 .motion .steps-row.rv li > * { transform: translateY(6px); transition: opacity 0.25s ease, transform 0.3s var(--ease-out); }
-.motion .steps-row.rv li::before { transition: transform 0.28s cubic-bezier(0.3, 1.4, 0.5, 1), opacity 0.2s ease; }
+.motion .steps-row.rv li::before { transition: transform 0.28s var(--ease-out), opacity 0.2s ease; }
 .motion .steps-row.rv.is-in li:nth-child(1) > *, .motion .steps-row.rv.is-in li:nth-child(1)::before { transition-delay: 0.05s; }
 .motion .steps-row.rv.is-in li:nth-child(2) > *, .motion .steps-row.rv.is-in li:nth-child(2)::before { transition-delay: 0.2s; }
 .motion .steps-row.rv.is-in li:nth-child(3) > *, .motion .steps-row.rv.is-in li:nth-child(3)::before { transition-delay: 0.35s; }
@@ -4378,11 +4378,10 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rf-run .rf-step:not(.is-on) .rf-card { box-shadow: none; }
 .rf-run .rf-step.is-on { opacity: 1; }
 .rf-run .rf-step.is-now .rf-card { box-shadow: 0 0 0 3px rgba(46, 125, 114, 0.28); }
-.rf-run .rf-flag.is-now .rf-card { box-shadow: 0 0 0 3px rgba(201, 138, 18, 0.35); animation: rf-nudge 0.5s ease 0.2s 1; }
+.rf-run .rf-flag.is-now .rf-card { box-shadow: 0 0 0 3px rgba(201, 138, 18, 0.35); }
 .rf-run:not(.is-approved) .rf-post { display: none; }
 .rf-run:not(.is-approved) .rf-pre { display: inline-flex !important; }
 .rf-run.is-approved .rf-ok .rf-card { box-shadow: 0 0 0 3px rgba(31, 107, 67, 0.3); }
-@keyframes rf-nudge { 0%, 100% { transform: none; } 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
 @media (min-width: 52.01rem) and (max-width: 75rem) { .rf { margin: 0; } }
 @media (max-width: 52rem) { .rf { max-width: none; margin: 0 0 1.6rem; } }
 @media (max-width: 30rem) {
@@ -4486,7 +4485,6 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 
 /* V5 (optional): About photo frame accent echoing the gold */
 .about-section .photo-card { position: relative; z-index: 0; }
-.about-section .photo-card::after { content: ""; position: absolute; inset: 1rem -0.85rem -0.85rem 1rem; border: 2px solid var(--signal); border-radius: 18px; z-index: -1; }
 
 /* ---- 15 Nov visual round 2: eyebrows, approach icons, signature strokes, count-ups ---- */
 /* V1: eyebrows on the dark approach band read in gold */
@@ -4585,8 +4583,6 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .sn-play:hover { background: rgba(255, 255, 255, 0.1); }
 .sn-drill.is-running .sn-row { opacity: 0; transform: translateY(8px); }
 .sn-drill.is-running .sn-row.is-on { opacity: 1; transform: none; }
-.sn-drill.is-running .sn-bad.is-on { animation: sn-flash 0.9s ease 1; }
-@keyframes sn-flash { 0% { background: rgba(180, 55, 47, 0.45); } 100% { background: rgba(180, 55, 47, 0.16); } }
 @media (max-width: 62rem) { .sn-grid { grid-template-columns: minmax(0, 1fr); } .sn-drill { position: static; } }
 @media (max-width: 30rem) { .sn-row { grid-template-columns: 2.6rem 1.5rem minmax(0, 1fr); font-size: 0.86rem; padding: 0.5rem; } }
 @media (prefers-reduced-motion: reduce) { .sn-row { transition: none; } .sn-drill.is-running .sn-row { opacity: 1; transform: none; } }
@@ -4912,12 +4908,128 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
 .rr-closing { max-width: 46rem; margin: 0 0 2.2rem; padding-bottom: 1.8rem; border-bottom: 1px solid rgba(255, 255, 255, 0.16); font-family: var(--display); font-weight: 600; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.45; color: #fff; }
 
 /* Expert round (19 Nov): colour language, divider above past roles, tracker note alignment, tap targets */
-.built-card.built-card-ai { border-top-color: var(--signal); }
-.built-card.built-card-ai .built-k { color: #7a5b16; }
-.sn-section .sn-list > li.sn-human { border-top: 3px solid #f0a75a; }
 .rr-results-h { margin-top: 2.8rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 1.3rem; }
 .rr-tracker-note { margin-left: 0; }
 .sn-play, .rf-replay { min-height: 44px; }
-.how-need { padding: 1rem 1.2rem; background: var(--info-bg); border-left: 3px solid var(--teal); border-radius: 0 12px 12px 0; }
 .rr-standards .how-30 { margin: 0.8rem 0 0.6rem; }
 @media (max-width: 40rem) { .rr-more .exp-sample { padding-left: 0.5rem; padding-right: 0.5rem; } }
+
+/* ===== S4 final direction (19 Nov): brand and UX round =====
+   Colour means something: teal = automation and brand, violet = AI, amber = a person deciding, green = status, gold = a line, never a fill.
+   One card, three text treatments (note / example / quote), one heading signature. Scoped away from the locked hero. */
+:root {
+  --teal-text: #24655c; --teal-tint: #e8f3ef; --teal-chip: #dcefe4; --teal-on-dark: #8fd3c3;
+  --ai: #6a4fc0; --ai-dark: #4b3696; --ai-tint: #f1edfb; --ai-line: #ddd4f5; --ai-on-dark: #c9b8f2;
+  --human: #e8892b; --human-dark: #8a5200; --human-tint: #fcefd6; --human-line: #e7c27a; --human-on-dark: #f0a75a;
+  --radius-card: 14px;
+  --shadow-card: 0 1px 2px rgba(18, 38, 43, 0.06), 0 8px 24px -16px rgba(18, 38, 43, 0.22);
+  --section-pad: clamp(3.25rem, 6vw, 4.75rem);
+}
+
+/* 1. Heading signature: eyebrow, short gold bar, heading */
+main > .section > .container > h2::before { display: none; }
+main > .section > .container > h2 { padding-top: 0; }
+main > .section .eyebrow { color: var(--teal-text); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+main > .section .eyebrow::after { content: ""; display: block; width: 2.5rem; height: 3px; margin-top: 0.6rem; border-radius: 2px; background: var(--gold-line); }
+main > #approach .eyebrow { color: var(--signal); }
+main > #approach .eyebrow::after { background: var(--signal); }
+
+/* 2. One card */
+.rr-tiles > li, .rr-standards, .built-card, .tile-flow, .rr-updates { border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.rr-tiles > li:hover, .rr-tiles li:hover { transform: none; box-shadow: var(--shadow-card); }
+
+/* 3. Text treatments: notes (tint, no rule), examples (2px neutral rule), quotes (3px gold rule, unchanged) */
+.how-need, #services .rf-net { background: var(--teal-tint); border: 0; border-radius: var(--radius-card); }
+.how-need { padding: 1rem 1.2rem; }
+.built-safe { background: var(--teal-tint); border: 0; border-radius: 8px; }
+.sn-list .sn-eg, .exp-bridge { border-left: 2px solid var(--line); padding-left: 0.7rem; color: var(--muted); }
+
+/* 4. Section rhythm and jump targets */
+main > .section { padding-top: var(--section-pad); padding-bottom: var(--section-pad); }
+main > section[id] { scroll-margin-top: calc(var(--header-h, 4.5rem) + 1rem); }
+main > .sn-section { background: var(--paper); }
+@media (max-width: 40rem) { main > .section { padding-top: 2.5rem; padding-bottom: 2.75rem; } }
+
+/* 5. Readable small text, tap targets, focus on dark */
+#services .rf-fields li, #services .rf-fields small { font-size: 0.8125rem; }
+#services .rf-cap, .built-tools { font-size: 0.875rem; }
+#services .rf-net a, .faq-item p a { display: inline-block; padding-block: 0.6rem; margin-block: -0.6rem; text-underline-offset: 3px; }
+.rr-diff :focus-visible { outline-color: var(--signal); }
+
+/* 6. Type scale */
+.svc-example h3, .rr-decide-h, .rr-results-h { font-size: clamp(1.2rem, 2vw, 1.35rem); }
+.rr-tiles strong, .sn-list h3, .built-card h3, .rr-result h4, .rr-d h3 { font-size: 1.1rem; line-height: 1.3; }
+
+/* Services: "One request, step by step" shows the roles. Step 2 AI (violet), step 4 automatic check (teal), step 5 a person approves (amber) */
+#services .rf [data-rf="2"] .rf-n { background: var(--ai); }
+#services .rf .rf-fields { background: var(--ai-tint); border-color: var(--ai-line); }
+#services .rf .rf-fields li { border-color: var(--ai-line); }
+#services .rf .rf-fields li.is-missing { background: #fff; border: 1px dashed var(--muted); color: var(--ink); }
+#services .rf .rf-flag .rf-n { background: var(--teal); }
+#services .rf .rf-alert { background: #fff; border-color: var(--line); color: var(--ink); }
+#services .rf .rf-alert svg { stroke: var(--teal-text); }
+#services .rf .rf-ok .rf-n { background: var(--human-dark); }
+#services .rf .rf-approve { background: var(--human-tint); border-color: var(--human-line); }
+#services .rf-run .rf-step[data-rf="2"].is-now .rf-card { box-shadow: 0 0 0 3px rgba(106, 79, 192, 0.28); }
+#services .rf-run:not(.is-approved) .rf-ok.is-now .rf-card { box-shadow: 0 0 0 3px rgba(138, 82, 0, 0.3); }
+
+/* Services: tiles line up; the open tile is tinted, not ringed */
+@media (min-width: 40.01rem) {
+  .rr-tiles > li:not(.tile-flow) { display: flex; flex-direction: column; }
+  .rr-tile { height: 100%; }
+  .rr-tile em { margin-top: auto; padding-top: 0.7rem; }
+}
+.rr-tiles.is-interactive > li.is-open { background: var(--teal-tint); box-shadow: var(--shadow-card); }
+@media (max-width: 40rem) { .rr-tile { padding: 0.85rem 0.9rem; } }
+
+/* Approach: the colour key */
+.rr-d { --c: var(--teal-on-dark); height: 100%; }
+.rr-d-ai { --c: var(--ai-on-dark); }
+.rr-d-human { --c: var(--human-on-dark); }
+
+/* Safety: five safeguards in one connected panel; the human one is amber */
+.sn-section .sn-list { gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; box-shadow: var(--shadow-card); }
+.sn-section .sn-list > li { border: 0; border-radius: 0; background: #fff; }
+.sn-section .sn-list > li.sn-human { background: var(--human-tint); }
+.sn-section .sn-list > li.sn-human .sn-n { background: var(--human-dark); }
+.sn-section .sn-list > li.sn-human .sn-eg { border-left-color: var(--human-line); }
+.sn-demo { font-weight: 500; color: var(--muted); }
+@media (max-width: 40rem) { .sn-section .lede { font-size: 1.125rem; } }
+
+/* Built: own demos (white, method edge) vs previous roles (paper, flat) */
+.built-card { border-top-width: 3px; }
+.built-card.built-card-ai { border-top-color: var(--ai); }
+.built-k { display: inline-block; align-self: flex-start; padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--teal-chip); color: var(--teal-text); font-size: 0.8125rem; letter-spacing: 0.06em; }
+.built-card.built-card-ai .built-k { background: var(--ai-tint); color: var(--ai-dark); }
+.rr-result { background: var(--paper); box-shadow: none; border: 1px solid var(--line); border-radius: var(--radius-card); }
+.rr-results-note { font-size: 1rem; font-weight: 500; color: var(--ink); }
+.built-try a, .about-link .btn-secondary, .book-written .btn-secondary { border-width: 1.5px; min-height: 44px; border-radius: 999px; }
+.built-try a:hover, .about-link .btn-secondary:hover { background: var(--teal-tint); }
+
+/* How: full width; need = note, promise = card; step 3 (you approve the scope) is amber */
+.how-need, .rr-standards, .rr-updates { max-width: none; }
+@media (min-width: 62rem) { .rr-standards ul { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.rr-updates { background: #fff; border: 1px solid var(--line); }
+.steps-row li:nth-child(3)::before { background: var(--human-dark); }
+
+/* About: a clean portrait, no offset frame, no sticky */
+@media (min-width: 52.01rem) { .about-section .photo-card { position: relative; top: auto; } }
+.about-section .photo-frame { border-radius: var(--radius-card); border: 1px solid var(--line); box-shadow: var(--shadow-card); }
+.about-lead { margin-bottom: 0.75rem; }
+
+/* FAQ: one card panel */
+.faq-wrap .faq-item { background: var(--card); padding: 0 1.25rem; border: 1px solid var(--line); border-top: 0; }
+.faq-wrap .faq-item:first-of-type { border-top: 1px solid var(--line); border-radius: var(--radius-card) var(--radius-card) 0 0; }
+.faq-wrap .faq-item:last-of-type { border-radius: 0 0 var(--radius-card) var(--radius-card); box-shadow: 0 8px 24px -16px rgba(18, 38, 43, 0.22); }
+.faq-item[open] summary { color: var(--teal-text); }
+.faq-item p { max-width: 40rem; }
+
+/* Start: a quiet preamble, facts as a checklist, a calm booking card */
+.rr-closing { font-family: var(--sans); font-weight: 500; font-size: 1.05rem; color: rgba(255, 255, 255, 0.82); }
+.book-sign { font-style: normal; font-family: var(--sans); font-size: 1rem; color: rgba(255, 255, 255, 0.75); }
+.cta-facts { gap: 0.5rem 1.25rem; }
+.cta-facts li { border: 0; padding: 0.2rem 0; }
+.cta-facts li::before { background: var(--teal-on-dark); }
+.cta-section .bk.bk-inline { border-radius: var(--radius-card); box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.45); }
+.cta-section .btn-primary:hover:not([disabled]) { transform: none; box-shadow: none; }
+.rr-standards .how-30 { max-width: none; }

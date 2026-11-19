@@ -26,8 +26,9 @@ test('hero (19 Nov reference v2): approved copy word for word, one booking butto
   assert.deepEqual([...hero.matchAll(/<li class="hz-pr-\d">[\s\S]*?<b>([^<]+)<\/b><span>([^<]+)<\/span><\/li>/g)].map((m) => [m[1], m[2]]), [
     ['Understand the work.', 'See where time and effort are being wasted.'],
     ['Agree the solution.', 'A clear scope, cost and expected delivery.'],
-    ['Deliver and hand over.', 'A tested solution, guide and 30 days of in-scope fixes.'],
+    ['Deliver and hand over.', 'A tested solution, project files, a handover guide and 30 days of in-scope fixes.'],
   ]);
+  assert.match(hero, /<p class="hz-pr-title" id="hz-pr-title">What you can expect from me<\/p>\s*<ul class="hz-pr-list" aria-labelledby="hz-pr-title">/);
   assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip|rr-chip/, 'hero kept to the approved elements');
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
@@ -40,7 +41,7 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   assert.doesNotMatch(hero, /bot-|robot|mascot/i, 'no robot or mascot');
   // benefits strip at the bottom of the hero, after the scene
   assert.ok(hero.indexOf('id="hero-story"') < hero.indexOf('class="story-benefits"'));
-  assert.deepEqual([...hero.matchAll(/<li><svg[^>]*>[\s\S]*?<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work', 'Fewer avoidable mistakes', 'Smoother everyday operations']);
+  assert.deepEqual([...hero.matchAll(/<li><svg[^>]*>[\s\S]*?<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Keep follow-ups on track.', 'Stop repeating data entry.', 'Know who&rsquo;s responsible and what&rsquo;s next.']);
   const fig = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
   const zones = [...fig.matchAll(/<p class="hz-tag">[\s\S]*?<\/svg>([^<]+)<\/p>[\s\S]*?<p class="hz-desc">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]);
   assert.deepEqual(zones, [
@@ -50,6 +51,7 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   ]);
   assert.deepEqual([...fig.matchAll(/<ul class="hz-flags">[\s\S]*?<\/ul>/g)].flatMap((m) => [...m[0].matchAll(/<\/svg>([^<]+)<\/li>/g)].map((x) => x[1])), ['Duplicate?', 'Missing detail?', 'Who owns this?']);
   assert.doesNotMatch(fig, /Phone missing|Phone: missing/, 'the universal "Missing detail", not a phone example');
+  assert.match(fig, /<li class="hz-in-sheet"><span class="hz-sheet-copy">[\s\S]*?Customer list \(v2\)<\/span>[\s\S]*?Customer list \(v3\)\.xlsx/, 'two overlapping spreadsheet files show the duplicate');
   // the three roles, each with its job, in the colour language order
   assert.deepEqual([...fig.matchAll(/<li class="hz-(ai|auto|human)">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2], m[3]]), [
     ['ai', 'AI', 'Reads and interprets details'],

@@ -60,7 +60,7 @@ test('failure drill: optional (closed by default), general example, pauses, pers
 
 test('process, handover and FAQ carry the safety net without new promises', async () => {
   const h = await page();
-  assert.match(h, /<li><h3>Build and test<\/h3><p>Implement the solution and test normal cases, exceptions and what happens when things go wrong\.<\/p><\/li>/);
+  assert.match(h, /<li><h3>Build and test<\/h3><p>Test normal cases, exceptions and agreed failure scenarios\.<\/p><\/li>/);
   assert.match(h, /<li><strong>Safety net<\/strong>The checks set up for your workflow, written backup steps, and a walk-through of the agreed failure tests\.<\/li>/);
   for (const k of ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes']) assert.ok(h.includes(`<li><strong>${k}</strong>`), `${k} kept`);
   const faq = between(h, '<summary>What happens if something breaks or a connected app changes?</summary>', '</details>');

@@ -120,19 +120,37 @@ test('Where I can make work easier: six tiles, the customer problem first, then 
   assert.match(c, /@media \(max-width: 40rem\) \{\n  \.rr-tiles \{ grid-template-columns: minmax\(0, 1fr\);/);
 });
 
-test('approach band: Start with the work, not the software (ChatGPT, 15 Nov); checks are not sold as the difference', async () => {
+test('approach band (19 Nov): headline kept; one lead; three decision cards replace the old list; the goal line', async () => {
   const html = await page();
   const sec = section(html, 'approach', 'built');
   assert.match(sec, /<p class="eyebrow">My approach<\/p>\s*<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
-  assert.deepEqual([...sec.matchAll(/<\/svg>([^<]+)<\/li>/g)].map((m) => m[1]), ['Look at the work', 'Build the simplest solution', 'Keep it simple']);
-  assert.match(sec, /<p>Before recommending a tool or building anything, I look at how work happens today &mdash; where information comes from, what gets repeated, where requests or follow-ups get stuck, and which decisions need a person\.<\/p>/);
-  assert.match(sec, /<p>Then I build the simplest practical solution, whether that&rsquo;s a website, customer tracker or automated workflow &mdash; on its own or connected where useful\.<\/p>/);
-  assert.match(sec, /<p class="rr-approach-note">[^<]+<\/p>\s*<p class="rr-approach-more">Some projects need just one improvement\. Others benefit from connecting a few simple tools\. I&rsquo;ll recommend what makes sense for your business, not add technology you don&rsquo;t need\.<\/p>/);
-  assert.doesNotMatch(sec, /rr-connect|Reach customers|Follow through/, 'no numbered cards: one improvement or several, not a sequence');
-  assert.match(sec, /<p class="rr-approach-note">AI where interpretation helps\. Automation where repetition gets in the way\.<\/p>/);
+  assert.match(sec, /<p class="rr-approach-lead">You care about missed enquiries, slow replies and hours spent copying the same details &mdash; not which platform fixes them\. I start by finding where the work actually gets stuck, then choose the simplest solution that fits\.<\/p>/);
+  assert.doesNotMatch(sec, /rr-approach-steps|Look at the work|Keep it simple<\/li>/, 'the old three-item list is replaced, not stacked');
+  assert.match(sec, /<h3 class="rr-decide-h">AI or simple automation\? Three questions decide it\.<\/h3>/);
+  assert.deepEqual([...sec.matchAll(/<h3>([^<]+)<\/h3><p class="rr-d-a">([^<]+)<\/p><p class="rr-d-eg">([^<]+)<\/p>/g)].map((m) => `${m[1]} | ${m[2]} | ${m[3]}`), [
+    'Are the rules clear? | Automation | Form submitted &rarr; tracker updated &rarr; confirmation sent',
+    'Does it need interpretation? | AI step | Read an enquiry email and extract customer details',
+    'How costly would an error be? | Human review | Hold a customer reply or high-value quote for approval']);
+  assert.match(sec, /<p class="rr-approach-note">The goal isn&rsquo;t to use AI everywhere\. It&rsquo;s to build the right solution for the problem\.<\/p>\s*<p class="rr-approach-more">Some projects need just one improvement\. Others benefit from connecting a few simple tools\. I&rsquo;ll recommend what makes sense for your business, not add technology you don&rsquo;t need\.<\/p>/);
+  assert.doesNotMatch(sec, /rr-connect|Reach customers|Follow through/);
   assert.doesNotMatch(sec, /Practical solutions built around your business/);
   assert.doesNotMatch(html, /Automation with checks built in|Automation that checks itself|proprietary|my method|framework/i);
 });
+
+test('client expectations (19 Nov): testing line, weekly updates, closing thought; monitoring stays separate', async () => {
+  const html = await page();
+  const safety = section(html, 'safety', 'built');
+  assert.match(safety, /<p class="sn-demo">A demo shows the idea\. Testing checks how it handles normal cases, exceptions and failures\.<\/p>\s*<p class="sn-quote">/);
+  assert.doesNotMatch(html, /keeps working/, 'testing is not sold as a guarantee');
+  const how = section(html, 'how', 'about');
+  assert.match(how, /<div class="rr-updates">\s*<h3>You won&rsquo;t have to guess where things stand\.<\/h3>\s*<p>While your project is active, I&rsquo;ll send a short written update at least once a week covering what&rsquo;s completed, what&rsquo;s next, and anything waiting on your input\. If a blocker is likely to affect the delivery timeline, I&rsquo;ll explain the reason and let you know as soon as I can\.<\/p>/);
+  assert.match(html, /How does working remotely work\?<\/summary><p>[^<]*I&rsquo;ll send a short written update at least once a week\.<\/p><\/details>/, "the FAQ uses the same commitment");
+  assert.doesNotMatch(html, /progress updates in writing/);
+  assert.match(html, /<p class="rr-closing">Knowing the tools matters\. Understanding your business, keeping you informed and delivering something your team can rely on is what makes the work valuable\.<\/p>/);
+  assert.match(html, /ongoing monitoring and maintenance\./, 'monitoring stays outside the 30 days');
+  assert.doesNotMatch(html, /24\/7|monitoring included|includes monitoring/i);
+});
+
 test('proof: own builds first, plain-text tools line, then two short previous-role results with details closed', async () => {
   const html = await page();
   const sec = section(html, 'built', 'how');
@@ -193,17 +211,18 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   const how = section(html, 'how', 'about');
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3><p>([^<]+)<\/p><\/li>/g)].map((m) => `${m[1]}: ${m[2]}`), [
-    'Understand the work: Identify the repetitive tasks, existing tools and operational problems.',
-    'Map the solution: Agree on the workflow, scope and what should be automated.',
-    'Build and test: Implement the solution and test normal cases, exceptions and what happens when things go wrong.',
-    'Hand over: Document the workflow, explain how it works and provide the agreed solution.']);
+    'Discovery: Understand how the work happens today and where it gets stuck.',
+    'Technical assessment: Check existing tools, data, access and integrations to establish what&rsquo;s feasible.',
+    'Written scope and agreement: Confirm deliverables, exclusions, testing plan, fixed project fee and estimated delivery date.',
+    'Build and test: Test normal cases, exceptions and agreed failure scenarios.',
+    'Handover and defect fixes: Explain the solution, provide documentation and include 30 days of in-scope defect fixes.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
   assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
   assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\. You&rsquo;ll receive:<\/p>/);
   assert.deepEqual([...std.matchAll(/<li><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
     ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of defect fixes', 'Safety net']);
   assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, exceptions and review steps your team needs to understand\. Third-party software and licensed components remain subject to their providers&rsquo; terms\.<\/p>/);
-  assert.match(how, /<summary>Step 2 example: see a sample written scope<\/summary>/);
+  assert.match(how, /<summary>Step 3 example: see a sample written scope<\/summary>/);
   assert.match(how, /No system logins to get started\./);
   assert.doesNotMatch(how, /how-approach/, 'intro paragraphs cut to one line');
   const about = section(html, 'about', 'faq');

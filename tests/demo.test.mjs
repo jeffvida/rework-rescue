@@ -66,11 +66,11 @@ test('18.23–18.28 content audit: no old sales or jobs demo, no overclaiming, n
   assert.doesNotMatch(priv, /live example|Weekly-Work-Tracker\.xlsx|Reset sample|change an owner or a status/, 'privacy page matches the page (12 Nov)');
 });
 
-test('How it works: four steps (ChatGPT, 15 Nov); the 30-day terms in a closed row; no invented results', async () => {
+test('How it works: five steps (ChatGPT, 19 Nov); the 30-day terms in a closed row; no invented results', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const how = html.slice(html.indexOf('id="how"'), html.indexOf('id="about"'));
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
-  assert.equal((how.match(/<li><h3>/g) || []).length, 4, 'four steps');
+  assert.equal((how.match(/<li><h3>/g) || []).length, 5, 'five steps');
   for (const t of ['30 calendar days after handover to report and correct defects that prevent the delivered solution from working as described in the approved scope.', 'It does not cover new features, changes to agreed requirements, issues caused by changes made by you or another provider after handover, third-party service outages or changes, or ongoing monitoring and maintenance.', 'These can be discussed and quoted separately.']) assert.ok(how.includes(t), t);
   assert.match(how, /<details class="fold how-30"><summary>What the 30 days cover<\/summary>/);
   assert.doesNotMatch(how, /usually takes|\d+\s?(hours|%|days to)/i, 'no invented results or implied track record');

@@ -4881,3 +4881,32 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; }
   .mx-report .rx-m-h { margin-bottom: calc(3.2 * var(--u)); }
   .rx-old, .rx-new { position: absolute; left: 0; right: auto; top: 100%; margin: 0; }
 }
+
+/* ===== Client expectations (19 Nov) ===== */
+/* My approach: one lead paragraph, then the three decision cards replace the old three-item list */
+.rr-approach p.rr-approach-lead { font-weight: 400; color: #e6f1ec; }
+.rr-decide-h { margin: 2rem 0 0; font-family: var(--display); font-size: 1.15rem; line-height: 1.35; color: #fff; }
+.rr-decide { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; max-width: 62rem; }
+.rr-d { --c: #7fd6c2; margin: 0; padding: 1.1rem 1.15rem 1.15rem; border-radius: 14px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); border-top: 3px solid var(--c); display: flex; flex-direction: column; }
+.rr-d-ai { --c: var(--signal); }
+.rr-d-human { --c: #f0a75a; }
+.rr-d svg { width: 2.1rem; height: 2.1rem; padding: 0.42rem; border-radius: 50%; background: color-mix(in srgb, var(--c) 18%, transparent); fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rr-d h3 { margin: 0.75rem 0 0; font-family: var(--display); font-size: 1.05rem; line-height: 1.3; color: #fff; }
+.rr-d-a { margin: 0.45rem 0 0; font-weight: 700; font-size: 0.95rem; color: var(--c); }
+.rr-d-a::before { content: "\2192\00a0"; }
+.rr-d-eg { margin: auto 0 0; padding-top: 0.75rem; font-size: 0.9rem; line-height: 1.45; color: rgba(230, 241, 236, 0.82); }
+@media (max-width: 52rem) { .rr-decide { grid-template-columns: minmax(0, 1fr); gap: 0.7rem; } }
+@media (forced-colors: active) { .rr-d { border-top-color: CanvasText; } .rr-d svg { stroke: CanvasText; } }
+
+/* Checks and control: the demo-vs-testing line sits between the intro and the quote */
+.sn-demo { max-width: 44rem; margin: 0.9rem 0 0; font-weight: 600; color: var(--teal-dark); }
+
+/* How it works: five steps now */
+@media (min-width: 52.01rem) { .steps-row { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.3rem; } }
+.motion .steps-row.rv.is-in li:nth-child(5) > *, .motion .steps-row.rv.is-in li:nth-child(5)::before { transition-delay: 0.65s; }
+.rr-updates { margin: 1.6rem 0 0; padding: 1rem 1.2rem; max-width: 52rem; border-left: 3px solid var(--teal); background: var(--info-bg); border-radius: 0 12px 12px 0; }
+.rr-updates h3 { margin: 0 0 0.35rem; font-family: var(--display); font-size: 1.1rem; color: var(--ink); }
+.rr-updates p { margin: 0; line-height: 1.6; color: var(--muted); }
+
+/* the closing thought above the final booking block */
+.rr-closing { max-width: 46rem; margin: 0 0 2.2rem; padding-bottom: 1.8rem; border-bottom: 1px solid rgba(255, 255, 255, 0.16); font-family: var(--display); font-weight: 600; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.45; color: #fff; }

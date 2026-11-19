@@ -16,7 +16,7 @@ const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/s
 
 test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking note, no extra CTAs', async () => {
   const html = await page();
-  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="hero-story">'));
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="container hz-benefits">'));
   assert.match(hero, /<p class="eyebrow hero-eyebrow">Data &amp; workflow improvement<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent">Smarter business operations\./);
   assert.match(hero, /<p class="hero-sub">I help small teams reduce repetitive admin, bring scattered information together and make everyday processes easier to manage &mdash; using better data, practical tools and automation where it helps\.<\/p>/);
@@ -29,40 +29,68 @@ test('hero (17 Nov, Option A): approved copy word for word, two buttons, booking
   assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
 });
 
-test('hero (round 12 = round 8 scene, slider under the illustration): one operation, before and after; no mascot, no copy of the six tiles', async () => {
+test('hero (19 Nov): three zones, full width; problem, solution, outcome; no slider, no mascot, no copy of the six tiles', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
-  assert.match(hero, /<span class="rx-runner" role="slider" tabindex="0" aria-label="Rework Rescue logo: drag to transform the business operations" aria-describedby="rx-hint" aria-valuemin="0" aria-valuemax="100"/);
-  assert.match(hero, /<span class="rx-runner"[^>]*><img src="\.\/assets\/brand\/mark\.png" width="324" height="214" alt=""/, 'the real brand mark is the control');
+  const txt = (h) => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.doesNotMatch(hero, /role="slider"|rx-runner|rx-reset|Replay|mark\.png/, 'the logo slider and Replay are gone');
   assert.doesNotMatch(hero, /bot-|robot|mascot/i, 'no robot or mascot');
-  assert.match(hero, /<span class="rx-hint-drag">Drag the Rework Rescue logo to explore the transformation\.<\/span>/);
-  assert.match(hero, /Watch Rework Rescue transform your workflow&hellip;/);
-  assert.match(hero, /<span class="rx-pill rx-pill-start">Scattered work<\/span>[\s\S]*<span class="rx-pill rx-pill-end">Better operations<\/span>/);
-  const stage = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
-  assert.deepEqual([...stage.matchAll(/<li class="ops-st[^"]*">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2]]),
-    [['Understand the work', 'AI where interpretation helps'], ['Improve the process', 'Automation where repetition gets in the way'], ['Check &amp; control', 'Checks and people where they matter']]);
-  for (const s of ['Re: Fwd: update', 'Details missing', 'Orders.xlsx', 'Orders_copy.xlsx', 'copy &amp; paste', 'Handoff notes', 'Check this?', 'Follow up?', 'Who owns this?', 'Out of date',
-    'Read by AI', 'Phone: missing', 'Records &middot; checked', 'Follow-up scheduled', 'Needs review', 'JM notified', 'Updated']) assert.ok(stage.includes(s), s);
+  // benefits strip unchanged, under the buttons, before the scene
+  assert.ok(hero.indexOf('class="hz-cta"') < hero.indexOf('class="story-benefits"') && hero.indexOf('class="story-benefits"') < hero.indexOf('id="hero-story"'));
+  assert.deepEqual([...hero.matchAll(/<li><svg[^>]*>[\s\S]*?<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Less repetitive work.', 'Fewer avoidable mistakes.', 'Smoother everyday operations.']);
+  const fig = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
+  const zones = [...fig.matchAll(/<p class="hz-tag">[\s\S]*?<\/svg>([^<]+)<\/p>[\s\S]*?<p class="hz-desc">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]);
+  assert.deepEqual(zones, [
+    ['Scattered work', 'Information from different places, repeated work and things that are easy to miss.'],
+    ['A better way of working', 'A process designed around your business, using the right mix of AI, automation and human review.'],
+    ['Organised operations', 'A clear view of work, ownership and next steps.'],
+  ]);
+  assert.deepEqual([...fig.matchAll(/<ul class="hz-flags">[\s\S]*?<\/ul>/g)].flatMap((m) => [...m[0].matchAll(/<\/svg>([^<]+)<\/li>/g)].map((x) => x[1])), ['Duplicate?', 'Missing detail?', 'Who owns this?']);
+  assert.doesNotMatch(fig, /Phone missing|Phone: missing/, 'the universal "Missing detail", not a phone example');
+  // the three roles, each with its job, in the colour language order
+  assert.deepEqual([...fig.matchAll(/<li class="hz-(ai|auto|human)">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2], m[3]]), [
+    ['ai', 'AI', 'Reads emails and forms and picks out the details'],
+    ['auto', 'Automation', 'Updates records, moves work on and sends reminders'],
+    ['human', 'Human review', 'Your team checks exceptions and approves decisions'],
+  ]);
+  // the tracker: owners are team roles, never the automation or AI
+  const rows = [...fig.matchAll(/<tr><th scope="row">[\s\S]*?<\/svg>([^<]+)<\/th><td data-label="Owner">([^<]+)<\/td><td><span class="hz-st[^"]*">([^<]+)<\/span><\/td><td data-label="Next">([^<]+)<\/td><\/tr>/g)].map((m) => m.slice(1));
+  assert.deepEqual(rows, [
+    ['Customer request', 'Office team', 'In progress', 'Prepare response'],
+    ['Service task', 'Field team', 'Needs review', 'Confirm details'],
+    ['Follow-up', 'Office team', 'Scheduled', 'Send update'],
+    ['Record update', 'Operations team', 'Completed', 'No action needed'],
+  ]);
+  for (const [, owner] of rows) assert.match(owner, / team$/, 'owners are team roles');
+  assert.doesNotMatch(fig, /JM|AK|SR\b/, 'no arbitrary initials');
+  assert.match(fig, /<caption class="sr-only">Example tracker<\/caption>/);
   const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
-  for (const tile of [...svc.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])) assert.ok(!stage.includes(tile), `hero doesn't repeat the tile "${tile}"`);
-  assert.doesNotMatch(stage, /<img|background-image|\d+\s?%|hours? saved|Dana/i);
-  const story = html.slice(html.indexOf('<div class="hero-story">'), html.indexOf('<div class="container rx-track-wrap">'));
-  assert.ok(story.indexOf('id="hero-story"') < story.indexOf('<div class="rx-control">'), 'the slider sits directly under the illustration, inside the same column');
+  for (const tile of [...svc.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])) assert.ok(!txt(fig).includes(tile), `hero doesn't repeat the tile "${tile}"`);
+  assert.doesNotMatch(fig, /<img|background-image|\d+\s?%|hours? saved|Dana|Outlook|Excel|Teams|Power Automate|Zapier|n8n|Make\.com/i, 'no photos, figures or vendor names');
+
   const c = await read('../assets/styles.css');
-  assert.match(c, /\.hero-story \.rx-runner \{[^}]*left: calc\(var\(--p\) \* 100% - 1\.8rem\);/, "the logo's centre runs edge to edge of the illustration");
-  const css = c.slice(c.indexOf('/* ---- Hero (17 Nov, round 8)'));
-  assert.match(css, /@property --p \{ syntax: '<number>'; inherits: true; initial-value: 1; \}/, 'no JavaScript: the organised state');
-  assert.match(c, /\.hero-story \.rx-control \{ display: none;[^}]*\}\n\.rx\.rx-js \.hero-story \.rx-control \{ display: block; \}/, 'the slider only shows when it works');
-  assert.match(c, /\.hero-story \.rx-runner \{[^}]*touch-action: none;/, 'dragging the logo never scrolls the page');
-  assert.match(c, /\.hero-story \.rx-track \{[^}]*touch-action: pan-y;/, 'the rest of the line still lets the page scroll');
-  assert.doesNotMatch(css.slice(0, css.indexOf('/* the Dana Cruz flow')), /infinite/, 'nothing loops');
-  const js = await read('../src/hero-slider.js');
-  for (const k of ['ArrowRight', 'ArrowLeft', 'PageUp', 'PageDown', 'Home', 'End', 'aria-valuenow', 'aria-valuetext', 'setPointerCapture', 'prefers-reduced-motion: reduce', 'takeOver']) assert.ok(js.includes(k), k);
-  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval|innerHTML/, 'CSP: setProperty and classes only; plays once');
-  const { describe, clamp01, MORPH_MS, RUN_MS, START_DELAY_MS } = await import('../src/hero-slider.js');
-  assert.equal(clamp01(-1), 0); assert.equal(clamp01(2), 1);
-  assert.match(describe(0), /Scattered/); assert.match(describe(0.3), /AI reads/); assert.match(describe(0.5), /automation/); assert.match(describe(0.8), /one exception sent to a person/); assert.match(describe(1), /Better operations/);
-  assert.ok(START_DELAY_MS >= 700 && START_DELAY_MS <= 900); assert.ok(MORPH_MS + RUN_MS >= 4000 && MORPH_MS + RUN_MS <= 5000);
+  const css = c.slice(c.indexOf('/* ---- Hero (19 Nov 2026): three zones'), c.indexOf('/* the Dana Cruz flow'));
+  assert.ok(css.length > 2000, 'three-zone block exists');
+  assert.doesNotMatch(c, /\.rx-runner|\.rx-stage|@property --p\b/, 'slider styles removed');
+  assert.doesNotMatch(css, /infinite/, 'the flow plays a few cycles, then rests');
+  for (const m of css.matchAll(/animation: hz-[\w-]+ [\d.]+s [\w-]+ (\d+);/g)) assert.ok(Number(m[1]) <= 18, 'finite repeats');
+  const motionRule = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference)'));
+  assert.match(motionRule, /^@media \(prefers-reduced-motion: no-preference\) \{\n(  \.hz-flow\.is-live [^\n]+\n)+\}/, 'every animation is behind reduced-motion and .is-live');
+  assert.match(css, /\.hz-steps \.hz-ai \{[^}]*var\(--ai-tint\)/, 'AI violet');
+  assert.match(css, /\.hz-steps \.hz-human \{[^}]*var\(--human-tint\)/, 'human review amber');
+  assert.match(css, /\.hz-steps li \{[^}]*var\(--teal-tint\)/, 'automation teal');
+  assert.match(css, /@media \(max-width: 40rem\) \{[\s\S]*?\.hz-table tr \{ display: grid;[^}]*grid-template-areas: "item status" "owner owner" "next next";/, 'phones: the tracker becomes compact records');
+  assert.match(css, /td\[data-label\]::before \{ content: attr\(data-label\) ": "; \}|td\[data-label\]::before \{ content: attr\(data-label\) ": ";/);
+
+  const js = await read('../src/hero-zones.js');
+  assert.doesNotMatch(js, /\.style\.|setInterval|setTimeout|innerHTML/, 'CSP: classes only');
+  assert.match(js, /IntersectionObserver/); assert.match(js, /prefers-reduced-motion: reduce/);
+  const { shouldPlay, LIVE_CLASS } = await import('../src/hero-zones.js');
+  assert.equal(LIVE_CLASS, 'is-live');
+  assert.equal(shouldPlay(true, false), true); assert.equal(shouldPlay(false, false), false); assert.equal(shouldPlay(true, true), false);
+  const home = await read('../src/home.js');
+  assert.match(home, /mountZones\(document\.getElementById\('hero-story'\)\)/);
+  assert.doesNotMatch(home, /hero-slider|mountSlider/);
 });
 
 test('the Dana Cruz example moved under How I help, still working', async () => {

@@ -5308,3 +5308,41 @@ dialog.cs[open] { animation: cs-in-centre 0.26s cubic-bezier(0.22, 1, 0.36, 1); 
 .hz .hero-sub:has(+ .hero-for) { margin-bottom: 0.6rem; }
 .hero-for { margin: 0 0 1.4rem; font-weight: 700; font-size: 0.98rem; color: var(--teal-dark); }
 @media (max-width: 52rem) { .hero-copy > .hero-for { order: 3; } }
+
+/* ===== 20 Nov: visual rhythm (A + B). Section colours alternate, a faint "connected work" line pattern
+   sits behind the hero and the dark checks band, gold marks the How it works steps. ===== */
+:root {
+  --rr-flow-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='%232e7d72' stroke-opacity='.09' stroke-width='1.5'%3E%3Cpath d='M0 40h48v64h64V40h48M80 104v56M80 0v20'/%3E%3Ccircle cx='48' cy='40' r='3.5' fill='%232e7d72' fill-opacity='.12'/%3E%3Ccircle cx='112' cy='104' r='3.5' fill='%232e7d72' fill-opacity='.12'/%3E%3C/svg%3E");
+  --rr-flow-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='%23e6c078' stroke-opacity='.10' stroke-width='1.5'%3E%3Cpath d='M0 40h48v64h64V40h48M80 104v56M80 0v20'/%3E%3Ccircle cx='48' cy='40' r='3.5' fill='%23e6c078' fill-opacity='.16'/%3E%3Ccircle cx='112' cy='104' r='3.5' fill='%23e6c078' fill-opacity='.16'/%3E%3C/svg%3E");
+  --rr-teal-tint: #e7f0ec;
+}
+/* Hero: cream with the faint flow lines, fading out towards the bottom. */
+main > section.hz { background:
+  linear-gradient(180deg, transparent 55%, var(--paper) 100%),
+  var(--rr-flow-light) center top / 160px 160px repeat,
+  radial-gradient(48rem 30rem at 92% 18%, #e1efe6 0%, transparent 62%),
+  linear-gradient(180deg, #faf6ec, var(--paper)); }
+/* How I help: white so the coloured tiles stand out. */
+main > section#services { background: #fff; }
+/* Checks and control: the deep-teal band. */
+main > section#safety { background: var(--rr-flow-dark) center / 160px 160px repeat, var(--ink); color: #e9efe9; padding: 4.5rem 0; }
+main > section#safety .eyebrow { color: var(--signal); }
+main > section#safety h2 { color: #fff; }
+main > section#safety > .container > h2::before { background: var(--signal); }
+main > section#safety .sn-intro .lede { color: #d3e2dc; }
+main > section#safety .sn-quote { color: var(--ink); }
+main > section#safety .sn-foot .sn-limits { color: #d3e2dc; }
+main > section#safety .sn-foot .sn-limits::before { border-color: #d3e2dc; color: #d3e2dc; }
+main > section#safety .sn-more > summary { border-color: var(--signal); }
+main > section#safety .sn-more .sn-drill { background: #0b2f2f; border: 1px solid rgba(230, 192, 120, 0.35); }
+/* Demos and previous roles: light teal. */
+main > section#built { background: var(--rr-teal-tint); }
+/* How it works: cream, gold step numbers. */
+main > section#how { background: var(--paper); }
+main > section#how .steps-list li::before { background: var(--signal); color: var(--ink); }
+/* About: white, photo kept. FAQ: light teal. */
+main > section#about { background: #fff; }
+main > section#faq { background: var(--rr-teal-tint); }
+/* Final booking band: same flow lines in gold. */
+main > section#start { background: var(--rr-flow-dark) center / 160px 160px repeat, var(--ink); }
+@media print { main > section.hz, main > section#safety, main > section#start { background: #fff !important; color: #000; } }

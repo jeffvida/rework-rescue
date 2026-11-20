@@ -5200,3 +5200,42 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
 .rr-tile { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 /* Bug fix (20 Nov): ".rr-tiles > li.tile-flow { display: block }" beat the hidden attribute, so a closed example stayed on screen */
 .rr-tiles > li.tile-flow[hidden] { display: none; }
+/* 20 Nov (6): "Checks and control, built in." calmer and on brand: intro beside the quote,
+   the five safeguards as one connected step line inside a single card, a quiet footer row. */
+.sn-intro { display: grid; gap: 1rem 3rem; align-items: center; margin-top: 0.4rem; }
+.sn-intro .lede { margin: 0; max-width: 40rem; }
+.sn-section .sn-quote { margin: 0; padding: 1rem 1.2rem; max-width: none; border-left: 3px solid var(--signal); border-radius: 0 12px 12px 0; background: #fff; box-shadow: var(--shadow-card); font-size: clamp(1.02rem, 1.6vw, 1.15rem); line-height: 1.45; }
+@media (min-width: 62.01rem) { .sn-intro { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); } }
+
+.sn-section .sn-list { position: relative; margin-top: 2rem; padding: 1.6rem 1.4rem 1.5rem; gap: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-card); overflow: visible; }
+.sn-section .sn-list > li { position: relative; display: block; margin: 0; padding: 0; background: none; border: 0; border-radius: 0; }
+.sn-section .sn-list > li.sn-human { background: none; }
+.sn-section .sn-n { position: relative; z-index: 1; width: 2.3rem; height: 2.3rem; margin: 0 0 0.85rem; font-size: 0.95rem; background: var(--teal); box-shadow: 0 0 0 5px #fff; }
+.sn-section .sn-list > li.sn-human .sn-n { background: var(--human-dark); }
+.sn-section .sn-list h3 { margin: 0 0 0.35rem; font-size: 1.02rem; line-height: 1.3; }
+.sn-section .sn-list p { font-size: 0.9rem; line-height: 1.5; color: var(--muted); }
+.sn-section .sn-list > li.sn-human h3 { color: var(--human-dark); }
+/* desktop: five steps in a row on one line */
+@media (min-width: 62.01rem) {
+  .sn-section .sn-list { grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: 1.4rem; }
+  .sn-section .sn-list > li, .sn-section .sn-list > li:nth-child(4), .sn-section .sn-list > li:nth-child(5) { grid-column: auto; }
+  .sn-section .sn-list::before { content: ""; position: absolute; left: 2.55rem; right: 2.55rem; top: calc(1.6rem + 1.15rem); height: 2px; background: linear-gradient(90deg, var(--teal) 0 62%, var(--human-line) 62% 82%, var(--teal) 82%); opacity: 0.45; }
+}
+/* tablet and phone: one column, the line runs down the left */
+@media (max-width: 62rem) {
+  .sn-section .sn-list { grid-template-columns: minmax(0, 1fr); row-gap: 1.3rem; padding: 1.3rem 1.1rem; }
+  .sn-section .sn-list > li, .sn-section .sn-list > li:nth-child(4), .sn-section .sn-list > li:nth-child(5) { grid-column: auto; display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); column-gap: 0.9rem; }
+  .sn-section .sn-n { margin: 0; }
+  .sn-section .sn-list::before { content: ""; position: absolute; left: calc(1.1rem + 1.15rem - 1px); top: 2.4rem; bottom: 2.4rem; width: 2px; background: var(--teal); opacity: 0.3; }
+}
+.sn-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem 1.5rem; margin-top: 1.1rem; }
+.sn-foot .sn-limits { display: flex; align-items: flex-start; gap: 0.5rem; margin: 0; max-width: 40rem; }
+.sn-foot .sn-limits::before { content: "i"; flex: none; display: grid; place-items: center; width: 1.15rem; height: 1.15rem; margin-top: 0.05rem; border-radius: 50%; border: 1.5px solid var(--muted); font-size: 0.7rem; font-weight: 700; font-style: italic; line-height: 1; color: var(--muted); }
+.sn-foot .sn-more { margin: 0; max-width: none; flex: 0 1 auto; }
+.sn-foot .sn-more[open] { flex-basis: 100%; }
+/* the line runs from step to step only, never past the last one */
+.sn-section .sn-list::before { content: none; }
+.sn-section .sn-list > li:not(:last-child)::after { content: ""; position: absolute; z-index: 0; background: var(--teal); opacity: 0.35; }
+.sn-section .sn-list > li.sn-human::after, .sn-section .sn-list > li:nth-child(3)::after { background: var(--human-line); opacity: 0.8; }
+@media (min-width: 62.01rem) { .sn-section .sn-list > li:not(:last-child)::after { left: 2.3rem; top: calc(1.15rem - 1px); width: calc(100% + 1.4rem - 2.3rem); height: 2px; } }
+@media (max-width: 62rem) { .sn-section .sn-list > li:not(:last-child)::after { left: calc(1.15rem - 1px); top: 2.3rem; bottom: -1.3rem; width: 2px; } }

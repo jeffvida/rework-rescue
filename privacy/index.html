@@ -58,6 +58,7 @@
       <ul>
         <li>The free assessment runs entirely in your browser. Your answers are not stored, and are only sent if you choose to share your result or book a review from it.</li>
         <li>The chat assistant on the homepage sends what you type to my automation service and to Google (Gemini) to write a reply. Google may use these chats to improve its AI, so please leave out names, contact details and anything confidential.</li>
+        <li>The enquiry tracker demo sends what you enter to my automation service and to Google (Gemini) to sort it, and saves the result in my demo spreadsheet. Made-up details are fine.</li>
         <li>This site uses no cookies, analytics, trackers or third-party scripts.</li>
         <li>If you contact me or book a review, I use your details only to reply, hold the review and discuss possible work with you.</li>
         <li>I don't sell your details, add you to a mailing list, or share them for marketing.</li>
@@ -83,6 +84,14 @@
         <li>For each reply, I keep a short log in my private Google Sheet: the time, a random chat number (so I can see which replies belong to the same chat; it isn't linked to you), which service was suggested, a one-sentence summary of what you described, how many messages the chat had, and whether the booking button was shown. The full messages are not logged, and runs that work are not saved in n8n. I delete log rows after 12 months.</li>
         <li>To prevent abuse, the service counts messages per visitor per day using a one-way code made from your IP address and the date. The IP address itself is not stored, and the counts are cleared every day.</li>
         <li>The assistant never books anything or sends anything on your behalf. Its booking button opens the same booking form described below.</li>
+      </ul>
+
+      <h2 id="enquiry-demo">The enquiry tracker demo</h2>
+      <ul>
+        <li>The enquiry tracker in &ldquo;Demos &amp; examples&rdquo; shows how an incoming enquiry can be sorted automatically. CoolFix Aircon is a made-up business, and made-up names and email addresses are fine.</li>
+        <li>It only runs when you press <em>Send enquiry</em>. Your name, email and message are sent to my automation service (n8n, hosted on Railway), which first checks them and rejects anything that looks like spam.</li>
+        <li>The message is then read by Google&rsquo;s Gemini AI to summarise it and sort it. This uses Gemini&rsquo;s free service, under which Google may use what you send to improve its products, and people at Google may review it. Please don&rsquo;t include real contact details or anything confidential.</li>
+        <li>The result is saved as a row in my private demo spreadsheet (Google Sheets), and I get an email about it (Gmail). Nothing is sent to the email address you enter. I clear the demo spreadsheet at least once a month.</li>
       </ul>
 
       <h2>The examples on the homepage</h2>
@@ -116,7 +125,7 @@
       <p>To make a request, email <a href="mailto:jeffhersonvida@gmail.com">jeffhersonvida@gmail.com</a>. I'll reply within 30 days.</p>
 
       <h2>Cookies</h2>
-      <p>This site sets no cookies and loads no scripts, fonts or images from other websites. The only outside connections are to my booking service, to show free times (when you open the booking pop-up or scroll near the booking calendar at the bottom of the homepage) and when you book, and to the chat assistant&rsquo;s service when you send it a message. Links to LinkedIn and the National Privacy Commission open those sites, which have their own privacy policies.</p>
+      <p>This site sets no cookies and loads no scripts, fonts or images from other websites. The only outside connections are to my booking service, to show free times (when you open the booking pop-up or scroll near the booking calendar at the bottom of the homepage) and when you book, to the chat assistant&rsquo;s service when you send it a message, and to the enquiry tracker demo&rsquo;s service when you send an enquiry. Links to LinkedIn and the National Privacy Commission open those sites, which have their own privacy policies.</p>
 
       <h2>Changes to this notice</h2>
       <p>If how I handle information changes, for example when a written inquiry form is added, I'll update this page and the date at the top.</p>

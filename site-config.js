@@ -55,6 +55,10 @@ export const SITE = {
   // Paste the Production URL from the workflow's Assistant request node. While empty, the assistant doesn't appear
   // (add ?assistant=preview to the address to see it with sample replies). Setup: n8n/ASSISTANT-SETUP.md.
   assistantUrl: 'https://n8n-production-cf1c.up.railway.app/webhook/rr-assistant', // POST
+  // Enquiry tracker demo (src/enquiry-demo.js), connected to the n8n workflow "Enquiry Inbox → Tracker (demo)".
+  // Production URL of its Webhook node. While empty, the demo uses sample replies and sends nothing
+  // (add ?enquiry=preview to the address to see that mode). 21 Nov 2026.
+  enquiryDemoUrl: 'https://n8n-production-cf1c.up.railway.app/webhook/enquiry-demo', // POST
   // Inquiry delivery. Leave empty until a server-side endpoint exists (for example an n8n webhook URL).
   // This repository is public, so the URL is visible to anyone: the endpoint must filter spam itself.
   // The browser never holds an email-provider key; the endpoint must be your own server or a

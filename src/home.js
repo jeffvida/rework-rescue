@@ -98,3 +98,7 @@ mountDrill(document.getElementById('sn-drill'));
 // 20 Nov (Jeff approved option A): previous-role examples open as a slide-in, three-step mini presentation.
 import { mountCaseStudies } from './casestudy.js';
 mountCaseStudies(document.querySelector('#built .rr-results'));
+
+// 21 Nov 2026 (build #1): the enquiry tracker demo in Demos & examples (src/enquiry-demo.js).
+import { mountEnquiryDemo } from './enquiry-demo.js';
+mountEnquiryDemo(document.getElementById('enquiry-demo'));

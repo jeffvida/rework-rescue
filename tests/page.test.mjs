@@ -341,3 +341,18 @@ test('closed tile example is really hidden (20 Nov bug): no display rule beats [
   assert.match(css, /\.rr-tiles > li\.tile-flow\[hidden\] \{ display: none; \}/);
   assert.ok(css.lastIndexOf('.rr-tiles > li.tile-flow[hidden]') > css.lastIndexOf('.rr-tiles > li.tile-flow {'), 'the hide rule comes after the display rule');
 });
+
+test('previous-role examples (20 Nov): slide-in three-step panel; the dropdown stays as the no-JS fallback', async () => {
+  const js = await read('../src/casestudy.js');
+  assert.match(js, /const STEPS = \['The problem', 'What I built', 'The result'\];/);
+  assert.match(js, /dlg\.showModal\(\)/); assert.match(js, /if \(e\.target === dlg\) dlg\.close\(\)/, 'tap outside closes');
+  assert.match(js, /cur\.btn\.focus/, 'focus returns to the card');
+  assert.doesNotMatch(js, /style\s*=|\.style\./, 'CSP: no inline styles');
+  const home = await read('../src/home.js');
+  assert.match(home, /mountCaseStudies\(document\.querySelector\('#built \.rr-results'\)\);/);
+  const html = await page();
+  assert.equal((html.match(/<details class="fold rr-more"><summary>See how it worked<\/summary>/g) || []).length, 2, 'no-JS fallback kept');
+  const css = await read('../assets/styles.css');
+  assert.match(css, /\.rr-result\.has-cs > details\.rr-more \{ display: none; \}/);
+  assert.match(css, /@media \(max-width: 40rem\) \{\n  dialog\.cs \{ inset: auto 0 0 0;/, 'bottom sheet on phones');
+});

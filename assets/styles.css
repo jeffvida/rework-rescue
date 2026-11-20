@@ -5242,3 +5242,53 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
 /* button sits under the "checks are agreed" note */
 .sn-foot { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.8rem; }
 .sn-foot .sn-more { align-self: stretch; }
+/* 20 Nov (7): previous-role examples open in a slide-in panel (bottom sheet on phones), three short steps */
+.rr-result.has-cs > details.rr-more { display: none; }
+.rr-open { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0.6rem 0 0; padding: 0.85rem 0 0.8rem; border: 0; border-top: 1px solid var(--line); background: none; font: inherit; font-weight: 600; color: var(--ink); text-align: left; cursor: pointer; }
+.rr-open::after { content: "\2192"; color: var(--teal); transition: transform 0.2s ease; }
+.rr-open:hover::after { transform: translateX(3px); }
+.cs-lock { overflow: hidden; }
+dialog.cs { position: fixed; inset: 0 0 0 auto; width: min(42rem, 100vw); height: 100dvh; max-width: 100vw; max-height: 100dvh; margin: 0; padding: 0; border: 0; border-radius: 18px 0 0 18px; background: var(--paper); color: var(--ink); box-shadow: -20px 0 50px -20px rgba(15, 40, 40, 0.45); }
+dialog.cs[open] { display: flex; animation: cs-in-right 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
+dialog.cs::backdrop { background: rgba(14, 40, 40, 0.42); backdrop-filter: blur(2px); }
+.cs-sheet { display: flex; flex-direction: column; width: 100%; min-height: 0; }
+.cs-head { position: relative; padding: 1.3rem 1.4rem 0.9rem; background: #fff; border-bottom: 1px solid var(--line); }
+.cs-k { margin: 0 0 0.3rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal-text); }
+.cs-title { margin: 0 2.8rem 0.9rem 0; font-family: var(--display); font-size: clamp(1.15rem, 2.4vw, 1.35rem); line-height: 1.3; }
+.cs-close { position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: 1.5rem; line-height: 1; color: var(--ink); cursor: pointer; }
+.cs-close:hover { border-color: var(--teal); color: var(--teal); }
+.cs-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+.cs-steps li { margin: 0; }
+.cs-steps button { display: flex; align-items: center; gap: 0.45rem; width: 100%; padding: 0.45rem 0.55rem; border: 0; border-bottom: 3px solid var(--line); background: none; font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-align: left; cursor: pointer; }
+.cs-steps button span { display: grid; place-items: center; flex: none; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--line); color: var(--ink); font-size: 0.75rem; }
+.cs-steps li.is-done button { border-bottom-color: #9fcfc2; }
+.cs-steps button[aria-current="step"] { color: var(--ink); border-bottom-color: var(--teal); }
+.cs-steps button[aria-current="step"] span, .cs-steps li.is-done button span { background: var(--teal); color: #fff; }
+.cs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 1.3rem 1.4rem 1.5rem; outline: none; }
+.cs-body.is-in { animation: cs-fade 0.28s ease; }
+.cs-body > p { margin: 0 0 1rem; font-size: 1rem; line-height: 1.55; }
+.cs-body .fpanel { margin: 0 0 1rem; }
+.cs-body .rr-nums { margin: 0 0 1.1rem; padding: 0.9rem 1rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); }
+.cs-body .exp-sample { display: block; margin: 0 0 1rem; }
+.cs-body .exp-bridge { margin: 0 0 1rem; }
+.cs-body .built-tools { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.cs-cta { margin: 1.3rem 0 0; }
+.cs-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.8rem 1.4rem; background: #fff; border-top: 1px solid var(--line); }
+.cs-foot .btn[hidden] { display: none; }
+.cs-foot .cs-back { margin-right: auto; }
+.cs-count { margin: 0 auto; font-size: 0.85rem; color: var(--muted); text-align: center; }
+.cs-foot .cs-next { margin-left: auto; }
+@keyframes cs-in-right { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes cs-in-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes cs-fade { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+@media (max-width: 40rem) {
+  dialog.cs { inset: auto 0 0 0; width: 100vw; height: auto; max-height: 90dvh; border-radius: 18px 18px 0 0; box-shadow: 0 -20px 50px -20px rgba(15, 40, 40, 0.45); }
+  dialog.cs[open] { animation-name: cs-in-up; }
+  .cs-head { padding: 1.1rem 1rem 0.8rem; }
+  .cs-head::before { content: ""; position: absolute; top: 0.45rem; left: 50%; width: 2.6rem; height: 4px; margin-left: -1.3rem; border-radius: 2px; background: var(--line); }
+  .cs-steps button { flex-direction: column; align-items: flex-start; gap: 0.25rem; font-size: 0.78rem; padding: 0.35rem 0.3rem; }
+  .cs-body { padding: 1rem; }
+  .cs-foot { padding: 0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom)); }
+  .cs-count { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { dialog.cs[open], .cs-body.is-in { animation: none; } .rr-open::after { transition: none; } }

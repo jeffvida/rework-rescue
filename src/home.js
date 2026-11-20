@@ -85,3 +85,7 @@ import { mountTiles } from './tiles.js';
 import { mountDrill } from './demo/drill.js';
 mountTiles(document.querySelector('#services .rr-tiles'));
 mountDrill(document.getElementById('sn-drill'));
+
+// 20 Nov (Jeff approved option A): previous-role examples open as a slide-in, three-step mini presentation.
+import { mountCaseStudies } from './casestudy.js';
+mountCaseStudies(document.querySelector('#built .rr-results'));

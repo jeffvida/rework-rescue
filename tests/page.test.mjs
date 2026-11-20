@@ -335,3 +335,9 @@ test('tile example (20 Nov): closes only by clicking its tile again (or Escape);
   assert.match(js, /if \(open === i\) \{ close\(\); return; \}/);
   assert.doesNotMatch(js, /tile-flow-close|panel\.addEventListener\('click'/);
 });
+
+test('closed tile example is really hidden (20 Nov bug): no display rule beats [hidden] on the panel', async () => {
+  const css = await read('../assets/styles.css');
+  assert.match(css, /\.rr-tiles > li\.tile-flow\[hidden\] \{ display: none; \}/);
+  assert.ok(css.lastIndexOf('.rr-tiles > li.tile-flow[hidden]') > css.lastIndexOf('.rr-tiles > li.tile-flow {'), 'the hide rule comes after the display rule');
+});

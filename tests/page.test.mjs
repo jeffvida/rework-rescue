@@ -17,7 +17,7 @@ const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/s
 test('hero (19 Nov reference v2): approved copy word for word, one booking button, booking note, three promises', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="container hz-wrap">'));
-  assert.match(hero, /<p class="eyebrow hero-eyebrow">AI &amp; automation for business operations<\/p>/);
+  assert.match(hero, /<p class="eyebrow hero-eyebrow">AI and automation for better operations<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg class="hv-swoosh"[^>]*>[\s\S]*?<\/svg><\/span> business operations\.<\/span><\/h1>/);
   assert.match(hero, /<p class="hero-sub">I organise information, connect your tools and automate routine work, so your team spends less time chasing details, updating records and preparing reports\.<\/p>/);
   assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);

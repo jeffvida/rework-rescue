@@ -5346,3 +5346,45 @@ main > section#faq { background: var(--rr-teal-tint); }
 /* Final booking band: same flow lines in gold. */
 main > section#start { background: var(--rr-flow-dark) center / 160px 160px repeat, var(--ink); }
 @media print { main > section.hz, main > section#safety, main > section#start { background: #fff !important; color: #000; } }
+
+/* ===== 20 Nov (2): hero "work with me" line, numbers band, gold thread, paper texture ===== */
+:root {
+  --rr-paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .3 0 0 0 0 .18 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* 1. Your face beside the main button. */
+.hero-me { display: flex; align-items: center; gap: 0.7rem; margin: 1.1rem 0 0; font-size: 0.95rem; color: var(--muted); }
+.hero-me img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 0 0 2px var(--signal); }
+.hero-me strong { color: var(--ink); }
+@media (max-width: 52rem) { .hero-copy > .hero-me { order: 5; } }
+
+/* 4. Numbers band (dark, between examples and How it works). */
+.rr-numbers { background: var(--rr-flow-dark) center / 160px 160px repeat, var(--ink); color: #e9efe9; padding: 2.8rem 0 2.4rem; }
+.rr-num-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; }
+.rr-num-list li { display: flex; flex-direction: column; gap: 0.35rem; padding-left: 1rem; border-left: 2px solid rgba(230, 192, 120, 0.45); }
+.rr-num-list b { font-family: var(--display); font-weight: 700; font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.05; color: var(--signal); }
+.rr-num-list span { font-size: 0.95rem; line-height: 1.4; color: #d3e2dc; }
+.rr-num-note { margin: 1.6rem 0 0; font-size: 0.82rem; color: #a9c2ba; }
+@media (max-width: 52rem) { .rr-num-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1rem; } }
+
+/* 5. Gold thread: a thin line down the left margin that fills as you scroll. Wide screens only. */
+main#main { position: relative; }
+main#main::before { content: none; }
+@media (min-width: 82rem) {
+  main#main::before { content: ""; position: absolute; z-index: 2; pointer-events: none; top: 7rem; bottom: 4rem; left: calc((100% - 70rem) / 2 - 2.6rem); width: 2px; border-radius: 2px;
+    background: linear-gradient(180deg, var(--signal), rgba(230, 192, 120, 0.55)); opacity: 0.55; transform-origin: top; }
+  @supports (animation-timeline: scroll()) {
+    main#main::before { opacity: 0.9; transform: scaleY(0); animation: rr-thread linear both; animation-timeline: scroll(root); }
+  }
+}
+@keyframes rr-thread { to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { main#main::before { animation: none !important; transform: none !important; opacity: 0.55 !important; } }
+
+/* 6. Paper texture on the cream sections. */
+main > section.hz { background:
+  var(--rr-paper-grain) 0 0 / 220px 220px repeat,
+  linear-gradient(180deg, transparent 55%, var(--paper) 100%),
+  var(--rr-flow-light) center top / 160px 160px repeat,
+  radial-gradient(48rem 30rem at 92% 18%, #e1efe6 0%, transparent 62%),
+  linear-gradient(180deg, #faf6ec, var(--paper)); }
+main > section#how { background: var(--rr-paper-grain) 0 0 / 220px 220px repeat, var(--paper); }
+@media print { .rr-numbers { background: #fff !important; color: #000; } main#main::before { content: none !important; } }

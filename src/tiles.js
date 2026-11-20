@@ -7,10 +7,10 @@
 export const FLOWS = [
   {
     steps: ['An email arrives in the shared inbox', 'AI reads it and labels it: request, question, invoice or other', 'Requests are logged with an owner', 'Unclear emails are set aside for a person'],
-    net: 'If the AI isn’t sure, the email waits for a person instead of being guessed.',
+    net: 'Anything the AI can’t place in a category goes to a person instead of being guessed.',
   },
   {
-    steps: ['Details arrive once, by form, email or export', 'Required fields are checked', 'The record is created or updated in your tracker', 'Duplicates and gaps are flagged'],
+    steps: ['Details are pulled from the form, email or export', 'Required fields are checked and gaps flagged', 'Matched against existing records by email, phone or ID', 'The record is created or updated in your tracker'],
     net: 'A record that already exists is updated, not entered twice.',
   },
   {
@@ -18,16 +18,16 @@ export const FLOWS = [
     net: 'If a reminder can’t be sent, the owner is told instead of it failing quietly.',
   },
   {
-    steps: ['A request is submitted', 'It goes to the person who approves that kind of request', 'A reminder follows if nobody acts', 'It’s approved, or returned with a reason'],
+    steps: ['A request is submitted', 'It goes to the person who approves that kind of request', 'A reminder follows if nobody acts', 'It’s approved or returned with a reason, and the requester is told'],
     net: 'Requests missing key details go back before they reach the approver.',
   },
   {
     steps: ['Data is pulled from your sources on a schedule', 'Missing or unusual figures are checked', 'The report is built in the same format every time', 'You review it and share it'],
-    net: 'If a source is empty or totals don’t match, the report is held and you’re told.',
+    net: 'If a source is empty or the figures don’t match the source data, the report is held and you’re told.',
   },
   {
-    steps: ['A customer fills in the form on your website or landing page', 'The enquiry is added to your customer tracker', 'An owner is assigned and a follow-up reminder is set', 'You reply and track it to a decision'],
-    net: 'If saving to the tracker fails, the enquiry is kept and you’re alerted, so it isn’t silently missed.',
+    steps: ['A customer fills in the form on your website or landing page', 'Spam is filtered out and the enquiry is added to your customer tracker', 'An owner is assigned and a follow-up reminder is set', 'You reply and track it to a decision'],
+    net: 'If saving to the tracker fails, a copy of the enquiry is emailed to you, so it isn’t missed.',
   },
 ];
 

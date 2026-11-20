@@ -1,7 +1,7 @@
-# Booking update, 20 Nov 2026: change/cancel links and the 10-minute reminder check
+# Booking update, 20 Nov 2026: change/cancel links (no timer)
 
 Your live workflow: https://n8n-production-cf1c.up.railway.app/workflow/fK3vgZsF5DQ3OK3p
-The file to import: `n8n/rework-review-booking.json` (55 nodes).
+The file to import: `n8n/rework-review-booking.json` (54 nodes). Reminders still wait inside each booking's run, as before; nothing runs on a timer.
 
 **Order:** the website goes live first ("push it live"), then you import this into n8n. Until the import, the old
 workflow keeps running as before. New invites only get the change link after the import.
@@ -9,9 +9,7 @@ workflow keeps running as before. New invites only get the change link after the
 ## 1. Before you start (2 minutes)
 
 1. In n8n, open the workflow and click **⋯ → Download**. Keep that file: it's your undo.
-2. Open **Executions** and filter by **Waiting**. These are reminders the old version is still holding.
-   Write down how many there are. After the import, step 3.5 stops them, and the new 10-minute check
-   sends their reminders instead (it finds them through the bookings sheet).
+2. Leave any **Waiting** runs under Executions alone. The reminder nodes keep their names, so those reminders still go out.
 
 ## 2. Import into the same workflow (keeps the same webhook addresses)
 
@@ -25,18 +23,16 @@ Open each node below and pick the existing credential from the dropdown (no new 
 
 - **Google Calendar OAuth2** (HTTP Request nodes): Google: busy times · Google: is it still free? · Google: create event + invite ·
   Google: find the booking · Google: is the new time free? · Google: move the event · Google: cancel the event ·
-  Google: upcoming events · Google: update the event
-- **Gmail OAuth2**: Email Jeff · Email Jeff: sheet problem · Email Jeff: change · Email Jeff: sheet update problem · Email: reminder
-- **Google Sheets OAuth2**: Log to Google Sheet · Update the sheet row · Read the bookings sheet · Sweep: update the sheet
+  Google: still on? (1 day) · Google: still on? (1 hour)
+- **Gmail OAuth2**: Email Jeff · Email Jeff: sheet problem · Email Jeff: change · Email Jeff: sheet update problem · Email: 1-day reminder · Email: 1-hour reminder
+- **Google Sheets OAuth2**: Log to Google Sheet · Update the sheet row
 - **Basic Auth**: Reset request (the same username/password credential as before)
 
 Then:
 
 4. **Save**, and make sure the workflow is **Active**.
-5. Back in **Executions → Waiting**: stop each waiting run from the old version (open it → **Stop**).
-   Otherwise those bookings could get a reminder twice.
 
-## 4. Test (10 minutes)
+## 4. Test
 
 1. Book a review on the live site with your second email address, at least a day ahead.
 2. The invite should include "Need a different time? Change or cancel here: …#booking=…".
@@ -45,8 +41,7 @@ Then:
    the updated invite, you got "Review moved: …", and the sheet row shows the new time and *Rescheduled*.
 5. Open the link again → **Cancel the review** → **Yes, cancel it**. Check: the event is gone, the cancellation email
    arrived, you got "Review cancelled: …", the sheet says *Cancelled*, and you can book again with that address.
-6. In **Executions**, runs of **Every 10 minutes** appear as successful (or not at all, since successful runs aren't kept).
-   A failed one shows in red; open it to see why.
+6. In **Executions**, the moved booking shows a new *Waiting* run (its reminders for the new time). A failed run shows in red; open it to see why.
 
 To see the screens without a booking: https://rework-rescue.vercel.app/#booking=preview (nothing is changed).
 

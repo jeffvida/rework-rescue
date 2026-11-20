@@ -91,7 +91,7 @@ export function checkBooking(body, nowMs, history = [], rules = RULES, key = '')
       conferenceData: { createRequest: { requestId: `rr-${startMs}-${Math.random().toString(36).slice(2, 10)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } } },
       reminders: { useDefault: true },
       // Private to Jeff's calendar: the change-link key and what the reminders need. Guests never see these.
-      extendedProperties: { private: bookingProps({ key: changeKey, name, email, tz, start, nowMs }) },
+      extendedProperties: { private: bookingProps({ key: changeKey, name, email, tz }) },
     },
     notify: {
       subject: `New review booked: ${name}${company ? ` (${company})` : ''}, ${whenHost}`,
@@ -163,7 +163,6 @@ export function visitorTime(ms, tz) {
 
 /**
  * The reminder emails, in the visitor's own time zone. kind: 'day' (1 day before) or 'hour' (1 hour before).
- * When the booking is sent by src/booking/manage.js (sweepReminders), which decides when each one is due.
  * key: the change-link key; without one (bookings made before 20 Nov) the email says to reply instead.
  */
 export function reminderEmail(kind, { name = '', email = '', tz = '', start, meet = '', key = '' }) {
@@ -195,4 +194,29 @@ export function reminderEmail(kind, { name = '', email = '', tz = '', start, mee
       'See you soon,', ...sign,
     ].join('\n'),
   };
+}
+
+/**
+ * When to send each reminder, and what it says. Used for a new booking and again after a move (new time).
+ * data: { name, email, tz, start, meet, key }. The 1-day reminder is skipped when less than a day (plus 5 minutes) away.
+ * Same shape as before 20 Nov, so reminder runs already waiting keep working after the update.
+ */
+export function planReminders(data, { eventId = '', nowMs = Date.now() } = {}) {
+  const startMs = Date.parse(data.start);
+  return {
+    eventId,
+    start: new Date(startMs).toISOString(),
+    email: data.email,
+    dayAt: new Date(startMs - 24 * 3600e3).toISOString(),
+    hourAt: new Date(startMs - 3600e3).toISOString(),
+    sendDay: startMs - 24 * 3600e3 > nowMs + 5 * 60e3,
+    day: reminderEmail('day', data),
+    hour: reminderEmail('hour', data),
+  };
+}
+
+/** The reminder details for a moved booking, from Google's answer to the move (the updated event). */
+export function movedReminderData(ev) {
+  const p = (ev && ev.extendedProperties && ev.extendedProperties.private) || {};
+  return { name: p.rrName || '', email: p.rrEmail || '', tz: p.rrTz || '', start: ev && ev.start && ev.start.dateTime, meet: (ev && ev.hangoutLink) || '', key: p.rrKey || '' };
 }

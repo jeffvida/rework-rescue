@@ -111,7 +111,6 @@ test('the invite and the event carry the change link and private booking details
   assert.equal(p.rrKey, 'a1'.repeat(16));
   assert.equal(p.rrEmail, 'ana@example.com');
   assert.equal(p.rrTz, 'Australia/Sydney');
-  assert.equal(p.rrStart, SLOT);
   assert.equal(p.rrChanges, '0');
   assert.ok(Object.values(p).every((v) => typeof v === 'string'), 'Google needs strings');
   const fallback = checkBooking(ok, NOW, [], undefined, 'bad key!');

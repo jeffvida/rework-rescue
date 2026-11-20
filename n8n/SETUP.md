@@ -5,7 +5,7 @@ The booking pop-up on the site talks to one n8n workflow: `rework-review-booking
 - **Availability** (`GET …/webhook/rr-availability`): reads your Google Calendar free/busy times and returns the open 30-minute slots.
 - **Booking** (`POST …/webhook/rr-book`): checks the request, checks the slot is still free, creates the event with a Google Meet link and a private change/cancel link, emails the visitor the invite, emails you, and adds a row to your bookings Google Sheet.
 - **Change or cancel** (`POST …/webhook/rr-manage`, since 20 Nov 2026): the visitor's private link (`/#booking=KEY`) looks the booking up, moves the same event (same Meet link, Google sends the updated invite) or cancels it. You get an email and the sheet row is updated.
-- **Every 10 minutes**: reads your calendar and the bookings sheet, sends reminders that are due, and keeps the sheet in step when you move or cancel a review in Google Calendar, or the visitor declines the invite.
+- **Reminders** wait inside each booking's run: 1 day and 1 hour before, the run re-reads the event and emails the visitor only if it's still on at that time. A move through the link starts a new wait for the new time. No timer keeps checking in between.
 
 Bookable hours, notice period and limits live in `src/booking/slots.js` and `src/booking/check.js`.
 After changing either, run `node tools/build_n8n.mjs` and re-import the workflow.
@@ -44,7 +44,7 @@ This doesn't delete the calendar event or the sheet row; remove those yourself i
 
 One row per booking: when it was booked and the review time (both Philippine time), the review time in UTC, name, email, company, report or process, visitor's time zone, Find Your Rework result, Meet link, calendar link, and **Status**. Status starts as *Booked*. Visitors' text starting with = + - or @ is saved with a leading apostrophe so Sheets never runs it as a formula.
 
-The workflow updates **Status** and the review times itself: *Rescheduled* (moved by the visitor or by you in Google Calendar), *Cancelled* (cancelled by the visitor, or the event deleted in your calendar), *Declined* (the visitor declined the invite). It finds the row by its **Calendar link**, so don't edit that column. Set *Done*, *No-show* or *Project* yourself after the review. Delete rows for inquiries that didn't lead to a project within 12 months of your last contact (the privacy notice promises this).
+When a visitor uses their change link, the workflow updates **Status** (*Rescheduled* or *Cancelled*) and the review times itself, finding the row by its **Calendar link** (don't edit that column). Changes you make yourself in Google Calendar, and declined invites, are **not** copied to the sheet: update those rows by hand. Set *Done*, *No-show* or *Project* yourself after the review. Delete rows for inquiries that didn't lead to a project within 12 months of your last contact (the privacy notice promises this).
 
 ## Changing or cancelling (visitor)
 
@@ -55,9 +55,11 @@ The workflow updates **Status** and the review times itself: *Rescheduled* (move
 
 ## Reminders
 
-**Every 10 minutes** reads the calendar. For each booking it sends the 1-day reminder (between 24 and 2 hours before; skipped if the booking or the last move was made less than a day ahead) and the 1-hour reminder (between 60 and 10 minutes before), always for the event's **current** time. Before each email it marks the event, so a reminder is never sent twice. Declined or cancelled reviews get none. Bookings made before 20 Nov 2026 are picked up from their sheet row and reminded too (their emails say "reply to this email" instead of the link).
+Each booking's run waits until 1 day before the review, re-reads the event and emails the visitor; then waits until 1 hour before and does the same. Before each email it checks the event is still on **at the same time**, so cancelled or moved reviews never get a reminder for the old time. When a visitor moves their review with the link, a new run starts and waits for the new time. Bookings made less than a day ahead (or moved to less than a day away) skip the 1-day reminder. Waiting runs show as *Waiting* under **Executions**; waiting uses nothing in between.
 
-Keep the workflow **Active**. Text lives in `reminderEmail()` in `src/booking/check.js`; timing in `sweepReminders()` in `src/booking/manage.js`.
+If **you** move a review in Google Calendar, the visitor gets Google's updated invite but **no reminders** for the new time: email them yourself, or ask them to use their change link.
+
+Keep the workflow **Active**, and update it by pasting into the same workflow (not a new one), so waiting reminders keep their place. Text lives in `reminderEmail()` and timing in `planReminders()`, both in `src/booking/check.js`.
 
 ## Limits built in
 

@@ -5,7 +5,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { LIST_DAYS } from '../src/booking/manage.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OWNER_EMAIL = 'jeffhersonvida@gmail.com';
@@ -47,13 +46,13 @@ const nodes = [
     parameters: {
       width: 640, height: 340,
       content: [
-        '## Process review booking (20 Nov 2026: change/cancel links + reminder sweep)',
+        '## Process review booking (20 Nov 2026: change/cancel links)',
         '1. Every **Google** HTTP Request node: pick the **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
         '2. Every **Email** node: pick the **Gmail OAuth2** credential. Every **sheet** node: the **Google Sheets OAuth2** credential.',
-        '3. Save and keep the workflow **Active**. Reminders now come from **Every 10 minutes**, not from waiting runs.',
+        '3. Save and keep the workflow **Active**. Reminders wait inside each booking run (a move starts a new wait).',
         '4. Webhooks: rr-availability (GET), rr-book (POST), rr-manage (POST, change or cancel), rr-forget (GET, Basic Auth).',
         '',
-        'Slot rules, checks and reminder timing come from src/booking/*.js in the site repo. Edit there and rebuild, not here.',
+        'Slot rules, checks and reminder text come from src/booking/*.js in the site repo. Edit there and rebuild, not here.',
       ].join('\n'),
     },
   },
@@ -356,85 +355,32 @@ return [{ json: d.respond }];`,
     },
   },
 
-  // ---------- Reminder sweep: every 10 minutes, read the calendar and the sheet, send what's due, keep things in step
+  // ---------- Reminders: wait inside the run, re-check the event, then email the visitor.
+  // Runs after a new booking, and again after a move (for the new time). A waiting run whose event was moved or
+  // cancelled wakes, sees it, and sends nothing. Waiting uses no runs in between.
   {
-    id: '7d0b9c1e-0072-4a51-9d1a-6f1c00000072', name: 'Every 10 minutes', type: 'n8n-nodes-base.scheduleTrigger', typeVersion: 1.2, position: [-260, 1700],
-    parameters: { rule: { interval: [{ field: 'minutes', minutesInterval: 10 }] } },
-  },
-  {
-    id: '7d0b9c1e-0073-4a51-9d1a-6f1c00000073', name: 'Google: upcoming events', type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [0, 1700],
-    parameters: {
-      method: 'GET', ...GCAL,
-      url: `={{ 'https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&maxResults=2500&timeMin=' + encodeURIComponent($now.toUTC().toISO()) + '&timeMax=' + encodeURIComponent($now.plus({ days: ${LIST_DAYS} }).toUTC().toISO()) }}`,
-      options: {},
-    },
-  },
-  {
-    id: '7d0b9c1e-0074-4a51-9d1a-6f1c00000074', name: 'Read the bookings sheet', type: 'n8n-nodes-base.googleSheets', typeVersion: 4.5, position: [240, 1700],
-    // An empty or unreadable sheet still lets the reminders go out (it only stops the sheet checks).
-    alwaysOutputData: true, onError: 'continueRegularOutput',
-    parameters: { documentId: SHEET_DOC, sheetName: SHEET_TAB, filtersUI: {}, options: {} },
-  },
-  {
-    id: '7d0b9c1e-0075-4a51-9d1a-6f1c00000075', name: 'What needs doing', type: 'n8n-nodes-base.code', typeVersion: 2, position: [480, 1700],
+    id: '7d0b9c1e-0019-4a51-9d1a-6f1c00000019', name: 'Plan reminders', type: 'n8n-nodes-base.code', typeVersion: 2, position: [3600, 380],
     parameters: {
       jsCode: `${LIB}
-// ---- workflow step: reminders due now, and anything moved, cancelled or declined in Google Calendar
-const list = $('Google: upcoming events').first().json;
-const rows = $input.all().map((i) => i.json).filter((r) => r && r['Calendar link']);
-const r = sweepReminders(list, rows, Date.now());
-if (r.moves.length) {
-  const store = $getWorkflowStaticData('global');
-  for (const m of r.moves) store.bookings = moveBooking(store.bookings, m);
+// ---- workflow step: when to send the 1-day and 1-hour reminders, and what they say
+let moved = null;
+try { moved = $('Decide the change').first().json; } catch (e) { moved = null; } // not a change run
+if (moved) {
+  if (moved.action !== 'move') return []; // cancelled: no reminders
+  const ev = $('Google: move the event').first().json;
+  return [{ json: planReminders(movedReminderData(ev), { eventId: ev.id || moved.eventId }) }];
 }
-return r.items.map((json) => ({ json }));`,
+const b = $('Check the request').first().json.booking;
+const ev = $('Google: create event + invite').first().json;
+return [{ json: planReminders({ ...b, meet: ev.hangoutLink || '' }, { eventId: ev.id || '' }) }];`,
     },
   },
   {
-    id: '7d0b9c1e-0076-4a51-9d1a-6f1c00000076', name: 'Event to update?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [720, 1620],
-    parameters: ifTrue('c1a00000-0000-4000-8000-000000000076', '={{ !!$json.eventId && !!$json.patch }}'),
+    id: '7d0b9c1e-0020-4a51-9d1a-6f1c00000020', name: 'Day-before reminder due?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [3840, 380],
+    parameters: ifTrue('c1a00000-0000-4000-8000-000000000003', '={{ $json.sendDay === true && !!$json.eventId }}'),
   },
-  {
-    // Marks the reminder as sent BEFORE it goes out, so a hiccup can never send it twice.
-    // No sendUpdates: Google doesn't email anyone about these private details.
-    id: '7d0b9c1e-0077-4a51-9d1a-6f1c00000077', name: 'Google: update the event', type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [960, 1600],
-    onError: 'continueErrorOutput',
-    parameters: {
-      method: 'PATCH', ...GCAL,
-      url: "={{ 'https://www.googleapis.com/calendar/v3/calendars/primary/events/' + encodeURIComponent($json.eventId) }}",
-      sendBody: true, specifyBody: 'json',
-      jsonBody: '={{ JSON.stringify($json.patch) }}',
-      options: {},
-    },
-  },
-  {
-    id: '7d0b9c1e-0078-4a51-9d1a-6f1c00000078', name: 'Reminder to send?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [1200, 1600],
-    parameters: ifTrue('c1a00000-0000-4000-8000-000000000078', "={{ !!$('Event to update?').item.json.email }}"),
-  },
-  {
-    id: '7d0b9c1e-0079-4a51-9d1a-6f1c00000079', name: 'Email: reminder', type: 'n8n-nodes-base.gmail', typeVersion: 2.1, position: [1440, 1600],
-    onError: 'continueRegularOutput',
-    parameters: {
-      sendTo: "={{ $('Event to update?').item.json.email.to }}",
-      subject: "={{ $('Event to update?').item.json.email.subject }}",
-      emailType: 'text',
-      message: "={{ $('Event to update?').item.json.email.text }}",
-      options: { appendAttribution: false },
-    },
-  },
-  {
-    id: '7d0b9c1e-0080-4a51-9d1a-6f1c00000080', name: 'Sheet to update?', type: 'n8n-nodes-base.if', typeVersion: 2, position: [720, 1860],
-    parameters: ifTrue('c1a00000-0000-4000-8000-000000000080', '={{ !!$json.sheet }}'),
-  },
-  {
-    id: '7d0b9c1e-0081-4a51-9d1a-6f1c00000081', name: 'Sweep: sheet rows', type: 'n8n-nodes-base.code', typeVersion: 2, position: [960, 1860],
-    parameters: { jsCode: 'return $input.all().map((i) => ({ json: i.json.sheet }));' },
-  },
-  {
-    id: '7d0b9c1e-0082-4a51-9d1a-6f1c00000082', name: 'Sweep: update the sheet', type: 'n8n-nodes-base.googleSheets', typeVersion: 4.5, position: [1200, 1860],
-    onError: 'continueRegularOutput',
-    parameters: SHEET_UPDATE,
-  },
+  ...reminderStep('day', 'Wait until 1 day before', 'Google: still on? (1 day)', 'Still on? (1 day)', 'Email: 1-day reminder', 4080, 280, 21),
+  ...reminderStep('hour', 'Wait until 1 hour before', 'Google: still on? (1 hour)', 'Still on? (1 hour)', 'Email: 1-hour reminder', 5120, 480, 25),
 
   // ---------- Reset (Jeff only): GET .../webhook/rr-forget?email=someone@example.com  (or ?email=all)
   // Clears remembered bookings so that email can book again. Protected by a Basic Auth credential you create in n8n.
@@ -464,6 +410,45 @@ return [{ json: { ok: Boolean(email.trim()), removed: r.removed, remaining: stor
   },
 ];
 
+// Four nodes per reminder: wait until the send time, fetch the event, check it wasn't cancelled or moved, email the visitor.
+function reminderStep(kind, waitName, getName, okName, mailName, x, y, n) {
+  const id = (k) => `7d0b9c1e-00${n + k}-4a51-9d1a-6f1c000000${n + k}`;
+  const plan = "$('Plan reminders').first().json";
+  return [
+    {
+      id: id(0), name: waitName, type: 'n8n-nodes-base.wait', typeVersion: 1.1, position: [x, y],
+      webhookId: `5a6c2f0e-4c1b-4e8a-9a51-2b7d00000b${n}`,
+      parameters: { resume: 'specificTime', dateTime: `={{ ${plan}.${kind === 'day' ? 'dayAt' : 'hourAt'} }}` },
+    },
+    {
+      id: id(1), name: getName, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: [x + 240, y],
+      // A deleted event can answer with an error; carry on so the check below simply says "not on".
+      onError: 'continueRegularOutput',
+      parameters: {
+        method: 'GET', ...GCAL,
+        url: `={{ 'https://www.googleapis.com/calendar/v3/calendars/primary/events/' + encodeURIComponent(${plan}.eventId) }}`,
+        options: {},
+      },
+    },
+    {
+      id: id(2), name: okName, type: 'n8n-nodes-base.if', typeVersion: 2, position: [x + 480, y],
+      parameters: ifTrue(`c1a00000-0000-4000-8000-0000000000${n}`,
+        `={{ $json.status === 'confirmed' && !!$json.start && Date.parse($json.start.dateTime) === Date.parse(${plan}.start) }}`),
+    },
+    {
+      id: id(3), name: mailName, type: 'n8n-nodes-base.gmail', typeVersion: 2.1, position: [x + 720, y],
+      onError: 'continueRegularOutput',
+      parameters: {
+        sendTo: `={{ ${plan}.email }}`,
+        subject: `={{ ${plan}.${kind}.subject }}`,
+        emailType: 'text',
+        message: `={{ ${plan}.${kind}.text }}`,
+        options: { appendAttribution: false },
+      },
+    },
+  ];
+}
+
 const link = (to, index = 0) => ({ node: to, type: 'main', index });
 const connections = {
   'Availability request': { main: [[link('Google: busy times')]] },
@@ -482,7 +467,8 @@ const connections = {
   'Confirm booking': { main: [[link('Email Jeff')]] },
   'Email Jeff': { main: [[link('Sheet row')]] },
   'Sheet row': { main: [[link('Log to Google Sheet')]] },
-  'Log to Google Sheet': { main: [[], [link('Email Jeff: sheet problem')]] },
+  'Log to Google Sheet': { main: [[link('Plan reminders')], [link('Email Jeff: sheet problem')]] },
+  'Email Jeff: sheet problem': { main: [[link('Plan reminders')]] },
 
   // Change or cancel (rr-manage)
   'Change request': { main: [[link('Check the change request')]] },
@@ -500,18 +486,19 @@ const connections = {
   'Change: done': { main: [[link('Email Jeff: change')]] },
   'Email Jeff: change': { main: [[link('Change: sheet row')]] },
   'Change: sheet row': { main: [[link('Update the sheet row')]] },
-  'Update the sheet row': { main: [[], [link('Email Jeff: sheet update problem')]] },
+  'Update the sheet row': { main: [[link('Plan reminders')], [link('Email Jeff: sheet update problem')]] },
+  'Email Jeff: sheet update problem': { main: [[link('Plan reminders')]] },
 
-  // Reminder sweep
-  'Every 10 minutes': { main: [[link('Google: upcoming events')]] },
-  'Google: upcoming events': { main: [[link('Read the bookings sheet')]] },
-  'Read the bookings sheet': { main: [[link('What needs doing')]] },
-  'What needs doing': { main: [[link('Event to update?'), link('Sheet to update?')]] },
-  'Event to update?': { main: [[link('Google: update the event')], []] },
-  'Google: update the event': { main: [[link('Reminder to send?')], []] },
-  'Reminder to send?': { main: [[link('Email: reminder')], []] },
-  'Sheet to update?': { main: [[link('Sweep: sheet rows')], []] },
-  'Sweep: sheet rows': { main: [[link('Sweep: update the sheet')]] },
+  // Reminders (after a booking, or after a move)
+  'Plan reminders': { main: [[link('Day-before reminder due?')]] },
+  'Day-before reminder due?': { main: [[link('Wait until 1 day before')], [link('Wait until 1 hour before')]] },
+  'Wait until 1 day before': { main: [[link('Google: still on? (1 day)')]] },
+  'Google: still on? (1 day)': { main: [[link('Still on? (1 day)')]] },
+  'Still on? (1 day)': { main: [[link('Email: 1-day reminder')], []] },
+  'Email: 1-day reminder': { main: [[link('Wait until 1 hour before')]] },
+  'Wait until 1 hour before': { main: [[link('Google: still on? (1 hour)')]] },
+  'Google: still on? (1 hour)': { main: [[link('Still on? (1 hour)')]] },
+  'Still on? (1 hour)': { main: [[link('Email: 1-hour reminder')], []] },
 };
 
 const workflow = { name: 'Rework Rescue: process review booking', nodes, connections, settings: {

@@ -1,7 +1,8 @@
-// Change/cancel links and the 10-minute reminder sweep (src/booking/manage.js). Run: node --test tests/
+// Change/cancel links and reminders after a move (src/booking/manage.js). Run: node --test tests/
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { checkChange, decideChange, sweepReminders, changeLink, CHANGE_RULES, EVENT_TITLE } from '../src/booking/manage.js';
+import { checkChange, decideChange, changeLink, CHANGE_RULES } from '../src/booking/manage.js';
+import { planReminders, movedReminderData } from '../src/booking/check.js';
 import { checkBooking } from '../src/booking/check.js';
 
 const ph = (s) => new Date(`${s}+08:00`).toISOString();
@@ -61,9 +62,7 @@ test('move: same event, new time, counted, reminders reset; Jeff and the sheet t
   assert.equal(d.patch.start.dateTime, to);
   const p = d.patch.extendedProperties.private;
   assert.equal(p.rrKey, KEY, 'the same link keeps working');
-  assert.equal(p.rrStart, to);
   assert.equal(p.rrChanges, '1');
-  assert.equal(p.rrDay, '');
   assert.deepEqual(d.sheet, { 'Calendar link': LINK, 'Review time (PH)': '2026-11-04 10:00', 'Review time (UTC)': to, Status: 'Rescheduled' });
   assert.match(d.notify.subject, /^Review moved: Ana Reyes, now Wednesday, November 4 at 10:00 AM Philippine time$/);
   assert.match(d.notify.text, /From: Monday, November 2/);
@@ -89,83 +88,17 @@ test('cancel: sheet Cancelled, Jeff told, email freed', () => {
   assert.deepEqual(d.respond, { ok: true, action: 'cancel' });
 });
 
-// ---- sweep
-const at = (s) => Date.parse(ph(s));
-
-test('sweep: 1-day reminder once, in the window, marked on the event first', () => {
-  const ev = eventFor();
-  assert.equal(sweepReminders(list(ev), [], at('2026-11-01T09:00:00')).items.length, 0, '25 hours ahead: nothing yet');
-  const r = sweepReminders(list(ev), [], at('2026-11-01T10:05:00'));
-  assert.equal(r.items.length, 1);
-  const it = r.items[0];
-  assert.equal(it.eventId, 'ev1');
-  assert.equal(it.patch.extendedProperties.private.rrDay, SLOT);
-  assert.equal(it.email.to, 'ana@example.com');
-  assert.match(it.email.subject, /tomorrow/);
-  assert.match(it.email.text, new RegExp(`#booking=${KEY}`));
-  ev.extendedProperties.private = it.patch.extendedProperties.private;
-  assert.equal(sweepReminders(list(ev), [], at('2026-11-01T10:15:00')).items.length, 0, 'not sent twice');
-});
-
-test('sweep: 1-hour reminder once; it also covers a missed 1-day reminder', () => {
-  const ev = eventFor();
-  const r = sweepReminders(list(ev), [], at('2026-11-02T09:05:00'));
-  assert.match(r.items[0].email.subject, /Starting in an hour/);
-  assert.equal(r.items[0].patch.extendedProperties.private.rrDay, SLOT);
-  ev.extendedProperties.private = r.items[0].patch.extendedProperties.private;
-  assert.equal(sweepReminders(list(ev), [], at('2026-11-02T09:15:00')).items.length, 0);
-  assert.equal(sweepReminders(list(eventFor()), [], at('2026-11-02T09:55:00')).items.length, 0, 'under 10 minutes to go: too late for "in an hour"');
-});
-
-test('sweep: no 1-day reminder when booked less than a day ahead', () => {
-  const ev = eventFor({ bookedAt: at('2026-11-01T20:00:00') });
-  assert.equal(sweepReminders(list(ev), [], at('2026-11-01T20:10:00')).items.length, 0);
-  assert.match(sweepReminders(list(ev), [], at('2026-11-02T09:05:00')).items[0].email.subject, /in an hour/);
-});
-
-test('sweep: moved in Google Calendar by Jeff, reminders follow the new time and the sheet updates', () => {
-  const ev = eventFor({ start: ph('2026-11-03T15:00:00') });
-  const r = sweepReminders(list(ev), [], at('2026-10-29T09:00:00'));
-  assert.equal(r.items.length, 1);
-  assert.equal(r.items[0].patch.extendedProperties.private.rrStart, ph('2026-11-03T15:00:00'));
-  assert.deepEqual(r.items[0].sheet, { 'Calendar link': LINK, 'Review time (PH)': '2026-11-03 15:00', 'Review time (UTC)': ph('2026-11-03T15:00:00'), Status: 'Rescheduled' });
-  assert.deepEqual(r.moves, [{ email: 'ana@example.com', from: SLOT, to: ph('2026-11-03T15:00:00') }]);
-  assert.equal(r.items[0].email, undefined);
-  ev.extendedProperties.private = r.items[0].patch.extendedProperties.private;
-  assert.match(sweepReminders(list(ev), [], at('2026-11-02T15:05:00')).items[0].email.subject, /tomorrow/, 'day reminder for the new time');
-});
-
-test('sweep: a declined invite gets no reminders and the sheet says Declined', () => {
-  const ev = eventFor({ attendees: [{ email: 'ana@example.com', responseStatus: 'declined' }] });
-  const r = sweepReminders(list(ev), [], at('2026-11-02T09:05:00'));
-  assert.equal(r.items.length, 1);
-  assert.equal(r.items[0].email, undefined);
-  assert.deepEqual(r.items[0].sheet, { 'Calendar link': LINK, Status: 'Declined' });
-  ev.extendedProperties.private = r.items[0].patch.extendedProperties.private;
-  assert.equal(sweepReminders(list(ev), [], at('2026-11-02T09:15:00')).items.length, 0, 'marked once');
-});
-
-test('sweep: cancelled in Google Calendar (row still Booked, event gone) marks the sheet and frees the email', () => {
-  const row = { 'Calendar link': 'https://www.google.com/calendar/event?eid=gone', Email: 'Ben@x.com', Status: 'Booked', 'Review time (UTC)': SLOT, 'Review time (PH)': '2026-11-02 10:00' };
-  const r = sweepReminders(list(), [row], NOW);
-  assert.deepEqual(r.items, [{ sheet: { 'Calendar link': row['Calendar link'], Status: 'Cancelled' } }]);
-  assert.deepEqual(r.moves, [{ email: 'ben@x.com', from: SLOT, to: null }]);
-  assert.equal(sweepReminders({ items: [], nextPageToken: 'more' }, [row], NOW).items.length, 0, 'an incomplete list never cancels anything');
-  assert.equal(sweepReminders(list(), [{ ...row, Status: 'Done' }], NOW).items.length, 0);
-  assert.equal(sweepReminders(list(), [{ ...row, 'Review time (UTC)': '', 'Review time (PH)': '2026-10-01 10:00' }], NOW).items.length, 0, 'past rows are left alone');
-  assert.equal(sweepReminders(list(), [{ ...row, 'Review time (UTC)': '2026-11-02 2:00:00' }], NOW).items.length, 1, 'falls back to the PH time column');
-  assert.throws(() => sweepReminders({ error: { code: 401 } }, [row], NOW), /list missing/, 'a failed Google read stops the sweep');
-});
-
-test('sweep: bookings made before the update are adopted from their sheet row (reply instead of a link)', () => {
-  const ev = { id: 'old', status: 'confirmed', summary: EVENT_TITLE, htmlLink: 'L-old', start: { dateTime: SLOT }, attendees: [{ email: 'cara@x.com' }] };
-  const row = { 'Calendar link': 'L-old', Name: 'Cara Lim', Email: 'cara@x.com', 'Visitor time zone': 'America/New_York', 'Booked at (PH)': '2026-10-20 09:00', Status: 'Booked' };
-  const r = sweepReminders(list(ev), [row], at('2026-11-01T10:05:00'));
-  assert.equal(r.items.length, 1);
-  assert.match(r.items[0].email.text, /^Hi Cara,/);
-  assert.match(r.items[0].email.text, /EST/);
-  assert.match(r.items[0].email.text, /reply to this email/);
-  assert.equal(r.items[0].patch.extendedProperties.private.rr, '1');
-  assert.equal(sweepReminders(list({ ...ev, summary: 'Dentist' }), [row], at('2026-11-01T10:05:00')).items.length, 0, 'other events are never touched');
-  assert.equal(sweepReminders(list(ev), [], at('2026-11-01T10:05:00')).items.length, 0, 'no sheet row: not adopted');
+test('after a move, reminders are planned again for the new time from the updated event', () => {
+  const to = ph('2026-11-04T10:00:00');
+  const moved = eventFor({ start: to });
+  const plan = planReminders(movedReminderData(moved), { eventId: 'ev1', nowMs: NOW });
+  assert.equal(plan.start, to);
+  assert.equal(plan.dayAt, ph('2026-11-03T10:00:00'));
+  assert.equal(plan.hourAt, ph('2026-11-04T09:00:00'));
+  assert.equal(plan.sendDay, true);
+  assert.equal(plan.email, 'ana@example.com');
+  assert.match(plan.day.text, /^Hi Ana,/);
+  assert.match(plan.day.text, /Wednesday, November 4 at 1:00 PM GMT\+11/);
+  assert.match(plan.hour.text, new RegExp(`#booking=${KEY}`));
+  assert.equal(planReminders(movedReminderData(moved), { nowMs: Date.parse(ph('2026-11-03T20:00:00')) }).sendDay, false, 'moved to less than a day away: hour reminder only');
 });

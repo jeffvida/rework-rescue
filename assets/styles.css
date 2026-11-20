@@ -5134,3 +5134,11 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
   .hz-table th:last-child, .hz-table td:last-child { padding-right: 0.55rem; }
   .hz-st { font-size: 0.6875rem; padding: 0.15rem 0.4rem; }
 }
+/* 20 Nov (3): a distinct colour for each box header, and clearly different statuses */
+.hz-a .hz-tag { background: var(--hz-problem); color: #fff; }
+.hz-a .hz-tag svg { color: #fff; }
+.hz-b .hz-tag { background: var(--teal-dark); color: #fff; }
+.hz-c .hz-tag { background: #1f8a4c; color: #fff; }
+.hz-b .hz-tag svg, .hz-c .hz-tag svg { color: #fff; }
+.hz-st-go { background: #e3edfc; color: #1d4ed8; box-shadow: inset 0 0 0 1px #c3d6f7; }
+.hz-st-done { background: #1f8a4c; color: #fff; }

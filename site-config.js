@@ -49,6 +49,8 @@ export const SITE = {
   // Bookable hours live in src/booking/slots.js.
   bookingAvailabilityUrl: 'https://n8n-production-cf1c.up.railway.app/webhook/rr-availability', // GET, e.g. https://YOUR-NAME.app.n8n.cloud/webhook/rr-availability
   bookingRequestUrl: 'https://n8n-production-cf1c.up.railway.app/webhook/rr-book', // POST, e.g. https://YOUR-NAME.app.n8n.cloud/webhook/rr-book
+  // Change or cancel a booking from the private link in the invite and reminders (…/#booking=KEY). 20 Nov 2026.
+  bookingManageUrl: 'https://n8n-production-cf1c.up.railway.app/webhook/rr-manage', // POST
   // Chat assistant (src/assistant/widget.js), connected to the n8n workflow in n8n/rework-assistant.json.
   // Paste the Production URL from the workflow's Assistant request node. While empty, the assistant doesn't appear
   // (add ?assistant=preview to the address to see it with sample replies). Setup: n8n/ASSISTANT-SETUP.md.

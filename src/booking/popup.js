@@ -7,6 +7,10 @@
 //  - NOT CONNECTED (either URL empty): times follow the slot rules but aren't checked against the calendar,
 //    and the last step opens an email draft to Jeff. Nothing is sent unless the visitor sends it.
 // If the live service fails, the pop-up falls back to the email draft, so a visitor is never stuck.
+//
+// Change or cancel (20 Nov 2026): the invite and reminders link to /#booking=KEY. src/home.js calls manage(KEY),
+// which looks the booking up (rr-manage webhook), then lets the visitor pick a new time or cancel.
+// /#booking=preview shows the same screens with a sample booking and changes nothing.
 import { SPECIALIST, SITE } from '../../site-config.js';
 import { checkName, checkEmail, checkCompany, checkText, tidy, LIMITS } from '../forms.js';
 import { wireField, wireEmailHint, showError } from '../forms.js';
@@ -24,6 +28,8 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const dayKey = (date, tz) => new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 const fmt = (date, tz, opts) => new Intl.DateTimeFormat('en-US', { timeZone: tz, ...opts }).format(date);
 const MAILTO_TIME = `mailto:${SPECIALIST.email}?subject=${encodeURIComponent('Free review: finding a time')}`;
+const MAILTO_CHANGE = `mailto:${SPECIALIST.email}?subject=${encodeURIComponent('Changing my free review')}`;
+export const MANAGE_KEY = /^([A-Za-z0-9]{24,64}|preview)$/;
 
 /** Calls the n8n workflow. Never throws: returns {status, data}. status 0 means no answer (network/timeout). */
 async function call(url, { method = 'GET', body } = {}) {
@@ -66,6 +72,9 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
   let notice = '';      // one-line message above the calendar (e.g. "that time was just taken")
   let fallback = false; // live booking failed: the "done" step offers the email draft instead
   let busy = false;
+  // Change or cancel: { key, start, end, name, changesLeft, to (new time picked), sample (preview only) }
+  let mg = null;
+  let mgMsg = ''; // one-line message on the booking screen (e.g. no changes left)
 
   const dlg = document.createElement(inline ? 'div' : 'dialog');
   dlg.className = inline ? 'bk bk-inline' : 'bk';
@@ -98,6 +107,8 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
     return `Help with: ${label}${text ? `. ${text}` : ''}`;
   };
 
+  const at = (d) => `${fmt(d, tz, { weekday: 'long', month: 'long', day: 'numeric' })}, ${fmt(d, tz, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}`;
+
   function calendar() {
     const days = byDay();
     const keys = [...days.keys()].sort();
@@ -109,6 +120,7 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
     return `
       <div class="bk-pick">
         ${notice ? `<p class="bk-sample" role="alert">${esc(notice)}</p>` : ''}
+        ${mg ? `<p class="bk-current">Your current time: <strong>${at(mg.start)}</strong> <button type="button" class="bk-link" data-mg-view>Keep it</button></p>` : ''}
         <label class="bk-tz"><span>Times shown for</span><select id="bk-tz">${zones.map(([z, n]) => `<option value="${esc(z)}"${z === tz ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
         <p class="bk-step">1. Choose a day</p>
         <div class="bk-days" role="group" aria-label="Choose a day">
@@ -184,15 +196,93 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
       </div>`;
   }
 
-  function render(step = 'pick') {
-    const main = { loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done }[step]();
+  // ---- Change or cancel screens
+  const sampleNote = () => (mg && mg.sample ? '<p class="bk-sample">Preview with a sample booking. Nothing is changed.</p>' : '');
+  function mfind() { return '<div class="bk-pick"><p class="bk-step" role="status">Finding your booking…</p></div>'; }
+  function mview() {
+    const left = mg.changesLeft;
+    return `
+      <div class="bk-done bk-manage">
+        ${sampleNote()}
+        <h3>${mg.name ? `Hi ${esc(mg.name)}, your` : 'Your'} review is booked for</h3>
+        <p><strong>${at(mg.start)}</strong></p>
+        ${mgMsg ? `<p class="bk-sample" role="alert">${esc(mgMsg)}</p>` : ''}
+        ${left > 0
+          ? `<p class="bk-done-actions"><button type="button" class="btn btn-primary" data-mg-pick>Pick a new time</button><button type="button" class="bk-link" data-mg-cancel>Cancel the review</button></p>
+             <p class="bk-sample-note">You can change it ${left === 1 ? 'once more' : `${left} more times`}. The Meet link stays the same.</p>`
+          : `<p>You&rsquo;ve already changed this review ${CHANGES_TEXT}. To change it again, reply to the invite or <a href="${esc(MAILTO_CHANGE)}">email me</a>.</p>
+             <p class="bk-done-actions"><button type="button" class="bk-link" data-mg-cancel>Cancel the review</button></p>`}
+      </div>`;
+  }
+  function mconfirm() {
+    return `
+      <div class="bk-done bk-manage">
+        ${sampleNote()}
+        <h3>Move your review?</h3>
+        <p>From <s>${at(mg.start)}</s></p>
+        <p>To <strong>${at(mg.to)}</strong></p>
+        <p class="error" id="bk-mg-err" role="alert" hidden></p>
+        <p class="bk-done-actions"><button type="button" class="btn btn-primary" data-mg-move${busy ? ' disabled' : ''}>${busy ? 'Moving…' : 'Move my review'}</button><button type="button" class="bk-link" data-mg-pick>Choose another time</button></p>
+      </div>`;
+  }
+  function mmoved() {
+    return `
+      <div class="bk-done bk-manage">
+        ${sampleNote()}
+        <h3>Your review is moved.</h3>
+        <p><strong>${at(mg.start)}</strong></p>
+        <p>Google Calendar will send you the updated invite. The Meet link stays the same, and I&rsquo;ll email you a reminder a day before and an hour before.</p>
+        <p class="bk-done-actions"><button type="button" class="btn btn-primary" data-close>Done</button></p>
+      </div>`;
+  }
+  function mcancel() {
+    return `
+      <div class="bk-done bk-manage">
+        ${sampleNote()}
+        <h3>Cancel your review?</h3>
+        <p><strong>${at(mg.start)}</strong></p>
+        <p class="error" id="bk-mg-err" role="alert" hidden></p>
+        <p class="bk-done-actions"><button type="button" class="btn btn-primary" data-mg-docancel${busy ? ' disabled' : ''}>${busy ? 'Cancelling…' : 'Yes, cancel it'}</button><button type="button" class="bk-link" data-mg-view>Keep my booking</button></p>
+      </div>`;
+  }
+  function mcancelled() {
+    return `
+      <div class="bk-done bk-manage">
+        ${sampleNote()}
+        <h3>Your review is cancelled.</h3>
+        <p>Google Calendar will send you the cancellation. If you&rsquo;d like to talk another time, you can book a new review whenever it suits you.</p>
+        <p class="bk-done-actions"><button type="button" class="btn btn-primary" data-mg-new>Book a new time</button><button type="button" class="bk-link" data-close>Close</button></p>
+      </div>`;
+  }
+  function mmissing(code) {
+    return `
+      <div class="bk-done bk-manage">
+        <h3>${code === 'started' ? 'This review has already started or passed.' : 'I can&rsquo;t find this booking.'}</h3>
+        <p>${code === 'started' ? 'If you&rsquo;d like another review, you can book a new time.' : 'It may have been cancelled, or the link may be incomplete. Try the link in your latest invite, or book a new time.'}</p>
+        <p class="bk-done-actions"><button type="button" class="btn btn-primary" data-mg-new>Book a new time</button><a class="bk-link" href="${esc(MAILTO_CHANGE)}">Email me</a></p>
+      </div>`;
+  }
+  function mfail() {
+    return `
+      <div class="bk-done bk-manage">
+        <h3>Your booking couldn&rsquo;t be changed right now.</h3>
+        <p>Nothing has changed. Please try again in a few minutes, or reply to the invite or email me and I&rsquo;ll change it for you.</p>
+        <p class="bk-done-actions"><button type="button" class="btn btn-primary" data-mg-retry>Try again</button><a class="bk-link" href="${esc(MAILTO_CHANGE)}">Email me</a></p>
+      </div>`;
+  }
+
+  function render(step = 'pick', arg) {
+    const main = {
+      loading, unavailable: () => unavailable(false), pick: calendar, details, booked, done,
+      mfind, mview, mconfirm, mmoved, mcancel, mcancelled, mmissing: () => mmissing(arg), mfail,
+    }[step]();
     if (inline) {
       dlg.innerHTML = `${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
       <div class="bk-main">${main}</div>`;
       return;
     }
     dlg.innerHTML = `
-      <div class="bk-head"><div><p class="eyebrow">Book a free process review</p><h2 id="bk-title">${step === 'booked' ? 'See you then.' : 'Pick a time that works for you.'}</h2></div>
+      <div class="bk-head"><div><p class="eyebrow">${mg ? 'Your free process review' : 'Book a free process review'}</p><h2 id="bk-title">${title(step)}</h2></div>
         <button type="button" class="bk-x" data-close aria-label="Close">&times;</button></div>
       ${LIVE ? '' : '<p class="bk-sample"><strong>Booking isn&rsquo;t connected yet.</strong> The times shown are example times, not confirmed availability. Pick the one that suits you best and I&rsquo;ll confirm it by email.</p>'}
       <div class="bk-body">
@@ -206,8 +296,15 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
       </div>`;
   }
 
+  function title(step) {
+    if (step === 'booked' || step === 'mmoved') return 'See you then.';
+    if (step === 'mcancelled') return 'Review cancelled.';
+    if (mg) return step === 'pick' ? 'Pick a new time.' : 'Change or cancel your review.';
+    return 'Pick a time that works for you.';
+  }
+
   async function loadSlots() {
-    if (!LIVE) { SLOTS = candidateSlots(Date.now()).map((t) => new Date(t)); return true; }
+    if (!LIVE || (mg && mg.sample)) { SLOTS = candidateSlots(Date.now()).map((t) => new Date(t)); return true; }
     render('loading');
     const { status, data } = await call(SITE.bookingAvailabilityUrl);
     if (status !== 200 || !data || !Array.isArray(data.slots)) return false;
@@ -268,14 +365,23 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
   dlg.addEventListener('click', (e) => {
     const t = e.target;
     if (inline && t.closest('[data-close]')) { reset(); showCalendar(); return; }
+    if (busy && t.closest('[data-mg-move], [data-mg-docancel]')) return;
     if (!inline && (t === dlg || t.closest('[data-close]'))) { dlg.close(); return; }
     if (t.closest('[data-retry]')) { showCalendar(); return; }
     const d = t.closest('[data-day]'); if (d) { day = d.dataset.day; notice = ''; render(); dlg.querySelector(`[data-day="${day}"]`)?.focus(); return; }
     const m = t.closest('[data-month]'); if (m && m.dataset.month) { month = m.dataset.month; render(); dlg.querySelectorAll('.bk-day')[6]?.focus(); return; }
     const s = t.closest('[data-slot]'); if (s) {
       slot = SLOTS[Number(s.dataset.slot)]; notice = ''; fallback = false;
+      if (mg) { mg.to = slot; show('mconfirm'); return; }
       showDetails().name.focus(); return;
     }
+    if (t.closest('[data-mg-view]')) { notice = ''; show('mview'); return; }
+    if (t.closest('[data-mg-pick]')) { mgMsg = ''; showCalendar(); return; }
+    if (t.closest('[data-mg-cancel]')) { show('mcancel'); return; }
+    if (t.closest('[data-mg-move]')) { change('move'); return; }
+    if (t.closest('[data-mg-docancel]')) { change('cancel'); return; }
+    if (t.closest('[data-mg-retry]')) { look(mg && mg.key); return; }
+    if (t.closest('[data-mg-new]')) { reset(); showCalendar(); return; }
     if (t.closest('[data-back]')) { fallback = false; render(); }
   });
   dlg.addEventListener('change', (e) => {
@@ -300,9 +406,63 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
     render('done'); dlg.querySelector('.bk-done .btn')?.focus();
   });
 
+  function show(step, arg) {
+    render(step, arg);
+    dlg.querySelector('.bk-done .btn, .bk-done .bk-link, .bk-day')?.focus();
+  }
+
+  // ---- Change or cancel: talk to the rr-manage webhook (or fake it for #booking=preview)
+  const MANAGE_LIVE = Boolean(SITE.bookingManageUrl);
+  async function manageCall(body) {
+    if (mg && mg.sample) {
+      await new Promise((r) => setTimeout(r, 400));
+      if (body.action === 'look') return { status: 200, data: { ok: true, ...mg.sample } };
+      if (body.action === 'move') return { status: 200, data: { ok: true, action: 'move', start: body.slot, changesLeft: Math.max(0, mg.changesLeft - 1) } };
+      return { status: 200, data: { ok: true, action: 'cancel' } };
+    }
+    if (!MANAGE_LIVE) return { status: 0, data: null };
+    return call(SITE.bookingManageUrl, { method: 'POST', body });
+  }
+
+  async function look(key) {
+    if (!key) return;
+    render('mfind');
+    const { status, data } = await manageCall({ key, action: 'look' });
+    if (!isOpen()) return;
+    if (status === 200 && data && data.ok) {
+      mg = { ...mg, key, start: new Date(data.start), end: new Date(data.end), name: String(data.name || ''), changesLeft: Number(data.changesLeft) || 0 };
+      show('mview'); return;
+    }
+    const code = data && data.error;
+    if (code === 'not_found' || code === 'started') { show('mmissing', code); return; }
+    show('mfail');
+  }
+
+  async function change(action) {
+    if (busy || !mg) return;
+    busy = true;
+    render(action === 'move' ? 'mconfirm' : 'mcancel');
+    const { status, data } = await manageCall({ key: mg.key, action, ...(action === 'move' ? { slot: mg.to.toISOString(), tz } : {}) });
+    busy = false;
+    if (!isOpen()) return;
+    const code = data && data.error;
+    if (status === 200 && data && data.ok) {
+      if (action === 'move') { mg.start = new Date(data.start); mg.changesLeft = Number(data.changesLeft) || 0; show('mmoved'); }
+      else show('mcancelled');
+      return;
+    }
+    if (code === 'taken' || code === 'slot' || code === 'same_time') {
+      notice = code === 'same_time' ? 'That’s your current time. Please pick another.' : 'Sorry, that time was just taken. Please pick another.';
+      await showCalendar(); return;
+    }
+    if (code === 'no_changes_left') { mg.changesLeft = 0; mgMsg = ''; show('mview'); return; }
+    if (code === 'not_found' || code === 'started') { show('mmissing', code); return; }
+    show('mfail');
+  }
+
   const valid = (v) => SERVICE_OPTIONS.some(([o]) => o && o === v);
   const reset = (preselect = '') => {
-    day = null; month = null; slot = null; req = {}; notice = ''; fallback = false; busy = false;
+    day = null; month = null; slot = null; req = {}; notice = ''; fallback = false; busy = false; mg = null; mgMsg = '';
     service = valid(preselect) ? preselect : (valid((getContext() || {}).service) ? getContext().service : '');
   };
 
@@ -327,5 +487,24 @@ export function mountBooking({ base = '', getContext = () => null, inline = null
     if (open(a.dataset.bookService || '')) e.preventDefault();
   });
 
-  return { open, start: () => {} };
+  // Opened from the private link in the invite or a reminder (src/home.js).
+  const manage = (key) => {
+    if (typeof dlg.showModal !== 'function' || !MANAGE_KEY.test(String(key))) return false;
+    reset();
+    mg = key === 'preview'
+      ? { key, sample: { start: new Date(sampleStart()).toISOString(), end: new Date(sampleStart() + 30 * 60e3).toISOString(), name: 'Dana', changesLeft: 2 } }
+      : { key };
+    dlg.showModal();
+    look(key);
+    return true;
+  };
+
+  return { open, start: () => {}, manage };
+}
+
+const CHANGES_TEXT = 'twice';
+// Preview only: a sample booking three days from now at 10:00 Philippine time.
+function sampleStart() {
+  const d = new Date(Date.now() + 3 * 86400e3);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 2, 0);
 }

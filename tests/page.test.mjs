@@ -214,7 +214,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
 test('build cards match what the n8n workflows do', async () => {
   const nodes = async (f) => JSON.parse(await read(f)).nodes.map((n) => n.name);
   const booking = await nodes('../n8n/rework-review-booking.json');
-  for (const n of ['Google: busy times', 'Google: is it still free?', 'Google: create event + invite', 'Log to Google Sheet', 'Still on? (1 day)', 'Email: 1-day reminder', 'Still on? (1 hour)', 'Email: 1-hour reminder']) assert.ok(booking.includes(n), n);
+  for (const n of ['Google: busy times', 'Google: is it still free?', 'Google: create event + invite', 'Log to Google Sheet', 'Every 10 minutes', 'Email: reminder', 'Google: move the event', 'Google: cancel the event']) assert.ok(booking.includes(n), n);
   const assistant = await nodes('../n8n/rework-assistant.json');
   for (const n of ['Check request', 'Gemini: reply', 'Check reply', 'Log to Google Sheet']) assert.ok(assistant.includes(n), n);
 });

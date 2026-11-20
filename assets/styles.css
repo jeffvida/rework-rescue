@@ -5373,3 +5373,10 @@ main > section.hz { background:
   linear-gradient(180deg, #faf6ec, var(--paper)); }
 main > section#how { background: var(--rr-paper-grain) 0 0 / 220px 220px repeat, var(--paper); }
 @media print { main#main::before { content: none !important; } }
+
+/* 20 Nov: change or cancel a booking (src/booking/popup.js, opened from /#booking=KEY) */
+.bk-current { margin: 0 0 0.9rem; padding: 0.55rem 0.9rem; border-radius: 10px; background: #eef5f2; border: 1px solid var(--line); font-size: 0.95rem; }
+.bk-current .bk-link { margin-left: 0.4rem; }
+.bk-manage s { color: var(--muted); }
+.bk-manage h3 + p strong { font-size: 1.1rem; }
+.bk-manage .bk-sample { margin: 0 0 1rem; }

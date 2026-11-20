@@ -48,7 +48,16 @@ export function mountMobileCta() {
 // ---- Start the homepage
 mountMobileCta();
 mountMotion();
-mountBooking();
+const booking = mountBooking();
+// 20 Nov 2026: the private change/cancel link from the invite and reminders (…/#booking=KEY). The key is taken out
+// of the address straight away, so it isn't left in the browser history or shared by accident.
+{
+  const m = location.hash.match(/^#booking=([A-Za-z0-9]+)$/);
+  if (m) {
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+    booking.manage(m[1]);
+  }
+}
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 

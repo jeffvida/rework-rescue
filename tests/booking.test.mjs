@@ -85,22 +85,48 @@ test('sheet row: one column per header, Philippine times, formulas neutralised',
   assert.equal(row.Status, 'Booked');
 });
 
-test('reminders: times, skipping the 1-day one when too close, visitor time zone', async () => {
-  const { planReminders } = await import('../src/booking/check.js');
-  const b = checkBooking(ok, NOW).booking; // Mon 2 Nov 10:00 PH, visitor in Sydney
-  const r = planReminders(b, { meet: 'https://meet.google.com/abc', nowMs: NOW });
-  assert.equal(r.dayAt, ph('2026-11-01T10:00:00'));
-  assert.equal(r.hourAt, ph('2026-11-02T09:00:00'));
-  assert.equal(r.sendDay, true);
-  assert.match(r.day.text, /^Hi Ana,/);
-  assert.match(r.day.text, /Monday, November 2 at 1:00 PM GMT\+11/, 'shown in Sydney time');
-  assert.match(r.day.text, /Join with Google Meet: https:\/\/meet\.google\.com\/abc/);
-  assert.match(r.day.text, /#samples/);
-  assert.match(r.hour.subject, /Starting in an hour/);
-  const soon = planReminders(b, { nowMs: Date.parse(ph('2026-11-01T22:00:00')) });
-  assert.equal(soon.sendDay, false, 'booked 12 hours ahead: no 1-day reminder');
-  assert.match(soon.hour.text, /link is in your calendar invite/);
-  assert.match(planReminders({ ...b, tz: 'Not/AZone' }, { nowMs: NOW }).hour.text, /GMT\+8/, 'bad time zone falls back to PH');
+test('reminder emails: visitor time zone, Meet link, change link', async () => {
+  const { reminderEmail } = await import('../src/booking/check.js');
+  const b = checkBooking(ok, NOW, [], undefined, 'k'.repeat(32)).booking; // Mon 2 Nov 10:00 PH, visitor in Sydney
+  const day = reminderEmail('day', { ...b, meet: 'https://meet.google.com/abc' });
+  assert.equal(day.to, 'ana@example.com');
+  assert.match(day.text, /^Hi Ana,/);
+  assert.match(day.text, /Monday, November 2 at 1:00 PM GMT\+11/, 'shown in Sydney time');
+  assert.match(day.text, /Join with Google Meet: https:\/\/meet\.google\.com\/abc/);
+  assert.match(day.text, /Change or cancel here: https:\/\/rework-rescue\.vercel\.app\/#booking=k{32}/);
+  const hour = reminderEmail('hour', b);
+  assert.match(hour.subject, /Starting in an hour/);
+  assert.match(hour.text, /link is in your calendar invite/);
+  assert.match(hour.text, /Can't make it\? Change or cancel here: .*#booking=k{32}/);
+  assert.match(reminderEmail('hour', { ...b, key: '' }).text, /Can't make it\? Just reply to this email\./, 'no key: reply instead');
+  assert.match(reminderEmail('hour', { ...b, tz: 'Not/AZone' }).text, /GMT\+8/, 'bad time zone falls back to PH');
+});
+
+test('the invite and the event carry the change link and private booking details', () => {
+  const r = checkBooking(ok, NOW, [], undefined, 'a1'.repeat(16));
+  assert.match(r.event.description, /Need a different time\? Change or cancel here: https:\/\/rework-rescue\.vercel\.app\/#booking=(a1){16}\n/);
+  assert.ok(r.event.description.indexOf('Change or cancel') < r.event.description.indexOf('Your details'));
+  const p = r.event.extendedProperties.private;
+  assert.equal(p.rr, '1');
+  assert.equal(p.rrKey, 'a1'.repeat(16));
+  assert.equal(p.rrEmail, 'ana@example.com');
+  assert.equal(p.rrTz, 'Australia/Sydney');
+  assert.equal(p.rrStart, SLOT);
+  assert.equal(p.rrChanges, '0');
+  assert.ok(Object.values(p).every((v) => typeof v === 'string'), 'Google needs strings');
+  const fallback = checkBooking(ok, NOW, [], undefined, 'bad key!');
+  assert.match(fallback.booking.key, /^[a-z0-9]{32}$/, 'a missing or bad key gets a fallback');
+});
+
+test('moveBooking keeps the one-booking-per-email limit in step', async () => {
+  const { moveBooking } = await import('../src/booking/check.js');
+  const h = [{ email: 'ana@example.com', slot: SLOT, at: NOW }, { email: 'ben@example.com', slot: SLOT, at: NOW }];
+  const moved = moveBooking(h, { email: 'Ana@Example.com', from: SLOT, to: ph('2026-11-04T10:00:00') });
+  assert.equal(moved[0].slot, ph('2026-11-04T10:00:00'));
+  assert.equal(moved[1].slot, SLOT);
+  const gone = moveBooking(h, { email: 'ana@example.com', from: SLOT, to: null });
+  assert.deepEqual(gone.map((x) => x.email), ['ben@example.com']);
+  assert.equal(checkBooking(ok, NOW, gone).ok, true, 'after cancelling, the email can book again');
 });
 
 test('the reset link clears one email, or all, so it can book again', () => {

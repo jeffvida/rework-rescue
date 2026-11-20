@@ -31,6 +31,9 @@ export const FLOWS = [
   },
 ];
 
+const SHOW = 'See how it could work';
+const HIDE = 'Hide example';
+
 const SHIELD = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.6 12.2l2.3 2.3 4.5-4.6"/></svg>';
 
 export function mountTiles(list) {
@@ -58,7 +61,7 @@ export function mountTiles(list) {
     const more = document.createElement('em');
     more.className = 'rr-tile-more';
     more.setAttribute('aria-hidden', 'true');
-    more.textContent = 'See how it could work';
+    more.textContent = SHOW;
     b.append(more);
     li.append(b);
     b.addEventListener('click', () => toggle(i));
@@ -90,7 +93,12 @@ export function mountTiles(list) {
   function toggle(i) {
     if (open === i) { close(); return; }
     open = i;
-    buttons.forEach((b, n) => { b.setAttribute('aria-expanded', String(n === i)); b.parentElement.classList.toggle('is-open', n === i); });
+    buttons.forEach((b, n) => {
+      b.setAttribute('aria-expanded', String(n === i));
+      b.parentElement.classList.toggle('is-open', n === i);
+      b.querySelector('.rr-tile-more').textContent = n === i ? HIDE : SHOW;
+    });
+    panel.dataset.tile = String(i + 1); // matches the tile's colour
     render(i);
     const per = cols();
     const rowEnd = Math.min(items.length - 1, Math.floor(i / per) * per + per - 1);
@@ -102,9 +110,17 @@ export function mountTiles(list) {
   function close() {
     open = -1;
     panel.hidden = true;
-    buttons.forEach((b) => { b.setAttribute('aria-expanded', 'false'); b.parentElement.classList.remove('is-open'); });
+    buttons.forEach((b) => { b.setAttribute('aria-expanded', 'false'); b.parentElement.classList.remove('is-open'); b.querySelector('.rr-tile-more').textContent = SHOW; });
   }
 
   list.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open > -1) { const b = buttons[open]; close(); b.focus(); } });
-  window.addEventListener('resize', () => { if (open > -1) { const i = open; open = -1; toggle(i); } });
+  // Only move the panel when the number of columns changes. Phones fire resize while scrolling
+  // (the address bar shows and hides), which used to replay the panel and make it flicker.
+  let lastCols = cols();
+  window.addEventListener('resize', () => {
+    const c = cols();
+    if (c === lastCols) return;
+    lastCols = c;
+    if (open > -1) { const i = open; open = -1; toggle(i); }
+  });
 }

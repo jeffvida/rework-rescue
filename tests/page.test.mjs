@@ -316,3 +316,14 @@ test('middle simplified (20 Nov): after-30-days line visible, bridge line before
     const t = await read(f); assert.doesNotMatch(t, /free rework (<\/span>)?review/i, f);
   }
 });
+
+test('How I help tiles (20 Nov): own colour per tile, same colour on the open example, click again to close', async () => {
+  const html = await page();
+  assert.deepEqual([...html.matchAll(/<li data-tile="(\d)"><svg/g)].map((m) => m[1]), ['1', '2', '3', '4', '5', '6']);
+  const css = await read('../assets/styles.css');
+  for (let i = 1; i <= 6; i++) assert.match(css, new RegExp(`\\.rr-tiles > li\\[data-tile="${i}"\\] \\{ --tc: #[0-9a-f]{6}; --tt: #[0-9a-f]{6}; \\}`));
+  const js = await read('../src/tiles.js');
+  assert.match(js, /if \(open === i\) \{ close\(\); return; \}/, 'second click closes');
+  assert.match(js, /const HIDE = 'Hide example';/);
+  assert.match(js, /if \(c === lastCols\) return;/, 'phone scroll no longer replays the panel');
+});

@@ -64,10 +64,8 @@ test('process, handover and FAQ carry the safety net without new promises', asyn
   for (const k of ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of fixes']) assert.ok(h.includes(`<strong>${k}</strong>`), `${k} kept`);
   const faq = between(h, '<summary>What happens if something breaks or a connected app changes?</summary>', '</details>');
   assert.equal((h.match(/<summary>What happens if/g) || []).length, 1, 'one failure FAQ, not two');
-  assert.match(faq, /the person you choose is told what to do/);
-  assert.match(faq, /Connected apps and services are run by their providers/, 'honest about what depends on outside providers');
-  assert.match(faq, /no automation can prevent every outside service failure/);
-  assert.match(faq, /If a provider changes their service after handover, I&rsquo;ll quote any updates needed\./, 'ends on an offer, not a warning');
+  assert.match(faq, /I test the agreed ways it could fail with you before handover\./);
+  assert.match(faq, /Outside services can still fail, and changes after handover are quoted separately\./, 'honest about outside providers (shortened 20 Nov)');
   assert.doesNotMatch(text(faq), /API|token|rate limit|error code/i, 'no technical jargon');
 });
 

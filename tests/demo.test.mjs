@@ -80,7 +80,8 @@ test('availability on the page matches the booking calendar rules', async () => 
   assert.deepEqual([RULES.days, RULES.start, RULES.end, RULES.hostOffsetHours], [[1, 2, 3, 4, 5], '08:00', '02:00', 8], 'if the booking hours change, update the availability lines');
   for (const f of ['../index.html', '../contact/index.html']) {
     const html = await readFile(new URL(f, import.meta.url), 'utf8');
-    assert.match(html, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/, f);
+    if (f === '../contact/index.html') assert.match(html, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/, f);
+    else assert.match(html, /Based in the Philippines, with call times that fit the US, UK, Europe and Australia\./, 'home page keeps the short line (20 Nov)');
     assert.doesNotMatch(html, /teams worldwide|across time zones/, f);
   }
 });

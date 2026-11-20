@@ -175,7 +175,7 @@ test('client expectations (19 Nov): testing line, weekly updates, closing though
   assert.doesNotMatch(html, /keeps working/, 'testing is not sold as a guarantee');
   const how = section(html, 'how', 'about');
   assert.match(how, /<div class="rr-updates">\s*<h3>You won&rsquo;t have to guess where things stand\.<\/h3>\s*<p>While your project is active, I&rsquo;ll send a short written update at least once a week covering what&rsquo;s completed, what&rsquo;s next, and anything waiting on your input\. If a blocker is likely to affect the delivery timeline, I&rsquo;ll explain the reason and let you know as soon as I can\.<\/p>/);
-  assert.match(html, /How does working remotely work\?<\/summary><p>[^<]*I&rsquo;ll send a short written update at least once a week\.<\/p><\/details>/, "the FAQ uses the same commitment");
+  assert.match(html, /How does working remotely work\?<\/summary><p>You and I talk by video call \(Google Meet\), at times shown in your own time zone\.<\/p><\/details>/, "FAQ trimmed; the weekly update stays in How it works (20 Nov)");
   assert.doesNotMatch(html, /progress updates in writing/);
   assert.match(html, /<p class="rr-closing">Knowing the tools matters\. Understanding your business, keeping you informed and delivering something your team can rely on is what makes the work valuable\.<\/p>/);
   assert.match(html, /ongoing monitoring and maintenance\./, 'monitoring stays outside the 30 days');
@@ -229,9 +229,9 @@ test('section order, nav and removed content', async () => {
   assert.deepEqual(nav, ['services:How I help', 'built:Demos &amp; examples', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
-  assert.match(html, /<title>Rework Rescue \| Smarter Business Operations<\/title>/);
-  assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Business Operations">'), 'og:title matches the page title');
-  const desc = 'Rework Rescue helps businesses reduce repetitive admin, organise information and improve everyday operations with practical automation, simple websites and customer tracking systems.';
+  assert.match(html, /<title>Rework Rescue \| Smarter Operations for Small and Medium-Sized Businesses<\/title>/);
+  assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Operations for Small and Medium-Sized Businesses">'), 'og:title matches the page title');
+  const desc = 'Rework Rescue helps small and medium-sized businesses reduce repetitive admin, organise information and improve everyday operations with practical automation, simple websites and customer tracking systems.';
   assert.ok(html.includes(`<meta name="description" content="${desc}">`)); assert.ok(html.includes(`<meta property="og:description" content="${desc}">`));
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html']) {
     const t = await read(f); assert.doesNotMatch(t, /What I automate/, f); assert.match(t, /#services">How I help<\/a>/, f); assert.match(t, /#built">Demos &amp; examples<\/a>/, f);
@@ -255,22 +255,22 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
     ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Safety net']);
   assert.deepEqual([...std.matchAll(/<li class="hs-t\d"><b>([^<]+)<\/b><strong>([^<]+)<\/strong>/g)].map((m) => `${m[1]}: ${m[2]}`),
     ['Handover day: Walkthrough and files', 'Days 1&ndash;30: 30 days of fixes', 'After 30 days: It&rsquo;s yours']);
-  assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, unusual cases and review steps your team needs to know\.<\/p>/);
+  assert.doesNotMatch(std, /rr-standards-note/, 'repeat of the Safety net card removed (20 Nov)');
   assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);
   assert.doesNotMatch(how, /how-approach/, 'intro paragraphs cut to one line');
   const about = section(html, 'about', 'faq');
-  assert.match(about, /<p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions\.<\/p>/);
+  assert.match(about, /<p class="about-lead">I&rsquo;m an operations and data specialist who builds practical AI and automation solutions for small and medium-sized businesses\.<\/p>/);
   assert.match(about, /I have over eight years of experience with data, reporting and day-to-day operations\./);
   assert.doesNotMatch(about, /data analyst/);
   assert.match(about, /I build AI and automation workflows with n8n, and I keep my skills current as the tools change\./);
-  assert.match(about, /Monday to Friday, 8&nbsp;am to 2&nbsp;am Philippine time \(UTC\+8\)/);
+  assert.match(about, /Based in the Philippines, with call times that fit the US, UK, Europe and Australia\./);
   const faq = section(html, 'faq', 'start');
-  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'What happens if something breaks or a connected app changes?', 'Can you build a website or set up a simple CRM?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
+  assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'What happens if something breaks or a connected app changes?', 'Can you set up a simple CRM, website or landing page?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
   assert.match(faq, /Not every problem needs AI\./);
-  assert.match(faq, /<p>Each project is priced around one clearly defined improvement\. Where the requirements and deliverables can be agreed upfront, I use a fixed project fee rather than an open-ended hourly rate\.<\/p><p>The price depends on the work, which tools need connecting, and any setup or getting your data ready\.<\/p><p>After the free review, you&rsquo;ll get a written proposal showing what you&rsquo;ll get, what&rsquo;s not included, the estimated timeline, payment schedule and any costs for other providers&rsquo; software, hosting or usage\.<\/p><p>You&rsquo;ll get the deliverables, full project cost and any other software costs in writing before you decide whether to go ahead\.<\/p>/);
+  assert.match(faq, /<p>Each project is priced around one clearly defined improvement\. Where the requirements and deliverables can be agreed upfront, I use a fixed project fee rather than an open-ended hourly rate\.<\/p><p>The price depends on the work, which tools need connecting, and any setup or getting your data ready\.<\/p><p>After the free review, you&rsquo;ll get a written proposal showing what you&rsquo;ll get, what&rsquo;s not included, the estimated timeline, payment schedule and any costs for other providers&rsquo; software, hosting or usage\.<\/p>/);
   assert.doesNotMatch(faq, /one report or one process/);
-  assert.match(faq, /<p>Yes\. I can build simple, mobile-friendly business websites and landing pages, enquiry forms, and simple customer trackers or CRM setups, using suitable existing tools\.<\/p><p>These can stand alone or connect\. For example, a website enquiry can be added to a customer tracker and trigger a follow-up reminder\.<\/p><p>I focus on clear layouts and practical features rather than complex designs or software\. For online stores, custom applications or advanced CRM systems, I&rsquo;ll explain when a specialist solution is needed\.<\/p>/);
+  assert.match(faq, /<p>Yes, when it helps enquiries and customer information flow into one organised place\.<\/p><p>I can build simple, mobile-friendly business websites and landing pages, enquiry forms, and simple customer trackers or CRM setups, using suitable existing tools\.<\/p><p>These can stand alone or connect\. For example, a website enquiry can be added to a customer tracker and trigger a follow-up reminder\.<\/p><p>I focus on clear layouts and practical features rather than complex designs or software\. For online stores, custom applications or advanced CRM systems, I&rsquo;ll explain when a specialist solution is needed\.<\/p>/);
   assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);
   assert.match(faq, /<summary>Will this replace anyone on my team\?<\/summary><p>No\./);
   const start = section(html, 'start');

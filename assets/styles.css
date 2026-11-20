@@ -5304,3 +5304,7 @@ dialog.cs[open] { animation: cs-in-centre 0.26s cubic-bezier(0.22, 1, 0.36, 1); 
   .cs-head::before { content: none; }
 }
 @media (prefers-reduced-motion: reduce) { dialog.cs[open] { animation: none; } }
+/* 20 Nov: who it's for, under the hero subhead. */
+.hz .hero-sub:has(+ .hero-for) { margin-bottom: 0.6rem; }
+.hero-for { margin: 0 0 1.4rem; font-weight: 700; font-size: 0.98rem; color: var(--teal-dark); }
+@media (max-width: 52rem) { .hero-copy > .hero-for { order: 3; } }

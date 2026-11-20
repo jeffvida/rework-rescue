@@ -23,19 +23,18 @@ test('hero: headline kept, benefit first, no failure talk up front; the checks l
   assert.match(fig, /<strong>Checks and control are built into every workflow\.<\/strong> <a href="#safety">See how/);
 });
 
-test('checks section: calm heading, memorable line, five customer-benefit headings with an example each, short limits line', async () => {
+test('checks section: calm heading, memorable line, five customer-benefit headings, no per-card examples (20 Nov), short limits line', async () => {
   const h = await page();
   const s = between(h, 'id="safety"', '</section>');
   assert.match(s, /<h2 id="safety-h">Checks and control, built in\.<\/h2>/);
   assert.match(s, /I look at the whole process &mdash; the information, the steps, the tools they rely on and the results\. I build in checks and clear next steps for anything that needs attention\./);
-  for (const eg of ['A request without a required contact detail is flagged for follow-up.', 'A report with totals that don&rsquo;t match the source is flagged before it&rsquo;s shared.']) assert.ok(s.includes(eg), eg);
   assert.doesNotMatch(text(s), /repair|job request|job sheet/i, 'general business example, not repair-specific');
   assert.match(s, /<p class="sn-quote">I don&rsquo;t just automate the work\. I design what happens when the work doesn&rsquo;t go to plan\.<\/p>/);
   assert.deepEqual([...s.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]),
     ['Information checked', 'Problems made visible', 'Results checked', 'People stay involved', 'Ready for handover']);
-  assert.equal((s.match(/class="sn-eg"/g) || []).length, 4, 'one plain example on cards 1-4; card 5 needs none (19 Nov expert round)');
+  assert.equal((s.match(/class="sn-eg"/g) || []).length, 0, 'per-card examples removed (20 Nov)');
   assert.match(s, /<p class="sn-limits">The checks are agreed for each workflow, based on its risks and the tools it connects to\.<\/p>/);
-  assert.ok(h.indexOf('id="approach"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="built"'), 'after the approach band, before the demos');
+  assert.ok(h.indexOf('id="approach"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="built"'), 'after the approach panel, before the demos');
 });
 
 test('failure drill: optional (closed by default), general example, pauses, person told, person recovers with a check', async () => {

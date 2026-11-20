@@ -5,7 +5,8 @@ import { readFile } from 'node:fs/promises';
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 const css = await read('../assets/styles.css');
-const block = css.slice(css.indexOf('/* ===== S4 final direction (19 Nov)'));
+// The 19 Nov round ends where the 20 Nov rules start (hero aligned to the page container on Jeff's request).
+const block = css.slice(css.indexOf('/* ===== S4 final direction (19 Nov)'), css.indexOf('/* 20 Nov: middle simplified'));
 
 const lum = (hex) => {
   const c = hex.replace('#', '').match(/../g).map((x) => parseInt(x, 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
@@ -57,8 +58,8 @@ test('calm motion: no overshoot, no hover lift, dead drill flash removed', () =>
   assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
-test('page structure unchanged by the visual round: no inline styles, nine sections', async () => {
+test('page structure unchanged by the visual round: no inline styles, eight sections (approach folded into How I help, 20 Nov)', async () => {
   const html = await read('../index.html');
   assert.doesNotMatch(html, /\sstyle="/);
-  assert.equal((html.match(/<section /g) || []).length, 9);
+  assert.equal((html.match(/<section /g) || []).length, 8);
 });

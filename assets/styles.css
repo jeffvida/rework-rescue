@@ -822,7 +822,7 @@ details[open] > summary .card-toggle .ct-close { display: inline; }
   .hp-flags { grid-column: 1 / -1; justify-content: flex-start; }
 }
 
-/* Rework review call-to-action (after the examples, How it works, final section) */
+/* Process review call-to-action (after the examples, How it works, final section) */
 .review-cta { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; background: var(--info-bg); border: 1px solid var(--teal); border-radius: 16px; padding: 1.3rem 1.5rem; }
 .review-cta-h { font-family: var(--display); font-weight: 800; font-size: 1.3rem; color: var(--ink); margin: 0 0 0.3rem; letter-spacing: -0.01em; }
 .review-cta-line { margin: 0; max-width: 40rem; color: var(--ink); }
@@ -1692,7 +1692,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 /* Phone bar: Book first (fills the space, never wraps), Ask on the right, matching the assistant's desktop position */
 .mobile-cta .mobile-ask { order: 2; }
 .mobile-cta .mobile-book { white-space: nowrap; min-width: 0; }
-/* Narrow phones: Ask shrinks to its icon so the full "Book a free rework review" still fits on one line */
+/* Narrow phones: Ask shrinks to its icon so the full "Book a free process review" still fits on one line */
 @media (max-width: 26rem) {
   .mobile-cta { padding-left: 0.75rem; padding-right: 0.75rem; }
   .mobile-cta .mobile-book { padding-left: 0.9rem; padding-right: 0.9rem; font-size: 0.97rem; }
@@ -5072,3 +5072,46 @@ main > .sn-section { background: var(--paper); }
 .cta-section .bk.bk-inline { border-radius: var(--radius-card); box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.45); }
 .cta-section .btn-primary:hover:not([disabled]) { transform: none; box-shadow: none; }
 .rr-standards .how-30 { max-width: none; }
+
+/* 20 Nov: middle simplified. "My approach" now sits inside How I help as one dark panel (was its own band). */
+.rr-approach-panel { margin-top: 2.5rem; padding: clamp(1.4rem, 3vw, 2.2rem); border-radius: 18px; }
+main .section .rr-approach-panel .eyebrow { color: var(--signal); }
+main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
+.rr-approach-h { margin: 0.2rem 0 0; font-family: var(--display); font-size: clamp(1.45rem, 3vw, 1.9rem); line-height: 1.2; color: #fff; }
+.rr-approach-panel .rr-approach-lead { margin: 0.7rem 0 0; max-width: 46rem; font-size: 1.1rem; line-height: 1.55; color: #e6f1ec; }
+.rr-approach-panel .rr-decide-h { margin-top: 1.6rem; }
+.rr-d h4 { margin: 0.75rem 0 0; font-family: var(--display); font-size: 1.05rem; line-height: 1.3; color: #fff; }
+/* After-30-days line, visible outside the dropdown */
+.how-after { max-width: 46rem; margin: 1rem 0 0.6rem; padding: 0.7rem 0.95rem; border-radius: 10px; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--teal); color: var(--ink); }
+/* 20 Nov: hero lines up with the header logo and the rest of the page (same 70rem container and 1rem side padding). */
+.hz { --hz-max: 70rem; --hz-pad: 1rem; }
+.hz .container.hero-grid, .hz .container.hz-benefits, .hz .container.hz-wrap { max-width: 70rem; padding-left: 1rem; padding-right: 1rem; }
+/* With the hero on the 70rem container the scene is never wider than ~68rem, so the compact
+   small-laptop settings apply at every desktop width, plus a few extra fits. */
+@media (min-width: 64.01rem) { .hero-v3.hz h1 { font-size: clamp(2.4rem, 3.4vw, 2.6rem); } }
+@media (min-width: 75.01rem) {
+  .hz-flow { grid-template-columns: minmax(0, 0.9fr) 2.2rem minmax(0, 0.95fr) 2.2rem minmax(0, 1.25fr); }
+  .hz-zone { padding-inline: 0.75rem; }
+  .hz-tag { font-size: 1rem; padding: 0.55rem 1rem; white-space: nowrap; }
+  .hz-desc { font-size: 0.875rem; }
+  .hz-items { gap: 0.6rem 0.75rem; }
+  .hz-items li { grid-template-columns: minmax(0, 1fr); padding: 0.6rem; }
+  .hz-items .hz-ic { grid-row: auto; margin-bottom: 0.3rem; }
+  .hz-flags { flex-wrap: wrap; }
+  .hz-flags li { font-size: 0.8125rem; padding: 0.3rem 0.6rem 0.3rem 0.45rem; }
+  /* the three working steps sit one under another so their labels never collide */
+  .hz-steps { grid-template-columns: minmax(0, 1fr); gap: 0.9rem; }
+  .hz-steps li { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); column-gap: 0.7rem; align-items: center; text-align: left; padding: 0.6rem 0.7rem; }
+  .hz-steps .hz-ic { grid-row: span 2; margin: 0; width: 2.4rem; height: 2.4rem; }
+  .hz-steps .hz-ic svg { width: 1.9rem; height: 1.9rem; }
+  .hz-steps small { margin-top: 0.15rem; padding: 0; background: none; font-size: 0.8125rem; }
+  .hz-steps li + li::before { right: auto; left: 50%; top: auto; bottom: 100%; margin: 0 0 -0.05rem -0.55rem; transform: rotate(90deg); }
+  .hz-table th, .hz-table td { padding: 0.5rem 0.3rem; }
+  .hz-table th:first-child, .hz-table td:first-child { padding-left: 0.55rem; }
+  .hz-table tbody th svg { display: none; }
+  .hz-table thead th:nth-child(1) { width: 27%; } .hz-table thead th:nth-child(2) { width: 22%; }
+  .hz-table thead th:nth-child(3) { width: 28%; } .hz-table thead th:nth-child(4) { width: 23%; }
+  .hz-st { font-size: 0.75rem; padding: 0.18rem 0.45rem; }
+  .hz-arrow { width: 2.2rem; height: 2.2rem; margin: -1.1rem 0 0 -1.1rem; }
+  .hz .story-benefits li { padding: 0 1.1rem; font-size: 1rem; }
+}

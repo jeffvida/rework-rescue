@@ -5,7 +5,7 @@
 // - Preview mode: add ?assistant=preview to the address to see the widget with sample replies (no AI, nothing sent).
 //   It works on any page address, including Vercel previews where the live workflow refuses the browser (CORS).
 // - The conversation lives in this page's memory only. Nothing is stored in the browser except "invitation seen".
-// - It never books: "Book a free rework review" opens the normal booking pop-up (src/booking/popup.js, via data-book).
+// - It never books: "Book a free process review" opens the normal booking pop-up (src/booking/popup.js, via data-book).
 import { SITE } from '../../site-config.js';
 import { ASSISTANT_TEXT as T, ASSISTANT_LIMITS as L, SERVICES, WEB_SERVICE } from './rules.js';
 

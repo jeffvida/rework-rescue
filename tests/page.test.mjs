@@ -19,8 +19,8 @@ test('hero (19 Nov reference v2): approved copy word for word, one booking butto
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="container hz-wrap">'));
   assert.match(hero, /<p class="eyebrow hero-eyebrow">AI &amp; automation for business operations<\/p>/);
   assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg class="hv-swoosh"[^>]*>[\s\S]*?<\/svg><\/span> business operations\.<\/span><\/h1>/);
-  assert.match(hero, /<p class="hero-sub">I improve the way your business works by understanding your processes first, then applying practical AI and automation where they make a real difference\.<\/p>/);
-  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free rework review <span aria-hidden="true">&rarr;<\/span><\/a>/);
+  assert.match(hero, /<p class="hero-sub">I organise information, connect your tools and automate routine work, so your team spends less time chasing details, updating records and preparing reports\.<\/p>/);
+  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
   assert.match(hero, /<p class="hero-note">[\s\S]*?30 minutes &middot; No obligation<\/p>/);
   assert.equal((hero.match(/<a /g) || []).length, 1, 'one call to action, nothing else');
   assert.deepEqual([...hero.matchAll(/<li class="hz-pr-\d">[\s\S]*?<b>([^<]+)<\/b><span>([^<]+)<\/span><\/li>/g)].map((m) => [m[1], m[2]]), [
@@ -47,7 +47,7 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   assert.deepEqual(zones, [
     ['Scattered work', 'Information from different places, repeated work and things that are easy to miss.'],
     ['A better way of working', 'A process designed around your business, using the right mix of AI, automation and human review.'],
-    ['Organised operations', 'A clear view of work, ownership and next steps.'],
+    ['Organised operations', 'See what needs attention, who is responsible and what happens next.'],
   ]);
   assert.deepEqual([...fig.matchAll(/<ul class="hz-flags">[\s\S]*?<\/ul>/g)].flatMap((m) => [...m[0].matchAll(/<\/svg>([^<]+)<\/li>/g)].map((x) => x[1])), ['Duplicate?', 'Missing detail?', 'Who owns this?']);
   assert.doesNotMatch(fig, /Phone missing|Phone: missing/, 'the universal "Missing detail", not a phone example');
@@ -100,7 +100,7 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
 test('the Dana Cruz example moved under How I help, still working', async () => {
   const html = await page();
   const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
-  assert.match(svc, /<h3>One request, step by step<\/h3>/);
+  assert.match(svc, /<h3>From customer enquiry to an organised job<\/h3>/);
   assert.match(svc, /<figure class="rf no-print" id="hero-flow"/);
   assert.ok(!html.slice(0, html.indexOf('id="services"')).includes('Dana Cruz'), 'not in the hero');
 });
@@ -142,8 +142,8 @@ test('Where I can make work easier: six tiles, the customer problem first, then 
     ['Information entered repeatedly', 'Details pulled out and records updated automatically'],
     ['Follow-ups getting missed', 'Automated reminders and follow-up workflows'],
     ['Requests getting stuck', 'Requests sent to the right person, with approval steps'],
-    ['Reports taking hours to prepare', 'Reports built and checked automatically'],
-    ['Customer enquiries are hard to manage', 'Simple websites, enquiry forms and customer trackers to capture and organise requests'],
+    ['Reports taking hours to prepare', 'Reports pulled together and checked automatically, ready to act on'],
+    ['Customer enquiries are hard to manage', 'Enquiries captured, assigned and followed up in one tracker'],
   ]);
   assert.match(sec, /<p class="rr-tracker-note"><strong>What&rsquo;s a customer tracker\?<\/strong> A simple place to record customer enquiries, contact details, request status, who is responsible and what needs following up\.<\/p>/);
   const c = await read('../assets/styles.css');
@@ -152,27 +152,26 @@ test('Where I can make work easier: six tiles, the customer problem first, then 
   assert.match(c, /@media \(max-width: 40rem\) \{\n  \.rr-tiles \{ grid-template-columns: minmax\(0, 1fr\);/);
 });
 
-test('approach band (19 Nov): headline kept; one lead; three decision cards replace the old list; the goal line', async () => {
+test('approach (20 Nov): folded into How I help as one panel; headline, one short lead, three decision cards; extra paragraphs gone', async () => {
   const html = await page();
-  const sec = section(html, 'approach', 'built');
-  assert.match(sec, /<p class="eyebrow">My approach<\/p>\s*<h2 id="approach-h">Start with the work, not the software\.<\/h2>/);
-  assert.match(sec, /<p class="rr-approach-lead">You care about missed enquiries, slow replies and hours spent copying the same details &mdash; not which platform fixes them\. I start by finding where the work actually gets stuck, then choose the simplest solution that fits\.<\/p>/);
-  assert.doesNotMatch(sec, /rr-approach-steps|Look at the work|Keep it simple<\/li>/, 'the old three-item list is replaced, not stacked');
-  assert.match(sec, /<h3 class="rr-decide-h">AI or simple automation\? Three questions decide it\.<\/h3>/);
-  assert.deepEqual([...sec.matchAll(/<h3>([^<]+)<\/h3><p class="rr-d-a">([^<]+)<\/p><p class="rr-d-eg">([^<]+)<\/p>/g)].map((m) => `${m[1]} | ${m[2]} | ${m[3]}`), [
+  const svc = section(html, 'services', 'safety');
+  const sec = svc.slice(svc.indexOf('id="approach"'));
+  assert.match(sec, /id="approach">\s*<p class="eyebrow">My approach<\/p>\s*<h3 class="rr-approach-h" id="approach-h">Start with the work, not the software\.<\/h3>/);
+  assert.match(sec, /<p class="rr-approach-lead">I find where the work gets stuck, then choose the simplest fix\.<\/p>/);
+  assert.match(sec, /<h4 class="rr-decide-h">AI or simple automation\? Three questions decide it\.<\/h4>/);
+  assert.deepEqual([...sec.matchAll(/<h4>([^<]+)<\/h4><p class="rr-d-a">([^<]+)<\/p><p class="rr-d-eg">([^<]+)<\/p>/g)].map((m) => `${m[1]} | ${m[2]} | ${m[3]}`), [
     'Are the rules clear? | Automation | Form submitted &rarr; tracker updated &rarr; confirmation sent',
     'Does it need interpretation? | AI step | Read an enquiry email and extract customer details',
     'How costly would an error be? | Human review | Hold a customer reply or high-value quote for approval']);
-  assert.match(sec, /<p class="rr-approach-note">The goal isn&rsquo;t to use AI everywhere\. It&rsquo;s to build the right solution for the problem\.<\/p>\s*<p class="rr-approach-more">Some projects need just one improvement\. Others benefit from connecting a few simple tools\. I&rsquo;ll recommend what makes sense for your business, not add technology you don&rsquo;t need\.<\/p>/);
-  assert.doesNotMatch(sec, /rr-connect|Reach customers|Follow through/);
-  assert.doesNotMatch(sec, /Practical solutions built around your business/);
+  assert.doesNotMatch(html, /rr-approach-note|rr-approach-more|You care about missed enquiries/, 'repeated paragraphs removed');
+  assert.doesNotMatch(html, /<section class="section rr-diff"/, 'no separate approach band');
   assert.doesNotMatch(html, /Automation with checks built in|Automation that checks itself|proprietary|my method|framework/i);
 });
 
 test('client expectations (19 Nov): testing line, weekly updates, closing thought; monitoring stays separate', async () => {
   const html = await page();
   const safety = section(html, 'safety', 'built');
-  assert.match(safety, /<p class="sn-demo">A demo shows the idea\. Testing checks how it handles normal cases, exceptions and failures\.<\/p>\s*<p class="sn-quote">/);
+  assert.doesNotMatch(safety, /sn-demo|A demo shows the idea/, 'testing line lives in How it works only (20 Nov)');
   assert.doesNotMatch(html, /keeps working/, 'testing is not sold as a guarantee');
   const how = section(html, 'how', 'about');
   assert.match(how, /<div class="rr-updates">\s*<h3>You won&rsquo;t have to guess where things stand\.<\/h3>\s*<p>While your project is active, I&rsquo;ll send a short written update at least once a week covering what&rsquo;s completed, what&rsquo;s next, and anything waiting on your input\. If a blocker is likely to affect the delivery timeline, I&rsquo;ll explain the reason and let you know as soon as I can\.<\/p>/);
@@ -224,7 +223,8 @@ test('section order, nav and removed content', async () => {
   const html = await page();
   const ids = ['services', 'approach', 'safety', 'built', 'experience', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
   assert.ok(ids.every((i) => i > 0)); assert.deepEqual([...ids].sort((a, b) => a - b), ids);
-  assert.equal((html.match(/<section /g) || []).length, 9, 'hero + eight sections (safety net added 17 Nov)');
+  assert.equal((html.match(/<section /g) || []).length, 8, 'hero + seven sections (approach folded into How I help, 20 Nov)');
+  assert.ok(html.indexOf('id="approach"') < html.indexOf('</section>', html.indexOf('id="services"')), 'approach panel sits inside How I help');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
   assert.deepEqual(nav, ['services:How I help', 'built:Demos &amp; examples', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);
@@ -266,7 +266,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   const faq = section(html, 'faq', 'start');
   assert.deepEqual([...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]), ['What can you automate?', 'What happens if something breaks or a connected app changes?', 'Can you build a website or set up a simple CRM?', 'How much does it cost, and is there a written agreement?', 'Can you work with confidential or sensitive information?', 'Will this replace anyone on my team?', 'How do you handle access to our systems?', 'You&#39;re in the Philippines. How does working remotely work?']);
   assert.match(faq, /Not every problem needs AI\./);
-  assert.match(faq, /<p>Each project is priced around one clearly defined improvement\. Where the requirements and deliverables can be agreed upfront, I use a fixed project fee rather than an open-ended hourly rate\.<\/p><p>The price depends on the work, which tools need connecting, and any setup or getting your data ready\.<\/p><p>After the free review, you&rsquo;ll get a written proposal showing what you&rsquo;ll get, what&rsquo;s not included, the estimated timeline, payment schedule and any costs for other providers&rsquo; software, hosting or usage\.<\/p><p>Nothing starts until you approve the scope and price\.<\/p>/);
+  assert.match(faq, /<p>Each project is priced around one clearly defined improvement\. Where the requirements and deliverables can be agreed upfront, I use a fixed project fee rather than an open-ended hourly rate\.<\/p><p>The price depends on the work, which tools need connecting, and any setup or getting your data ready\.<\/p><p>After the free review, you&rsquo;ll get a written proposal showing what you&rsquo;ll get, what&rsquo;s not included, the estimated timeline, payment schedule and any costs for other providers&rsquo; software, hosting or usage\.<\/p><p>You&rsquo;ll get the deliverables, full project cost and any other software costs in writing before you decide whether to go ahead\.<\/p>/);
   assert.doesNotMatch(faq, /one report or one process/);
   assert.match(faq, /<p>Yes\. I can build simple, mobile-friendly business websites and landing pages, enquiry forms, and simple customer trackers or CRM setups, using suitable existing tools\.<\/p><p>These can stand alone or connect\. For example, a website enquiry can be added to a customer tracker and trigger a follow-up reminder\.<\/p><p>I focus on clear layouts and practical features rather than complex designs or software\. For online stores, custom applications or advanced CRM systems, I&rsquo;ll explain when a specialist solution is needed\.<\/p>/);
   assert.match(faq, /Client project data is never put into free AI tools or tools that train on your data\./);
@@ -289,7 +289,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));
 });
 
-test('guard rails: no prices, testimonials or invented results; first person; one button wording ("Book a free rework review" on every booking button, 19 Nov); only confirmed tools', async () => {
+test('guard rails: no prices, testimonials or invented results; first person; one button wording ("Book a free process review" on every booking button, 19 Nov); only confirmed tools', async () => {
   const html = await page();
   const visible = visibleText(html);
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
@@ -303,4 +303,16 @@ test('guard rails: no prices, testimonials or invented results; first person; on
   }
   assert.doesNotMatch(html, /\sstyle="/, 'CSP: no inline styles');
   assert.doesNotMatch(html, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph');
+});
+
+test('middle simplified (20 Nov): after-30-days line visible, bridge line before the numbers, hero on the page container, process review wording', async () => {
+  const html = await page();
+  const how = section(html, 'how', 'about');
+  assert.match(how, /<p class="how-after"><strong>After 30 days:<\/strong> Your solution remains yours\. Ongoing monitoring, maintenance and improvements can be arranged separately\.<\/p>\s*<details class="fold how-30">/, 'outside the dropdown');
+  for (const card of html.split('<li class="rr-result">').slice(1)) assert.ok(card.indexOf('class="exp-bridge"') < card.indexOf('class="rr-nums"'), 'In your business… comes first');
+  const css = await read('../assets/styles.css');
+  assert.match(css, /\.hz \{ --hz-max: 70rem; --hz-pad: 1rem; \}/, 'hero uses the same width as the header and sections');
+  for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../src/assistant/rules.js', '../n8n/rework-assistant.json', '../n8n/paste-2026-11-19/check-request.js']) {
+    const t = await read(f); assert.doesNotMatch(t, /free rework (<\/span>)?review/i, f);
+  }
 });

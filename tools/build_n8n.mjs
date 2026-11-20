@@ -36,7 +36,7 @@ const nodes = [
     parameters: {
       width: 600, height: 380,
       content: [
-        '## Rework review booking',
+        '## Process review booking',
         '1. Open each **Google** node (the 5 HTTP Request nodes) and pick or create a **Google Calendar OAuth2** credential for ' + OWNER_EMAIL + '.',
         '2. Open **Email Jeff** and pick or create a **Gmail OAuth2** credential.',
         '3. Open **Log to Google Sheet**: create a **Google Sheets OAuth2** credential, the bookings sheet is already filled in. Row 1 of that sheet must hold the column headers listed in n8n/SETUP.md.',
@@ -315,7 +315,7 @@ const connections = {
   'Still on? (1 hour)': { main: [[link('Email: 1-hour reminder')], []] },
 };
 
-const workflow = { name: 'Rework Rescue: rework review booking', nodes, connections, settings: {
+const workflow = { name: 'Rework Rescue: process review booking', nodes, connections, settings: {
   executionOrder: 'v1',
   // Privacy: don't keep a record of runs that worked (they contain booking details). Failed runs are kept so problems can be fixed.
   saveDataSuccessExecution: 'none', saveManualExecutions: false, saveDataErrorExecution: 'all',

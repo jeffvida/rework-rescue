@@ -5195,9 +5195,4 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
   .hs-time li + li::before { content: "\2193"; left: 50%; top: -0.78rem; transform: translateX(-50%); }
 }
 @media (max-width: 40rem) { .rr-standards ul.hs-get { grid-template-columns: minmax(0, 1fr); } .rr-standards .hs-get li { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); column-gap: 0.8rem; } .hs-ic { grid-row: span 2; margin: 0; } }
-.tile-flow { position: relative; cursor: pointer; }
-.tile-flow-close { position: absolute; top: 0.7rem; right: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--tc, var(--teal)); background: #fff; color: var(--tc, var(--teal-dark)); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
-.tile-flow-close::after { content: "\00d7"; font-size: 1.05rem; line-height: 1; }
-.tile-flow-close:hover { background: var(--tc, var(--teal)); color: #fff; }
-.tile-flow .tile-flow-k { padding-right: 5.5rem; }
 .rr-standards .hs-time li:first-child::before { content: none; }

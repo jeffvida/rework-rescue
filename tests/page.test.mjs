@@ -330,8 +330,8 @@ test('How I help tiles (20 Nov): own colour per tile, same colour on the open ex
   assert.match(js, /if \(c === lastCols\) return;/, 'phone scroll no longer replays the panel');
 });
 
-test('tile example closes when clicked (20 Nov): Hide button and click on the panel', async () => {
+test('tile example (20 Nov): closes only by clicking its tile again (or Escape); no Hide button, no click-on-panel', async () => {
   const js = await read('../src/tiles.js');
-  assert.match(js, /x\.className = 'tile-flow-close'; x\.textContent = 'Hide';/);
-  assert.match(js, /panel\.addEventListener\('click', \(\) => \{ if \(open > -1\)/);
+  assert.match(js, /if \(open === i\) \{ close\(\); return; \}/);
+  assert.doesNotMatch(js, /tile-flow-close|panel\.addEventListener\('click'/);
 });

@@ -5115,3 +5115,22 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
   .hz-arrow { width: 2.2rem; height: 2.2rem; margin: -1.1rem 0 0 -1.1rem; }
   .hz .story-benefits li { padding: 0 1.1rem; font-size: 1rem; }
 }
+/* 20 Nov (2): three equal boxes; each benefit sits under its own box */
+@media (min-width: 75.01rem) {
+  .hz-flow { grid-template-columns: minmax(0, 1fr) 2.2rem minmax(0, 1fr) 2.2rem minmax(0, 1fr); }
+  .hz .container.hz-benefits { text-align: left; }
+  .hz .story-benefits { display: grid; grid-template-columns: minmax(0, 1fr) 2.2rem minmax(0, 1fr) 2.2rem minmax(0, 1fr); width: 100%; padding: 0.75rem 0; box-sizing: border-box; }
+  .hz .story-benefits li { justify-content: center; padding: 0 0.5rem; white-space: normal; text-align: left; border-left: 0; }
+  .hz .story-benefits li:nth-child(2) { grid-column: 3; }
+  .hz .story-benefits li:nth-child(3) { grid-column: 5; }
+  .hz .story-benefits li + li { border-left: 0; }
+  .hz-table thead th:nth-child(1) { width: 26%; } .hz-table thead th:nth-child(2) { width: 22%; }
+  .hz-table thead th:nth-child(3) { width: 30%; } .hz-table thead th:nth-child(4) { width: 22%; }
+  .hz-table th, .hz-table td { font-size: 0.75rem; }
+}
+@media (min-width: 75.01rem) {
+  .hz-table thead th:nth-child(1) { width: 24%; } .hz-table thead th:nth-child(2) { width: 21%; }
+  .hz-table thead th:nth-child(3) { width: 29%; } .hz-table thead th:nth-child(4) { width: 26%; }
+  .hz-table th:last-child, .hz-table td:last-child { padding-right: 0.55rem; }
+  .hz-st { font-size: 0.6875rem; padding: 0.15rem 0.4rem; }
+}

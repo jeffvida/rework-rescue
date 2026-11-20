@@ -354,5 +354,5 @@ test('previous-role examples (20 Nov): slide-in three-step panel; the dropdown s
   assert.equal((html.match(/<details class="fold rr-more"><summary>See how it worked<\/summary>/g) || []).length, 2, 'no-JS fallback kept');
   const css = await read('../assets/styles.css');
   assert.match(css, /\.rr-result\.has-cs > details\.rr-more \{ display: none; \}/);
-  assert.match(css, /@media \(max-width: 40rem\) \{\n  dialog\.cs \{ inset: auto 0 0 0;/, 'bottom sheet on phones');
+  assert.match(css, /dialog\.cs, dialog\.cs:not\(\[open\]\) \{ inset: 0; margin: auto;/, 'centred on screen');
 });

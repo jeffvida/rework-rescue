@@ -5164,3 +5164,40 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
 .tile-flow[data-tile] .tile-flow-k { color: var(--tc); }
 .tile-flow[data-tile] .tile-flow-steps li { background: var(--tt); }
 .tile-flow[data-tile] .tile-flow-steps li::before { background: var(--tc); color: #fff; }
+/* 20 Nov (5): "What you'll have after handover" as four deliverable cards and a three-step support timeline */
+.rr-standards { padding: clamp(1.1rem, 2.5vw, 1.6rem); }
+.rr-standards h3 { font-size: clamp(1.2rem, 2vw, 1.35rem); }
+.rr-standards .rr-standards-intro { margin: 0.2rem 0 1.1rem; color: var(--muted); }
+.hs-k { margin: 1.2rem 0 0.6rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal-text); }
+.rr-standards .hs-k:first-of-type { margin-top: 0; }
+.rr-standards ul.hs-get { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
+.rr-standards .hs-get li { display: flex; flex-direction: column; margin: 0; padding: 1rem; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); border-top: 4px solid var(--hc); font-size: 0.92rem; line-height: 1.45; }
+.rr-standards .hs-get li::before { content: none; }
+.hs-1 { --hc: var(--teal); --hct: var(--teal-tint); } .hs-2 { --hc: #1d4ed8; --hct: #e6eefc; }
+.hs-3 { --hc: var(--ai); --hct: var(--ai-tint); } .hs-4 { --hc: #b0640f; --hct: var(--human-tint); }
+.hs-ic { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; margin-bottom: 0.7rem; border-radius: 10px; background: var(--hct); color: var(--hc); }
+.hs-ic svg { width: 1.4rem; height: 1.4rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rr-standards .hs-get strong { display: block; margin: 0 0 0.3rem; font-family: var(--display); font-size: 1rem; line-height: 1.3; color: var(--ink); }
+.rr-standards .hs-get span:not(.hs-ic) { color: var(--muted); }
+.hs-time { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; counter-reset: none; }
+.hs-time li { position: relative; margin: 0; padding: 0.95rem 1rem 1rem; border-radius: 12px; background: var(--teal-tint); border: 1px solid #cfe5d8; font-size: 0.92rem; line-height: 1.45; }
+.hs-time li + li::before { content: "\2192"; position: absolute; left: -0.78rem; top: 50%; transform: translateY(-50%); width: 1.3rem; height: 1.3rem; display: grid; place-items: center; border-radius: 50%; background: var(--teal); color: #fff; font-size: 0.8rem; line-height: 1; z-index: 1; }
+.hs-time b { display: inline-block; margin-bottom: 0.45rem; padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--teal); color: #fff; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; }
+.hs-t2 b { background: #1f7a45; } .hs-t3 b { background: var(--ink); }
+.hs-t3 { background: #f3f6f5; border-color: var(--line); }
+.hs-time strong { display: block; margin-bottom: 0.25rem; font-family: var(--display); font-size: 1rem; color: var(--ink); }
+.hs-time span { display: block; color: var(--ink); }
+.hs-time .how-after { margin: 0; padding: 0; background: none; border: 0; max-width: none; }
+.rr-standards .how-30 { margin-top: 1rem; }
+@media (max-width: 62rem) { .rr-standards ul.hs-get { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 48rem) {
+  .hs-time { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+  .hs-time li + li::before { content: "\2193"; left: 50%; top: -0.78rem; transform: translateX(-50%); }
+}
+@media (max-width: 40rem) { .rr-standards ul.hs-get { grid-template-columns: minmax(0, 1fr); } .rr-standards .hs-get li { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); column-gap: 0.8rem; } .hs-ic { grid-row: span 2; margin: 0; } }
+.tile-flow { position: relative; cursor: pointer; }
+.tile-flow-close { position: absolute; top: 0.7rem; right: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--tc, var(--teal)); background: #fff; color: var(--tc, var(--teal-dark)); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.tile-flow-close::after { content: "\00d7"; font-size: 1.05rem; line-height: 1; }
+.tile-flow-close:hover { background: var(--tc, var(--teal)); color: #fff; }
+.tile-flow .tile-flow-k { padding-right: 5.5rem; }
+.rr-standards .hs-time li:first-child::before { content: none; }

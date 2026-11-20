@@ -87,7 +87,10 @@ export function mountTiles(list) {
     const words = document.createElement('span'); words.className = 'tile-flow-net-t';
     words.append(strong, f.net);
     net.append(words);
-    panel.append(k, ol, net);
+    const x = document.createElement('button');
+    x.type = 'button'; x.className = 'tile-flow-close'; x.textContent = 'Hide';
+    x.setAttribute('aria-label', 'Hide this example');
+    panel.append(x, k, ol, net);
   }
 
   function toggle(i) {
@@ -112,6 +115,9 @@ export function mountTiles(list) {
     panel.hidden = true;
     buttons.forEach((b) => { b.setAttribute('aria-expanded', 'false'); b.parentElement.classList.remove('is-open'); b.querySelector('.rr-tile-more').textContent = SHOW; });
   }
+
+  // Clicking the example itself (or its Hide button) closes it and returns focus to its tile.
+  panel.addEventListener('click', () => { if (open > -1) { const b = buttons[open]; close(); b.focus({ preventScroll: true }); } });
 
   list.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open > -1) { const b = buttons[open]; close(); b.focus(); } });
   // Only move the panel when the number of columns changes. Phones fire resize while scrolling

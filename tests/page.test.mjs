@@ -250,9 +250,11 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
     'Handover and 30&#8209;day fixes: Explain the solution, provide documentation and include 30 days of fixes.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
   assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
-  assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\. You&rsquo;ll receive:<\/p>/);
-  assert.deepEqual([...std.matchAll(/<li><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
-    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of fixes', 'Safety net']);
+  assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\.<\/p>/);
+  assert.deepEqual([...std.matchAll(/<li class="hs-\d"><span class="hs-ic"[\s\S]*?<\/span><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
+    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Safety net']);
+  assert.deepEqual([...std.matchAll(/<li class="hs-t\d"><b>([^<]+)<\/b><strong>([^<]+)<\/strong>/g)].map((m) => `${m[1]}: ${m[2]}`),
+    ['Handover day: Walkthrough and files', 'Days 1&ndash;30: 30 days of fixes', 'After 30 days: It&rsquo;s yours']);
   assert.match(std, /<p class="rr-standards-note">For AI, automation and reporting projects, handover also covers the agreed checks, unusual cases and review steps your team needs to know\.<\/p>/);
   assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);
@@ -308,7 +310,7 @@ test('guard rails: no prices, testimonials or invented results; first person; on
 test('middle simplified (20 Nov): after-30-days line visible, bridge line before the numbers, hero on the page container, process review wording', async () => {
   const html = await page();
   const how = section(html, 'how', 'about');
-  assert.match(how, /<p class="how-after"><strong>After 30 days:<\/strong> Your solution remains yours\. Ongoing monitoring, maintenance and improvements can be arranged separately\.<\/p>\s*<details class="fold how-30">/, 'outside the dropdown');
+  assert.match(how, /<b>After 30 days<\/b><strong>It&rsquo;s yours<\/strong><span class="how-after">Your solution remains yours\. Ongoing monitoring, maintenance and improvements can be arranged separately\.<\/span><\/li>\s*<\/ol>\s*<details class="fold how-30">/, 'outside the dropdown');
   for (const card of html.split('<li class="rr-result">').slice(1)) assert.ok(card.indexOf('class="exp-bridge"') < card.indexOf('class="rr-nums"'), 'In your business… comes first');
   const css = await read('../assets/styles.css');
   assert.match(css, /\.hz \{ --hz-max: 70rem; --hz-pad: 1rem; \}/, 'hero uses the same width as the header and sections');
@@ -326,4 +328,10 @@ test('How I help tiles (20 Nov): own colour per tile, same colour on the open ex
   assert.match(js, /if \(open === i\) \{ close\(\); return; \}/, 'second click closes');
   assert.match(js, /const HIDE = 'Hide example';/);
   assert.match(js, /if \(c === lastCols\) return;/, 'phone scroll no longer replays the panel');
+});
+
+test('tile example closes when clicked (20 Nov): Hide button and click on the panel', async () => {
+  const js = await read('../src/tiles.js');
+  assert.match(js, /x\.className = 'tile-flow-close'; x\.textContent = 'Hide';/);
+  assert.match(js, /panel\.addEventListener\('click', \(\) => \{ if \(open > -1\)/);
 });

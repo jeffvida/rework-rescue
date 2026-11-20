@@ -5239,3 +5239,6 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
 .sn-section .sn-list > li.sn-human::after, .sn-section .sn-list > li:nth-child(3)::after { background: var(--human-line); opacity: 0.8; }
 @media (min-width: 62.01rem) { .sn-section .sn-list > li:not(:last-child)::after { left: 2.3rem; top: calc(1.15rem - 1px); width: calc(100% + 1.4rem - 2.3rem); height: 2px; } }
 @media (max-width: 62rem) { .sn-section .sn-list > li:not(:last-child)::after { left: calc(1.15rem - 1px); top: 2.3rem; bottom: -1.3rem; width: 2px; } }
+/* button sits under the "checks are agreed" note */
+.sn-foot { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.8rem; }
+.sn-foot .sn-more { align-self: stretch; }

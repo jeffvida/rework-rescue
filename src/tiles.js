@@ -64,7 +64,8 @@ export function mountTiles(list) {
     more.textContent = SHOW;
     b.append(more);
     li.append(b);
-    b.addEventListener('click', () => toggle(i));
+    // The button's own aria-expanded is the source of truth: if this tile is showing its example, close it.
+    b.addEventListener('click', () => { if (b.getAttribute('aria-expanded') === 'true') close(); else toggle(i); });
     return b;
   });
 

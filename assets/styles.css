@@ -5196,3 +5196,5 @@ main .section .rr-approach-panel .eyebrow::after { background: var(--signal); }
 }
 @media (max-width: 40rem) { .rr-standards ul.hs-get { grid-template-columns: minmax(0, 1fr); } .rr-standards .hs-get li { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); column-gap: 0.8rem; } .hs-ic { grid-row: span 2; margin: 0; } }
 .rr-standards .hs-time li:first-child::before { content: none; }
+/* A quick second tap on a tile is a real tap, not a double-tap zoom (iOS Safari could swallow it) */
+.rr-tile { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }

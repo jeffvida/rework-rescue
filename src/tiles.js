@@ -6,27 +6,27 @@
 
 export const FLOWS = [
   {
-    steps: ['An email arrives in the shared inbox', 'AI reads it and labels it: request, question, invoice or other', 'Requests are logged with an owner', 'Unclear emails are set aside for a person'],
-    net: 'Anything the AI can’t place in a category goes to a person instead of being guessed.',
+    steps: ['An email arrives in the shared inbox', 'AI reads it and labels it: request, question, invoice or other', 'Each request is recorded and given to someone to handle', 'Unclear emails are set aside for a person'],
+    net: 'If the AI can’t tell what an email is about, a person sorts it instead of the AI guessing.',
   },
   {
-    steps: ['Details are pulled from the form, email or export', 'Required fields are checked and gaps flagged', 'Matched against existing records by email, phone or ID', 'The record is created or updated in your tracker'],
-    net: 'A record that already exists is updated, not entered twice.',
+    steps: ['Details are taken from the form, email or spreadsheet', 'Missing details are spotted and flagged', 'Checked against what’s already recorded, using email, phone or a reference number', 'A new entry is added, or the existing one is updated'],
+    net: 'If it’s already recorded, it’s updated, not entered twice.',
   },
   {
-    steps: ['The task is logged with an owner and a due date', 'A reminder goes out before it’s due', 'Overdue items are listed for the owner each morning', 'The owner decides the next step'],
-    net: 'If a reminder can’t be sent, the owner is told instead of it failing quietly.',
+    steps: ['Each task is recorded with who’s responsible and a due date', 'A reminder goes out before it’s due', 'Each morning, the person responsible gets a list of overdue tasks', 'They decide what happens next'],
+    net: 'If a reminder can’t be sent, the person responsible is told, so nothing is missed.',
   },
   {
-    steps: ['A request is submitted', 'It goes to the person who approves that kind of request', 'A reminder follows if nobody acts', 'It’s approved or returned with a reason, and the requester is told'],
-    net: 'Requests missing key details go back before they reach the approver.',
+    steps: ['Someone sends in a request', 'It goes to the person who approves that kind of request', 'A reminder follows if nobody acts', 'It’s approved or returned with a reason, and the person who asked is told'],
+    net: 'Requests missing important details are sent back before anyone has to approve them.',
   },
   {
-    steps: ['Data is pulled from your sources on a schedule', 'Missing or unusual figures are checked', 'The report is built in the same format every time', 'You review it and share it'],
-    net: 'If a source is empty or the figures don’t match the source data, the report is held and you’re told.',
+    steps: ['Figures are collected from your spreadsheets and systems at set times', 'Missing or unusual figures are checked', 'The report is built in the same format every time', 'You review it and share it'],
+    net: 'If data is missing or doesn’t match the source, the report is flagged for your review before it’s shared.',
   },
   {
-    steps: ['A customer fills in the form on your website or landing page', 'Spam is filtered out and the enquiry is added to your customer tracker', 'An owner is assigned and a follow-up reminder is set', 'You reply and track it to a decision'],
+    steps: ['A customer fills in the form on your website or landing page', 'Spam is filtered out and the enquiry is added to your customer tracker', 'Someone is put in charge and a follow-up reminder is set', 'You reply and keep track of it until the customer decides'],
     net: 'If saving to the tracker fails, a copy of the enquiry is emailed to you, so it isn’t missed.',
   },
 ];

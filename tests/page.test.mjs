@@ -140,7 +140,7 @@ test('Where I can make work easier: six tiles, the customer problem first, then 
   assert.deepEqual([...sec.matchAll(/<strong>([^<]+)<\/strong><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]), [
     ['Emails piling up', 'AI reads and sorts emails, and tracks each request'],
     ['Information entered repeatedly', 'Details pulled out and records updated automatically'],
-    ['Follow-ups getting missed', 'Automated reminders and follow-up workflows'],
+    ['Follow-ups getting missed', 'Automatic reminders and follow-ups'],
     ['Requests getting stuck', 'Requests sent to the right person, with approval steps'],
     ['Reports taking hours to prepare', 'Reports pulled together and checked automatically, ready to act on'],
     ['Customer enquiries are hard to manage', 'Enquiries captured, assigned and followed up in one tracker'],

@@ -230,7 +230,7 @@
       <div class="container">
         <p class="eyebrow">Demos &amp; examples</p>
         <h2 id="built-h">See it working on this page.</h2>
-          <ul class="built-cards built-cards-2">
+          <ul class="built-cards built-cards-2 built-cards-3">
             <li class="built-card">
               <p class="built-k">Automation</p>
               <h3>The booking calendar</h3>
@@ -262,18 +262,34 @@
               <p class="built-safe"><strong>If a reply breaks a rule:</strong> it&rsquo;s blocked and you get a plain message instead.</p>
               <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets</p>
               <p class="built-try" data-assistant-only hidden><a href="#built" data-assistant-open>Try it: ask the assistant <span aria-hidden="true">&rarr;</span></a></p>
+            <li class="built-card built-card-ai">
+              <p class="built-k">AI + automation</p>
+              <h3>The enquiry tracker</h3>
+              <p class="built-what">Send an enquiry. AI reads it, a fixed rule picks who handles it, and it&rsquo;s logged.</p>
+              <details class="fold built-more"><summary>See the 4 steps</summary>
+              <ol class="built-steps">
+                <li>Checks each enquiry before anything reaches the AI.</li>
+                <li>AI reads it: who it&rsquo;s from, what they need, how urgent.</li>
+                <li>A fixed rule picks who handles it, and it&rsquo;s logged in the tracker.</li>
+                <li>The owner gets an email. Anything unclear is marked for a person to check.</li>
+              </ol>
+              </details>
+              <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
+              <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
+              <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send an enquiry <span aria-hidden="true">&rarr;</span></a></p>
             </li>
           </ul>
-        <div class="eq-demo built-card-ai" id="enquiry-demo" aria-labelledby="eq-h">
-          <div class="eq-intro">
-            <p class="built-k">AI + automation</p>
-            <h3 id="eq-h">The enquiry tracker</h3>
-            <p class="built-what">Send an enquiry. AI reads it, a fixed rule picks who handles it, and it&rsquo;s logged in the tracker.</p>
-            <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged, marked Needs check, and a person reviews it.</p>
-          </div>
+        <dialog class="cs eq-dlg" id="enquiry-demo" aria-labelledby="eq-h">
+          <div class="cs-sheet">
+            <header class="cs-head">
+              <p class="cs-k">Demo &middot; AI + automation</p>
+              <h3 class="cs-title" id="eq-h">The enquiry tracker</h3>
+              <button type="button" class="cs-close" data-eq-close aria-label="Close">&times;</button>
+              <p class="eq-what">Send an enquiry as a customer of <strong>CoolFix Aircon</strong>, a made-up business. AI reads it, a fixed rule picks who handles it, and it&rsquo;s logged.</p>
+            </header>
+            <div class="cs-body eq-body">
           <div class="eq-grid">
             <form class="eq-form" data-eq-form novalidate>
-              <p class="eq-lead">Try it as a customer of <strong>CoolFix Aircon</strong>, a made-up business.</p>
               <div class="eq-examples" role="group" aria-label="Fill in an example">
                 <button type="button" class="eq-chip" data-eq-example="0">Quote request</button>
                 <button type="button" class="eq-chip" data-eq-example="1">Urgent complaint</button>
@@ -288,7 +304,7 @@
               <div class="eq-trap" aria-hidden="true"><label for="eq-web">Website</label><input id="eq-web" name="website" type="text" tabindex="-1" autocomplete="off"></div>
               <p class="eq-error" data-eq-error role="alert"></p>
               <button type="submit" class="btn btn-primary eq-send" data-eq-send>Send enquiry</button>
-              <p class="eq-small">Made-up details are fine. Your message is read by Google Gemini and saved in my demo tracker. <a href="privacy/#enquiry-demo">Privacy</a></p>
+              <p class="eq-small">Made-up details are fine. Nothing is emailed to you. Your message is read by Google Gemini and saved in my demo tracker. <a href="privacy/#enquiry-demo">Privacy</a></p>
               <p class="eq-small" data-eq-preview hidden>Preview: sample replies, nothing is sent.</p>
             </form>
             <div class="eq-result">
@@ -305,12 +321,14 @@
                   <tbody data-eq-rows><tr><td class="eq-c-name">Tom Reyes</td><td class="eq-c-need">Service booking for next Monday</td><td class="eq-c-owner">Scheduling</td><td class="eq-c-status"><span class="pill">Contacted</span></td></tr></tbody></table>
               </div>
               <div class="eq-mail" data-eq-mail hidden></div>
+              <div class="eq-mail eq-reply" data-eq-reply hidden></div>
               <p class="sr-only" data-eq-status aria-live="polite"></p>
             </div>
           </div>
           <p class="eq-note">Here your enquiry comes from this form. In a real business, it starts from your inbox, checked every few minutes.</p>
-          <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
-        </div>
+            </div>
+          </div>
+        </dialog>
         <p class="built-note">I built these for my own site. They aren&rsquo;t client projects.</p>
         <p class="rr-tools"><span>Tools I work with</span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365</p>
 

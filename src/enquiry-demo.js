@@ -1,4 +1,7 @@
-// The enquiry tracker demo (build #1, 21 Nov 2026), in the "Demos & examples" section.
+// The enquiry tracker demo (build #1, 21 Nov 2026): the third card in "Demos & examples". Its "Try it" button opens
+// the demo in the same centred panel as the previous-role examples (dialog.cs), so the page doesn't get longer.
+// The customer auto-reply is only shown in the panel, never emailed: the visitor's address can't be verified, so
+// emailing it would let anyone send mail from Jeff's Gmail to a stranger (Jeff chose option B, 21 Nov).
 // A visitor sends an enquiry as a customer of CoolFix Aircon (a made-up business). The n8n workflow
 // "Enquiry Inbox → Tracker (demo)" checks it, has Gemini read it, picks the owner with a fixed rule, logs it in a
 // demo Google Sheet, answers this page and emails Jeff (never the visitor). Handover: project doc
@@ -57,6 +60,16 @@ export function alertSubject(r) {
   return `${r.status === 'Needs check' ? 'CHECK: ' : ''}${r.urgency === 'High' ? 'URGENT ' : ''}${r.category} from ${r.name} → ${r.owner}`;
 }
 
+/** The auto-reply a real customer would get (shown on the page only, never sent). Fixed wording, no customer text. */
+export function autoReply(r) {
+  const first = String(r.name).trim().split(/\s+/)[0] || 'there';
+  const when = r.urgency === 'High' ? 'today' : 'within 1 business day';
+  if (r.status !== 'New') return `Thanks ${first}, we got your message. Someone from our team will get back to you ${when}.`;
+  if (r.category === 'Complaint') return `Thanks ${first}, we got your message and we’re sorry about the trouble. Our ${r.owner} will get back to you ${when}.`;
+  const what = { Quote: 'quote request', Booking: 'booking request' }[r.category] || 'message';
+  return `Thanks ${first}, we got your ${what}. Our ${r.owner} team will get back to you ${when}.`;
+}
+
 export function previewReply(fields) {
   const i = EQ_EXAMPLES.findIndex((x) => x.message === String(fields.message).trim());
   const base = i >= 0 ? PREVIEW_REPLIES[i] : { need: String(fields.message).trim().slice(0, 60), category: 'Other', urgency: 'Normal', owner: 'Manager', status: 'Needs check', check_reason: 'Sample reply: preview mode doesn’t read your message.' };
@@ -85,13 +98,25 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function mountEnquiryDemo(root) {
-  if (!root) return;
+  if (!root || typeof HTMLDialogElement !== 'function' || typeof root.showModal !== 'function') return;
+  let opener = null;
+  document.querySelectorAll('[data-eq-only]').forEach((el) => { el.hidden = false; });
+  document.querySelectorAll('[data-eq-open]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault(); opener = a;
+    document.documentElement.classList.add('cs-lock');
+    root.showModal();
+    root.querySelector('[data-eq-close]')?.focus();
+  }));
+  root.addEventListener('close', () => { document.documentElement.classList.remove('cs-lock'); opener?.focus({ preventScroll: true }); });
+  root.querySelector('[data-eq-close]')?.addEventListener('click', () => root.close());
+  root.addEventListener('click', (e) => { if (e.target === root) root.close(); });
   const form = root.querySelector('[data-eq-form]');
   const err = root.querySelector('[data-eq-error]');
   const btn = root.querySelector('[data-eq-send]');
   const steps = [...root.querySelectorAll('[data-eq-step]')];
   const rows = root.querySelector('[data-eq-rows]');
   const mail = root.querySelector('[data-eq-mail]');
+  const auto = root.querySelector('[data-eq-reply]');
   const status = root.querySelector('[data-eq-status]');
   if (!form || !btn) return;
 
@@ -118,9 +143,9 @@ export function mountEnquiryDemo(root) {
     if (problem) { err.textContent = problem; form.elements[!fields.name.trim() ? 'name' : 'message']?.focus(); return; }
 
     busy = true; sends += 1; btn.disabled = true; btn.setAttribute('aria-busy', 'true'); err.textContent = '';
-    mail.hidden = true; setStep(1); say('Sending your enquiry…');
+    mail.hidden = true; auto.hidden = true; setStep(1); say('Sending your enquiry…');
     // Phones: the result sits under the form, so bring the steps into view.
-    if (typeof matchMedia === 'function' && matchMedia('(max-width: 900px)').matches) root.querySelector('.eq-result')?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    if (typeof matchMedia === 'function' && matchMedia('(max-width: 52rem)').matches) root.querySelector('.eq-result')?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
     const slow = !reduceMotion();
     const body = { name: fields.name.trim(), email: fields.email.trim(), message: fields.message.trim(), website: fields.website };
     const reply = preview ? (await wait(900), { status: 200, data: previewReply(fields) }) : await send(SITE.enquiryDemoUrl, body);
@@ -139,6 +164,8 @@ export function mountEnquiryDemo(root) {
     while (rows.children.length > 4) rows.lastElementChild.remove();
     mail.innerHTML = `<p class="eq-mail-k">Alert sent to ${esc(r.owner)} <span>(in this demo, to me)</span></p><p class="eq-mail-s">${esc(alertSubject(r))}</p>${r.check_reason ? `<p class="eq-mail-c">Please check: ${esc(r.check_reason)}</p>` : ''}`;
     mail.hidden = false;
+    auto.innerHTML = `<p class="eq-mail-k">Auto-reply your customer would get <span>(shown here, not sent)</span></p><p class="eq-mail-r">${esc(autoReply(r))}</p>`;
+    auto.hidden = false;
     say(`Logged. Owner: ${r.owner}. Status: ${r.status}.`);
     busy = false; btn.disabled = false; btn.removeAttribute('aria-busy');
   });

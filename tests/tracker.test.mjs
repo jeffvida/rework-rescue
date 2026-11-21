@@ -13,6 +13,7 @@ import {
 } from '../src/tracker/engine.js';
 import { appHtml, attentionItems, reportChecks, reportHtml, STAGES } from '../src/tracker/ui.js';
 import { dataChecks } from '../src/demo/hero.js';
+const noDemo = (h) => { const a = h.indexOf('<dialog class="cs eq-dlg rp-dlg"'); if (a < 0) return h; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, /replayed here with fictional data/, 'sample amounts only inside the labelled demo'); return h.replace(d, ''); };
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
 const section = async () => { const h = await page(); return h.slice(h.indexOf('id="samples"'), h.indexOf('id="services"')); };
@@ -220,6 +221,6 @@ test('workbook: kept in the repo but linked from no page; the tracker code sends
 
 test('services: no pricing, testimonials or invented results added', async () => {
   const html = await page();
-  const sec = html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'));
+  const sec = noDemo(html.slice(html.indexOf('id="services"'), html.indexOf('id="how"'))); // demo amounts are fictional samples
   assert.doesNotMatch(sec, /[$₱€£]\s?\d|testimonial|saved \d|% faster|guarantee/i);
 });

@@ -230,7 +230,7 @@
       <div class="container">
         <p class="eyebrow">Demos &amp; examples</p>
         <h2 id="built-h">See it working on this page.</h2>
-          <ul class="built-cards built-cards-2 built-cards-3">
+          <ul class="built-cards built-cards-2 built-cards-3 built-cards-4">
             <li class="built-card">
               <p class="built-k">Automation</p>
               <h3>The booking calendar</h3>
@@ -277,6 +277,22 @@
               <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
               <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
               <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send an enquiry <span aria-hidden="true">&rarr;</span></a></p>
+            </li>
+            <li class="built-card built-card-ai">
+              <p class="built-k">Data + AI</p>
+              <h3>The self-checking weekly report</h3>
+              <dl class="built-psg"><div><dt>Problem</dt><dd>Enquiries, jobs and invoices sit in separate sheets, so unbilled work and late payments slip through.</dd></div><div><dt>Solution</dt><dd>The sheets are checked against each other every morning. On Monday the owner gets a one-minute summary.</dd></div><div><dt>You get</dt><dd>Money to follow up, a daily list for the team, and a warning when the figures can&rsquo;t be trusted.</dd></div></dl>
+              <details class="fold built-more"><summary>See the 4 steps</summary>
+              <ol class="built-steps">
+                <li>Reads enquiries, jobs and invoices every weekday morning.</li>
+                <li>Checks them against each other: unbilled work, late payments, jobs with no owner.</li>
+                <li>Updates the team&rsquo;s list and keeps what they&rsquo;ve marked done.</li>
+                <li>On Monday, AI writes a two-sentence overview, every number is checked, and the owner gets the email.</li>
+              </ol>
+              </details>
+              <p class="built-safe"><strong>If the figures can&rsquo;t be trusted:</strong> the email says so at the top, before any numbers.</p>
+              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
+              <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">See what it found <span aria-hidden="true">&rarr;</span></a></p>
             </li>
           </ul>
         <dialog class="cs eq-dlg" id="enquiry-demo" aria-labelledby="eq-h">
@@ -343,6 +359,51 @@
               <li>It all runs in your own accounts, so you stay in control.</li>
             </ul>
           </details>
+            </div>
+          </div>
+        </dialog>
+        <dialog class="cs eq-dlg rp-dlg" id="report-demo" aria-labelledby="rp-h">
+          <div class="cs-sheet">
+            <header class="cs-head">
+              <p class="cs-k">Demo &middot; Data + AI</p>
+              <h3 class="cs-title" id="rp-h">The self-checking weekly report</h3>
+              <button type="button" class="cs-close" data-rp-close aria-label="Close">&times;</button>
+              <p class="eq-what">One week at <strong>CoolFix Aircon</strong>, a made-up business with its enquiries, jobs and invoices in Google Sheets.</p>
+            </header>
+            <div class="cs-body rp-body">
+              <p class="rp-found"><strong>Found in one week:</strong> <span>$640 of work never invoiced</span> <span>$420 overdue for 10 days</span> <span>1 urgent customer waiting</span></p>
+              <div class="rp-tabs" role="tablist" aria-label="What the report produces">
+                <button type="button" role="tab" id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday email <small>for the owner</small></button>
+                <button type="button" role="tab" id="rp-t2" aria-controls="rp-p2" aria-selected="false" tabindex="-1">Team&rsquo;s list <small>updated every morning</small></button>
+              </div>
+              <div class="rp-panel" role="tabpanel" id="rp-p1" aria-labelledby="rp-t1" tabindex="0">
+                <div class="rp-mail" data-rp-mail></div>
+                <p class="rp-next"><button type="button" class="link-button" data-rp-goto="1">See the team&rsquo;s list &rarr;</button></p>
+              </div>
+              <div class="rp-panel" role="tabpanel" id="rp-p2" aria-labelledby="rp-t2" tabindex="0" hidden>
+                <div class="rp-try">
+                  <p><strong>Try it:</strong> on Tuesday the team marked 2 items done. Only one was really fixed. See what the next morning&rsquo;s check finds.</p>
+                  <button type="button" class="btn btn-primary" data-rp-run>Run Wednesday&rsquo;s check</button>
+                </div>
+                <p class="rp-result" data-rp-result hidden>The check doesn&rsquo;t take &ldquo;done&rdquo; on trust. <strong>J-504</strong> is confirmed, because the invoice is now in the sheet. <strong>INV-2200</strong> is back as <strong>Still found</strong>, because no payment is recorded.</p>
+                <div class="rp-filter" data-rp-filter role="group" aria-label="Show items for"></div>
+                <div class="eq-scroll">
+                  <table class="dash-table rp-list"><thead><tr><th scope="col">Item</th><th scope="col">What to do</th><th scope="col">Owner</th><th scope="col">Status</th></tr></thead><tbody data-rp-rows></tbody></table>
+                </div>
+                <p class="sr-only" data-rp-status aria-live="polite"></p>
+              </div>
+              <details class="fold eq-real">
+                <summary>How it checks</summary>
+                <ul>
+                  <li>Every weekday at 7 am it reads three sheets: enquiries, jobs and invoices.</li>
+                  <li>It checks them against each other: work done but not invoiced, invoices overdue, sent twice or different from the quote, bookings with no job, jobs with no technician, urgent customers with no reply.</li>
+                  <li>Rows with bad dates or duplicates are left out of the totals and listed, so the numbers stay honest.</li>
+                  <li>If the counts don&rsquo;t add up, the email says &ldquo;check before relying on these figures&rdquo; at the top.</li>
+                  <li>AI only writes the two-sentence overview. Every number in it is checked against the data, or a plain sentence is used instead.</li>
+                  <li>Works with Google Sheets, Excel, or exports from your job and accounting apps.</li>
+                </ul>
+              </details>
+              <p class="eq-small rp-small">A real n8n build, replayed here with fictional data. Nothing is sent.</p>
             </div>
           </div>
         </dialog>

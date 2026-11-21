@@ -102,3 +102,6 @@ mountCaseStudies(document.querySelector('#built .rr-results'));
 // 21 Nov 2026 (build #1): the enquiry tracker demo in Demos & examples (src/enquiry-demo.js).
 import { mountEnquiryDemo } from './enquiry-demo.js';
 mountEnquiryDemo(document.getElementById('enquiry-demo'));
+// 21 Nov 2026 (build #2): the self-checking weekly report demo, a replay with fictional data (src/report-demo.js).
+import { mountReportDemo } from './report-demo.js';
+mountReportDemo(document.getElementById('report-demo'));

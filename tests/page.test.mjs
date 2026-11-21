@@ -8,6 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+const noDemo = (h) => { const a = h.indexOf('<dialog class="cs eq-dlg rp-dlg"'); if (a < 0) return h; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, /replayed here with fictional data/, 'sample amounts only inside the labelled demo'); return h.replace(d, ''); };
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 const page = () => read('../index.html');
@@ -187,8 +188,8 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const sec = section(html, 'built', 'how');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   assert.match(sec, /<p class="eyebrow">Demos &amp; examples<\/p>\s*<h2 id="built-h">See it working on this page\.<\/h2>/);
-  assert.equal((sec.match(/<li class="built-card( built-card-ai)?">/g) || []).length, 3, 'booking, chat and (21 Nov) the enquiry tracker');
-  for (const t of ['The booking calendar', 'The chat assistant', 'The enquiry tracker']) assert.ok(sec.includes(`<h3>${t}</h3>`), t);
+  assert.equal((sec.match(/<li class="built-card( built-card-ai)?">/g) || []).length, 4, 'booking, chat, (21 Nov) the enquiry tracker and the weekly report');
+  for (const t of ['The booking calendar', 'The chat assistant', 'The enquiry tracker', 'The self-checking weekly report']) assert.ok(sec.includes(`<h3>${t}</h3>`), t);
   assert.match(sec, /I built these for my own site\. They aren&rsquo;t client projects\./);
   assert.match(sec, /<p class="rr-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);
   assert.doesNotMatch(sec.match(/<p class="rr-tools">[\s\S]*?<\/p>/)[0], /Excel|Power Query|Python|Power BI/, 'main strip stays AI and automation');
@@ -293,7 +294,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
 
 test('guard rails: no prices, testimonials or invented results; first person; one button wording ("Book a free process review" on every booking button, 19 Nov); only confirmed tools', async () => {
   const html = await page();
-  const visible = visibleText(html);
+  const visible = visibleText(noDemo(html)); // the weekly report demo shows fictional sample amounts, not prices
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
   assert.doesNotMatch(visible, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
   assert.doesNotMatch(visible, /years (of experience )?in AI|AI (automation )?agency|AI expert|Zapier|GoHighLevel|\bGHL\b|Make\.com/i);

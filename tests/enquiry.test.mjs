@@ -24,7 +24,8 @@ test('page: a third card in Demos & examples opens the demo in a pop-up panel, s
   assert.equal((demo.match(/data-eq-step/g) || []).length, 5);
   assert.match(demo, /data-eq-reply hidden/, 'customer auto-reply preview');
   assert.match(demo, /Nothing is emailed to you\./);
-  assert.match(demo, /In a real business, it starts from your inbox, checked every few minutes\./);
+  assert.match(demo, /<summary>Want this for your own emails\?<\/summary>/, 'plain-words fold on how it works with real email (21 Nov)');
+  assert.match(demo, /It checks for new emails every few minutes\./);
   assert.match(demo, /href="privacy\/#enquiry-demo"/);
   assert.match(demo, /made-up business/);
   const js = await read('../src/home.js');

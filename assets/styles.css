@@ -5478,3 +5478,8 @@ dialog.cs.eq-dlg, dialog.cs.eq-dlg:not([open]) { width: min(62rem, calc(100vw - 
   .eq-table tr:not([data-status="Needs check"]) .eq-c-why { display: none; }
 }
 .eq-dlg .cs-body { position: relative; } /* keeps hidden helper elements (spam trap, screen-reader status) inside the scrolling area */
+/* 21 Nov: "Want this for your own emails?" fold at the end of the enquiry pop-up */
+.eq-real { margin: 1.1rem 0 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 0 0.9rem; }
+.eq-real > summary { padding: 0.75rem 0; font-weight: 600; cursor: pointer; }
+.eq-real ul { margin: 0 0 0.8rem; padding-left: 1.2rem; display: grid; gap: 0.3rem; font-size: 0.92rem; }
+.eq-real li { margin: 0; }

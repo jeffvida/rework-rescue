@@ -42,11 +42,14 @@ test('page: fourth card opens a dialog that opens on the result, with two tabs a
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
   assert.match(sec, /<ul class="built-cards built-cards-2 built-cards-3 built-cards-4">/, 'two by two on desktop');
   assert.match(sec, /<h3>The self-checking weekly report<\/h3>/);
-  assert.match(sec, /<p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">See what it found/);
+  assert.match(sec, /<p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see what it found/);
   const d = sec.slice(sec.indexOf('<dialog class="cs eq-dlg rp-dlg" id="report-demo"'), sec.indexOf('</dialog>', sec.indexOf('id="report-demo"')));
   assert.ok(d.length > 100);
   assert.ok(d.indexOf('rp-found') < d.indexOf('role="tablist"'), 'money found comes before anything else');
   assert.equal((d.match(/role="tab"/g) || []).length, 2);
+  assert.ok(d.indexOf('rp-auto') < d.indexOf('role="tablist"'), 'what runs by itself is shown before the tabs');
+  assert.match(d, /Runs by itself\. Nobody presses a button\./);
+  assert.match(sec, /<p class="built-k">Automation \+ AI<\/p>\s*<h3>The self-checking weekly report/);
   assert.match(d, /id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday email/);
   assert.match(d, /<summary>How it checks<\/summary>/);
   assert.match(d, /Works with Google Sheets, Excel, or exports from your job and accounting apps\./);

@@ -63,8 +63,8 @@ export function rpEmailHtml() {
 <p class="rp-overview">${esc(RP_OVERVIEW)} <span class="rp-ai">AI-written, numbers checked</span></p>
 <p class="rp-mail-h">Do first</p>
 <ol class="rp-first">${first}</ol>
-<p class="rp-mail-h">Also needs action (${rest.length})</p>
-<table class="rp-more">${more}</table>
+<details class="rp-more-fold"><summary>Also needs action (${rest.length})</summary>
+<table class="rp-more">${more}</table></details>
 <p class="rp-mail-small">Left out of totals: E-1046 (date written as &ldquo;yesterday&rdquo;); INV-2206 (second invoice for the same job).</p>
 </div>`;
 }

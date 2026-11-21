@@ -92,7 +92,7 @@ test('tracker: looks like the real sheet (all useful columns), with a summary of
   const h = await read('../index.html');
   const demo = h.slice(h.indexOf('id="enquiry-demo"'), h.indexOf('</dialog>'));
   for (const c of ['Received', 'Name', 'Company', 'Need', 'Category', 'Urgency', 'Owner', 'Status', 'Check reason']) assert.ok(demo.includes(`<th scope="col">${c}</th>`), c);
-  assert.equal((demo.match(/<tr data-status="/g) || []).length, 3, 'three made-up rows to start: Contacted, Won, Needs check');
+  assert.equal((demo.match(/<tr data-status="/g) || []).length, 3, 'three made-up rows to start: Contacted, Booked, Needs check');
   assert.match(demo, /data-eq-sum/);
-  assert.deepEqual(countStatuses(['New', 'Contacted', 'Won', 'Needs check', 'New']).map((c) => c.n), [2, 1, 1, 1]);
+  assert.deepEqual(countStatuses(['New', 'Contacted', 'Booked', 'Needs check', 'New', 'Closed']).map((c) => c.n), [2, 1, 1, 1, 1]);
 });

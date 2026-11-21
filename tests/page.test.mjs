@@ -190,7 +190,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.match(sec, /<p class="eyebrow">Demos &amp; examples<\/p>\s*<h2 id="built-h">See it working on this page\.<\/h2>/);
   assert.equal((sec.match(/<li class="built-card( built-card-ai)?">/g) || []).length, 4, 'booking, chat, (21 Nov) the enquiry tracker and the weekly report');
   for (const t of ['The booking calendar', 'The chat assistant', 'The enquiry tracker', 'The self-checking weekly report']) assert.ok(sec.includes(`<h3>${t}</h3>`), t);
-  assert.match(sec, /<h2 id="built-h">See it working on this page\.<\/h2>\s*<p class="built-intro">All four are my own builds, not client projects\.<\/p>/, '21 Nov: one honest line up top');
+  assert.match(sec, /<h2 id="built-h">See it working on this page\.<\/h2>\s*<p class="built-intro">Built and run by me\. Try them: they&rsquo;re real workflows, not client projects\.<\/p>/, '21 Nov: one honest line up top');
   assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');
   assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 2, 'enquiry and report are demos');
   assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per card, inside the steps fold');

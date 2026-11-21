@@ -5440,3 +5440,12 @@ dialog.cs.eq-dlg, dialog.cs.eq-dlg:not([open]) { width: min(62rem, calc(100vw - 
   .eq-sheet .eq-c-owner::before { content: "Owner: "; }
 }
 @media (prefers-reduced-motion: reduce) { .eq-new td, .eq-steps li, .eq-steps li::before { animation: none; transition: none; } }
+/* 21 Nov: each demo card says the problem, the solution and what you get */
+.built-psg { margin: 0.2rem 0 0.8rem; display: grid; gap: 0.45rem; }
+.built-psg > div { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: 0.5rem; align-items: baseline; }
+.built-psg dt { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.built-psg dd { margin: 0; font-size: 0.95rem; line-height: 1.45; color: var(--ink); }
+.built-psg > div:last-child dd { font-weight: 600; }
+.eq-psg { margin: 0.6rem 2.8rem 0 0; }
+@media (max-width: 40rem) { .eq-psg { margin-right: 0; } .eq-psg dd { font-size: 0.88rem; } }
+.cs-body > p.eq-note { margin: 1rem 0 0; font-size: 0.9rem; color: var(--muted); }

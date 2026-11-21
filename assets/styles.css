@@ -5458,7 +5458,7 @@ dialog.cs.eq-dlg, dialog.cs.eq-dlg:not([open]) { width: min(62rem, calc(100vw - 
 .eq-table .eq-c-name { font-weight: 600; white-space: nowrap; }
 .eq-table .eq-c-need { min-width: 12rem; }
 .eq-table .eq-c-why { min-width: 10rem; color: var(--muted); }
-.pill.pill-won { background: #e6effa; color: #1d4b7a; border-color: #b9d0ea; }
+.pill.pill-booked { background: #e6effa; color: #1d4b7a; border-color: #b9d0ea; }
 @media (max-width: 40rem) {
   .eq-table { min-width: 0; }
   .eq-table thead { display: none; }

@@ -94,7 +94,7 @@ async function send(url, body) {
   }
 }
 
-const STATUSES = [['New', 'New'], ['Needs check', 'Needs check'], ['Contacted', 'Contacted'], ['Won', 'Won']];
+const STATUSES = [['New', 'New'], ['Needs check', 'Needs check'], ['Contacted', 'Contacted'], ['Booked', 'Booked'], ['Closed', 'Closed']];
 /** Counts per status, for the "what's waiting" strip above the tracker. */
 export function countStatuses(list) {
   return STATUSES.map(([k, label]) => ({ label, n: list.filter((x) => x === k).length }));

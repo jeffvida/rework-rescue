@@ -49,7 +49,7 @@ test('page: fourth card opens a dialog that opens on the result, with two tabs a
   assert.equal((d.match(/role="tab"/g) || []).length, 2);
   assert.ok(d.indexOf('rp-auto') < d.indexOf('role="tablist"'), 'what runs by itself is shown before the tabs');
   assert.match(d, /Runs by itself\. Nobody presses a button\./);
-  assert.match(sec, /<p class="built-k">Automation \+ AI<\/p>\s*<h3>The self-checking weekly report/);
+  assert.match(sec, /<p class="built-k">AI \+ automation<\/p><p class="built-status">Demo &middot; fictional business<\/p><\/div>\s*<h3>The self-checking weekly report/);
   assert.match(d, /id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday email/);
   assert.match(d, /<summary>How it checks<\/summary>/);
   assert.match(d, /Works with Google Sheets, Excel, or exports from your job and accounting apps\./);

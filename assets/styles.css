@@ -5559,3 +5559,14 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .rp-more-fold > summary { cursor: pointer; font-weight: 800; padding: 0.55rem 0 0.3rem; color: var(--teal-dark); }
 .rp-flow li { border-radius: 10px; }
 @media (max-width: 40rem) { .rp-flow { flex-direction: column; align-items: flex-start; gap: 0.25rem; } .rp-flow li { display: flex; background: none; padding: 0; } }
+
+/* 21 Nov: status chips, intro line and workflow screenshots in Demos & examples */
+.built-intro { margin: -0.4rem 0 1.2rem; color: var(--muted); }
+.built-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.4rem; }
+.built-tags .built-k { margin: 0; }
+.built-status { margin: 0; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.55rem; border: 1px solid var(--line); border-radius: 999px; font-size: 0.8125rem; color: var(--muted); }
+.built-status-live { color: var(--teal-text); border-color: var(--teal-chip); }
+.built-status-live::before { content: ""; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--teal); }
+.built-shot { margin: 0.4rem 0 0.6rem; }
+.built-shot img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; cursor: zoom-in; }
+.built-shot figcaption { margin-top: 0.35rem; font-size: 0.85rem; color: var(--muted); }

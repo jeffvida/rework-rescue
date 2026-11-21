@@ -32,9 +32,9 @@ export const EQ_EXAMPLES = [
 
 // Sample replies for preview mode (same shape as the workflow's reply).
 const PREVIEW_REPLIES = [
-  { need: 'Quote for cleaning 3 aircon units next Tuesday morning', category: 'Quote', urgency: 'Normal', owner: 'Sales', status: 'New', check_reason: '' },
-  { need: 'Unit leaking again after yesterday’s repair, call today', category: 'Complaint', urgency: 'High', owner: 'Manager', status: 'New', check_reason: '' },
-  { need: 'Asks if something is available, not clear what', category: 'Other', urgency: 'Normal', owner: 'Manager', status: 'Needs check', check_reason: 'Not clear what they’re asking about.' },
+  { company: 'Lopez Dental', need: 'Quote for cleaning 3 aircon units next Tuesday morning', category: 'Quote', urgency: 'Normal', owner: 'Sales', status: 'New', check_reason: '' },
+  { company: 'Ortiz Cafe', need: 'Unit leaking again after yesterday’s repair, call today', category: 'Complaint', urgency: 'High', owner: 'Manager', status: 'New', check_reason: '' },
+  { company: '', need: 'Asks if something is available, not clear what', category: 'Other', urgency: 'Normal', owner: 'Manager', status: 'Needs check', check_reason: 'Not clear what they’re asking about.' },
 ];
 
 /** The same checks the workflow runs. Returns '' when the enquiry can be sent, otherwise the message to show. */
@@ -52,7 +52,7 @@ export function readReply(data) {
   if (!data || data.ok !== true) return null;
   const s = (v, max = 160) => String(v ?? '').slice(0, max);
   const status = data.status === 'New' ? 'New' : 'Needs check';
-  return { name: s(data.name, 100), need: s(data.need) || 'See message', category: s(data.category, 20) || 'Other', urgency: data.urgency === 'High' ? 'High' : 'Normal', owner: s(data.owner, 30) || 'Manager', status, check_reason: s(data.check_reason) };
+  return { name: s(data.name, 100), company: s(data.company, 100), need: s(data.need) || 'See message', category: s(data.category, 20) || 'Other', urgency: data.urgency === 'High' ? 'High' : 'Normal', owner: s(data.owner, 30) || 'Manager', status, check_reason: s(data.check_reason) };
 }
 
 /** The subject line of the owner's alert, as the workflow writes it. */
@@ -72,7 +72,7 @@ export function autoReply(r) {
 
 export function previewReply(fields) {
   const i = EQ_EXAMPLES.findIndex((x) => x.message === String(fields.message).trim());
-  const base = i >= 0 ? PREVIEW_REPLIES[i] : { need: String(fields.message).trim().slice(0, 60), category: 'Other', urgency: 'Normal', owner: 'Manager', status: 'Needs check', check_reason: 'Sample reply: preview mode doesn’t read your message.' };
+  const base = i >= 0 ? PREVIEW_REPLIES[i] : { company: '', need: String(fields.message).trim().slice(0, 60), category: 'Other', urgency: 'Normal', owner: 'Manager', status: 'Needs check', check_reason: 'Sample reply: preview mode doesn’t read your message.' };
   return { ok: true, name: String(fields.name).trim(), ...base };
 }
 
@@ -92,6 +92,18 @@ async function send(url, body) {
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+const STATUSES = [['New', 'New'], ['Needs check', 'Needs check'], ['Contacted', 'Contacted'], ['Won', 'Won']];
+/** Counts per status, for the "what's waiting" strip above the tracker. */
+export function countStatuses(list) {
+  return STATUSES.map(([k, label]) => ({ label, n: list.filter((x) => x === k).length }));
+}
+/** Received time as the tracker shows it, in the visitor's own time, e.g. "Sat 21 Nov, 9:50 am". */
+export function whenLabel(d = new Date()) {
+  const day = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).replace(',', '');
+  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(/\s/g, ' ');
+  return `${day}, ${time}`;
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -131,6 +143,13 @@ export function mountEnquiryDemo(root) {
   }));
   form.addEventListener('input', () => { err.textContent = ''; });
 
+  const sum = root.querySelector('[data-eq-sum]');
+  const drawSum = () => {
+    if (!sum) return;
+    const counts = countStatuses([...rows.children].map((tr) => tr.dataset.status));
+    sum.innerHTML = counts.map((c) => `<li class="eq-sum-${c.label.toLowerCase().replace(' ', '-')}"><strong>${c.n}</strong> ${esc(c.label)}</li>`).join('');
+  };
+  drawSum();
   const setStep = (n) => steps.forEach((s, i) => { s.classList.toggle('is-done', i < n); s.classList.toggle('is-on', i === n); });
   const say = (t) => { if (status) status.textContent = t; };
 
@@ -160,8 +179,10 @@ export function mountEnquiryDemo(root) {
     for (let i = 2; i <= steps.length; i += 1) { if (slow) await wait(380); setStep(i); }
 
     const pill = r.status === 'New' ? '<span class="pill pill-ok">New</span>' : '<span class="pill pill-amber">Needs check</span>';
-    rows.insertAdjacentHTML('afterbegin', `<tr class="eq-new"><td class="eq-c-name">${esc(r.name)}</td><td class="eq-c-need">${esc(r.need)}${r.urgency === 'High' ? ' <span class="eq-urgent">Urgent</span>' : ''}</td><td class="eq-c-owner">${esc(r.owner)}</td><td class="eq-c-status">${pill}</td></tr>`);
-    while (rows.children.length > 4) rows.lastElementChild.remove();
+    const dash = '&ndash;';
+    rows.insertAdjacentHTML('afterbegin', `<tr class="eq-new" data-status="${r.status}"><td class="eq-c-when">${esc(whenLabel())}</td><td class="eq-c-name">${esc(r.name)}</td><td class="eq-c-co">${r.company ? esc(r.company) : dash}</td><td class="eq-c-need">${esc(r.need)}</td><td class="eq-c-cat">${esc(r.category)}</td><td class="eq-c-urg">${r.urgency === 'High' ? '<span class="eq-urgent">High</span>' : 'Normal'}</td><td class="eq-c-owner">${esc(r.owner)}</td><td class="eq-c-status">${pill}</td><td class="eq-c-why">${r.check_reason ? esc(r.check_reason) : dash}</td></tr>`);
+    while (rows.children.length > 8) rows.lastElementChild.remove();
+    drawSum();
     mail.innerHTML = `<p class="eq-mail-k">Alert sent to ${esc(r.owner)} <span>(in this demo, to me)</span></p><p class="eq-mail-s">${esc(alertSubject(r))}</p>${r.check_reason ? `<p class="eq-mail-c">Please check: ${esc(r.check_reason)}</p>` : ''}`;
     mail.hidden = false;
     auto.innerHTML = `<p class="eq-mail-k">Auto-reply your customer would get <span>(shown here, not sent)</span></p><p class="eq-mail-r">${esc(autoReply(r))}</p>`;

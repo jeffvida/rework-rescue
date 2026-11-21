@@ -316,14 +316,19 @@
                 <li data-eq-step>Logged in the tracker</li>
                 <li data-eq-step>Owner alerted</li>
               </ol>
-              <div class="eq-sheet">
-                <p class="eq-sheet-h">Enquiry tracker</p>
-                <table class="dash-table"><thead><tr><th scope="col">Name</th><th scope="col">Need</th><th scope="col">Owner</th><th scope="col">Status</th></tr></thead>
-                  <tbody data-eq-rows><tr><td class="eq-c-name">Tom Reyes</td><td class="eq-c-need">Service booking for next Monday</td><td class="eq-c-owner">Scheduling</td><td class="eq-c-status"><span class="pill">Contacted</span></td></tr></tbody></table>
-              </div>
               <div class="eq-mail" data-eq-mail hidden></div>
               <div class="eq-mail eq-reply" data-eq-reply hidden></div>
               <p class="sr-only" data-eq-status aria-live="polite"></p>
+            </div>
+          </div>
+          <div class="eq-sheet">
+            <div class="eq-sheet-top">
+              <p class="eq-sheet-h">Enquiry tracker <span>Google Sheets &middot; Enquiries</span></p>
+              <ul class="eq-sum" data-eq-sum aria-label="Enquiries by status"></ul>
+            </div>
+            <div class="eq-scroll">
+            <table class="dash-table eq-table"><thead><tr><th scope="col">Received</th><th scope="col">Name</th><th scope="col">Company</th><th scope="col">Need</th><th scope="col">Category</th><th scope="col">Urgency</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Check reason</th></tr></thead>
+              <tbody data-eq-rows><tr data-status="Contacted"><td class="eq-c-when">Fri 20 Nov, 4:12 pm</td><td class="eq-c-name">Tom Reyes</td><td class="eq-c-co">Reyes Bakery</td><td class="eq-c-need">Service booking for next Monday</td><td class="eq-c-cat">Booking</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Scheduling</td><td class="eq-c-status"><span class="pill">Contacted</span></td><td class="eq-c-why">&ndash;</td></tr><tr data-status="Won"><td class="eq-c-when">Fri 20 Nov, 2:40 pm</td><td class="eq-c-name">Liza Tan</td><td class="eq-c-co">Harbour Gym</td><td class="eq-c-need">Quote for yearly servicing of 6 units</td><td class="eq-c-cat">Quote</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Sales</td><td class="eq-c-status"><span class="pill pill-won">Won</span></td><td class="eq-c-why">&ndash;</td></tr><tr data-status="Needs check"><td class="eq-c-when">Fri 20 Nov, 11:05 am</td><td class="eq-c-name">Mark Diaz</td><td class="eq-c-co">&ndash;</td><td class="eq-c-need">Asks for &ldquo;the usual&rdquo;, not clear which service</td><td class="eq-c-cat">Other</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Manager</td><td class="eq-c-status"><span class="pill pill-amber">Needs check</span></td><td class="eq-c-why">Not clear which service they mean.</td></tr></tbody></table>
             </div>
           </div>
           <p class="eq-note">Here your enquiry comes from this form. In a real business, it starts from your inbox, checked every few minutes.</p>

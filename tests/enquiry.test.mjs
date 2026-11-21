@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { checkEnquiry, readReply, alertSubject, previewReply, autoReply, EQ_EXAMPLES, EQ_TEXT } from '../src/enquiry-demo.js';
+import { checkEnquiry, readReply, alertSubject, previewReply, autoReply, countStatuses, EQ_EXAMPLES, EQ_TEXT } from '../src/enquiry-demo.js';
 import { SITE } from '../site-config.js';
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
@@ -58,7 +58,7 @@ test('checks: same rules as the workflow (spam trap, name, email, message length
 
 test('reply: only known fields reach the page; unknown status reads as Needs check; ok must be true', () => {
   const r = readReply({ ok: true, name: 'Test Visitor', need: 'Quote to clean 1 aircon unit this week', category: 'Quote', urgency: 'Normal', owner: 'Sales', status: 'New', check_reason: '', extra: '<script>' });
-  assert.deepEqual(r, { name: 'Test Visitor', need: 'Quote to clean 1 aircon unit this week', category: 'Quote', urgency: 'Normal', owner: 'Sales', status: 'New', check_reason: '' });
+  assert.deepEqual(r, { name: 'Test Visitor', company: '', need: 'Quote to clean 1 aircon unit this week', category: 'Quote', urgency: 'Normal', owner: 'Sales', status: 'New', check_reason: '' });
   assert.equal(readReply({ ok: false, error: 'x' }), null);
   assert.equal(readReply(null), null);
   assert.equal(readReply({ ok: true, name: 'A', status: 'Done?' }).status, 'Needs check');
@@ -85,4 +85,13 @@ test('privacy: the demo is explained (Gemini free tier, demo sheet, nothing sent
   assert.match(sec, /Gemini&rsquo;s free service/);
   assert.match(sec, /Nothing is sent to the email address you enter\./);
   assert.match(p, /the enquiry tracker demo&rsquo;s service when you send an enquiry/);
+});
+
+test('tracker: looks like the real sheet (all useful columns), with a summary of what is waiting', async () => {
+  const h = await read('../index.html');
+  const demo = h.slice(h.indexOf('id="enquiry-demo"'), h.indexOf('</dialog>'));
+  for (const c of ['Received', 'Name', 'Company', 'Need', 'Category', 'Urgency', 'Owner', 'Status', 'Check reason']) assert.ok(demo.includes(`<th scope="col">${c}</th>`), c);
+  assert.equal((demo.match(/<tr data-status="/g) || []).length, 3, 'three made-up rows to start: Contacted, Won, Needs check');
+  assert.match(demo, /data-eq-sum/);
+  assert.deepEqual(countStatuses(['New', 'Contacted', 'Won', 'Needs check', 'New']).map((c) => c.n), [2, 1, 1, 1]);
 });

@@ -5398,7 +5398,8 @@ dialog.cs.eq-dlg, dialog.cs.eq-dlg:not([open]) { width: min(62rem, calc(100vw - 
 .eq-chip { font: inherit; font-size: 0.875rem; min-height: 40px; padding: 0.35rem 0.85rem; border: 1.5px solid var(--ai-line); border-radius: 999px; background: var(--ai-tint); color: var(--ai-dark); cursor: pointer; }
 .eq-chip:hover { border-color: var(--ai); }
 .eq-chip:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.eq-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.eq-form { position: relative; }
+.eq-trap { position: absolute; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none; }
 .eq-error { margin: 0.3rem 0 0; color: var(--error); font-size: 0.9rem; font-weight: 600; }
 .eq-error:empty { display: none; }
 .eq-send { margin-top: 0.5rem; align-self: flex-start; min-height: 44px; }
@@ -5428,17 +5429,7 @@ dialog.cs.eq-dlg, dialog.cs.eq-dlg:not([open]) { width: min(62rem, calc(100vw - 
 .eq-mail-r { margin-top: 0.15rem !important; font-size: 0.92rem; }
 .eq-note { margin: 1rem 0 0; font-size: 0.9rem; color: var(--muted); }
 @media (max-width: 52rem) { .eq-grid { grid-template-columns: 1fr; } }
-@media (max-width: 40rem) {
-  .eq-dlg .cs-head .eq-what { font-size: 0.88rem; }
-  .eq-sheet thead { display: none; }
-  .eq-sheet tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.15rem 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
-  .eq-sheet tbody td { display: block; padding: 0; border: 0; }
-  .eq-sheet .eq-c-name { font-weight: 700; }
-  .eq-sheet .eq-c-status { grid-column: 2; grid-row: 1; text-align: right; }
-  .eq-sheet .eq-c-need { grid-column: 1 / -1; }
-  .eq-sheet .eq-c-owner { grid-column: 1 / -1; font-size: 0.82rem; color: var(--muted); }
-  .eq-sheet .eq-c-owner::before { content: "Owner: "; }
-}
+@media (max-width: 40rem) { .eq-dlg .cs-head .eq-what { font-size: 0.88rem; } }
 @media (prefers-reduced-motion: reduce) { .eq-new td, .eq-steps li, .eq-steps li::before { animation: none; transition: none; } }
 /* 21 Nov: each demo card says the problem, the solution and what you get */
 .built-psg { margin: 0.2rem 0 0.8rem; display: grid; gap: 0.45rem; }
@@ -5449,3 +5440,41 @@ dialog.cs.eq-dlg, dialog.cs.eq-dlg:not([open]) { width: min(62rem, calc(100vw - 
 .eq-psg { margin: 0.6rem 2.8rem 0 0; }
 @media (max-width: 40rem) { .eq-psg { margin-right: 0; } .eq-psg dd { font-size: 0.88rem; } }
 .cs-body > p.eq-note { margin: 1rem 0 0; font-size: 0.9rem; color: var(--muted); }
+/* 21 Nov: the tracker looks like the real sheet (full width, status summary, all useful columns) */
+.eq-dlg .eq-sheet { margin-top: 1.2rem; padding: 0.8rem 0.9rem; }
+.eq-sheet-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; margin-bottom: 0.5rem; }
+.eq-sheet-h { margin: 0; font-weight: 700; font-size: 0.95rem; }
+.eq-sheet-h span { margin-left: 0.4rem; font-weight: 400; font-size: 0.8rem; color: var(--muted); }
+.eq-sum { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.eq-sum li { margin: 0; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.8rem; background: var(--paper); border: 1px solid var(--line); color: var(--muted); }
+.eq-sum li strong { color: var(--ink); }
+.eq-sum .eq-sum-new { background: #dcede9; border-color: #a9d0c8; color: #17564b; }
+.eq-sum .eq-sum-needs-check { background: var(--warn-bg); border-color: var(--warn-line); color: #7a5410; }
+.eq-sum .eq-sum-new strong, .eq-sum .eq-sum-needs-check strong { color: inherit; }
+.eq-scroll { overflow-x: auto; }
+.eq-table { min-width: 52rem; }
+.eq-table th, .eq-table td { font-size: 0.84rem; }
+.eq-table .eq-c-when { white-space: nowrap; color: var(--muted); }
+.eq-table .eq-c-name { font-weight: 600; white-space: nowrap; }
+.eq-table .eq-c-need { min-width: 12rem; }
+.eq-table .eq-c-why { min-width: 10rem; color: var(--muted); }
+.pill.pill-won { background: #e6effa; color: #1d4b7a; border-color: #b9d0ea; }
+@media (max-width: 40rem) {
+  .eq-table { min-width: 0; }
+  .eq-table thead { display: none; }
+  .eq-table tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.15rem 0.6rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line); }
+  .eq-table tbody td { display: block; padding: 0; border: 0; min-width: 0; white-space: normal; }
+  .eq-table .eq-c-when { grid-column: 1 / -1; font-size: 0.75rem; }
+  .eq-table .eq-c-name { grid-column: 1; }
+  .eq-table .eq-c-status { grid-column: 2; grid-row: 2; text-align: right; }
+  .eq-table .eq-c-co { grid-column: 1 / -1; font-size: 0.8rem; color: var(--muted); }
+  .eq-table .eq-c-need { grid-column: 1 / -1; }
+  .eq-table .eq-c-cat { display: none; }
+  .eq-table .eq-c-urg { grid-column: 1 / -1; }
+  .eq-table .eq-c-urg:not(:has(.eq-urgent)) { display: none; }
+  .eq-table .eq-c-owner { grid-column: 1 / -1; font-size: 0.8rem; color: var(--muted); }
+  .eq-table .eq-c-owner::before { content: "Owner: "; }
+  .eq-table .eq-c-why { grid-column: 1 / -1; font-size: 0.8rem; }
+  .eq-table tr:not([data-status="Needs check"]) .eq-c-why { display: none; }
+}
+.eq-dlg .cs-body { position: relative; } /* keeps hidden helper elements (spam trap, screen-reader status) inside the scrolling area */

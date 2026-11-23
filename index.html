@@ -280,10 +280,18 @@
               <p class="built-step"><span class="story-n" aria-hidden="true">3</span> Job done to paid</p>
               <div class="built-tags"><p class="built-k">Automation</p><p class="built-status">Demo &middot; fictional business</p></div>
               <h4>From job done to invoice paid</h4>
-              <dl class="built-psg"><div><dt>Problem</dt><dd>Jobs get finished, but invoices go out late, wrong or not at all.</dd></div><div><dt>What I build</dt><dd>Each completed job is checked and turned into a draft invoice in your accounting software, for approved work only.</dd></div><div><dt>You get</dt><dd><ul class="built-gets"><li>Completed jobs accounted for.</li><li>Unapproved charges flagged before invoicing.</li><li>Outstanding payments kept visible.</li></ul></dd></div></dl>
-              <details class="fold built-more"><summary>See the steps</summary>
+              <dl class="built-psg"><div><dt>Problem</dt><dd>Jobs get finished, but invoices go out late, wrong or not at all.</dd></div><div><dt>Solution</dt><dd>Each completed job is checked and turned into a draft invoice in your accounting software, for approved work only.</dd></div><div><dt>You get</dt><dd>Completed jobs accounted for, unapproved charges flagged before invoicing, and outstanding payments kept visible.</dd></div></dl>
+              <details class="fold built-more"><summary>See the 4 steps</summary>
+              <ol class="built-steps">
+                <li>Checks the technician&rsquo;s form: photos, sign-off and any extras.</li>
+                <li>Prepares a draft invoice in Xero, for approved work only.</li>
+                <li>Puts unapproved extras on the team&rsquo;s list, and records who agreed to what.</li>
+                <li>Reads Xero every morning: payments, overdue invoices and the Monday report.</li>
+              </ol>
               <figure class="built-shot built-shot-todo" data-p3-todo="W1 workflow screenshot"><div class="shot-slot"><p>Workflow screenshot (W1) from the test run</p></div><figcaption>The real n8n workflow, from a test run.</figcaption></figure>
               </details>
+              <p class="built-safe"><strong>If something&rsquo;s missing:</strong> no invoice is prepared, and the right person is told.</p>
+              <p class="built-tools">n8n &middot; Xero &middot; Google Sheets &middot; Google Drive &middot; Gmail</p>
               <p class="built-try" data-jp-only hidden><a href="#jobpaid-demo" data-jp-open aria-haspopup="dialog">Try it: follow Carla&rsquo;s job to paid <span aria-hidden="true">&rarr;</span></a></p>
             </li>
           </ul>
@@ -333,10 +341,14 @@
               <p class="cs-k">Demo &middot; AI + automation</p>
               <h3 class="cs-title" id="eq-h">The enquiry tracker</h3>
               <button type="button" class="cs-close" data-eq-close aria-label="Close">&times;</button>
-              <p class="eq-what">Try it as a customer of <strong>CoolFix Aircon</strong>, a made-up business.</p>
-              <dl class="built-psg eq-psg"><div><dt>Problem</dt><dd>Enquiries sit in the inbox, get copied by hand, and nobody clearly owns them.</dd></div><div><dt>Solution</dt><dd>AI reads each one, a fixed rule picks who handles it, and it&rsquo;s logged.</dd></div><div><dt>You get</dt><dd>Every enquiry in one tracker, with an owner and a status. Unclear ones flagged.</dd></div></dl>
+              <p class="jp-label">CoolFix Aircon &middot; Fictional business &middot; Live demo</p>
             </header>
             <div class="cs-body eq-body">
+          <div class="story-intro">
+            <p class="story-problem">Enquiries sit in the inbox, get copied by hand, and nobody clearly owns them.</p>
+            <p class="story-promise">Every enquiry is logged with an owner and a status. Unclear ones are flagged for a person.</p>
+            <p class="story-carla"><strong>Carla&rsquo;s story:</strong> her aircon is leaking. Her enquiry was booked, but nobody created the job. Try it yourself as a CoolFix customer.</p>
+          </div>
           <div class="eq-grid">
             <form class="eq-form" data-eq-form novalidate>
               <div class="eq-examples" role="group" aria-label="Fill in an example">
@@ -371,7 +383,7 @@
           </div>
           <div class="eq-sheet">
             <div class="eq-sheet-top">
-              <p class="eq-sheet-h">Enquiry tracker <span>Google Sheets &middot; Enquiries</span></p>
+              <p class="eq-sheet-h">Enquiry tracker <span>shared sheet &middot; Enquiries</span></p>
               <ul class="eq-sum" data-eq-sum aria-label="Enquiries by status"></ul>
             </div>
             <div class="eq-scroll">
@@ -380,6 +392,7 @@
             </div>
             <p class="story-note">Carla is booked. But nobody has created her job yet.</p>
           </div>
+          <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="story-next-btn" data-story-go="report-demo">Next: what Monday&rsquo;s check found <span aria-hidden="true">&rarr;</span></button></p>
           <details class="fold eq-real">
             <summary>Want this for your own emails?</summary>
             <ul>
@@ -392,7 +405,6 @@
               <li>It all runs in your own accounts, so you stay in control.</li>
             </ul>
           </details>
-          <p class="story-next"><button type="button" class="story-next-btn" data-story-go="report-demo">Next: what Monday&rsquo;s check found <span aria-hidden="true">&rarr;</span></button></p>
             </div>
           </div>
         </dialog>
@@ -402,10 +414,15 @@
               <p class="cs-k">Demo &middot; AI + automation</p>
               <h3 class="cs-title" id="rp-h">The self-checking weekly report</h3>
               <button type="button" class="cs-close" data-rp-close aria-label="Close">&times;</button>
-              <p class="eq-what">One week at <strong>CoolFix Aircon</strong>, a made-up business with its enquiries, jobs and invoices in Google Sheets.</p>
+              <p class="jp-label">CoolFix Aircon &middot; Fictional business &middot; Week of 16&ndash;22 Nov</p>
             </header>
             <div class="cs-body rp-body">
-              <p class="rp-found"><strong>Found in one week:</strong> <span>$640 of work never invoiced</span> <span>$420 overdue for 10 days</span> <span>1 urgent customer waiting</span></p>
+              <div class="story-intro">
+                <p class="story-problem">Enquiries, jobs and invoices sit in separate sheets, so unbilled work and late payments slip through.</p>
+                <p class="story-promise">Every morning the sheets are checked against each other. On Monday the owner gets a short report.</p>
+                <p class="story-carla"><strong>Carla&rsquo;s story:</strong> this week&rsquo;s check found her booking with no job.</p>
+              </div>
+              <p class="rp-found"><strong>Found in one week:</strong> <span>$640 of work never invoiced</span> <span>$420 overdue for 10 days</span> <span>1 urgent customer waiting</span> <span class="rp-found-story">1 booking with no job (Carla)</span></p>
               <div class="rp-auto">
                 <p class="rp-auto-h">Runs by itself. Nobody presses a button.</p>
                 <ol class="rp-flow">
@@ -418,7 +435,7 @@
                 <p class="rp-auto-diff">It doesn&rsquo;t just add up the sheets. It checks them against each other, checks the AI&rsquo;s numbers, and doesn&rsquo;t take &ldquo;done&rdquo; on trust.</p>
               </div>
               <div class="rp-tabs" role="tablist" aria-label="What the report produces">
-                <button type="button" role="tab" id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday email <small>for the owner</small></button>
+                <button type="button" role="tab" id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday report <small>emailed to the owner</small></button>
                 <button type="button" role="tab" id="rp-t2" aria-controls="rp-p2" aria-selected="false" tabindex="-1">Team&rsquo;s list <small>updated every morning</small></button>
               </div>
               <div class="rp-panel" role="tabpanel" id="rp-p1" aria-labelledby="rp-t1" tabindex="0">
@@ -437,6 +454,8 @@
                 </div>
                 <p class="sr-only" data-rp-status aria-live="polite"></p>
               </div>
+              <p class="story-note">Carla&rsquo;s booking is on the team&rsquo;s list for Scheduling. Next, the office creates her job: J-512.</p>
+              <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="story-next-btn" data-story-go="jobpaid-demo">Next: follow Carla&rsquo;s job to paid <span aria-hidden="true">&rarr;</span></button></p>
               <details class="fold eq-real">
                 <summary>How it checks</summary>
                 <ul>
@@ -448,8 +467,7 @@
                   <li>Works with Google Sheets, Excel, or exports from your job and accounting apps.</li>
                 </ul>
               </details>
-              <p class="eq-small rp-small">A real n8n build, replayed here with fictional data. Nothing is sent.</p>
-              <p class="story-next"><button type="button" class="story-next-btn" data-story-go="jobpaid-demo">Next: follow Carla&rsquo;s job to paid <span aria-hidden="true">&rarr;</span></button></p>
+              <p class="eq-small rp-small">Replayed from a real test run with fictional data. Nothing is sent.</p>
             </div>
           </div>
         </dialog>
@@ -467,9 +485,10 @@
             <div class="cs-body jp-body">
 
               <div class="wt-step" role="group" data-wt-step="1" aria-labelledby="wt-h1">
-                <div class="jp-intro">
-                  <p class="jp-problem">Jobs get finished. But invoices get delayed, amounts go wrong, and some work never gets billed.</p>
-                  <p class="jp-promise">When a job is completed, the invoice is prepared automatically. Your office checks it before sending.</p>
+                <div class="story-intro">
+                  <p class="story-problem">Jobs get finished. But invoices get delayed, amounts go wrong, and some work never gets billed.</p>
+                  <p class="story-promise">When a job is completed, the invoice is prepared automatically. Your office checks it before sending.</p>
+                  <p class="story-carla"><strong>Carla&rsquo;s story:</strong> the office created her job, J-512. Rico does the repair on Tuesday.</p>
                 </div>
                 <p class="wt-k">Step 1 of 5 &middot; Technician &middot; Tue 24 Nov, 4:05pm</p>
                 <h4 class="wt-h" id="wt-h1">The job is done. The details are captured.</h4>
@@ -502,7 +521,7 @@
                   <p class="wt-inv-line" data-wt-path="signed" hidden><span>Extra: replaced capacitor (signed on site)</span><span>$100</span></p>
                   <p class="wt-inv-total"><span>Total</span><strong data-wt-total>$850</strong></p>
                 </div>
-                <p class="wt-flag" data-wt-path="not-yet">Extra $100: <strong>awaiting customer approval</strong>. Left off the invoice and added to the office&rsquo;s list.</p>
+                <p class="wt-flag" data-wt-path="not-yet">Extra $100: <strong>awaiting customer approval</strong>. Left off the invoice and added to the team&rsquo;s list.</p>
                 <p class="wt-line">The invoice includes only approved work. Your office remains in control.</p>
               </div>
 
@@ -510,7 +529,7 @@
                 <p class="wt-k">Step 3 of 5 &middot; Office &middot; Wed 25 Nov, 9:30am</p>
                 <h4 class="wt-h" id="wt-h3">One follow-up. No more guessing.</h4>
                 <div data-wt-path="not-yet">
-                  <div class="wt-list"><p class="wt-list-h">Office&rsquo;s list</p><p class="wt-item"><span>Ask Carla about the $100 extra</span><span>Manager</span></p></div>
+                  <div class="wt-list"><p class="wt-list-h">Team&rsquo;s list</p><p class="wt-item"><span>Ask Carla about the $100 extra</span><span>Manager</span></p></div>
                   <button type="button" class="btn btn-secondary wt-record" data-wt-record>Record Carla&rsquo;s decision: declined</button>
                   <dl class="wt-rec" data-wt-rec hidden>
                     <div><dt>Contacted</dt><dd>Carla Lim</dd></div><div><dt>Called by</dt><dd>Manager</dd></div><div><dt>When</dt><dd>Wed 25 Nov, 9:30am</dd></div><div><dt>Amount</dt><dd>$100</dd></div><div><dt>Outcome</dt><dd>Declined</dd></div>
@@ -543,7 +562,7 @@
                 <p class="wt-k">Step 5 of 5 &middot; Owner &middot; Mon 30 Nov, 7am</p>
                 <h4 class="wt-h" id="wt-h5">Start Monday knowing what needs attention.</h4>
                 <div class="wt-report">
-                  <p class="wt-rep-top">Monday report &middot; to the owner</p>
+                  <p class="wt-rep-top">Monday report &middot; emailed to the owner</p>
                   <ul class="wt-rep">
                     <li><span>Jobs still unfinished</span><strong>3 &middot; $1,430</strong></li>
                     <li><span>Completed, not invoiced</span><strong>1 &middot; $560</strong></li>

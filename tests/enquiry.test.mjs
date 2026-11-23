@@ -27,7 +27,7 @@ test('page: a third card in Demos & examples opens the demo in a pop-up panel, s
   assert.match(demo, /<summary>Want this for your own emails\?<\/summary>/, 'plain-words fold on how it works with real email (21 Nov)');
   assert.match(demo, /It checks for new emails every few minutes\./);
   assert.match(demo, /href="privacy\/#enquiry-demo"/);
-  assert.match(demo, /made-up business/);
+  assert.match(demo, /CoolFix Aircon &middot; Fictional business &middot; Live demo/);
   const js = await read('../src/home.js');
   assert.match(js, /mountEnquiryDemo\(document\.getElementById\('enquiry-demo'\)\)/);
 });

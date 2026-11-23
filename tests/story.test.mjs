@@ -53,8 +53,8 @@ test('Carla Lim / E-1038 / J-512 are the same everywhere, and no staff name is a
 
 test('walk-through: 5 steps in order, each with who acts and the agreed heading', async () => {
   const d = dialog(await read('../index.html'), 'jobpaid-demo');
-  assert.match(d, /<p class="jp-problem">Jobs get finished\. But invoices get delayed, amounts go wrong, and some work never gets billed\.<\/p>/);
-  assert.match(d, /<p class="jp-promise">When a job is completed, the invoice is prepared automatically\. Your office checks it before sending\.<\/p>/);
+  assert.match(d, /<p class="story-problem">Jobs get finished\. But invoices get delayed, amounts go wrong, and some work never gets billed\.<\/p>/);
+  assert.match(d, /<p class="story-promise">When a job is completed, the invoice is prepared automatically\. Your office checks it before sending\.<\/p>/);
   const heads = [...d.matchAll(/<p class="wt-k">Step (\d) of 5 &middot; (\w+)[^<]*<\/p>\s*<h4 class="wt-h" id="wt-h\d">([^<]+)<\/h4>/g)].map((m) => [m[1], m[2], m[3]]);
   assert.deepEqual(heads, [
     ['1', 'Technician', 'The job is done. The details are captured.'],
@@ -112,4 +112,20 @@ test('until the test run is verified, the pop-up says it is a preview and shows 
   } else {
     assert.equal(todo, 0, 'verified: every slot replaced with the real screenshot or recording');
   }
+});
+
+test('the three pop-ups share one opening, one set of names and one ending', async () => {
+  const h = await read('../index.html');
+  for (const id of ['enquiry-demo', 'report-demo', 'jobpaid-demo']) {
+    const d = dialog(h, id);
+    assert.match(d, /<p class="jp-label">CoolFix Aircon &middot; Fictional business &middot; /, `${id}: label`);
+    assert.match(d, /<div class="story-intro">\s*<p class="story-problem">[^<]+<\/p>\s*<p class="story-promise">[^<]+<\/p>\s*<p class="story-carla"><strong>Carla&rsquo;s story:<\/strong>/, `${id}: problem, promise, Carla`);
+    assert.match(d, /href="contact\/#contact-form-area"[^>]*>Book a free process review<\/a>/, `${id}: booking link`);
+    assert.doesNotMatch(d, /made-up business|office&rsquo;s list|Monday email|\bn8n\b/, `${id}: one set of names, no tool names`);
+  }
+  const eq = dialog(h, 'enquiry-demo'); const rp = dialog(h, 'report-demo');
+  assert.ok(eq.indexOf('data-story-go="report-demo"') < eq.indexOf('<details class="fold eq-real">'), '① Next comes before the fold');
+  assert.ok(rp.indexOf('data-story-go="jobpaid-demo"') < rp.indexOf('<details class="fold eq-real">'), '② Next comes before the fold');
+  assert.match(rp, /<span class="rp-found-story">1 booking with no job \(Carla\)<\/span>/);
+  assert.match(eq, /Google Gemini/, "① keeps the privacy line naming Gemini");
 });

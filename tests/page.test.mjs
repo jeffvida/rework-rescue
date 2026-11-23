@@ -9,7 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays show fictional sample amounts, not prices
-  for (const [open, label] of [['<dialog class="cs eq-dlg rp-dlg"', /replayed here with fictional data/], ['<dialog class="cs eq-dlg rp-dlg jp-dlg"', /Fictional business &middot; Test run/]]) {
+  for (const [open, label] of [['<dialog class="cs eq-dlg rp-dlg"', /Replayed from a real test run with fictional data/], ['<dialog class="cs eq-dlg rp-dlg jp-dlg"', /Fictional business &middot; Test run/]]) {
     const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
   }
   return h;

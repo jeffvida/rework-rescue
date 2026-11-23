@@ -50,10 +50,10 @@ test('page: fourth card opens a dialog that opens on the result, with two tabs a
   assert.ok(d.indexOf('rp-auto') < d.indexOf('role="tablist"'), 'what runs by itself is shown before the tabs');
   assert.match(d, /Runs by itself\. Nobody presses a button\./);
   assert.match(sec, /<p class="built-k">AI \+ automation<\/p><p class="built-status">Demo &middot; fictional business<\/p><\/div>\s*<h4>The self-checking weekly report/);
-  assert.match(d, /id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday email/);
+  assert.match(d, /id="rp-t1" aria-controls="rp-p1" aria-selected="true">Monday report/);
   assert.match(d, /<summary>How it checks<\/summary>/);
   assert.match(d, /Works with Google Sheets, Excel, or exports from your job and accounting apps\./);
-  assert.match(d, /A real n8n build, replayed here with fictional data\. Nothing is sent\./);
+  assert.match(d, /Replayed from a real test run with fictional data\. Nothing is sent\./);
   const js = await read('../src/report-demo.js');
   assert.doesNotMatch(js, /fetch\(|XMLHttpRequest|SITE\./, 'replay only: never calls the workflow');
 });

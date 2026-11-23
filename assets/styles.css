@@ -5635,8 +5635,8 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .built-card-wide .built-psg > div { grid-template-columns: 6.8rem minmax(0, 1fr); }
 /* 23 Nov (ChatGPT review applied): step 3 as a 5-step walk-through */
 .jp-head .cs-title { margin-bottom: 0.3rem; }
-.jp-problem { margin: 0.4rem 0 0.2rem; font-weight: 700; font-size: 1rem; line-height: 1.4; }
-.jp-promise { margin: 0 0 0.7rem; color: var(--ink); font-size: 0.95rem; }
+.story-problem { margin: 0.4rem 0 0.2rem; font-weight: 700; font-size: 1rem; line-height: 1.4; }
+.story-promise { margin: 0 0 0.7rem; color: var(--ink); font-size: 0.95rem; }
 .wt-dots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem; }
 .wt-dots li { margin: 0; padding-top: 0.4rem; border-top: 4px solid var(--line); font-size: 0.72rem; font-weight: 700; color: var(--muted); text-align: center; }
 .wt-dots li.is-done { border-top-color: var(--teal-chip); color: var(--teal-text); }
@@ -5717,13 +5717,13 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (max-width: 40rem) {
   .wt-dots li { font-size: 0.62rem; }
   .wt-nav { margin: 0.8rem -1rem 0; padding: 0.6rem 1rem; }
-  .jp-problem { font-size: 0.95rem; }
+  .story-problem { font-size: 0.95rem; }
 }
 /* walk-through: compact header so each step fits one phone screen */
 .jp-label .jp-todo { display: inline-block; margin: 0.15rem 0 0; padding: 0 0.45rem; border: 1px dashed var(--signal); border-radius: 999px; background: var(--warn-bg); font-weight: 600; font-size: 0.72rem; color: var(--ink); }
-.jp-intro { margin: 0 0 0.9rem; padding: 0.65rem 0.8rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--signal); }
-.jp-intro .jp-problem { margin: 0 0 0.25rem; }
-.jp-intro .jp-promise { margin: 0; }
+.story-intro { margin: 0 0 0.9rem; padding: 0.65rem 0.8rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--signal); }
+.story-intro .story-problem { margin: 0 0 0.25rem; }
+.story-intro .story-promise { margin: 0; }
 .wt-photos { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
 .wt-photo { padding: 0.3rem 0.5rem; min-height: 44px; }
 .wt-extra { grid-template-columns: 1fr 1fr; }
@@ -5737,3 +5737,20 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .wt-h { font-size: 1.08rem; }
 }
 .wt-record[hidden], .wt-sent[hidden], .wt-rec[hidden], [data-wt-after-rec][hidden] { display: none; }
+
+/* 23 Nov: one opening and one ending for all three CoolFix pop-ups */
+.story-intro .story-carla { margin: 0.45rem 0 0; padding-top: 0.45rem; border-top: 1px solid var(--line); font-size: 0.9rem; color: var(--ink); }
+.story-carla strong { color: var(--teal-dark); }
+.eq-body > .story-intro, .rp-body > .story-intro { margin-bottom: 1rem; }
+.story-next { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; }
+.story-book { font-weight: 700; font-size: 0.92rem; color: var(--teal-dark); }
+.rp-found .rp-found-story { background: var(--teal-chip); border-color: var(--teal-chip); color: var(--teal-text); }
+.rp-list tr.rp-story td { background: var(--teal-tint); }
+.rp-list tr.rp-story td:first-child { box-shadow: inset 4px 0 0 var(--teal); }
+.rp-body > .story-note { margin: 1rem 0 0; }
+/* ① and ②: the Next bar stays in view, like ③'s Back/Next */
+.eq-body > .story-next, .rp-body > .story-next { position: sticky; bottom: -1.5rem; z-index: 3; margin: 1rem -1.4rem 0; padding: 0.7rem 1.4rem 1.2rem; background: var(--paper); border-top: 1px solid var(--line); }
+@media (max-width: 40rem) {
+  .eq-body > .story-next, .rp-body > .story-next { bottom: -1rem; margin: 1rem -1rem 0; padding: 0.6rem 1rem 1rem; }
+  .story-next-btn { padding: 0.5rem 0.9rem; font-size: 0.92rem; }
+}

@@ -112,7 +112,7 @@ export function mountReportDemo(root) {
   const draw = () => {
     const st = rpStatuses(checked);
     body.innerHTML = RP_ITEMS.map((i, n) => ({ i, s: st[n] })).filter(({ i }) => owner === 'All' || i.owner === owner)
-      .map(({ i, s }) => `<tr class="${RP_MARKED[i.ref] ? 'rp-marked' : ''}${checked && RP_MARKED[i.ref] ? ' rp-flash' : ''}"><td><b>${esc(i.issue)}</b><span>${esc(i.who)}</span>${i.tag ? `<em class="rp-tag">${esc(i.tag)}</em>` : ''}</td><td>${esc(i.todo)}</td><td>${esc(i.owner)}<span>${esc(i.ref)}</span></td><td>${pill(s)}${s.note ? `<span>${esc(s.note)}</span>` : ''}</td></tr>`).join('');
+      .map(({ i, s }) => `<tr class="${RP_MARKED[i.ref] ? 'rp-marked' : ''}${checked && RP_MARKED[i.ref] ? ' rp-flash' : ''}${i.tag ? ' rp-story' : ''}"><td><b>${esc(i.issue)}</b><span>${esc(i.who)}</span>${i.tag ? `<em class="rp-tag">${esc(i.tag)}</em>` : ''}</td><td>${esc(i.todo)}</td><td>${esc(i.owner)}<span>${esc(i.ref)}</span></td><td>${pill(s)}${s.note ? `<span>${esc(s.note)}</span>` : ''}</td></tr>`).join('');
   };
   if (filters) {
     const counts = rpOwnerCounts();

@@ -8,7 +8,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-const noDemo = (h) => { const a = h.indexOf('<dialog class="cs eq-dlg rp-dlg"'); if (a < 0) return h; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, /replayed here with fictional data/, 'sample amounts only inside the labelled demo'); return h.replace(d, ''); };
+const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays show fictional sample amounts, not prices
+  for (const [open, label] of [['<dialog class="cs eq-dlg rp-dlg"', /replayed here with fictional data/], ['<dialog class="cs eq-dlg rp-dlg jp-dlg"', /Fictional data &middot; Test run/]]) {
+    const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
+  }
+  return h;
+};
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 const page = () => read('../index.html');
@@ -188,14 +193,22 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const sec = section(html, 'built', 'how');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   assert.match(sec, /<p class="eyebrow">Demos &amp; examples<\/p>\s*<h2 id="built-h">See it working on this page\.<\/h2>/);
-  assert.equal((sec.match(/<li class="built-card( built-card-ai)?">/g) || []).length, 4, 'booking, chat, (21 Nov) the enquiry tracker and the weekly report');
-  for (const t of ['The booking calendar', 'The chat assistant', 'The enquiry tracker', 'The self-checking weekly report']) assert.ok(sec.includes(`<h3>${t}</h3>`), t);
+  assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 5, 'booking, chat, (21 Nov) the enquiry tracker and the weekly report, (23 Nov) job done to paid');
+  for (const t of ['The booking calendar', 'The chat assistant', 'The enquiry tracker', 'The self-checking weekly report', 'From job done to invoice paid']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
+  // 23 Nov: two groups, the CoolFix story first (steps 1-3 in order, step 3 wide), then what runs this site
+  const story = sec.slice(sec.indexOf('id="story-h"'), sec.indexOf('id="site-h"'));
+  const site = sec.slice(sec.indexOf('id="site-h"'), sec.indexOf('<dialog'));
+  assert.match(sec, /<h3 class="built-group-h" id="story-h">Follow one CoolFix customer<\/h3>\s*<p class="built-group-sub">Carla&rsquo;s aircon is leaking\. Follow her from first email to paid, across three workflows\.<\/p>/);
+  assert.ok(story.indexOf('The enquiry tracker') < story.indexOf('The self-checking weekly report') && story.indexOf('The self-checking weekly report') < story.indexOf('From job done to invoice paid'));
+  assert.match(sec, /<h3 class="built-group-h" id="site-h">Running on this site<\/h3>/);
+  assert.ok(site.includes('The booking calendar') && site.includes('The chat assistant') && !site.includes('CoolFix'));
   assert.match(sec, /<h2 id="built-h">See it working on this page\.<\/h2>\s*<p class="built-intro">Built and run by me\. Try them: they&rsquo;re real workflows, not client projects\.<\/p>/, '21 Nov: one honest line up top');
   assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');
-  assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 2, 'enquiry and report are demos');
-  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per card, inside the steps fold');
+  assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 3, 'enquiry, report and job-to-paid are demos');
+  assert.equal((sec.match(/<figure class="built-shot( built-shot-todo)?"/g) || []).length, 5, 'one workflow screenshot per card, inside the steps fold');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
-  assert.equal((sec.match(/<li class="built-card/g) || []).length, (sec.slice(0, sec.indexOf('</ul>') + 5).match(/<\/li>\s*(<li class="built-card|<\/ul>)/g) || []).length, 'every card is closed');
+  const lists = sec.slice(0, sec.indexOf('<dialog')).replace(/<ul class="built-gets">[\s\S]*?<\/ul>/g, '');
+  assert.equal((lists.match(/<li class="built-card/g) || []).length, (lists.match(/<\/li>\s*(<li class="built-card|<\/ul>)/g) || []).length, 'every card is closed');
   assert.match(sec, /<p class="rr-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);
   assert.doesNotMatch(sec.match(/<p class="rr-tools">[\s\S]*?<\/p>/)[0], /Excel|Power Query|Python|Power BI/, 'main strip stays AI and automation');
   assert.doesNotMatch(sec, /<img[^>]+(logo|n8n|gemini)/i, 'tool names as text, no logos');

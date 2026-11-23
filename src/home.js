@@ -105,3 +105,8 @@ mountEnquiryDemo(document.getElementById('enquiry-demo'));
 // 21 Nov 2026 (build #2): the self-checking weekly report demo, a replay with fictional data (src/report-demo.js).
 import { mountReportDemo } from './report-demo.js';
 mountReportDemo(document.getElementById('report-demo'));
+// 23 Nov 2026 (preview): step 3 of the CoolFix customer story, "From job done to invoice paid" (src/jobpaid-demo.js),
+// and the "Next" links that join the three CoolFix pop-ups.
+import { mountJobPaidDemo, mountStoryLinks } from './jobpaid-demo.js';
+mountJobPaidDemo(document.getElementById('jobpaid-demo'));
+mountStoryLinks();

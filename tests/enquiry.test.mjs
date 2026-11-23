@@ -13,7 +13,7 @@ test('page: a third card in Demos & examples opens the demo in a pop-up panel, s
   const h = await read('../index.html');
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
   const cards = sec.slice(sec.indexOf('<ul class="built-cards'), sec.indexOf('</ul>', sec.indexOf('<ul class="built-cards')));
-  assert.match(cards, /<h3>The enquiry tracker<\/h3>/);
+  assert.match(cards, /<h4>The enquiry tracker<\/h4>/);
   assert.match(cards, /<p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send an enquiry/);
   const demo = sec.slice(sec.indexOf('<dialog class="cs eq-dlg" id="enquiry-demo"'), sec.indexOf('</dialog>'));
   assert.ok(demo.length > 100, 'demo lives in a dialog (closed by default)');
@@ -92,7 +92,10 @@ test('tracker: looks like the real sheet (all useful columns), with a summary of
   const h = await read('../index.html');
   const demo = h.slice(h.indexOf('id="enquiry-demo"'), h.indexOf('</dialog>'));
   for (const c of ['Received', 'Name', 'Company', 'Need', 'Category', 'Urgency', 'Owner', 'Status', 'Check reason']) assert.ok(demo.includes(`<th scope="col">${c}</th>`), c);
-  assert.equal((demo.match(/<tr data-status="/g) || []).length, 3, 'three made-up rows to start: Contacted, Booked, Needs check');
+  assert.equal((demo.match(/<tr data-status="/g) || []).length, 4, 'four made-up rows to start: Contacted, Booked, Needs check, and (23 Nov) Carla Lim');
+  // 23 Nov: Carla's row matches the Project 2 sheet's E-1038 (2026-11-18 09:03, Booking, Normal, Scheduling, Booked)
+  assert.match(demo, /<tr data-status="Booked" data-keep><td class="eq-c-when">Wed 18 Nov, 9:03 am<\/td><td class="eq-c-name">Carla Lim<\/td><td class="eq-c-co">&ndash;<\/td><td class="eq-c-need">Aircon not cooling and leaking<\/td><td class="eq-c-cat">Booking<\/td><td class="eq-c-urg">Normal<\/td><td class="eq-c-owner">Scheduling<\/td><td class="eq-c-status"><span class="pill pill-booked">Booked<\/span>/);
+  assert.match(demo, /<p class="story-note">Carla is booked\. But nobody has created her job yet\.<\/p>/);
   assert.match(demo, /data-eq-sum/);
   assert.deepEqual(countStatuses(['New', 'Contacted', 'Booked', 'Needs check', 'New', 'Closed']).map((c) => c.n), [2, 1, 1, 1, 1]);
 });

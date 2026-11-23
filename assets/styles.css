@@ -4059,7 +4059,7 @@ html { scroll-padding-top: calc(var(--header-h) + 0.75rem); }
 .built-section .lede { margin-bottom: 0; }
 .built-cards { list-style: none; margin: 1.8rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; align-items: stretch; }
 .built-card { margin: 0; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--teal); border-radius: var(--radius); padding: 1.2rem 1.2rem 1rem; box-shadow: var(--shadow); }
-.built-card h3 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+.built-card h3, .built-card h4 { margin: 0 0 0.35rem; font-size: 1.15rem; }
 .built-k { margin: 0 0 0.4rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
 .built-what { margin: 0 0 0.7rem; color: var(--muted); }
 .built-steps { margin: 0 0 0.8rem; padding-left: 1.25rem; display: grid; gap: 0.35rem; font-size: 0.95rem; }
@@ -4997,7 +4997,7 @@ main > .sn-section { background: var(--paper); }
 
 /* 6. Type scale */
 .svc-example h3, .rr-decide-h, .rr-results-h { font-size: clamp(1.2rem, 2vw, 1.35rem); }
-.rr-tiles strong, .sn-list h3, .built-card h3, .rr-result h4, .rr-d h3 { font-size: 1.1rem; line-height: 1.3; }
+.rr-tiles strong, .sn-list h3, .built-card h3, .built-card h4, .rr-result h4, .rr-d h3 { font-size: 1.1rem; line-height: 1.3; }
 
 /* Services: "One request, step by step" shows the roles. Step 2 AI (violet), step 4 automatic check (teal), step 5 a person approves (amber) */
 #services .rf [data-rf="2"] .rf-n { background: var(--ai); }
@@ -5570,3 +5570,66 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .built-shot { margin: 0.4rem 0 0.6rem; }
 .built-shot img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; cursor: zoom-in; }
 .built-shot figcaption { margin-top: 0.35rem; font-size: 0.85rem; color: var(--muted); }
+
+/* 23 Nov 2026 (preview): one CoolFix customer across three demos, and step 3 "From job done to invoice paid" */
+.built-group + .built-group { margin-top: 2.4rem; }
+.built-group-h { margin: 0 0 0.3rem; font-family: var(--display); font-size: clamp(1.2rem, 2.4vw, 1.4rem); }
+.built-group-sub { margin: 0 0 1rem; color: var(--muted); }
+.built-group .built-cards { margin-top: 1rem; }
+.story-strip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+.story-strip li { margin: 0; }
+.story-strip a { display: flex; gap: 0.6rem; align-items: flex-start; height: 100%; padding: 0.75rem 0.85rem; border: 1px solid #cfe5d8; border-radius: 12px; background: var(--teal-tint); color: var(--ink); text-decoration: none; font-size: 0.92rem; line-height: 1.45; }
+.story-strip a:hover, .story-strip a:focus-visible { border-color: var(--teal); background: #fff; }
+.story-strip strong { color: var(--teal-dark); }
+.story-n { flex: none; display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--teal); color: #fff; font-size: 0.8rem; font-weight: 800; line-height: 1; }
+.built-step { margin: 0 0 0.55rem; display: flex; align-items: center; gap: 0.45rem; font-weight: 800; font-size: 0.9rem; color: var(--teal-dark); }
+.built-step .story-n { width: 1.4rem; height: 1.4rem; font-size: 0.75rem; }
+.built-cards-story { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.built-card-wide { grid-column: 1 / -1; }
+.built-gets { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.15rem; }
+.built-gets li { margin: 0; }
+@media (max-width: 62rem) { .story-strip, .built-cards-story { grid-template-columns: 1fr; } }
+.story-note { margin: 0.6rem 0 0; padding: 0.5rem 0.75rem; border-left: 4px solid var(--signal); background: var(--warn-bg); font-size: 0.92rem; font-weight: 600; }
+.story-next { margin: 1.1rem 0 0; text-align: right; }
+.story-next-btn { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 44px; padding: 0.5rem 1.05rem; border: 1.5px solid var(--teal); border-radius: 999px; background: var(--teal); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.story-next-btn:hover, .story-next-btn:focus-visible { background: var(--teal-dark); border-color: var(--teal-dark); }
+.rp-tag { display: inline-block; margin-top: 0.25rem; padding: 0 0.5rem; border-radius: 999px; background: var(--teal-chip); color: var(--teal-text); font-style: normal; font-size: 0.75rem; font-weight: 700; }
+/* Step 3 pop-up */
+.jp-label { margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.jp-todo { margin: 0 0 1rem; padding: 0.55rem 0.8rem; border: 1px dashed var(--signal); border-radius: 10px; background: var(--warn-bg); font-size: 0.85rem; }
+.jp-strip { margin: 0 0 1.2rem; padding: 0.75rem 0.9rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--teal); }
+.jp-asat { display: block; margin: 0 0 0.45rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.jp-figs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.jp-figs li { margin: 0; display: flex; flex-direction: column; padding: 0.55rem 0.6rem; border-radius: 8px; background: var(--teal-tint); font-size: 0.85rem; }
+.jp-figs strong { font-size: 1.3rem; }
+.jp-figs .jp-fig-warn { background: var(--warn-bg); }
+.jp-h { margin: 1.3rem 0 0.5rem; font-size: 1rem; }
+.jp-tabs-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.jp-tabs-4 [role="tab"] { font-size: 0.88rem; }
+.jp-wsw { margin: 0; display: grid; gap: 0.45rem; }
+.jp-wsw > div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 0.5rem; align-items: baseline; }
+.jp-wsw dt { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.jp-wsw dd { margin: 0; font-size: 0.95rem; line-height: 1.45; }
+.jp-wsw > div:last-child dd { font-weight: 700; }
+.jp-aside { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.jp-shot { margin: 0; }
+.jp-shot figcaption { margin-top: 0.45rem; font-size: 0.88rem; }
+.shot-slot { display: grid; place-items: center; min-height: 9rem; padding: 1rem; border: 2px dashed var(--line); border-radius: 10px; background: var(--paper); text-align: center; color: var(--muted); font-size: 0.88rem; }
+.shot-slot p { margin: 0; }
+.jp-video .shot-slot { min-height: 12rem; }
+.built-shot-todo .shot-slot { min-height: 6rem; }
+.jp-time { list-style: none; margin: 0; padding: 0 0 0 1rem; border-left: 3px solid var(--teal-chip); display: grid; gap: 0.45rem; }
+.jp-time li { position: relative; margin: 0; font-size: 0.92rem; }
+.jp-time li::before { content: ""; position: absolute; left: calc(-1rem - 7px); top: 0.4rem; width: 11px; height: 11px; border-radius: 50%; background: var(--teal); }
+.jp-time b { display: inline-block; min-width: 7.5rem; color: var(--teal-dark); }
+.jp-end { margin: 1.2rem 0 0; font-size: 1.05rem; }
+@media (max-width: 40rem) {
+  .jp-figs { grid-template-columns: 1fr; }
+  .jp-tabs-4 { grid-template-columns: 1fr 1fr; }
+  .jp-tabs-4 [role="tab"]:nth-child(3) { border-left: 0; }
+  .jp-tabs-4 [role="tab"]:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .jp-wsw > div { grid-template-columns: 1fr; gap: 0.1rem; }
+  .jp-time b { display: block; }
+}
+.jp-nw { white-space: nowrap; }
+.built-card-wide .built-psg > div { grid-template-columns: 6.8rem minmax(0, 1fr); }

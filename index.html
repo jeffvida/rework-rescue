@@ -231,10 +231,69 @@
         <p class="eyebrow">Demos &amp; examples</p>
         <h2 id="built-h">See it working on this page.</h2>
         <p class="built-intro">Built and run by me. Try them: they&rsquo;re real workflows, not client projects.</p>
-          <ul class="built-cards built-cards-2 built-cards-3 built-cards-4">
+          <div class="built-group built-story" aria-labelledby="story-h">
+          <h3 class="built-group-h" id="story-h">Follow one CoolFix customer</h3>
+          <p class="built-group-sub">Carla&rsquo;s aircon is leaking. Follow her from first email to paid, across three workflows.</p>
+          <ol class="story-strip">
+            <li><a href="#demo-enquiry" data-eq-open aria-haspopup="dialog"><span class="story-n" aria-hidden="true">1</span><span><strong>Enquiry comes in:</strong> Carla&rsquo;s enquiry is received and booked, but no job has been created.</span></a></li>
+            <li><a href="#demo-report" data-rp-open aria-haspopup="dialog"><span class="story-n" aria-hidden="true">2</span><span><strong>Monday check:</strong> the report finds the missing job record and shows what the office needs to do.</span></a></li>
+            <li><a href="#demo-jobpaid" data-jp-open aria-haspopup="dialog"><span class="story-n" aria-hidden="true">3</span><span><strong>Job done to paid:</strong> the completed job is checked, invoiced and followed through to payment.</span></a></li>
+          </ol>
+          <ul class="built-cards built-cards-story">
+            <li class="built-card built-card-ai" id="demo-enquiry">
+              <p class="built-step"><span class="story-n" aria-hidden="true">1</span> Enquiry comes in</p>
+              <div class="built-tags"><p class="built-k">AI + automation</p><p class="built-status">Demo &middot; fictional business</p></div>
+              <h4>The enquiry tracker</h4>
+              <dl class="built-psg"><div><dt>Problem</dt><dd>Enquiries sit in the inbox, get copied by hand, and nobody clearly owns them.</dd></div><div><dt>Solution</dt><dd>AI reads each one, a fixed rule picks who handles it, and it&rsquo;s logged.</dd></div><div><dt>You get</dt><dd>Every enquiry in one tracker, with an owner and a status. Unclear ones flagged.</dd></div></dl>
+              <details class="fold built-more"><summary>See the 4 steps</summary>
+              <ol class="built-steps">
+                <li>Checks each enquiry before anything reaches the AI.</li>
+                <li>AI reads it: who it&rsquo;s from, what they need, how urgent.</li>
+                <li>A fixed rule picks who handles it, and it&rsquo;s logged in the tracker.</li>
+                <li>The owner gets an email. Anything unclear is marked for a person to check.</li>
+              </ol>
+              <figure class="built-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real n8n workflow, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+              </details>
+              <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
+              <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
+              <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send an enquiry <span aria-hidden="true">&rarr;</span></a></p>
+            </li>
+            <li class="built-card built-card-ai" id="demo-report">
+              <p class="built-step"><span class="story-n" aria-hidden="true">2</span> Monday check</p>
+              <div class="built-tags"><p class="built-k">AI + automation</p><p class="built-status">Demo &middot; fictional business</p></div>
+              <h4>The self-checking weekly report</h4>
+              <dl class="built-psg"><div><dt>Problem</dt><dd>Enquiries, jobs and invoices sit in separate sheets, so unbilled work and late payments slip through.</dd></div><div><dt>Solution</dt><dd>The sheets are checked against each other every morning. On Monday the owner gets a one-minute summary.</dd></div><div><dt>You get</dt><dd>Money to follow up, a daily list for the team, and a warning when the figures can&rsquo;t be trusted.</dd></div></dl>
+              <details class="fold built-more"><summary>See the 4 steps</summary>
+              <ol class="built-steps">
+                <li>Reads enquiries, jobs and invoices every weekday morning.</li>
+                <li>Checks them against each other: unbilled work, late payments, jobs with no owner.</li>
+                <li>Updates the team&rsquo;s list and keeps what they&rsquo;ve marked done.</li>
+                <li>On Monday, AI writes a two-sentence overview, every number is checked, and the owner gets the email.</li>
+              </ol>
+              <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real n8n workflow, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+              </details>
+              <p class="built-safe"><strong>If the figures can&rsquo;t be trusted:</strong> the email says so at the top, before any numbers.</p>
+              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
+              <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see what it found <span aria-hidden="true">&rarr;</span></a></p>
+            </li>
+            <li class="built-card built-card-wide" id="demo-jobpaid">
+              <p class="built-step"><span class="story-n" aria-hidden="true">3</span> Job done to paid</p>
+              <div class="built-tags"><p class="built-k">Automation</p><p class="built-status">Demo &middot; fictional business</p></div>
+              <h4>From job done to invoice paid</h4>
+              <dl class="built-psg"><div><dt>Problem</dt><dd>Jobs get finished, but invoices go out late, wrong or not at all.</dd></div><div><dt>What I build</dt><dd>Each completed job is checked and turned into a draft invoice in your accounting software, for approved work only.</dd></div><div><dt>You get</dt><dd><ul class="built-gets"><li>Completed jobs accounted for.</li><li>Unapproved charges flagged before invoicing.</li><li>Outstanding payments kept visible.</li></ul></dd></div></dl>
+              <details class="fold built-more"><summary>See the steps</summary>
+              <figure class="built-shot built-shot-todo" data-p3-todo="W1 workflow screenshot"><div class="shot-slot"><p>Workflow screenshot (W1) from the test run</p></div><figcaption>The real n8n workflow, from a test run.</figcaption></figure>
+              </details>
+              <p class="built-try" data-jp-only hidden><a href="#jobpaid-demo" data-jp-open aria-haspopup="dialog">Try it: follow Carla&rsquo;s job to paid <span aria-hidden="true">&rarr;</span></a></p>
+            </li>
+          </ul>
+        </div>
+        <div class="built-group" aria-labelledby="site-h">
+          <h3 class="built-group-h" id="site-h">Running on this site</h3>
+          <ul class="built-cards built-cards-2">
             <li class="built-card">
               <div class="built-tags"><p class="built-k">Automation</p><p class="built-status built-status-live">Live on this site</p></div>
-              <h3>The booking calendar</h3>
+              <h4>The booking calendar</h4>
               <dl class="built-psg"><div><dt>Problem</dt><dd>Emails back and forth to find a time, and calls that get forgotten.</dd></div><div><dt>Solution</dt><dd>Clients pick a free time. The invite, video link and reminders go out by themselves.</dd></div><div><dt>You get</dt><dd>Booked calls with no admin, and a reminder before every one.</dd></div></dl>
               <details class="fold built-more"><summary>See the 4 steps</summary>
               <ol class="built-steps">
@@ -251,7 +310,7 @@
             </li>
             <li class="built-card built-card-ai">
               <div class="built-tags"><p class="built-k">AI</p><p class="built-status built-status-live">Live on this site</p></div>
-              <h3>The chat assistant</h3>
+              <h4>The chat assistant</h4>
               <dl class="built-psg"><div><dt>Problem</dt><dd>Visitors have questions when nobody&rsquo;s there to answer.</dd></div><div><dt>Solution</dt><dd>An AI assistant answers within limits I set and suggests a next step.</dd></div><div><dt>You get</dt><dd>Questions answered any time, with no prices or promises made for you.</dd></div></dl>
               <details class="fold built-more"><summary>See the 4 steps</summary>
               <ol class="built-steps">
@@ -266,41 +325,8 @@
               <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets</p>
               <p class="built-try" data-assistant-only hidden><a href="#built" data-assistant-open>Try it: ask the assistant <span aria-hidden="true">&rarr;</span></a></p>
             </li>
-            <li class="built-card built-card-ai">
-              <div class="built-tags"><p class="built-k">AI + automation</p><p class="built-status">Demo &middot; fictional business</p></div>
-              <h3>The enquiry tracker</h3>
-              <dl class="built-psg"><div><dt>Problem</dt><dd>Enquiries sit in the inbox, get copied by hand, and nobody clearly owns them.</dd></div><div><dt>Solution</dt><dd>AI reads each one, a fixed rule picks who handles it, and it&rsquo;s logged.</dd></div><div><dt>You get</dt><dd>Every enquiry in one tracker, with an owner and a status. Unclear ones flagged.</dd></div></dl>
-              <details class="fold built-more"><summary>See the 4 steps</summary>
-              <ol class="built-steps">
-                <li>Checks each enquiry before anything reaches the AI.</li>
-                <li>AI reads it: who it&rsquo;s from, what they need, how urgent.</li>
-                <li>A fixed rule picks who handles it, and it&rsquo;s logged in the tracker.</li>
-                <li>The owner gets an email. Anything unclear is marked for a person to check.</li>
-              </ol>
-              <figure class="built-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real n8n workflow, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              </details>
-              <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
-              <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
-              <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send an enquiry <span aria-hidden="true">&rarr;</span></a></p>
-            </li>
-            <li class="built-card built-card-ai">
-              <div class="built-tags"><p class="built-k">AI + automation</p><p class="built-status">Demo &middot; fictional business</p></div>
-              <h3>The self-checking weekly report</h3>
-              <dl class="built-psg"><div><dt>Problem</dt><dd>Enquiries, jobs and invoices sit in separate sheets, so unbilled work and late payments slip through.</dd></div><div><dt>Solution</dt><dd>The sheets are checked against each other every morning. On Monday the owner gets a one-minute summary.</dd></div><div><dt>You get</dt><dd>Money to follow up, a daily list for the team, and a warning when the figures can&rsquo;t be trusted.</dd></div></dl>
-              <details class="fold built-more"><summary>See the 4 steps</summary>
-              <ol class="built-steps">
-                <li>Reads enquiries, jobs and invoices every weekday morning.</li>
-                <li>Checks them against each other: unbilled work, late payments, jobs with no owner.</li>
-                <li>Updates the team&rsquo;s list and keeps what they&rsquo;ve marked done.</li>
-                <li>On Monday, AI writes a two-sentence overview, every number is checked, and the owner gets the email.</li>
-              </ol>
-              <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real n8n workflow, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              </details>
-              <p class="built-safe"><strong>If the figures can&rsquo;t be trusted:</strong> the email says so at the top, before any numbers.</p>
-              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
-              <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see what it found <span aria-hidden="true">&rarr;</span></a></p>
-            </li>
           </ul>
+        </div>
         <dialog class="cs eq-dlg" id="enquiry-demo" aria-labelledby="eq-h">
           <div class="cs-sheet">
             <header class="cs-head">
@@ -350,8 +376,9 @@
             </div>
             <div class="eq-scroll">
             <table class="dash-table eq-table"><thead><tr><th scope="col">Received</th><th scope="col">Name</th><th scope="col">Company</th><th scope="col">Need</th><th scope="col">Category</th><th scope="col">Urgency</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Check reason</th></tr></thead>
-              <tbody data-eq-rows><tr data-status="Contacted"><td class="eq-c-when">Fri 20 Nov, 4:12 pm</td><td class="eq-c-name">Tom Reyes</td><td class="eq-c-co">Reyes Bakery</td><td class="eq-c-need">Service booking for next Monday</td><td class="eq-c-cat">Booking</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Scheduling</td><td class="eq-c-status"><span class="pill">Contacted</span></td><td class="eq-c-why">&ndash;</td></tr><tr data-status="Booked"><td class="eq-c-when">Fri 20 Nov, 2:40 pm</td><td class="eq-c-name">Liza Tan</td><td class="eq-c-co">Harbour Gym</td><td class="eq-c-need">Quote for yearly servicing of 6 units</td><td class="eq-c-cat">Quote</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Sales</td><td class="eq-c-status"><span class="pill pill-booked">Booked</span></td><td class="eq-c-why">&ndash;</td></tr><tr data-status="Needs check"><td class="eq-c-when">Fri 20 Nov, 11:05 am</td><td class="eq-c-name">Mark Diaz</td><td class="eq-c-co">&ndash;</td><td class="eq-c-need">Asks for &ldquo;the usual&rdquo;, not clear which service</td><td class="eq-c-cat">Other</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Manager</td><td class="eq-c-status"><span class="pill pill-amber">Needs check</span></td><td class="eq-c-why">Not clear which service they mean.</td></tr></tbody></table>
+              <tbody data-eq-rows><tr data-status="Contacted"><td class="eq-c-when">Fri 20 Nov, 4:12 pm</td><td class="eq-c-name">Tom Reyes</td><td class="eq-c-co">Reyes Bakery</td><td class="eq-c-need">Service booking for next Monday</td><td class="eq-c-cat">Booking</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Scheduling</td><td class="eq-c-status"><span class="pill">Contacted</span></td><td class="eq-c-why">&ndash;</td></tr><tr data-status="Booked"><td class="eq-c-when">Fri 20 Nov, 2:40 pm</td><td class="eq-c-name">Liza Tan</td><td class="eq-c-co">Harbour Gym</td><td class="eq-c-need">Quote for yearly servicing of 6 units</td><td class="eq-c-cat">Quote</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Sales</td><td class="eq-c-status"><span class="pill pill-booked">Booked</span></td><td class="eq-c-why">&ndash;</td></tr><tr data-status="Needs check"><td class="eq-c-when">Fri 20 Nov, 11:05 am</td><td class="eq-c-name">Mark Diaz</td><td class="eq-c-co">&ndash;</td><td class="eq-c-need">Asks for &ldquo;the usual&rdquo;, not clear which service</td><td class="eq-c-cat">Other</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Manager</td><td class="eq-c-status"><span class="pill pill-amber">Needs check</span></td><td class="eq-c-why">Not clear which service they mean.</td></tr><tr data-status="Booked" data-keep><td class="eq-c-when">Wed 18 Nov, 9:03 am</td><td class="eq-c-name">Carla Lim</td><td class="eq-c-co">&ndash;</td><td class="eq-c-need">Aircon not cooling and leaking</td><td class="eq-c-cat">Booking</td><td class="eq-c-urg">Normal</td><td class="eq-c-owner">Scheduling</td><td class="eq-c-status"><span class="pill pill-booked">Booked</span></td><td class="eq-c-why">&ndash;</td></tr></tbody></table>
             </div>
+            <p class="story-note">Carla is booked. But nobody has created her job yet.</p>
           </div>
           <details class="fold eq-real">
             <summary>Want this for your own emails?</summary>
@@ -365,6 +392,7 @@
               <li>It all runs in your own accounts, so you stay in control.</li>
             </ul>
           </details>
+          <p class="story-next"><button type="button" class="story-next-btn" data-story-go="report-demo">Next: what Monday&rsquo;s check found <span aria-hidden="true">&rarr;</span></button></p>
             </div>
           </div>
         </dialog>
@@ -421,6 +449,114 @@
                 </ul>
               </details>
               <p class="eq-small rp-small">A real n8n build, replayed here with fictional data. Nothing is sent.</p>
+              <p class="story-next"><button type="button" class="story-next-btn" data-story-go="jobpaid-demo">Next: follow Carla&rsquo;s job to paid <span aria-hidden="true">&rarr;</span></button></p>
+            </div>
+          </div>
+        </dialog>
+        <dialog class="cs eq-dlg rp-dlg jp-dlg" id="jobpaid-demo" aria-labelledby="jp-h">
+          <div class="cs-sheet">
+            <header class="cs-head">
+              <p class="cs-k">Demo &middot; Automation</p>
+              <h3 class="cs-title" id="jp-h">From job done to invoice paid</h3>
+              <button type="button" class="cs-close" data-jp-close aria-label="Close">&times;</button>
+              <p class="jp-label">CoolFix Aircon &middot; Fictional data &middot; Test run</p>
+              <p class="eq-what"><button type="button" class="link-button" data-story-go="report-demo">Monday&rsquo;s check</button> caught Carla&rsquo;s booking with no job, so the office created job <span class="jp-nw">J-512</span>. Here&rsquo;s what happened next.</p>
+            </header>
+            <div class="cs-body rp-body jp-body">
+              <p class="jp-todo" data-p3-todo="preview banner"><strong>Preview:</strong> figures are the planned results from the test plan. Screenshots and the recording are added after the test run on Mon 30 Nov.</p>
+              <div class="jp-strip">
+                <p class="jp-asat">As at Tue 24 Nov, 4:05pm</p>
+                <ul class="jp-figs">
+                  <li><strong>$850</strong> Invoice draft prepared</li>
+                  <li><strong>$100</strong> Extra awaiting confirmation</li>
+                  <li class="jp-fig-warn"><strong>$420</strong> Overdue invoice</li>
+                </ul>
+              </div>
+
+              <h4 class="jp-h">What the system does when something isn&rsquo;t right</h4>
+              <div class="rp-tabs jp-tabs jp-tabs-4" role="tablist" aria-label="Scenarios from the test run">
+                <button type="button" role="tab" id="jp-s1" aria-controls="jp-sp1" aria-selected="true">Missing evidence</button>
+                <button type="button" role="tab" id="jp-s2" aria-controls="jp-sp2" aria-selected="false" tabindex="-1">Unapproved extra</button>
+                <button type="button" role="tab" id="jp-s3" aria-controls="jp-sp3" aria-selected="false" tabindex="-1">Not yet sent</button>
+                <button type="button" role="tab" id="jp-s4" aria-controls="jp-sp4" aria-selected="false" tabindex="-1">Overdue payment</button>
+              </div>
+              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp1" aria-labelledby="jp-s1" tabindex="0">
+                <p class="jp-asat">As at Tue 24 Nov, 3:40pm</p>
+                <dl class="jp-wsw"><div><dt>What happened</dt><dd>The repair job was sent without the after photo.</dd></div><div><dt>What the system did</dt><dd>No invoice. The technician was told what&rsquo;s missing.</dd></div><div><dt>Who acts next</dt><dd>Rico resubmits.</dd></div></dl>
+                <p class="jp-aside">Photos are only required for job types that need them, like repairs and installs.</p>
+              </div>
+              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp2" aria-labelledby="jp-s2" tabindex="0" hidden>
+                <p class="jp-asat">As at Tue 24 Nov, 4:05pm</p>
+                <dl class="jp-wsw"><div><dt>What happened</dt><dd>A $100 capacitor was added, with no recorded approval.</dd></div><div><dt>What the system did</dt><dd>A draft was created for the approved $850 only, and the extra was put on the list straight away.</dd></div><div><dt>Who acts next</dt><dd>The manager calls Carla and records who, when, amount and outcome.</dd></div></dl>
+              </div>
+              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp3" aria-labelledby="jp-s3" tabindex="0" hidden>
+                <p class="jp-asat">As at Mon 30 Nov, 7am</p>
+                <dl class="jp-wsw"><div><dt>What happened</dt><dd>The J-515 draft has been waiting since Thu 26.</dd></div><div><dt>What the system did</dt><dd>It&rsquo;s on the list.</dd></div><div><dt>Who acts next</dt><dd>The manager reviews and sends it in Xero.</dd></div></dl>
+              </div>
+              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp4" aria-labelledby="jp-s4" tabindex="0" hidden>
+                <p class="jp-asat">As at Mon 30 Nov, 7am</p>
+                <dl class="jp-wsw"><div><dt>What happened</dt><dd>INV-2200 (Ng Motors) $420, already flagged in last week&rsquo;s report.</dd></div><div><dt>What the system did</dt><dd>Still top of the list.</dd></div><div><dt>Who acts next</dt><dd>The manager follows up.</dd></div></dl>
+              </div>
+
+              <h4 class="jp-h">From the test run</h4>
+              <div class="rp-tabs jp-tabs jp-tabs-4" role="tablist" aria-label="Screens from the test run">
+                <button type="button" role="tab" id="jp-t1" aria-controls="jp-tp1" aria-selected="true">Technician form</button>
+                <button type="button" role="tab" id="jp-t2" aria-controls="jp-tp2" aria-selected="false" tabindex="-1">Invoice draft</button>
+                <button type="button" role="tab" id="jp-t3" aria-controls="jp-tp3" aria-selected="false" tabindex="-1">Team&rsquo;s list</button>
+                <button type="button" role="tab" id="jp-t4" aria-controls="jp-tp4" aria-selected="false" tabindex="-1">Payments</button>
+              </div>
+              <div class="rp-panel" role="tabpanel" id="jp-tp1" aria-labelledby="jp-t1" tabindex="0">
+                <figure class="jp-shot" data-p3-todo="S2 technician form"><div class="shot-slot"><p>Screenshot: technician form</p></div><figcaption><span class="jp-asat">As at Tue 24 Nov, 3:40pm</span> J-512 Needs evidence: after photo.</figcaption></figure>
+              </div>
+              <div class="rp-panel" role="tabpanel" id="jp-tp2" aria-labelledby="jp-t2" tabindex="0" hidden>
+                <figure class="jp-shot" data-p3-todo="S1 invoice draft"><div class="shot-slot"><p>Screenshot: Xero draft invoice</p></div><figcaption><span class="jp-asat">As at Tue 24 Nov, 4:05pm</span> $850. The $100 extra is left off until the customer confirms.</figcaption></figure>
+              </div>
+              <div class="rp-panel" role="tabpanel" id="jp-tp3" aria-labelledby="jp-t3" tabindex="0" hidden>
+                <figure class="jp-shot" data-p3-todo="S3 team's list"><div class="shot-slot"><p>Screenshot: the team&rsquo;s list</p></div><figcaption><span class="jp-asat">As at Mon 30 Nov, 7am</span> 7 open items.</figcaption></figure>
+              </div>
+              <div class="rp-panel" role="tabpanel" id="jp-tp4" aria-labelledby="jp-t4" tabindex="0" hidden>
+                <figure class="jp-shot" data-p3-todo="S3 payments"><div class="shot-slot"><p>Screenshot: payments</p></div><figcaption><span class="jp-asat">As at Mon 30 Nov, 7am</span> J-512 paid $850 (test payment) &middot; J-516 $600 of $1,200, due today &middot; J-517 $380 due Tue 1 Dec &middot; INV-2200 $420 overdue.</figcaption></figure>
+              </div>
+
+              <h4 class="jp-h">Carla&rsquo;s timeline</h4>
+              <ol class="jp-time">
+                <li><b>Wed 18</b> Enquiry logged</li>
+                <li><b>Mon 23, 7am</b> Caught: booked, no job</li>
+                <li><b>Mon 23</b> Office creates J-512</li>
+                <li><b>Tue 15:40</b> Photo missing</li>
+                <li><b>Tue 16:05</b> Draft $850, extra flagged</li>
+                <li><b>Wed 9:30</b> Call: extra declined, invoice sent</li>
+                <li><b>Fri</b> Paid (test payment)</li>
+                <li><b>Mon 30</b> Cleared from the list</li>
+              </ol>
+
+              <h4 class="jp-h">Watch the real run</h4>
+              <figure class="jp-shot jp-video" data-p3-todo="recording"><div class="shot-slot"><p>Screen recording, 60&ndash;90 seconds: form &rarr; Xero draft appears &rarr; list updates</p></div></figure>
+
+              <details class="fold eq-real">
+                <summary>Your setup may be different</summary>
+                <ul>
+                  <li><strong>Technicians invoice from the field</strong> (e.g. Jobber, ServiceTitan): I add the checks and the daily list, not the form.</li>
+                  <li><strong>Xero and spreadsheets:</strong> close to this demo.</li>
+                  <li><strong>Paper job sheets, email or WhatsApp:</strong> start with a simple completion form and the daily list. Connecting your accounting software is assessed against your setup first.</li>
+                </ul>
+              </details>
+              <details class="fold eq-real">
+                <summary>What the business gets</summary>
+                <ul>
+                  <li>A short job completion form.</li>
+                  <li>Checks against the quote and approved extras.</li>
+                  <li>Draft invoices in your accounting software.</li>
+                  <li>A record of missing evidence and unresolved charges.</li>
+                  <li>A daily list of unbilled work and overdue invoices.</li>
+                  <li>Error alerts and a written handover.</li>
+                </ul>
+              </details>
+              <p class="eq-small rp-small">Shown with Xero. QuickBooks is similar.</p>
+              <p class="eq-small">In this demo the office creates jobs; the system checks completions, prepares drafts and tracks payments. Your office approves and sends every invoice.</p>
+              <p class="eq-small">Sign-off here is a typed name and confirmation; drawn signatures come from your job app or a signature tool.</p>
+              <p class="jp-end"><strong>That&rsquo;s one customer, from first email to paid.</strong></p>
+              <p class="story-next"><button type="button" class="story-next-btn" data-story-go="enquiry-demo">Back to the start: <span aria-hidden="true">&#9312;</span><span class="sr-only">step 1,</span> the enquiry <span aria-hidden="true">&rarr;</span></button></p>
             </div>
           </div>
         </dialog>

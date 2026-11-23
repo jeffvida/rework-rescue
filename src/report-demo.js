@@ -16,7 +16,7 @@ export const RP_ITEMS = [
   { ref: 'INV-2200', issue: 'Overdue invoice', who: 'Ng Motors · $420', todo: 'Chase payment', owner: 'Manager' },
   { ref: 'J-501', issue: 'Invoiced twice', who: 'INV-2203, INV-2206', todo: 'Cancel the extra invoice', owner: 'Manager' },
   { ref: 'INV-2204', issue: 'Invoice ≠ quote', who: 'Ana Cruz · $260 vs $220', todo: 'Check the amount', owner: 'Manager' },
-  { ref: 'E-1038', issue: 'Booked, no job', who: 'Carla Lim', todo: 'Create the job', owner: 'Scheduling' },
+  { ref: 'E-1038', issue: 'Booked, no job', who: 'Carla Lim', todo: 'Create the job', owner: 'Scheduling', tag: 'Office created J-512' },
   { ref: 'J-508', issue: 'Job date passed', who: 'Santos Cafe', todo: 'Confirm or reschedule', owner: 'Scheduling' },
   { ref: 'E-1041', issue: 'Possible duplicate', who: 'Same as E-1040', todo: 'Check and close', owner: 'Sales' },
   { ref: 'E-1042', issue: 'Unclear enquiry', who: 'Not clear what they need', todo: 'Read and reply', owner: 'Manager' },
@@ -112,7 +112,7 @@ export function mountReportDemo(root) {
   const draw = () => {
     const st = rpStatuses(checked);
     body.innerHTML = RP_ITEMS.map((i, n) => ({ i, s: st[n] })).filter(({ i }) => owner === 'All' || i.owner === owner)
-      .map(({ i, s }) => `<tr class="${RP_MARKED[i.ref] ? 'rp-marked' : ''}${checked && RP_MARKED[i.ref] ? ' rp-flash' : ''}"><td><b>${esc(i.issue)}</b><span>${esc(i.who)}</span></td><td>${esc(i.todo)}</td><td>${esc(i.owner)}<span>${esc(i.ref)}</span></td><td>${pill(s)}${s.note ? `<span>${esc(s.note)}</span>` : ''}</td></tr>`).join('');
+      .map(({ i, s }) => `<tr class="${RP_MARKED[i.ref] ? 'rp-marked' : ''}${checked && RP_MARKED[i.ref] ? ' rp-flash' : ''}"><td><b>${esc(i.issue)}</b><span>${esc(i.who)}</span>${i.tag ? `<em class="rp-tag">${esc(i.tag)}</em>` : ''}</td><td>${esc(i.todo)}</td><td>${esc(i.owner)}<span>${esc(i.ref)}</span></td><td>${pill(s)}${s.note ? `<span>${esc(s.note)}</span>` : ''}</td></tr>`).join('');
   };
   if (filters) {
     const counts = rpOwnerCounts();

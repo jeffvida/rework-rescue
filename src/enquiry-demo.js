@@ -181,7 +181,8 @@ export function mountEnquiryDemo(root) {
     const pill = r.status === 'New' ? '<span class="pill pill-ok">New</span>' : '<span class="pill pill-amber">Needs check</span>';
     const dash = '&ndash;';
     rows.insertAdjacentHTML('afterbegin', `<tr class="eq-new" data-status="${r.status}"><td class="eq-c-when">${esc(whenLabel())}</td><td class="eq-c-name">${esc(r.name)}</td><td class="eq-c-co">${r.company ? esc(r.company) : dash}</td><td class="eq-c-need">${esc(r.need)}</td><td class="eq-c-cat">${esc(r.category)}</td><td class="eq-c-urg">${r.urgency === 'High' ? '<span class="eq-urgent">High</span>' : 'Normal'}</td><td class="eq-c-owner">${esc(r.owner)}</td><td class="eq-c-status">${pill}</td><td class="eq-c-why">${r.check_reason ? esc(r.check_reason) : dash}</td></tr>`);
-    while (rows.children.length > 8) rows.lastElementChild.remove();
+    // Keep Carla Lim's row (E-1038, the start of the CoolFix customer story) however many enquiries are sent.
+    while (rows.children.length > 9) [...rows.children].reverse().find((tr) => !tr.hasAttribute('data-keep'))?.remove();
     drawSum();
     mail.innerHTML = `<p class="eq-mail-k">Alert sent to ${esc(r.owner)} <span>(in this demo, to me)</span></p><p class="eq-mail-s">${esc(alertSubject(r))}</p>${r.check_reason ? `<p class="eq-mail-c">Please check: ${esc(r.check_reason)}</p>` : ''}`;
     mail.hidden = false;

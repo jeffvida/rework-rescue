@@ -13,7 +13,12 @@ import {
 } from '../src/tracker/engine.js';
 import { appHtml, attentionItems, reportChecks, reportHtml, STAGES } from '../src/tracker/ui.js';
 import { dataChecks } from '../src/demo/hero.js';
-const noDemo = (h) => { const a = h.indexOf('<dialog class="cs eq-dlg rp-dlg"'); if (a < 0) return h; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, /replayed here with fictional data/, 'sample amounts only inside the labelled demo'); return h.replace(d, ''); };
+const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays show fictional sample amounts, not prices
+  for (const [open, label] of [['<dialog class="cs eq-dlg rp-dlg"', /replayed here with fictional data/], ['<dialog class="cs eq-dlg rp-dlg jp-dlg"', /Fictional data &middot; Test run/]]) {
+    const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
+  }
+  return h;
+};
 
 const page = () => readFile(new URL('../index.html', import.meta.url), 'utf8');
 const section = async () => { const h = await page(); return h.slice(h.indexOf('id="samples"'), h.indexOf('id="services"')); };

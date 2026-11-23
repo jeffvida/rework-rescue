@@ -5754,3 +5754,13 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .eq-body > .story-next, .rp-body > .story-next { bottom: -1rem; margin: 1rem -1rem 0; padding: 0.6rem 1rem 1rem; }
   .story-next-btn { padding: 0.5rem 0.9rem; font-size: 0.92rem; }
 }
+
+/* 23 Nov page review: compact decision cards on phones (icon beside the question, answer and example underneath). */
+@media (max-width: 40rem) {
+  .rr-decide { gap: 0.5rem; }
+  .rr-d { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.15rem 0.7rem; align-items: start; padding: 0.8rem 0.9rem; height: auto; }
+  .rr-d svg { grid-row: span 3; width: 2rem; height: 2rem; padding: 0.4rem; }
+  .rr-d h4 { margin: 0; font-size: 1rem; }
+  .rr-d-a { margin: 0.1rem 0 0; }
+  .rr-d-eg { margin: 0; padding-top: 0.2rem; font-size: 0.86rem; }
+}

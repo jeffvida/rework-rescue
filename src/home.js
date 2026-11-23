@@ -1,7 +1,6 @@
 // Homepage: the hero illustration, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
 import { mountBooking } from './booking/popup.js';
-import { mountFlow } from './demo/flow.js';
 import { mountZones } from './hero-zones.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
@@ -61,9 +60,7 @@ const booking = mountBooking();
 // The chat assistant (src/assistant/widget.js). Shows only when site-config.js has assistantUrl, or with ?assistant=preview.
 mountAssistant();
 
-// Hero (15 Nov): the five-step flow (src/demo/flow.js). The earlier Today / With panel was removed (ChatGPT + Jeff, 15 Nov);
-// src/demo/hero.js stays for its tested figure helpers.
-mountFlow(document.getElementById('hero-flow'));
+// 23 Nov: the Dana Cruz five-step example (src/demo/flow.js) was removed from How I help; it repeated demo ①.
 // Hero (19 Nov): the three-zone scene; light flows along its connections only while it is on screen.
 mountZones(document.getElementById('hero-story'));
 

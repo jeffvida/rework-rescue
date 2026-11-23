@@ -19,22 +19,21 @@ test('hero: headline kept, benefit first, no failure talk up front; the checks l
   assert.match(h, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg[\s\S]*?<\/svg><\/span> business operations\./);
   const top = text(h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero'))));
   assert.doesNotMatch(top, /fails?\b|failure|goes wrong|breaks?\b|retry/i, 'the hero sells confidence; failure handling is shown further down, as proof');
-  const fig = between(h, 'id="hero-flow"', '</figure>');
-  assert.match(fig, /<strong>Checks and control are built into every workflow\.<\/strong> <a href="#safety">See how/);
+  assert.match(h, /<a href="#safety">See how the checks work/, '23 Nov: the Dana example (and its link) is gone; the FAQ still links to the checks');
 });
 
 test('checks section: calm heading, memorable line, five customer-benefit headings, no per-card examples (20 Nov), short limits line', async () => {
   const h = await page();
   const s = between(h, 'id="safety"', '</section>');
   assert.match(s, /<h2 id="safety-h">Checks and control, built in\.<\/h2>/);
-  assert.match(s, /I look at the whole process &mdash; the information, the steps, the tools they rely on and the results\. I build in checks and clear next steps for anything that needs attention\./);
+  assert.match(s, /<p class="lede">Every workflow I build has checks, and tells the right person when something needs attention\.<\/p>/);
   assert.doesNotMatch(text(s), /repair|job request|job sheet/i, 'general business example, not repair-specific');
   assert.match(s, /<p class="sn-quote">I don&rsquo;t just automate the work\. I design what happens when the work doesn&rsquo;t go to plan\.<\/p>/);
   assert.deepEqual([...s.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]),
-    ['Information checked', 'Problems made visible', 'Results checked', 'People stay involved', 'Ready for handover']);
+    ['Information checked', 'Failed steps caught', 'Results checked', 'People stay involved', 'Ready for handover']);
   assert.equal((s.match(/class="sn-eg"/g) || []).length, 0, 'per-card examples removed (20 Nov)');
   assert.match(s, /<p class="sn-limits">The checks are agreed for each workflow, based on its risks and the tools it connects to\.<\/p>/);
-  assert.ok(h.indexOf('id="approach"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="built"'), 'after the approach panel, before the demos');
+  assert.ok(h.indexOf('id="built"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="how"'), '23 Nov: after the demos (proof first), before How it works');
 });
 
 test('failure drill: optional (closed by default), general example, pauses, person told, person recovers with a check', async () => {
@@ -60,7 +59,7 @@ test('failure drill: optional (closed by default), general example, pauses, pers
 test('process, handover and FAQ carry the safety net without new promises', async () => {
   const h = await page();
   assert.match(h, /<li><h3>Build and test<\/h3><p>Test the usual cases, unusual situations and what happens when something goes wrong\.<\/p><\/li>/);
-  assert.match(h, /<strong>Safety net<\/strong><span>The checks set up for your workflow, written backup steps, and a walk-through of the agreed failure tests\.<\/span><\/li>/);
+  assert.match(h, /<strong>Checks and backup steps<\/strong><span>The checks set up for your workflow, written backup steps, and a walk-through of the agreed failure tests\.<\/span><\/li>/);
   for (const k of ['A working solution', 'Project files and access', 'A practical guide and walkthrough', '30 days of fixes']) assert.ok(h.includes(`<strong>${k}</strong>`), `${k} kept`);
   const faq = between(h, '<summary>What happens if something breaks or a connected app changes?</summary>', '</details>');
   assert.equal((h.match(/<summary>What happens if/g) || []).length, 1, 'one failure FAQ, not two');

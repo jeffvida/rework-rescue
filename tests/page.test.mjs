@@ -103,42 +103,12 @@ test('hero (19 Nov): three zones, full width; problem, solution, outcome; no sli
   assert.doesNotMatch(home, /hero-slider|mountSlider/);
 });
 
-test('the Dana Cruz example moved under How I help, still working', async () => {
+test('23 Nov page review: the Dana Cruz example is gone (it repeated demo ①); the hero has no Today / With panel', async () => {
   const html = await page();
-  const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
-  assert.match(svc, /<h3>From customer enquiry to an organised job<\/h3>/);
-  assert.match(svc, /<figure class="rf no-print" id="hero-flow"/);
-  assert.ok(!html.slice(0, html.indexOf('id="services"')).includes('Dana Cruz'), 'not in the hero');
-});
-
-test('hero flow: five steps, ends on a person approving, labelled fictional; plays once, Skip/Replay, CSP-safe', async () => {
-  const html = await page();
-  const fig = html.slice(html.indexOf('id="hero-flow"'), html.indexOf('</figure>', html.indexOf('id="hero-flow"')));
-  assert.deepEqual([...fig.matchAll(/<span class="rf-n" aria-hidden="true">\d<\/span>([^<]+)<\/p>/g)].map((m) => m[1]),
-    ['Request arrives', 'AI extracts the details', 'Record updated', 'Missing information flagged', 'A person reviews and approves']);
-  assert.match(fig, /<li class="is-missing"><small>Phone<\/small>Missing<\/li>/, 'the missing detail is visible, not just a warning sign');
-  assert.match(fig, /No phone number &mdash; needed to arrange the repair/);
-  assert.match(fig, /Approved by a person/);
-  assert.match(fig, /<figcaption class="rf-cap" id="rf-cap">Fictional sample business\. Illustration only\./);
-  // The HTML is the final frame: the "before" states are hidden from screen readers and from no-JS visitors.
-  for (const m of fig.matchAll(/<span class="rf-pre[^"]*"([^>]*)>/g)) assert.match(m[1], /aria-hidden="true"/);
-  const c = await read('../assets/styles.css');
-  assert.match(c, /\.rf-pre \{ display: none !important; \}/);
-  assert.match(c, /@media \(prefers-reduced-motion: reduce\) \{ \.rf-step, \.rf-card \{ transition: none; \} \}/);
-  const js = await read('../src/demo/flow.js');
-  assert.match(js, /prefers-reduced-motion: reduce/); assert.match(js, /IntersectionObserver/); assert.match(js, /'Replay'/); assert.match(js, /'Skip'/);
-  assert.doesNotMatch(js, /\.style\.[a-z]+\s*=|setInterval/, 'CSP: classes only; plays once, no loop');
-  const { STEP_MS, APPROVE_MS, STEPS } = await import('../src/demo/flow.js');
-  const total = 250 + (STEPS - 1) * STEP_MS + APPROVE_MS + 900;
-  assert.ok(total <= 9000, `about 8 seconds (${total} ms)`);
-});
-
-test('hero: only the five-step flow; the earlier Today / With panel is gone (15 Nov decision)', async () => {
-  const html = await page();
+  assert.doesNotMatch(html, /Dana Cruz|id="hero-flow"|svc-example/);
   assert.doesNotMatch(html, /id="hero-visual"|hx-toggle|With Rework Rescue/);
   const home = await read('../src/home.js');
-  assert.doesNotMatch(home, /mountHero|hero=panel|get\('hero'\)/);
-  assert.match(home, /mountFlow\(document\.getElementById\('hero-flow'\)\)/);
+  assert.doesNotMatch(home, /mountFlow|mountHero|hero=panel|get\('hero'\)/);
 });
 test('Where I can make work easier: six tiles, the customer problem first, then what gets built; 3 / 2 / 1 columns', async () => {
   const sec = section(await page(), 'services', 'approach');
@@ -160,14 +130,14 @@ test('Where I can make work easier: six tiles, the customer problem first, then 
 
 test('approach (20 Nov): folded into How I help as one panel; headline, one short lead, three decision cards; extra paragraphs gone', async () => {
   const html = await page();
-  const svc = section(html, 'services', 'safety');
+  const svc = section(html, 'services', 'built');
   const sec = svc.slice(svc.indexOf('id="approach"'));
   assert.match(sec, /id="approach">\s*<p class="eyebrow">My approach<\/p>\s*<h3 class="rr-approach-h" id="approach-h">Start with the work, not the software\.<\/h3>/);
   assert.match(sec, /<p class="rr-approach-lead">I find where the work gets stuck, then choose the simplest fix\.<\/p>/);
   assert.match(sec, /<h4 class="rr-decide-h">AI or simple automation\? Three questions decide it\.<\/h4>/);
   assert.deepEqual([...sec.matchAll(/<h4>([^<]+)<\/h4><p class="rr-d-a">([^<]+)<\/p><p class="rr-d-eg">([^<]+)<\/p>/g)].map((m) => `${m[1]} | ${m[2]} | ${m[3]}`), [
     'Are the rules clear? | Automation | Form submitted &rarr; tracker updated &rarr; confirmation sent',
-    'Does it need interpretation? | AI step | Read an enquiry email and extract customer details',
+    'Does someone need to read and understand it? | AI | Read an enquiry email and extract customer details',
     'How costly would an error be? | Human review | Hold a customer reply or high-value quote for approval']);
   assert.doesNotMatch(html, /rr-approach-note|rr-approach-more|You care about missed enquiries/, 'repeated paragraphs removed');
   assert.doesNotMatch(html, /<section class="section rr-diff"/, 'no separate approach band');
@@ -176,7 +146,7 @@ test('approach (20 Nov): folded into How I help as one panel; headline, one shor
 
 test('client expectations (19 Nov): testing line, weekly updates, closing thought; monitoring stays separate', async () => {
   const html = await page();
-  const safety = section(html, 'safety', 'built');
+  const safety = section(html, 'safety', 'how');
   assert.doesNotMatch(safety, /sn-demo|A demo shows the idea/, 'testing line lives in How it works only (20 Nov)');
   assert.doesNotMatch(html, /keeps working/, 'testing is not sold as a guarantee');
   const how = section(html, 'how', 'about');
@@ -190,7 +160,7 @@ test('client expectations (19 Nov): testing line, weekly updates, closing though
 
 test('proof: own builds first, plain-text tools line, then two short previous-role results with details closed', async () => {
   const html = await page();
-  const sec = section(html, 'built', 'how');
+  const sec = section(html, 'built', 'safety');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   assert.match(sec, /<p class="eyebrow">Demos &amp; examples<\/p>\s*<h2 id="built-h">See it working on this page\.<\/h2>/);
   assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 5, 'booking, chat, (21 Nov) the enquiry tracker and the weekly report, (23 Nov) job done to paid');
@@ -209,10 +179,17 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
   const lists = sec.slice(0, sec.indexOf('<dialog')).replace(/<ul class="built-gets">[\s\S]*?<\/ul>/g, '');
   assert.equal((lists.match(/<li class="built-card/g) || []).length, (lists.match(/<\/li>\s*(<li class="built-card|<\/ul>)/g) || []).length, 'every card is closed');
-  assert.match(sec, /<p class="rr-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);
-  assert.doesNotMatch(sec.match(/<p class="rr-tools">[\s\S]*?<\/p>/)[0], /Excel|Power Query|Python|Power BI/, 'main strip stays AI and automation');
+  // 23 Nov: the "Tools I work with" strip moved to About; each card's tool line sits inside its steps fold.
+  const about = section(html, 'about', 'faq');
+  assert.match(about, /<p class="rr-tools about-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);
+  assert.doesNotMatch(about.match(/<p class="rr-tools[^"]*">[\s\S]*?<\/p>/)[0], /Excel|Power Query|Python|Power BI/, 'main strip stays AI and automation');
+  assert.doesNotMatch(sec, /class="rr-tools"/);
   assert.doesNotMatch(sec, /<img[^>]+(logo|n8n|gemini)/i, 'tool names as text, no logos');
-  assert.ok(sec.indexOf('built-card') < sec.indexOf('rr-tools') && sec.indexOf('rr-tools') < sec.indexOf('rr-results'));
+  for (const card of sec.slice(0, sec.indexOf('rr-results-h')).split(/<li class="built-card/).slice(1)) {
+    const fold = card.slice(card.indexOf('<details'), card.indexOf('</details>'));
+    assert.match(fold, /<p class="built-tools">/, 'tool line inside the fold');
+  }
+  assert.doesNotMatch(sec, /The real n8n workflow/, 'no tool name in screenshot captions');
   const res = sec.slice(sec.indexOf('class="rr-results-h"'));
   assert.match(res, /class="rr-results-h" id="experience">Examples from my previous roles<\/h3>/);
   assert.match(res, /<p class="rr-results-note">These are from previous employment, not Rework Rescue client projects\.<\/p>/);
@@ -240,7 +217,7 @@ test('build cards match what the n8n workflows do', async () => {
 
 test('section order, nav and removed content', async () => {
   const html = await page();
-  const ids = ['services', 'approach', 'safety', 'built', 'experience', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
+  const ids = ['services', 'approach', 'built', 'experience', 'safety', 'how', 'about', 'faq', 'start'].map((x) => html.indexOf(`id="${x}"`));
   assert.ok(ids.every((i) => i > 0)); assert.deepEqual([...ids].sort((a, b) => a - b), ids);
   assert.equal((html.match(/<section /g) || []).length, 8, 'hero + seven sections (approach folded into How I help, 20 Nov)');
   assert.ok(html.indexOf('id="approach"') < html.indexOf('</section>', html.indexOf('id="services"')), 'approach panel sits inside How I help');
@@ -262,18 +239,19 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   const how = section(html, 'how', 'about');
   assert.match(how, /You&rsquo;ll know the scope and price in writing before any work starts\./);
   assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3><p>([^<]+)<\/p><\/li>/g)].map((m) => `${m[1]}: ${m[2]}`), [
-    'Discovery: Understand how the work happens today and where it gets stuck.',
-    'Technical assessment: Check your existing tools, data and access, and whether they can support the solution.',
-    'Written scope and agreement: Confirm deliverables, exclusions, testing plan, fixed project fee and estimated delivery date.',
+    'Understand the work: See how the work is done today and where it gets stuck.',
+    'Check your tools: Check your existing tools, data and access, and whether they can support the solution.',
+    'Written plan and fixed price: What you&rsquo;ll get, what&rsquo;s not included, how it will be tested, the fixed fee and the expected delivery date.',
     'Build and test: Test the usual cases, unusual situations and what happens when something goes wrong.',
     'Handover and 30&#8209;day fixes: Explain the solution, provide documentation and include 30 days of fixes.']);
   const std = how.slice(how.indexOf('class="rr-standards"'));
   assert.match(std, /<h3>What you&rsquo;ll have after handover<\/h3>/);
-  assert.match(std, /<p class="rr-standards-intro">Every project is handed over as a usable solution, not just a build\.<\/p>/);
+  assert.doesNotMatch(std, /rr-standards-intro|hs-t1|Handover day/, '23 Nov: filler line and the repeated handover-day row removed');
+  assert.doesNotMatch(how, /demo-after-solo/, '23 Nov: no extra booking button inside How it works');
   assert.deepEqual([...std.matchAll(/<li class="hs-\d"><span class="hs-ic"[\s\S]*?<\/span><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
-    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Safety net']);
+    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Checks and backup steps']);
   assert.deepEqual([...std.matchAll(/<li class="hs-t\d"><b>([^<]+)<\/b><strong>([^<]+)<\/strong>/g)].map((m) => `${m[1]}: ${m[2]}`),
-    ['Handover day: Walkthrough and files', 'Days 1&ndash;30: 30 days of fixes', 'After 30 days: It&rsquo;s yours']);
+    ['Days 1&ndash;30: 30 days of fixes', 'After 30 days: It&rsquo;s yours']);
   assert.doesNotMatch(std, /rr-standards-note/, 'repeat of the Safety net card removed (20 Nov)');
   assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);

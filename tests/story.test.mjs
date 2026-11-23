@@ -107,8 +107,8 @@ test('until the test run is verified, the pop-up says it is a preview and shows 
   const h = await read('../index.html');
   const todo = (h.match(/data-p3-todo="/g) || []).length;
   if (!P3_VERIFIED) {
-    assert.match(dialog(h, 'jobpaid-demo'), /<span class="jp-todo" data-p3-todo="preview banner">Preview: planned figures, checked after the 30 Nov test run<\/span>/);
-    assert.equal(todo, 2, 'preview banner + W1 workflow screenshot in the card');
+    assert.match(dialog(h, 'jobpaid-demo'), /<span class="jp-todo" data-p3-todo="preview banner">Planned figures from the test plan<\/span>/);
+    assert.equal(todo, 1, 'planned-figures tag (the W1 screenshot is added with the real run)');
   } else {
     assert.equal(todo, 0, 'verified: every slot replaced with the real screenshot or recording');
   }

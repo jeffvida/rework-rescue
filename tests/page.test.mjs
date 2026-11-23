@@ -205,7 +205,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.match(sec, /<h2 id="built-h">See it working on this page\.<\/h2>\s*<p class="built-intro">Built and run by me\. Try them: they&rsquo;re real workflows, not client projects\.<\/p>/, '21 Nov: one honest line up top');
   assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');
   assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 3, 'enquiry, report and job-to-paid are demos');
-  assert.equal((sec.match(/<figure class="built-shot( built-shot-todo)?"/g) || []).length, 5, 'one workflow screenshot per card, inside the steps fold');
+  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per card, inside the steps fold (job to paid: added after the 30 Nov run)');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
   const lists = sec.slice(0, sec.indexOf('<dialog')).replace(/<ul class="built-gets">[\s\S]*?<\/ul>/g, '');
   assert.equal((lists.match(/<li class="built-card/g) || []).length, (lists.match(/<\/li>\s*(<li class="built-card|<\/ul>)/g) || []).length, 'every card is closed');

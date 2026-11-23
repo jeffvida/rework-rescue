@@ -5633,3 +5633,107 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 }
 .jp-nw { white-space: nowrap; }
 .built-card-wide .built-psg > div { grid-template-columns: 6.8rem minmax(0, 1fr); }
+/* 23 Nov (ChatGPT review applied): step 3 as a 5-step walk-through */
+.jp-head .cs-title { margin-bottom: 0.3rem; }
+.jp-problem { margin: 0.4rem 0 0.2rem; font-weight: 700; font-size: 1rem; line-height: 1.4; }
+.jp-promise { margin: 0 0 0.7rem; color: var(--ink); font-size: 0.95rem; }
+.wt-dots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem; }
+.wt-dots li { margin: 0; padding-top: 0.4rem; border-top: 4px solid var(--line); font-size: 0.72rem; font-weight: 700; color: var(--muted); text-align: center; }
+.wt-dots li.is-done { border-top-color: var(--teal-chip); color: var(--teal-text); }
+.wt-dots li.is-on { border-top-color: var(--teal); color: var(--teal-dark); }
+.jp-body { display: flex; flex-direction: column; }
+.wt-step { padding-bottom: 0.5rem; }
+.wt-step + .wt-step { border-top: 1px solid var(--line); padding-top: 1rem; }
+.wt-step[hidden] { display: none; }
+.wt-step + .wt-step:not([hidden]) { border-top: 0; padding-top: 0; }
+.wt-k { margin: 0 0 0.2rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--teal-text); }
+.wt-h { margin: 0 0 0.5rem; font-family: var(--display); font-size: 1.2rem; line-height: 1.3; }
+.wt-h:focus { outline: none; }
+.wt-line { margin: 0.6rem 0 0; font-size: 0.95rem; line-height: 1.5; }
+.wt-note { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); }
+/* Step 1: phone form */
+.wt-phone { margin: 0.7rem auto 0; max-width: 22rem; padding: 0.9rem; border: 2px solid #1d2b2b; border-radius: 22px; background: #fff; display: grid; gap: 0.55rem; font-size: 0.9rem; }
+.wt-job { margin: 0; padding-bottom: 0.45rem; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; }
+.wt-job span, .wt-job { color: var(--ink); }
+.wt-check { display: flex; gap: 0.5rem; align-items: flex-start; }
+.wt-check input, .wt-extra input { width: 1.1rem; height: 1.1rem; margin-top: 0.1rem; accent-color: var(--teal); }
+.wt-photos { display: grid; gap: 0.35rem; }
+.wt-photo { margin: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.55rem; border: 1px dashed var(--line); border-radius: 8px; }
+.wt-photo.is-added { border-style: solid; background: var(--teal-tint); }
+.wt-photo span { color: var(--teal-text); font-weight: 700; font-size: 0.82rem; }
+.wt-add { font: inherit; font-size: 0.82rem; font-weight: 700; padding: 0.3rem 0.7rem; min-height: 36px; border: 1.5px solid var(--teal); border-radius: 999px; background: #fff; color: var(--teal-dark); cursor: pointer; }
+.wt-extra { margin: 0; padding: 0.5rem 0.55rem; border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 0.3rem; }
+.wt-extra legend { padding: 0 0.2rem; font-weight: 600; font-size: 0.85rem; }
+.wt-extra label { display: flex; gap: 0.5rem; align-items: center; }
+.wt-error { margin: 0; color: #a3341f; font-weight: 700; font-size: 0.88rem; }
+.wt-error:empty { display: none; }
+.wt-submit { width: 100%; justify-content: center; }
+.wt-sent { margin: 0; text-align: center; font-weight: 800; color: var(--teal-dark); }
+/* Step 2: invoice */
+.wt-invoice { margin-top: 0.4rem; padding: 0.8rem 0.9rem; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: var(--shadow-card, none); }
+.wt-invoice p { margin: 0; display: flex; justify-content: space-between; gap: 0.8rem; }
+.wt-inv-top { align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+.wt-inv-line { padding: 0.45rem 0; border-bottom: 1px solid #eceae0; font-size: 0.95rem; }
+.wt-inv-line[hidden] { display: none; }
+.wt-inv-total { padding-top: 0.5rem; font-size: 1.05rem; }
+.wt-inv-total strong { font-size: 1.4rem; }
+.wt-flag { margin: 0.6rem 0 0; padding: 0.5rem 0.75rem; border-left: 4px solid var(--signal); background: var(--warn-bg); font-size: 0.92rem; }
+.wt-flag[hidden], [data-wt-path][hidden] { display: none; }
+/* Step 3: list + record */
+.wt-list { margin-top: 0.4rem; border: 1px solid var(--line); border-radius: 12px; background: #fff; overflow: hidden; }
+.wt-list-h { margin: 0; padding: 0.45rem 0.8rem; background: #f3f3ef; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.wt-item { margin: 0; padding: 0.6rem 0.8rem; display: flex; justify-content: space-between; gap: 0.8rem; font-weight: 600; }
+.wt-item span + span { color: var(--muted); font-weight: 400; font-size: 0.88rem; }
+.wt-record { margin-top: 0.7rem; }
+.wt-rec { margin: 0.7rem 0 0; padding: 0.6rem 0.8rem; border: 1px solid var(--teal-chip); border-radius: 10px; background: var(--teal-tint); display: grid; gap: 0.25rem; }
+.wt-rec[hidden] { display: none; }
+.wt-rec > div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.5rem; font-size: 0.9rem; }
+.wt-rec dt { color: var(--muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.wt-rec dd { margin: 0; font-weight: 600; }
+/* Step 4: payments */
+.wt-pay { width: 100%; margin-top: 0.4rem; background: #fff; font-size: 0.9rem; }
+.wt-pay td:last-child, .wt-pay tfoot td { text-align: right; white-space: nowrap; }
+.wt-pay small { color: var(--muted); }
+.wt-pay tr.wt-paid td { background: #f3f8f6; }
+.wt-pay tfoot th { text-align: left; }
+/* Step 5: the Monday report, the pay-off */
+.wt-report { margin-top: 0.4rem; border: 2px solid var(--teal); border-radius: 14px; background: #fff; overflow: hidden; }
+.wt-rep-top { margin: 0; padding: 0.5rem 0.9rem; background: var(--teal-dark); color: #fff; font-weight: 700; font-size: 0.88rem; }
+.wt-rep { list-style: none; margin: 0; padding: 0.3rem 0.9rem; }
+.wt-rep li { margin: 0; padding: 0.55rem 0; display: flex; justify-content: space-between; gap: 0.8rem; border-bottom: 1px solid #eceae0; font-size: 0.95rem; }
+.wt-rep li:last-child { border-bottom: 0; }
+.wt-rep strong { white-space: nowrap; font-size: 1.05rem; }
+.wt-rep .wt-rep-warn { padding-left: 1rem; color: #8a4b0f; }
+.wt-rep-foot { margin: 0; padding: 0.5rem 0.9rem 0.7rem; font-size: 0.85rem; color: var(--muted); }
+.wt-cta { margin-top: 0.9rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.2rem; }
+/* Back / Next */
+.wt-nav { position: sticky; bottom: 0; z-index: 2; margin: 0.8rem -1.4rem 0; padding: 0.7rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; background: var(--paper); border-top: 1px solid var(--line); }
+.wt-nav[hidden] { display: none; }
+.wt-count { margin: 0; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.wt-nav .btn { min-height: 44px; }
+.wt-back:disabled { visibility: hidden; }
+.wt-next[hidden] { display: inline-flex; visibility: hidden; }
+.wt-more { margin-top: 1rem; }
+@media (max-width: 40rem) {
+  .wt-dots li { font-size: 0.62rem; }
+  .wt-nav { margin: 0.8rem -1rem 0; padding: 0.6rem 1rem; }
+  .jp-problem { font-size: 0.95rem; }
+}
+/* walk-through: compact header so each step fits one phone screen */
+.jp-label .jp-todo { display: inline-block; margin: 0.15rem 0 0; padding: 0 0.45rem; border: 1px dashed var(--signal); border-radius: 999px; background: var(--warn-bg); font-weight: 600; font-size: 0.72rem; color: var(--ink); }
+.jp-intro { margin: 0 0 0.9rem; padding: 0.65rem 0.8rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--signal); }
+.jp-intro .jp-problem { margin: 0 0 0.25rem; }
+.jp-intro .jp-promise { margin: 0; }
+.wt-photos { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+.wt-photo { padding: 0.3rem 0.5rem; min-height: 44px; }
+.wt-extra { grid-template-columns: 1fr 1fr; }
+.wt-extra legend { grid-column: 1 / -1; }
+.wt-phone { gap: 0.5rem; padding: 0.8rem; }
+@media (max-width: 40rem) {
+  .jp-head { padding: 1rem 1rem 0.7rem; }
+  .jp-head .cs-title { font-size: 1.1rem; }
+  .jp-label { font-size: 0.72rem; }
+  .jp-body { padding: 0.9rem 1rem 0; }
+  .wt-h { font-size: 1.08rem; }
+}
+.wt-record[hidden], .wt-sent[hidden], .wt-rec[hidden], [data-wt-after-rec][hidden] { display: none; }

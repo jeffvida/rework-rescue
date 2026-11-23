@@ -455,108 +455,137 @@
         </dialog>
         <dialog class="cs eq-dlg rp-dlg jp-dlg" id="jobpaid-demo" aria-labelledby="jp-h">
           <div class="cs-sheet">
-            <header class="cs-head">
+            <header class="cs-head jp-head">
               <p class="cs-k">Demo &middot; Automation</p>
               <h3 class="cs-title" id="jp-h">From job done to invoice paid</h3>
               <button type="button" class="cs-close" data-jp-close aria-label="Close">&times;</button>
-              <p class="jp-label">CoolFix Aircon &middot; Fictional data &middot; Test run</p>
-              <p class="eq-what"><button type="button" class="link-button" data-story-go="report-demo">Monday&rsquo;s check</button> caught Carla&rsquo;s booking with no job, so the office created job <span class="jp-nw">J-512</span>. Here&rsquo;s what happened next.</p>
-            </header>
-            <div class="cs-body rp-body jp-body">
-              <p class="jp-todo" data-p3-todo="preview banner"><strong>Preview:</strong> figures are the planned results from the test plan. Screenshots and the recording are added after the test run on Mon 30 Nov.</p>
-              <div class="jp-strip">
-                <p class="jp-asat">As at Tue 24 Nov, 4:05pm</p>
-                <ul class="jp-figs">
-                  <li><strong>$850</strong> Invoice draft prepared</li>
-                  <li><strong>$100</strong> Extra awaiting confirmation</li>
-                  <li class="jp-fig-warn"><strong>$420</strong> Overdue invoice</li>
-                </ul>
-              </div>
-
-              <h4 class="jp-h">What the system does when something isn&rsquo;t right</h4>
-              <div class="rp-tabs jp-tabs jp-tabs-4" role="tablist" aria-label="Scenarios from the test run">
-                <button type="button" role="tab" id="jp-s1" aria-controls="jp-sp1" aria-selected="true">Missing evidence</button>
-                <button type="button" role="tab" id="jp-s2" aria-controls="jp-sp2" aria-selected="false" tabindex="-1">Unapproved extra</button>
-                <button type="button" role="tab" id="jp-s3" aria-controls="jp-sp3" aria-selected="false" tabindex="-1">Not yet sent</button>
-                <button type="button" role="tab" id="jp-s4" aria-controls="jp-sp4" aria-selected="false" tabindex="-1">Overdue payment</button>
-              </div>
-              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp1" aria-labelledby="jp-s1" tabindex="0">
-                <p class="jp-asat">As at Tue 24 Nov, 3:40pm</p>
-                <dl class="jp-wsw"><div><dt>What happened</dt><dd>The repair job was sent without the after photo.</dd></div><div><dt>What the system did</dt><dd>No invoice. The technician was told what&rsquo;s missing.</dd></div><div><dt>Who acts next</dt><dd>Rico resubmits.</dd></div></dl>
-                <p class="jp-aside">Photos are only required for job types that need them, like repairs and installs.</p>
-              </div>
-              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp2" aria-labelledby="jp-s2" tabindex="0" hidden>
-                <p class="jp-asat">As at Tue 24 Nov, 4:05pm</p>
-                <dl class="jp-wsw"><div><dt>What happened</dt><dd>A $100 capacitor was added, with no recorded approval.</dd></div><div><dt>What the system did</dt><dd>A draft was created for the approved $850 only, and the extra was put on the list straight away.</dd></div><div><dt>Who acts next</dt><dd>The manager calls Carla and records who, when, amount and outcome.</dd></div></dl>
-              </div>
-              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp3" aria-labelledby="jp-s3" tabindex="0" hidden>
-                <p class="jp-asat">As at Mon 30 Nov, 7am</p>
-                <dl class="jp-wsw"><div><dt>What happened</dt><dd>The J-515 draft has been waiting since Thu 26.</dd></div><div><dt>What the system did</dt><dd>It&rsquo;s on the list.</dd></div><div><dt>Who acts next</dt><dd>The manager reviews and sends it in Xero.</dd></div></dl>
-              </div>
-              <div class="rp-panel jp-scen" role="tabpanel" id="jp-sp4" aria-labelledby="jp-s4" tabindex="0" hidden>
-                <p class="jp-asat">As at Mon 30 Nov, 7am</p>
-                <dl class="jp-wsw"><div><dt>What happened</dt><dd>INV-2200 (Ng Motors) $420, already flagged in last week&rsquo;s report.</dd></div><div><dt>What the system did</dt><dd>Still top of the list.</dd></div><div><dt>Who acts next</dt><dd>The manager follows up.</dd></div></dl>
-              </div>
-
-              <h4 class="jp-h">From the test run</h4>
-              <div class="rp-tabs jp-tabs jp-tabs-4" role="tablist" aria-label="Screens from the test run">
-                <button type="button" role="tab" id="jp-t1" aria-controls="jp-tp1" aria-selected="true">Technician form</button>
-                <button type="button" role="tab" id="jp-t2" aria-controls="jp-tp2" aria-selected="false" tabindex="-1">Invoice draft</button>
-                <button type="button" role="tab" id="jp-t3" aria-controls="jp-tp3" aria-selected="false" tabindex="-1">Team&rsquo;s list</button>
-                <button type="button" role="tab" id="jp-t4" aria-controls="jp-tp4" aria-selected="false" tabindex="-1">Payments</button>
-              </div>
-              <div class="rp-panel" role="tabpanel" id="jp-tp1" aria-labelledby="jp-t1" tabindex="0">
-                <figure class="jp-shot" data-p3-todo="S2 technician form"><div class="shot-slot"><p>Screenshot: technician form</p></div><figcaption><span class="jp-asat">As at Tue 24 Nov, 3:40pm</span> J-512 Needs evidence: after photo.</figcaption></figure>
-              </div>
-              <div class="rp-panel" role="tabpanel" id="jp-tp2" aria-labelledby="jp-t2" tabindex="0" hidden>
-                <figure class="jp-shot" data-p3-todo="S1 invoice draft"><div class="shot-slot"><p>Screenshot: Xero draft invoice</p></div><figcaption><span class="jp-asat">As at Tue 24 Nov, 4:05pm</span> $850. The $100 extra is left off until the customer confirms.</figcaption></figure>
-              </div>
-              <div class="rp-panel" role="tabpanel" id="jp-tp3" aria-labelledby="jp-t3" tabindex="0" hidden>
-                <figure class="jp-shot" data-p3-todo="S3 team's list"><div class="shot-slot"><p>Screenshot: the team&rsquo;s list</p></div><figcaption><span class="jp-asat">As at Mon 30 Nov, 7am</span> 7 open items.</figcaption></figure>
-              </div>
-              <div class="rp-panel" role="tabpanel" id="jp-tp4" aria-labelledby="jp-t4" tabindex="0" hidden>
-                <figure class="jp-shot" data-p3-todo="S3 payments"><div class="shot-slot"><p>Screenshot: payments</p></div><figcaption><span class="jp-asat">As at Mon 30 Nov, 7am</span> J-512 paid $850 (test payment) &middot; J-516 $600 of $1,200, due today &middot; J-517 $380 due Tue 1 Dec &middot; INV-2200 $420 overdue.</figcaption></figure>
-              </div>
-
-              <h4 class="jp-h">Carla&rsquo;s timeline</h4>
-              <ol class="jp-time">
-                <li><b>Wed 18</b> Enquiry logged</li>
-                <li><b>Mon 23, 7am</b> Caught: booked, no job</li>
-                <li><b>Mon 23</b> Office creates J-512</li>
-                <li><b>Tue 15:40</b> Photo missing</li>
-                <li><b>Tue 16:05</b> Draft $850, extra flagged</li>
-                <li><b>Wed 9:30</b> Call: extra declined, invoice sent</li>
-                <li><b>Fri</b> Paid (test payment)</li>
-                <li><b>Mon 30</b> Cleared from the list</li>
+              <p class="jp-label">CoolFix Aircon &middot; Fictional business &middot; Test run <span class="jp-todo" data-p3-todo="preview banner">Preview: planned figures, checked after the 30 Nov test run</span></p>
+              <ol class="wt-dots" aria-label="5 short steps, about 1 minute">
+                <li data-wt-dot="1">Technician</li><li data-wt-dot="2">Automation</li><li data-wt-dot="3">Office</li><li data-wt-dot="4">Payment</li><li data-wt-dot="5">Owner</li>
               </ol>
+            </header>
+            <div class="cs-body jp-body">
 
-              <h4 class="jp-h">Watch the real run</h4>
-              <figure class="jp-shot jp-video" data-p3-todo="recording"><div class="shot-slot"><p>Screen recording, 60&ndash;90 seconds: form &rarr; Xero draft appears &rarr; list updates</p></div></figure>
+              <div class="wt-step" role="group" data-wt-step="1" aria-labelledby="wt-h1">
+                <div class="jp-intro">
+                  <p class="jp-problem">Jobs get finished. But invoices get delayed, amounts go wrong, and some work never gets billed.</p>
+                  <p class="jp-promise">When a job is completed, the invoice is prepared automatically. Your office checks it before sending.</p>
+                </div>
+                <p class="wt-k">Step 1 of 5 &middot; Technician &middot; Tue 24 Nov, 4:05pm</p>
+                <h4 class="wt-h" id="wt-h1">The job is done. The details are captured.</h4>
+                <p class="wt-line">Rico records the repair on his phone. <strong>Try it:</strong> press Submit before adding the after photo.</p>
+                <form class="wt-phone" data-wt-form novalidate>
+                  <p class="wt-job"><strong>J-512 &middot; Carla Lim &middot; Aircon repair</strong></p>
+                  <label class="wt-check"><input type="checkbox" name="signoff" checked> Carla confirms the work is completed</label>
+                  <div class="wt-photos">
+                    <p class="wt-photo is-added">Before <span>&#10003;</span></p>
+                    <p class="wt-photo" data-wt-after>After <button type="button" class="wt-add" data-wt-add>Add photo</button></p>
+                  </div>
+                  <fieldset class="wt-extra">
+                    <legend>Extra: replaced capacitor &middot; $100. Did Carla approve it?</legend>
+                    <label><input type="radio" name="extra" value="signed"> Signed on site</label>
+                    <label><input type="radio" name="extra" value="not-yet" checked> Not yet</label>
+                  </fieldset>
+                  <p class="wt-error" data-wt-error role="alert"></p>
+                  <button type="submit" class="btn btn-primary wt-submit" data-wt-submit>Submit</button>
+                  <p class="wt-sent" data-wt-sent hidden>&#10003; Sent. Job closed.</p>
+                </form>
+                <p class="wt-note">Missing information is caught before the job moves forward.</p>
+              </div>
 
-              <details class="fold eq-real">
-                <summary>Your setup may be different</summary>
-                <ul>
-                  <li><strong>Technicians invoice from the field</strong> (e.g. Jobber, ServiceTitan): I add the checks and the daily list, not the form.</li>
-                  <li><strong>Xero and spreadsheets:</strong> close to this demo.</li>
-                  <li><strong>Paper job sheets, email or WhatsApp:</strong> start with a simple completion form and the daily list. Connecting your accounting software is assessed against your setup first.</li>
-                </ul>
-              </details>
-              <details class="fold eq-real">
-                <summary>What the business gets</summary>
-                <ul>
-                  <li>A short job completion form.</li>
-                  <li>Checks against the quote and approved extras.</li>
-                  <li>Draft invoices in your accounting software.</li>
-                  <li>A record of missing evidence and unresolved charges.</li>
-                  <li>A daily list of unbilled work and overdue invoices.</li>
-                  <li>Error alerts and a written handover.</li>
-                </ul>
-              </details>
-              <p class="eq-small rp-small">Shown with Xero. QuickBooks is similar.</p>
-              <p class="eq-small">In this demo the office creates jobs; the system checks completions, prepares drafts and tracks payments. Your office approves and sends every invoice.</p>
-              <p class="eq-small">Sign-off here is a typed name and confirmation; drawn signatures come from your job app or a signature tool.</p>
-              <p class="jp-end"><strong>That&rsquo;s one customer, from first email to paid.</strong></p>
-              <p class="story-next"><button type="button" class="story-next-btn" data-story-go="enquiry-demo">Back to the start: <span aria-hidden="true">&#9312;</span><span class="sr-only">step 1,</span> the enquiry <span aria-hidden="true">&rarr;</span></button></p>
+              <div class="wt-step" role="group" data-wt-step="2" aria-labelledby="wt-h2">
+                <p class="wt-k">Step 2 of 5 &middot; Automation &middot; within a minute</p>
+                <h4 class="wt-h" id="wt-h2">The invoice is ready. Not sent.</h4>
+                <div class="wt-invoice">
+                  <p class="wt-inv-top"><span>Xero &middot; Invoice for Carla Lim</span><span class="pill pill-amber">Draft, not sent</span></p>
+                  <p class="wt-inv-line"><span>Aircon repair (approved quote)</span><span>$850</span></p>
+                  <p class="wt-inv-line" data-wt-path="signed" hidden><span>Extra: replaced capacitor (signed on site)</span><span>$100</span></p>
+                  <p class="wt-inv-total"><span>Total</span><strong data-wt-total>$850</strong></p>
+                </div>
+                <p class="wt-flag" data-wt-path="not-yet">Extra $100: <strong>awaiting customer approval</strong>. Left off the invoice and added to the office&rsquo;s list.</p>
+                <p class="wt-line">The invoice includes only approved work. Your office remains in control.</p>
+              </div>
+
+              <div class="wt-step" role="group" data-wt-step="3" aria-labelledby="wt-h3">
+                <p class="wt-k">Step 3 of 5 &middot; Office &middot; Wed 25 Nov, 9:30am</p>
+                <h4 class="wt-h" id="wt-h3">One follow-up. No more guessing.</h4>
+                <div data-wt-path="not-yet">
+                  <div class="wt-list"><p class="wt-list-h">Office&rsquo;s list</p><p class="wt-item"><span>Ask Carla about the $100 extra</span><span>Manager</span></p></div>
+                  <button type="button" class="btn btn-secondary wt-record" data-wt-record>Record Carla&rsquo;s decision: declined</button>
+                  <dl class="wt-rec" data-wt-rec hidden>
+                    <div><dt>Contacted</dt><dd>Carla Lim</dd></div><div><dt>Called by</dt><dd>Manager</dd></div><div><dt>When</dt><dd>Wed 25 Nov, 9:30am</dd></div><div><dt>Amount</dt><dd>$100</dd></div><div><dt>Outcome</dt><dd>Declined</dd></div>
+                  </dl>
+                  <p class="wt-line" data-wt-after-rec hidden>Cleared from the list. The office checks the $850 invoice and sends it.</p>
+                </div>
+                <div data-wt-path="signed" hidden>
+                  <dl class="wt-rec"><div><dt>Extra</dt><dd>$100, replaced capacitor</dd></div><div><dt>Approval</dt><dd>Signed on site, photo of the note attached</dd></div></dl>
+                  <p class="wt-line">Nothing to follow up. The office checks the $950 invoice and sends it.</p>
+                </div>
+                <p class="wt-note">No searching through messages to remember what the customer agreed to.</p>
+              </div>
+
+              <div class="wt-step" role="group" data-wt-step="4" aria-labelledby="wt-h4">
+                <p class="wt-k">Step 4 of 5 &middot; Payment &middot; Fri 27 Nov</p>
+                <h4 class="wt-h" id="wt-h4">Payments are tracked. Outstanding invoices stay visible.</h4>
+                <table class="dash-table wt-pay"><thead><tr><th scope="col">Invoice</th><th scope="col">Status</th><th scope="col">Still to pay</th></tr></thead>
+                  <tbody>
+                    <tr class="wt-paid"><td>J-512 &middot; Carla Lim</td><td><span class="pill pill-ok">Paid</span> <small>test payment</small></td><td>$0</td></tr>
+                    <tr><td>J-516 &middot; Northgate Dental</td><td>$600 of $1,200 paid</td><td>$600</td></tr>
+                    <tr><td>J-517 &middot; Joy Bautista</td><td>Due Tue 1 Dec</td><td>$380</td></tr>
+                    <tr><td>INV-2200 &middot; Ng Motors</td><td><span class="pill pill-amber">Overdue</span></td><td>$420</td></tr>
+                  </tbody>
+                  <tfoot><tr><th scope="row" colspan="2">Waiting to be paid</th><td><strong>$1,400</strong></td></tr></tfoot>
+                </table>
+                <p class="wt-line">Carla&rsquo;s invoice is marked paid. Unpaid invoices stay visible until someone acts.</p>
+              </div>
+
+              <div class="wt-step" role="group" data-wt-step="5" aria-labelledby="wt-h5">
+                <p class="wt-k">Step 5 of 5 &middot; Owner &middot; Mon 30 Nov, 7am</p>
+                <h4 class="wt-h" id="wt-h5">Start Monday knowing what needs attention.</h4>
+                <div class="wt-report">
+                  <p class="wt-rep-top">Monday report &middot; to the owner</p>
+                  <ul class="wt-rep">
+                    <li><span>Jobs still unfinished</span><strong>3 &middot; $1,430</strong></li>
+                    <li><span>Completed, not invoiced</span><strong>1 &middot; $560</strong></li>
+                    <li><span>Extras awaiting approval</span><strong>None</strong></li>
+                    <li><span>Waiting to be paid</span><strong>$1,400</strong></li>
+                    <li class="wt-rep-warn"><span>of which overdue</span><strong>$420</strong></li>
+                  </ul>
+                </div>
+                <p class="wt-line">Every open item has an owner and a next step. No chasing updates or checking several spreadsheets.</p>
+                <p class="wt-line"><strong>Less chasing. Fewer missed invoices. Clearer decisions.</strong></p>
+                <p class="jp-end"><strong>That&rsquo;s one job, from completion to payment.</strong></p>
+                <div class="wt-cta"><a class="btn btn-primary" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="link-button" data-story-go="enquiry-demo">Back to the start: the enquiry <span aria-hidden="true">&rarr;</span></button></div>
+                <div class="wt-more">
+                  <details class="fold eq-real">
+                    <summary>Your setup may be different</summary>
+                    <ul>
+                      <li><strong>Technicians invoice from the field</strong> (e.g. Jobber, ServiceTitan): I add the checks and the daily list, not the form.</li>
+                      <li><strong>Xero and spreadsheets:</strong> close to this demo.</li>
+                      <li><strong>Paper job sheets, email or WhatsApp:</strong> start with a simple completion form and the daily list. Connecting your accounting software is assessed against your setup first.</li>
+                    </ul>
+                  </details>
+                  <details class="fold eq-real">
+                    <summary>What the business gets</summary>
+                    <ul>
+                      <li>A short job completion form.</li>
+                      <li>Checks against the quote and approved extras.</li>
+                      <li>Draft invoices in your accounting software.</li>
+                      <li>A record of missing evidence and unresolved charges.</li>
+                      <li>A daily list of unbilled work and overdue invoices.</li>
+                      <li>Error alerts and a written handover.</li>
+                    </ul>
+                  </details>
+                  <p class="eq-small rp-small">Shown with Xero. QuickBooks is similar. In this demo the office creates jobs; the system checks completions, prepares drafts and tracks payments. Your office approves and sends every invoice. Replayed from a real test run. Nothing is sent.</p>
+                </div>
+              </div>
+
+              <div class="wt-nav" data-wt-nav hidden>
+                <button type="button" class="btn btn-secondary wt-back" data-wt-back>&larr; Back</button>
+                <p class="wt-count" data-wt-count aria-live="polite">Step 1 of 5</p>
+                <button type="button" class="btn btn-primary wt-next" data-wt-next>Next &rarr;</button>
+              </div>
+
             </div>
           </div>
         </dialog>

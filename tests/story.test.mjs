@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { RP_ITEMS } from '../src/report-demo.js';
-import { P3_SNAPSHOTS, P3_VERIFIED, STORY_OPENERS } from '../src/jobpaid-demo.js';
+import { P3_FIGURES, P3_VERIFIED, STORY_OPENERS, sum } from '../src/jobpaid-demo.js';
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 const dialog = (h, id) => { const a = h.indexOf(`id="${id}"`); return h.slice(a, h.indexOf('</dialog>', a)); };
@@ -26,9 +26,8 @@ test('"Next" links join the pop-ups in order and every target exists', async () 
   assert.match(dialog(h, 'enquiry-demo'), /data-story-go="report-demo">Next: what Monday&rsquo;s check found/);
   assert.match(dialog(h, 'report-demo'), /data-story-go="jobpaid-demo">Next: follow Carla&rsquo;s job to paid/);
   const jp = dialog(h, 'jobpaid-demo');
-  assert.match(jp, /data-story-go="report-demo">Monday&rsquo;s check<\/button> caught Carla&rsquo;s booking with no job, so the office created job <span class="jp-nw">J-512<\/span>\. Here&rsquo;s what happened next\./);
-  assert.match(jp, /data-story-go="enquiry-demo">Back to the start:/);
-  assert.match(jp, /That&rsquo;s one customer, from first email to paid\./);
+  assert.match(jp, /data-story-go="enquiry-demo">Back to the start: the enquiry/);
+  assert.match(jp, /That&rsquo;s one job, from completion to payment\./, 'ChatGPT 23 Nov: ③ starts at completion, so it ends at payment');
   for (const m of h.matchAll(/data-story-go="([a-z-]+)"/g)) {
     const sel = STORY_OPENERS[m[1]]; assert.ok(sel, m[1]);
     const [, anchor, attr] = sel.match(/^#([a-z-]+) \[([a-z-]+)\]$/);
@@ -52,43 +51,64 @@ test('Carla Lim / E-1038 / J-512 are the same everywhere, and no staff name is a
   assert.match(await read('../src/enquiry-demo.js'), /!tr\.hasAttribute\('data-keep'\)/, "Carla's row isn't pushed out by visitors' enquiries");
 });
 
-test('job-to-paid pop-up: snapshot figures match the plan, in the plan order', async () => {
+test('walk-through: 5 steps in order, each with who acts and the agreed heading', async () => {
   const d = dialog(await read('../index.html'), 'jobpaid-demo');
-  const { S1, S2, S3 } = P3_SNAPSHOTS;
-  assert.match(d, new RegExp(`<p class="jp-asat">As at ${S1.asAt}</p>\\s*<ul class="jp-figs">\\s*<li><strong>\\${money(S1.draft)}</strong> Invoice draft prepared</li>\\s*<li><strong>\\${money(S1.extraPending)}</strong> Extra awaiting confirmation</li>\\s*<li class="jp-fig-warn"><strong>\\${money(S1.overdue)}</strong> Overdue invoice</li>`));
-  const scen = [...d.matchAll(/role="tab" id="jp-s\d"[^>]*>([^<]+)</g)].map((m) => m[1]);
-  assert.deepEqual(scen, ['Missing evidence', 'Unapproved extra', 'Not yet sent', 'Overdue payment']);
-  const asAt = [...d.matchAll(/id="jp-sp\d"[\s\S]*?jp-asat">As at ([^<]+)</g)].map((m) => m[1]);
-  assert.deepEqual(asAt, [S2.asAt, S1.asAt, S3.asAt, S3.asAt]);
-  const tabs = [...d.matchAll(/role="tab" id="jp-t\d"[^>]*>([^<]+)</g)].map((m) => m[1]);
-  assert.deepEqual(tabs, ['Technician form', 'Invoice draft', 'Team&rsquo;s list', 'Payments']);
-  assert.match(d, new RegExp(`As at ${S2.asAt}</span> ${S2.job} Needs evidence: ${S2.missing}\\.`));
-  assert.match(d, /\$850\. The \$100 extra is left off until the customer confirms\./);
-  assert.match(d, new RegExp(`As at ${S3.asAt}</span> ${S3.openItems} open items\\.`));
-  assert.match(d, /J-512 paid \$850 \(test payment\) &middot; J-516 \$600 of \$1,200, due today &middot; J-517 \$380 due Tue 1 Dec &middot; INV-2200 \$420 overdue\./);
-  assert.equal((d.match(/<li><b>/g) || []).length, 8, "Carla's timeline: 8 events");
-  assert.match(d, /Shown with Xero\. QuickBooks is similar\./);
+  assert.match(d, /<p class="jp-problem">Jobs get finished\. But invoices get delayed, amounts go wrong, and some work never gets billed\.<\/p>/);
+  assert.match(d, /<p class="jp-promise">When a job is completed, the invoice is prepared automatically\. Your office checks it before sending\.<\/p>/);
+  const heads = [...d.matchAll(/<p class="wt-k">Step (\d) of 5 &middot; (\w+)[^<]*<\/p>\s*<h4 class="wt-h" id="wt-h\d">([^<]+)<\/h4>/g)].map((m) => [m[1], m[2], m[3]]);
+  assert.deepEqual(heads, [
+    ['1', 'Technician', 'The job is done. The details are captured.'],
+    ['2', 'Automation', 'The invoice is ready. Not sent.'],
+    ['3', 'Office', 'One follow-up. No more guessing.'],
+    ['4', 'Payment', 'Payments are tracked. Outstanding invoices stay visible.'],
+    ['5', 'Owner', 'Start Monday knowing what needs attention.'],
+  ]);
+  assert.match(d, /data-wt-nav hidden/, 'Back/Next appear only with JavaScript; without it all steps show in order');
+  assert.doesNotMatch(d, /n8n|workflow|API|\bAI\b/, 'no tool names or AI in the visitor text');
+  assert.doesNotMatch(d, /No photo, no invoice/, 'photo rule not stated as universal');
+  assert.doesNotMatch(d, /invoiced correctly|no missed jobs|payment received|how HVAC businesses work|creates (the )?jobs? for/i, 'plan wording rules');
+  assert.match(d, /test payment/);
+  assert.match(d, /In this demo the office creates jobs;/);
 });
 
-test('job-to-paid pop-up: wording rules from the plan', async () => {
-  const h = await read('../index.html');
-  const d = dialog(h, 'jobpaid-demo');
-  const card = h.slice(h.indexOf('id="demo-jobpaid"'), h.indexOf('</li>\n', h.indexOf('id="demo-jobpaid"')));
-  assert.doesNotMatch(d + card, /invoiced correctly|no missed jobs|payment received|how HVAC businesses work|creates (the )?jobs? for/i);
-  assert.match(d, /Paid \(test payment\)/);
-  assert.match(d, /In this demo the office creates jobs;/);
-  assert.match(card, /<a href="#jobpaid-demo" data-jp-open aria-haspopup="dialog">Try it: follow Carla&rsquo;s job to paid/);
-  assert.match(card, /<dt>What I build<\/dt><dd>Each completed job is checked and turned into a draft invoice in your accounting software, for approved work only\.<\/dd>/);
+test('walk-through: sign-off and extra approval are separate; the call is fully recorded', async () => {
+  const d = dialog(await read('../index.html'), 'jobpaid-demo');
+  const form = d.slice(d.indexOf('data-wt-form'), d.indexOf('</form>'));
+  assert.match(form, /name="signoff" checked> Carla confirms the work is completed/);
+  assert.match(form, /<legend>Extra: replaced capacitor &middot; \$100\. Did Carla approve it\?<\/legend>/);
+  assert.match(form, /value="not-yet" checked/);
+  const rec = d.slice(d.indexOf('data-wt-rec hidden'), d.indexOf('</dl>', d.indexOf('data-wt-rec hidden')));
+  for (const [k, v] of [['Contacted', 'Carla Lim'], ['Called by', 'Manager'], ['When', 'Wed 25 Nov, 9:30am'], ['Amount', '\\$100'], ['Outcome', 'Declined']]) assert.match(rec, new RegExp(`<dt>${k}</dt><dd>${v}</dd>`), k);
   const js = await read('../src/jobpaid-demo.js');
-  assert.doesNotMatch(js, /fetch\(|XMLHttpRequest|SITE\./, 'replay only: never calls n8n or Xero');
+  assert.match(js, /Add the after photo\. Repairs need before and after photos\./);
+  assert.match(js, /path === 'signed' \? '\$950' : '\$850'/);
+});
+
+test('walk-through figures reconcile: step 4 rows add up to step 5, and both match the plan', async () => {
+  const d = dialog(await read('../index.html'), 'jobpaid-demo');
+  const f = P3_FIGURES;
+  const money = (n) => '$' + n.toLocaleString('en-US');
+  const pay = d.slice(d.indexOf('wt-pay'), d.indexOf('</table>', d.indexOf('wt-pay')));
+  const due = [...pay.matchAll(/<tr>(?:<td>[^]*?<\/td>){2}<td>\$([\d,]+)<\/td><\/tr>/g)].map((m) => Number(m[1].replace(',', '')));
+  assert.deepEqual(due, f.waiting.map(([, n]) => n), 'step 4 rows');
+  assert.match(pay, new RegExp(`Waiting to be paid</th><td><strong>\\${money(sum(f.waiting))}</strong>`));
+  assert.equal(sum(f.waiting), 1400);
+  const rep = d.slice(d.indexOf('<ul class="wt-rep">'), d.indexOf('</ul>', d.indexOf('<ul class="wt-rep">')));
+  assert.match(rep, new RegExp(`Jobs still unfinished</span><strong>${f.unfinished.length} &middot; \\${money(sum(f.unfinished))}</strong>`));
+  assert.match(rep, new RegExp(`Completed, not invoiced</span><strong>${f.notSent.length} &middot; \\${money(sum(f.notSent))}</strong>`));
+  assert.match(rep, new RegExp(`Waiting to be paid</span><strong>\\${money(sum(f.waiting))}</strong>`));
+  assert.match(rep, new RegExp(`of which overdue</span><strong>\\${money(f.overdue)}</strong>`));
+  assert.ok(f.waiting.some(([r, n]) => r === 'INV-2200' && n === f.overdue), 'overdue is part of waiting, not added on top');
+  assert.equal(sum(f.unfinished), 1430);
+  assert.match(d, /Aircon repair \(approved quote\)<\/span><span>\$850<\/span>/);
 });
 
 test('until the test run is verified, the pop-up says it is a preview and shows screenshot slots', async () => {
   const h = await read('../index.html');
   const todo = (h.match(/data-p3-todo="/g) || []).length;
   if (!P3_VERIFIED) {
-    assert.match(dialog(h, 'jobpaid-demo'), /<p class="jp-todo" data-p3-todo="preview banner"><strong>Preview:<\/strong>/);
-    assert.equal(todo, 7, 'banner, W1 screenshot, 4 tab screenshots, recording');
+    assert.match(dialog(h, 'jobpaid-demo'), /<span class="jp-todo" data-p3-todo="preview banner">Preview: planned figures, checked after the 30 Nov test run<\/span>/);
+    assert.equal(todo, 2, 'preview banner + W1 workflow screenshot in the card');
   } else {
     assert.equal(todo, 0, 'verified: every slot replaced with the real screenshot or recording');
   }

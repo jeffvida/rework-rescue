@@ -135,9 +135,10 @@ test('approach (20 Nov): folded into How I help as one panel; headline, one shor
   assert.match(sec, /id="approach">\s*<p class="eyebrow">My approach<\/p>\s*<h3 class="rr-approach-h" id="approach-h">Start with the work, not the software\.<\/h3>/);
   assert.match(sec, /<p class="rr-approach-lead">I find where the work gets stuck, then choose the simplest fix\.<\/p>/);
   assert.match(sec, /<h4 class="rr-decide-h">AI or simple automation\? Three questions decide it\.<\/h4>/);
-  assert.deepEqual([...sec.matchAll(/<h4>([^<]+)<\/h4><p class="rr-d-a">([^<]+)<\/p><p class="rr-d-eg">([^<]+)<\/p>/g)].map((m) => `${m[1]} | ${m[2]} | ${m[3]}`), [
+  // 23 Nov: answer pill sits beside the icon on top, so the questions and examples line up across the cards.
+  assert.deepEqual([...sec.matchAll(/<p class="rr-d-a">([^<]+)<\/p><\/div><h4>([^<]+)<\/h4><p class="rr-d-eg">([^<]+)<\/p>/g)].map((m) => `${m[2]} | ${m[1]} | ${m[3]}`), [
     'Are the rules clear? | Automation | Form submitted &rarr; tracker updated &rarr; confirmation sent',
-    'Does someone need to read and understand it? | AI | Read an enquiry email and extract customer details',
+    'Does it need reading, like an email or a document? | AI | AI reads an enquiry email and picks out the customer&rsquo;s details',
     'How costly would an error be? | Human review | Hold a customer reply or high-value quote for approval']);
   assert.doesNotMatch(html, /rr-approach-note|rr-approach-more|You care about missed enquiries/, 'repeated paragraphs removed');
   assert.doesNotMatch(html, /<section class="section rr-diff"/, 'no separate approach band');
@@ -249,9 +250,15 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.doesNotMatch(std, /rr-standards-intro|hs-t1|Handover day/, '23 Nov: filler line and the repeated handover-day row removed');
   assert.doesNotMatch(how, /demo-after-solo/, '23 Nov: no extra booking button inside How it works');
   assert.deepEqual([...std.matchAll(/<li class="hs-\d"><span class="hs-ic"[\s\S]*?<\/span><strong>([^<]+)<\/strong>/g)].map((m) => m[1]),
-    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Checks and backup steps']);
+    ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Error alerts and a fix guide']);
   assert.deepEqual([...std.matchAll(/<li class="hs-t\d"><b>([^<]+)<\/b><strong>([^<]+)<\/strong>/g)].map((m) => `${m[1]}: ${m[2]}`),
     ['Days 1&ndash;30: 30 days of fixes', 'After 30 days: It&rsquo;s yours']);
+  // 23 Nov: error handling handed over: caught, logged on a status dashboard, emailed, fix guide.
+  const err = std.slice(std.indexOf('class="hs-err"'));
+  assert.match(err, /<h4 id="hs-err-h">If something stops working, you&rsquo;ll know what to do\.<\/h4>/);
+  assert.deepEqual([...err.matchAll(/<\/span><strong>([^<]+)<\/strong>/g)].map((m) => m[1]), ['Caught', 'Logged', 'Emailed', 'Sorted']);
+  assert.match(err, /status dashboard/); assert.match(err, /who to contact/); assert.match(err, /Example alert, fictional\./);
+  assert.doesNotMatch(err, /fixes itself|never|always|guarantee|we /i, 'no overpromise, no company we');
   assert.doesNotMatch(std, /rr-standards-note/, 'repeat of the Safety net card removed (20 Nov)');
   assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);
@@ -307,7 +314,8 @@ test('guard rails: no prices, testimonials or invented results; first person; on
 test('middle simplified (20 Nov): after-30-days line visible, bridge line before the numbers, hero on the page container, process review wording', async () => {
   const html = await page();
   const how = section(html, 'how', 'about');
-  assert.match(how, /<b>After 30 days<\/b><strong>It&rsquo;s yours<\/strong><span class="how-after">Your solution remains yours\. Ongoing monitoring, maintenance and improvements can be arranged separately\.<\/span><\/li>\s*<\/ol>\s*<details class="fold how-30">/, 'outside the dropdown');
+  assert.match(how, /<b>After 30 days<\/b><strong>It&rsquo;s yours<\/strong><span class="how-after">Your solution remains yours\. Ongoing monitoring, maintenance and improvements can be arranged separately\.<\/span><\/li>\s*<\/ol>/, 'visible, not in the dropdown');
+  assert.ok(how.indexOf('class="how-after"') < how.indexOf('<details class="fold how-30">'), 'outside the dropdown');
   for (const card of html.split('<li class="rr-result">').slice(1)) assert.ok(card.indexOf('class="exp-bridge"') < card.indexOf('class="rr-nums"'), 'In your business… comes first');
   const css = await read('../assets/styles.css');
   assert.match(css, /\.hz \{ --hz-max: 70rem; --hz-pad: 1rem; \}/, 'hero uses the same width as the header and sections');

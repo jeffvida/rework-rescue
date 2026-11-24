@@ -21,20 +21,20 @@ const section = (html, id, next) => html.slice(html.indexOf(`id="${id}"`), next 
 const txt = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 
-test('hero (24 Nov v5, from Jeff\'s reference image): copy word for word, one booking button, How I can help link, booking note', async () => {
+test('hero (24 Nov v5, from Jeff\'s reference image; v9 button): copy word for word, one booking button, booking note', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
   const copy = hero.slice(0, hero.indexOf('<figure'));
   assert.match(copy, /<p class="h5-eyebrow">AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/);
   assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work <span class="h5-mark">under control\.<\/span><\/span><\/h1>/);
   assert.match(copy, /<p class="hero-sub">I organise information, connect your tools and automate routine steps, so your team spends less time following up, updating records and preparing reports\.<\/p>/);
-  assert.match(copy, /<a class="btn btn-primary btn-large h5-book" href="contact\/#contact-form-area">Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
-  assert.match(copy, /<a class="h5-more" href="#services">How I can help<\/a>/);
-  assert.match(copy, /<p class="hero-note">30 minutes &middot; No obligation<\/p>/);
-  assert.equal((hero.match(/<a /g) || []).length, 2, 'two links only: book and How I can help');
+  assert.match(copy, /<div class="h5-cta">\s*<a class="btn btn-primary btn-large h5-book" href="contact\/#contact-form-area"><span class="h5-book-t">Book a free process review<\/span><span class="h5-go" aria-hidden="true"><svg[\s\S]*?<\/svg><\/span><\/a>/, '24 Nov v9: same words and link; arrow in a gold chip');
+  assert.match(copy, /<p class="hero-note"><svg[\s\S]*?<\/svg>30 minutes &middot; No obligation<\/p>/);
+  assert.doesNotMatch(hero, /How I can help|h5-more/, '24 Nov v9: the How I can help link is removed from the hero');
+  assert.equal((hero.match(/<a /g) || []).length, 1, 'one link only: book');
   assert.equal((hero.match(/class="btn/g) || []).length, 1, 'one button');
   const at = (x) => copy.indexOf(x);
-  assert.ok(at('h5-eyebrow') < at('<h1') && at('<h1') < at('hero-sub') && at('hero-sub') < at('h5-book') && at('h5-book') < at('h5-more') && at('h5-more') < at('hero-note'));
+  assert.ok(at('h5-eyebrow') < at('<h1') && at('<h1') < at('hero-sub') && at('hero-sub') < at('h5-book') && at('h5-book') < at('hero-note'));
   assert.doesNotMatch(hero, /hz-|What you can expect|story-benefits|hero-for|rework review|hx-|hm-|ht-/, 'older heroes are gone');
 });
 
@@ -204,7 +204,7 @@ test('section order, nav and removed content', async () => {
   assert.ok(html.indexOf('id="approach"') < html.indexOf('</section>', html.indexOf('id="services"')), 'approach panel sits inside How I help');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
   assert.deepEqual(nav, ['services:How I help', 'built:Demos &amp; examples', 'how:How it works', 'about:About', 'faq:FAQ']);
-  assert.doesNotMatch(html.replace(/<a class="h5-more" href="#services">How I can help<\/a>/, ''), /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/, '24 Nov: How I can help returns only as the hero link');
+  assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/, '24 Nov v9: no How I can help link anywhere (nav keeps "How I help")');
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
   assert.match(html, /<title>Rework Rescue \| Smarter Operations for Small and Medium-Sized Businesses<\/title>/);
   assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Operations for Small and Medium-Sized Businesses">'), 'og:title matches the page title');

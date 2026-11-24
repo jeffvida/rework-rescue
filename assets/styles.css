@@ -5491,12 +5491,23 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   text-shadow: 0 0 18px rgba(120, 194, 164, 0.35); }
 .h5 h1 .hf-l1, .h5 h1 .hf-l2 { display: block; }
 .h5 .hero-sub { margin: 0 0 1.4rem; font-size: 1.06rem; line-height: 1.55; color: #26302f; max-width: 30rem; }
-.h5-book { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap; background: linear-gradient(180deg, #1f8a6b, var(--teal-dark)); border-color: transparent;
-  box-shadow: 0 12px 24px -12px rgba(15, 58, 58, 0.65); }
-.h5-book:hover { transform: translateY(-1px); }
-.h5-more { display: table; margin: 0.85rem 0 0.4rem 0.6rem; font-weight: 700; font-size: 1.05rem; color: var(--h5-teal); text-decoration: underline; text-underline-offset: 0.22em; text-decoration-thickness: 2px; }
-.h5-more:hover { color: var(--teal-dark); }
-.h5 .hero-note { margin: 0 0 0 0.6rem; font-size: 0.98rem; color: var(--muted); }
+/* Booking button (24 Nov v9): the one action. Brand teal with depth, a gold edge, the arrow in a gold chip. */
+.h5-cta { display: inline-flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+.h5-book { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 0.85rem; min-height: 3.6rem; padding: 0.55rem 0.6rem 0.55rem 1.6rem; border: 0; border-radius: 999px;
+  background: linear-gradient(180deg, #2f8a7d 0%, #1d6c61 55%, #145249 100%); color: #fff; font-family: var(--display); font-size: 1.08rem; font-weight: 700; letter-spacing: 0.005em; white-space: nowrap; text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -2px 0 rgba(0, 0, 0, 0.12), 0 3px 0 var(--signal), 0 16px 30px -14px rgba(15, 58, 58, 0.75);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
+.h5-book:hover { transform: translateY(-2px); background: linear-gradient(180deg, #339688 0%, #20766a 55%, #165a50 100%); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.12), 0 4px 0 var(--signal), 0 22px 36px -16px rgba(15, 58, 58, 0.8); }
+.h5-book:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 0 var(--signal), 0 8px 16px -10px rgba(15, 58, 58, 0.7); }
+.h5-book:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.h5-go { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; flex: none; border-radius: 50%; background: var(--signal); color: var(--ink); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1); transition: transform 0.18s ease; }
+.h5-go svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.h5-book:hover .h5-go { transform: translateX(3px); }
+/* one soft shine across the button after the headline glow */
+.h5-book::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%; transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent); opacity: 0; pointer-events: none; }
+.h5 .hero-note { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-size: 0.95rem; color: var(--muted); }
+.h5 .hero-note svg { width: 1rem; height: 1rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* Picture: Before → arrow → Rework Rescue → arrow → After */
 .h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1.12fr) 1.5rem minmax(0, 0.66fr) 1.5rem minmax(0, 1.6fr); align-items: stretch; }
@@ -5585,9 +5596,11 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .h5-st { animation: h5-pop 0.4s ease-out 1.75s both; }
 }
 @media (prefers-reduced-motion: no-preference) {
+  .h5-book::after { animation: h5-shine 0.9s ease-in-out 2.1s both; }
   .h5-mark { animation: h5-sweep 0.7s cubic-bezier(.2,.7,.2,1) 0.35s both, h5-glow 1.8s ease-out 1s both; }
   .h5 h1 { animation: h5-rise 0.6s ease-out both; }
 }
+@keyframes h5-shine { 0% { left: -40%; opacity: 0; } 15% { opacity: 1; } 100% { left: 120%; opacity: 0; } }
 @keyframes h5-sweep { from { background-size: 0% 100%; } to { background-size: 100% 100%; } }
 @keyframes h5-glow { 0% { text-shadow: 0 0 0 rgba(120, 194, 164, 0); } 40% { text-shadow: 0 0 22px rgba(120, 194, 164, 0.95), 0 0 48px rgba(46, 125, 114, 0.45); } 100% { text-shadow: 0 0 18px rgba(120, 194, 164, 0.35); } }
 @keyframes h5-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -5640,13 +5653,13 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 
 /* Phones: one column. Before → Rework Rescue → After, with arrows pointing down. */
 @media (max-width: 40rem) {
+  .h5-cta { display: flex; align-items: stretch; }
+  .h5-book { justify-content: space-between; font-size: 1.02rem; padding-left: 1.3rem; }
+  .h5 .hero-note { justify-content: center; }
   .h5 { padding: 1.5rem 0 1.2rem; }
   .h5-eyebrow { font-size: 0.7rem; margin-bottom: 0.9rem; }
   .h5 h1 { font-size: clamp(1.8rem, 8vw, 2.1rem); }
   .h5 .hero-sub { font-size: 1rem; }
-  .h5-book { display: flex; width: 100%; }
-  .h5-more { margin: 0.8rem auto 0.3rem; }
-  .h5 .hero-note { margin: 0; text-align: center; }
   .h5-panel { padding: 0.9rem 0.7rem 0.75rem; border-radius: 18px; }
   .h5-title { margin-bottom: 0.55rem; }
   .h5-after .h5-title { font-size: 1.3rem; }

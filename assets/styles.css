@@ -5206,6 +5206,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 
 /* 21 Nov: status chips, intro line and workflow screenshots in Demos & examples */
 .built-intro { margin: 0.5rem 0 1.4rem; color: var(--ink); font-weight: 600; }
+.built-tools { margin: -0.9rem 0 1.4rem; font-size: 0.95rem; color: var(--muted); }
 .built-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.4rem; }
 .built-tags .built-k { margin: 0; }
 .built-status { margin: 0; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.55rem; border: 1px solid var(--line); border-radius: 999px; font-size: 0.8125rem; color: var(--muted); }
@@ -5219,6 +5220,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .built-group + .built-group { margin-top: 2.4rem; }
 .built-group-h { margin: 0 0 0.3rem; font-family: var(--display); font-size: clamp(1.2rem, 2.4vw, 1.4rem); }
 .built-group-sub { margin: 0 0 1rem; color: var(--muted); }
+.built-group-note { margin: -0.4rem 0 1rem; font-size: 0.95rem; color: var(--ink); }
 .built-group .built-cards { margin-top: 1rem; }
 .story-strip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
 .story-strip li { margin: 0; }
@@ -5429,42 +5431,17 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .hs-support { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr); gap: 1rem; align-items: stretch; }
 .rr-standards .hs-support .hs-time { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 1fr; gap: 1.1rem; }
 .rr-standards .hs-support .hs-time li + li::before { content: "\2193"; left: 50%; top: -0.78rem; transform: translateX(-50%); }
-.hs-err { padding: 1.1rem 1.2rem 1rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--teal); }
+.hs-err { display: flex; flex-direction: column; justify-content: center; padding: 1.1rem 1.2rem 1rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--teal); }
 .hs-err-k { margin: 0 0 0.3rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal-text); }
-.hs-err h4 { margin: 0 0 0.35rem; font-family: var(--display); font-size: 1.1rem; line-height: 1.3; color: var(--ink); }
-.hs-err-lead { margin: 0 0 0.9rem; font-size: 0.93rem; line-height: 1.5; color: var(--muted); }
-.hs-ef { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; position: relative; }
-.hs-ef::before { content: ""; position: absolute; left: 1.2rem; right: 1.2rem; top: 1.05rem; height: 2px; background: #cfe5d8; }
-.hs-ef li { position: relative; margin: 0; font-size: 0.86rem; line-height: 1.4; }
-.hs-ef li::before { content: none; }
-.hs-ef-ic { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; margin-bottom: 0.45rem; border-radius: 50%; background: var(--teal-tint); border: 1px solid #cfe5d8; position: relative; z-index: 1; }
-.hs-ef li:nth-child(3) .hs-ef-ic { background: #fff4e0; border-color: #f0d6a6; }
-.hs-ef-ic svg { width: 1.15rem; height: 1.15rem; fill: none; stroke: var(--teal-dark); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.hs-ef strong { display: block; margin-bottom: 0.15rem; font-family: var(--display); font-size: 0.95rem; color: var(--ink); }
-.hs-ef span:not(.hs-ef-ic) { display: block; color: var(--muted); }
-.hs-alert { display: flex; align-items: center; gap: 0.7rem; margin-top: 1rem; padding: 0.65rem 0.8rem; border-radius: 10px; background: #fffaf0; border: 1px solid #f0d6a6; }
-.hs-alert-ic { flex: none; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: #b36b00; color: #fff; font-weight: 800; font-size: 0.95rem; }
-.hs-alert-t { flex: 1; min-width: 0; }
-.hs-alert-t b { display: block; font-size: 0.9rem; color: var(--ink); }
-.hs-alert-t small { display: block; font-size: 0.8rem; color: var(--muted); }
-.hs-alert-go { flex: none; padding: 0.3rem 0.65rem; border-radius: 999px; background: var(--teal); color: #fff; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
-.hs-err-foot { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--muted); }
+.hs-err-lead { margin: 0; font-size: 1rem; line-height: 1.55; color: var(--ink); }
+/* 24 Nov quick wins: the error card is one sentence now, so the timeline sits side by side above it at every width (the former tablet layout) */
+.hs-support { grid-template-columns: minmax(0, 1fr); }
+.rr-standards .hs-support .hs-time { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+.rr-standards .hs-support .hs-time li + li::before { content: "\2192"; left: -0.78rem; top: 50%; transform: translateY(-50%); }
 @media (max-width: 62rem) { .hs-support { grid-template-columns: minmax(0, 1fr); } .rr-standards .hs-support .hs-time { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; } .rr-standards .hs-support .hs-time li + li::before { content: "\2192"; left: -0.78rem; top: 50%; transform: translateY(-50%); } }
 @media (max-width: 40rem) {
   .rr-standards .hs-support .hs-time { grid-template-columns: minmax(0, 1fr); }
   .rr-standards .hs-support .hs-time li + li::before { content: "\2193"; left: 50%; top: -0.78rem; transform: translateX(-50%); }
-  .hs-ef { grid-template-columns: minmax(0, 1fr); gap: 0.55rem; }
-  .hs-ef::before { left: 1.04rem; right: auto; top: 1rem; bottom: 1rem; width: 2px; height: auto; }
-  .hs-ef li { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); column-gap: 0.7rem; }
-  .hs-ef-ic { grid-row: span 2; margin: 0; }
-  .hs-alert { flex-wrap: wrap; }
-  .hs-alert-go { margin-left: 2.4rem; }
-}
-@media (forced-colors: active) { .hs-ef::before { background: CanvasText; } }
-@media (max-width: 40rem) {
-  .hs-ef::before { content: none; }
-  .hs-alert { display: grid; grid-template-columns: 1.7rem minmax(0, 1fr); align-items: start; }
-  .hs-alert-go { grid-column: 2; justify-self: start; margin-left: 0; }
 }
 
 
@@ -5512,6 +5489,12 @@ main > section.hf.h5 { background:
 .h5-book::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%; transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent); opacity: 0; pointer-events: none; }
 .h5 .hero-note { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0 0.2rem; font-size: 1rem; color: var(--h5-text); }
 .h5 .hero-note svg { width: 1.15rem; height: 1.15rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+/* 24 Nov quick wins: written-review option under the booking note */
+.h5-write { margin: -0.2rem 0 0 0.2rem; font-size: 0.92rem; }
+.h5-nw { white-space: nowrap; }
+.h5-write a { color: var(--h5-mint); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.h5-write a:hover { color: #fff; }
+.h5-write a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; border-radius: 4px; }
 
 /* Picture: Before → arrow → AI + Automation → arrow → After */
 .h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1.02fr) 1.6rem minmax(0, 0.92fr) 1.6rem minmax(0, 1.3fr); align-items: stretch; }
@@ -5644,6 +5627,7 @@ main > section.hf.h5 { background:
   .h5-book { justify-content: flex-start; font-size: 1.02rem; padding-inline: 1rem; }
   .h5-go { margin-left: auto; }
   .h5 .hero-note { justify-content: center; font-size: 0.95rem; }
+  .h5-write { margin-left: 0; text-align: center; font-size: 0.9rem; }
   .h5-grid { gap: 1.8rem; }
   .h5-panel { padding: 0.9rem 0.8rem; border-radius: 16px; }
   .h5-pill { font-size: 0.85rem; margin-bottom: 0.5rem; }

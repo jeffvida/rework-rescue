@@ -28,11 +28,12 @@ test('hero (24 Nov v11, dark, from Jeff\'s reference image 12:40): copy word for
   assert.match(copy, /<p class="h5-eyebrow">AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/);
   assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2"><span class="h5-mark">Get work under control\.<\/span><\/span><\/h1>/);
   assert.match(copy, /<p class="hero-sub">AI reads and organises incoming information\. Automation connects your tools and handles repetitive work, with checks and human approval where needed\.<\/p>/);
-  assert.match(copy, /needed\.<\/p>\s*<p class="h5-for"><svg[\s\S]*?<\/svg>For small and mid-sized operations teams<\/p>\s*<div class="h5-cta">/, 'audience line with a target icon');
+  assert.match(copy, /needed\.<\/p>\s*<p class="h5-for"><svg[\s\S]*?<\/svg>For small and growing businesses<\/p>\s*<div class="h5-cta">/, 'audience line with a target icon');
   assert.match(copy, /<div class="h5-cta">\s*<a class="btn btn-primary btn-large h5-book" href="contact\/#contact-form-area"><span class="h5-cal" aria-hidden="true"><svg[\s\S]*?<\/svg><\/span><span class="h5-book-t">Book a free process review<\/span><span class="h5-go" aria-hidden="true"><svg[\s\S]*?<\/svg><\/span><\/a>/, 'same words and link; calendar left, arrow right');
-  assert.match(copy, /<p class="hero-note"><svg[\s\S]*?<\/svg>30 minutes &middot; No obligation<\/p>/);
+  assert.match(copy, /<p class="hero-note"><svg[\s\S]*?<\/svg>30 minutes &middot; No obligation<\/p>\s*<p class="h5-write"><a href="#written-review">Prefer writing\? Get a free written review within <span class="h5-nw">1 working day <span aria-hidden="true">&rarr;<\/span><\/span><\/a><\/p>/, '24 Nov: written-review option under the booking note');
+  assert.ok(html.includes('id="written-review"'), 'hero written-review link has a target');
   assert.doesNotMatch(hero, /How I can help|h5-more/, 'no How I can help link in the hero');
-  assert.equal((hero.match(/<a /g) || []).length, 1, 'one link only: book');
+  assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area', '#written-review'], 'two links only: book, then (24 Nov) the written review');
   assert.equal((hero.match(/class="btn/g) || []).length, 1, 'one button');
   const at = (x) => copy.indexOf(x);
   assert.ok(at('h5-eyebrow') < at('<h1') && at('<h1') < at('hero-sub') && at('hero-sub') < at('h5-for') && at('h5-for') < at('h5-book') && at('h5-book') < at('hero-note'));
@@ -156,6 +157,9 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const story = sec.slice(sec.indexOf('id="story-h"'), sec.indexOf('id="site-h"'));
   const site = sec.slice(sec.indexOf('id="site-h"'), sec.indexOf('<dialog'));
   assert.match(sec, /<h3 class="built-group-h" id="story-h">Follow one CoolFix customer<\/h3>\s*<p class="built-group-sub">Carla&rsquo;s aircon is leaking\. Follow her from first email to paid, across three workflows\.<\/p>/);
+  // 24 Nov quick wins: CoolFix is an example; the demos work with Microsoft 365 too
+  assert.match(sec, /across three workflows\.<\/p>\s*<p class="built-group-note">Not an aircon business\? CoolFix is just an example\. The same approach can help service businesses manage enquiries, jobs, follow-ups and invoices\.<\/p>/);
+  assert.match(sec, /not client projects\.<\/p>\s*<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
   assert.ok(story.indexOf('The enquiry tracker') < story.indexOf('The self-checking weekly report') && story.indexOf('The self-checking weekly report') < story.indexOf('From job done to invoice paid'));
   assert.match(sec, /<h3 class="built-group-h" id="site-h">Running on this site<\/h3>/);
   assert.ok(site.includes('The booking calendar') && site.includes('The chat assistant') && !site.includes('CoolFix'));
@@ -212,9 +216,9 @@ test('section order, nav and removed content', async () => {
   assert.deepEqual(nav, ['services:How I help', 'built:Demos &amp; examples', 'how:How it works', 'about:About', 'faq:FAQ']);
   assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/, '24 Nov v9: no How I can help link anywhere (nav keeps "How I help")');
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
-  assert.match(html, /<title>Rework Rescue \| Smarter Operations for Small and Medium-Sized Businesses<\/title>/);
-  assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Operations for Small and Medium-Sized Businesses">'), 'og:title matches the page title');
-  const desc = 'Rework Rescue helps small and medium-sized businesses reduce repetitive admin, organise information and improve everyday operations with practical automation, simple websites and customer tracking systems.';
+  assert.match(html, /<title>Rework Rescue \| Practical AI &amp; Automation for Small Businesses<\/title>/);
+  assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Practical AI &amp; Automation for Small Businesses">'), 'og:title matches the page title');
+  const desc = 'Rework Rescue helps small and growing businesses organise information, improve reporting and automate repetitive work with practical AI, connected workflows and human checks.';
   assert.ok(html.includes(`<meta name="description" content="${desc}">`)); assert.ok(html.includes(`<meta property="og:description" content="${desc}">`));
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html']) {
     const t = await read(f); assert.doesNotMatch(t, /What I automate/, f); assert.match(t, /#services">How I help<\/a>/, f); assert.match(t, /#built">Demos &amp; examples<\/a>/, f);
@@ -239,12 +243,10 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
     ['A working solution', 'Project files and access', 'A practical guide and walkthrough', 'Error alerts and a fix guide']);
   assert.deepEqual([...std.matchAll(/<li class="hs-t\d"><b>([^<]+)<\/b><strong>([^<]+)<\/strong>/g)].map((m) => `${m[1]}: ${m[2]}`),
     ['Days 1&ndash;30: 30 days of fixes', 'After 30 days: It&rsquo;s yours']);
-  // 23 Nov: error handling handed over: caught, logged on a status dashboard, emailed, fix guide.
-  const err = std.slice(std.indexOf('class="hs-err"'));
-  assert.match(err, /<h4 id="hs-err-h">If something stops working, you&rsquo;ll know what to do\.<\/h4>/);
-  assert.deepEqual([...err.matchAll(/<\/span><strong>([^<]+)<\/strong>/g)].map((m) => m[1]), ['Caught', 'Logged', 'Emailed', 'Sorted']);
-  assert.match(err, /status dashboard/); assert.match(err, /who to contact/); assert.match(err, /Example alert, fictional\./);
-  assert.doesNotMatch(err, /fixes itself|never|always|guarantee|we /i, 'no overpromise, no company we');
+  // 24 Nov quick wins: the repeated failure explanation in How it works is one sentence; the safeguards stay in Checks and control.
+  const err = std.slice(std.indexOf('class="hs-err"'), std.indexOf('</div>', std.indexOf('class="hs-err"')));
+  assert.match(err, /<p class="hs-err-lead">If something goes wrong, the workflow records the issue, alerts the responsible person and provides a clear next step\.<\/p>/);
+  assert.doesNotMatch(std, /hs-ef|hs-alert|Example alert, fictional|If something stops working/, 'detailed alert example removed from How it works');
   assert.doesNotMatch(std, /rr-standards-note/, 'repeat of the Safety net card removed (20 Nov)');
   assert.doesNotMatch(how, /how-scope|sample written scope|Northstar/, 'sample written scope removed (19 Nov)');
   assert.match(how, /No system logins to get started\./);
@@ -287,7 +289,8 @@ test('guard rails: no prices, testimonials or invented results; first person; on
   assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
   assert.doesNotMatch(visible, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
   assert.doesNotMatch(visible, /years (of experience )?in AI|AI (automation )?agency|AI expert|Zapier|GoHighLevel|\bGHL\b|Make\.com/i);
-  assert.doesNotMatch(html, /\bwe&rsquo;ll\b|\bWe&rsquo;ll\b|small (service )?businesses/i);
+  // 24 Nov: Jeff approved "Small Businesses" in the page title (and its social copy) only
+  assert.doesNotMatch(html.replaceAll('Practical AI &amp; Automation for Small Businesses', ''), /\bwe&rsquo;ll\b|\bWe&rsquo;ll\b|small (service )?businesses/i);
   assert.doesNotMatch(html, /Most projects start|Most first projects|first project usually/);
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../src/booking/popup.js', '../src/assistant/rules.js', '../n8n/rework-assistant.json']) {
     const t = await read(f);

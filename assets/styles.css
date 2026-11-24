@@ -5499,7 +5499,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .h5 .hero-note { margin: 0 0 0 0.6rem; font-size: 0.98rem; color: var(--muted); }
 
 /* Picture: Before → arrow → Rework Rescue → arrow → After */
-.h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1.06fr) 1.7rem minmax(0, 0.6fr) 1.7rem minmax(0, 1.74fr); align-items: stretch; }
+.h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1.12fr) 1.5rem minmax(0, 0.66fr) 1.5rem minmax(0, 1.6fr); align-items: stretch; }
 .h5-panel { position: relative; border-radius: 22px; padding: 1.15rem 1rem 1.05rem; }
 .h5-before { background: linear-gradient(180deg, #fde9e0, #fff4ef 40%, #fff7f3); border: 1px solid #f8ddd2; box-shadow: 0 18px 40px -28px rgba(160, 60, 30, 0.5); }
 .h5-after { background: linear-gradient(180deg, #ddf3e4, #eef9f2 40%, #f3fbf6); border: 1px solid #cfead9; box-shadow: 0 18px 40px -28px rgba(20, 110, 60, 0.45); }
@@ -5547,8 +5547,10 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .h5-logo { display: block; width: 4.6rem; margin: 0.1rem 0 0.35rem; }
 .h5-logo img { display: block; width: 100%; height: auto; }
 .h5-name { margin: 0 0 0.6rem; font-family: var(--display); font-size: 1.35rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; text-align: center; color: var(--ink); }
-.h5-ai { margin: 0 0 0.9rem; padding: 0.45rem 0.9rem; border-radius: 999px; background: linear-gradient(180deg, #24a160, #17804a); color: #fff; font-family: var(--display); font-size: 0.82rem; font-weight: 700;
-  letter-spacing: 0.02em; white-space: nowrap; box-shadow: 0 8px 16px -10px rgba(20, 110, 60, 0.8); }
+.h5-ai { display: flex; align-items: center; justify-content: center; gap: 0.28rem; box-sizing: border-box; width: 100%; max-width: 100%; margin: 0 0 0.9rem; padding: 0.42rem 0.3rem;
+  border-radius: 999px; background: var(--ink); color: #fff; font-family: var(--display); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap;
+  box-shadow: 0 0 0 1px rgba(230, 192, 120, 0.35) inset, 0 8px 16px -10px rgba(15, 58, 58, 0.8); } /* brand dark teal (logo / hero button), gold spark; never wider than its panel */
+.h5-ai svg { width: 0.8rem; height: 0.8rem; flex: none; fill: var(--signal); stroke: none; }
 .h5-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; width: 100%; flex: 1; }
 .h5-step { position: relative; display: flex; align-items: center; gap: 0.4rem; margin: 0; padding: 0.45rem 0.45rem; border-radius: 10px; background: #fff; border: 1px solid #dcefe4; }
 .h5-step .h5-i { width: 1.3rem; height: 1.3rem; }
@@ -5599,7 +5601,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .h5 h1 { font-size: 1.98rem; }
   .h5 .hero-sub { font-size: 1rem; }
   .h5-panel { padding: 1.05rem 0.85rem 0.95rem; }
-  .h5-mid { padding-inline: 0.6rem; }
+  .h5-mid { padding-inline: 0.5rem; }
   .h5-row { gap: 0.6rem; padding: 0.4rem 0.55rem; }
   .h5-i { width: 1.8rem; height: 1.8rem; }
   .h5-t b { font-size: 0.9rem; } .h5-issue { font-size: 0.8rem; } .h5-out { font-size: 0.75rem; }
@@ -5613,7 +5615,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (min-width: 74.01rem) and (max-width: 82rem) {
   .h5-grid { grid-template-columns: minmax(20.5rem, 0.8fr) minmax(0, 2.5fr); gap: 1.2rem; }
   .h5 h1 { font-size: 1.8rem; }
-  .h5-visual { grid-template-columns: minmax(0, 1.06fr) 1.5rem minmax(0, 0.56fr) 1.5rem minmax(0, 1.74fr); }
+  .h5-visual { grid-template-columns: minmax(0, 1.02fr) 1.4rem minmax(0, 0.66fr) 1.4rem minmax(0, 1.7fr); }
   .h5-arrow svg { width: 1.5rem; height: 1.5rem; }
   .h5-before .h5-kicker { font-size: 0.82rem; }
   .h5-st { width: 5.9rem; font-size: 0.68rem; padding-right: 0.35rem; }
@@ -5631,7 +5633,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .h5-mid { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 0.8rem; padding: 0.9rem 1rem; }
   .h5-logo { width: 3.4rem; grid-row: 1 / 3; margin: 0; }
   .h5-name { margin: 0; text-align: left; font-size: 1.2rem; }
-  .h5-ai { justify-self: start; margin: 0.35rem 0 0.85rem; font-size: 0.76rem; padding: 0.32rem 0.75rem; }
+  .h5-ai { justify-self: start; width: auto; margin: 0.35rem 0 0.85rem; font-size: 0.76rem; padding: 0.32rem 0.75rem; }
   .h5-steps { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.7rem 0.9rem; }
   .h5-step + .h5-step::before { content: none; }
 }

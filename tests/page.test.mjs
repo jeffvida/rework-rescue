@@ -38,6 +38,7 @@ test('hero (24 Nov v5, from Jeff\'s reference image): copy word for word, one bo
   assert.doesNotMatch(hero, /hz-|What you can expect|story-benefits|hero-for|rework review|hx-|hm-|ht-/, 'older heroes are gone');
 });
 
+let css5;
 test('hero picture (24 Nov v5): BEFORE Scattered work → Rework Rescue, AI + AUTOMATION, Capture Match Check Organise → AFTER Connected workflow; trust panel', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
@@ -47,7 +48,8 @@ test('hero picture (24 Nov v5): BEFORE Scattered work → Rework Rescue, AI + AU
   assert.match(fig, /<span class="h5-pill">AFTER<\/span> <span class="h5-kicker">Connected workflow<\/span><\/p>\s*<p class="h5-title">Work under control<\/p>/);
   const before = [...fig.matchAll(/<li class="h5-row h5-b\d">[\s\S]*?<b>([^<]+)<\/b><span class="h5-issue">([^<]+)<\/span><\/span><svg class="h5-warn"/g)].map((m) => [m[1], m[2]]);
   assert.deepEqual(before, [['Enquiries', '3 awaiting replies'], ['Spreadsheets', 'Duplicate records'], ['Forms &amp; requests', 'Missing information'], ['Messages', 'Follow-up forgotten'], ['Invoices', 'Not yet prepared']]);
-  assert.match(fig, /<span class="h5-logo"><img src="\.\/assets\/brand\/mark\.png"[^>]*alt=""><\/span>\s*<p class="h5-name">Rework Rescue<\/p>\s*<p class="h5-ai">AI \+ AUTOMATION<\/p>/, 'official RR mark');
+  assert.match(fig, /<span class="h5-logo"><img src="\.\/assets\/brand\/mark\.png"[^>]*alt=""><\/span>\s*<p class="h5-name">Rework Rescue<\/p>\s*<p class="h5-ai"><svg[^>]*>[\s\S]*?<\/svg>AI \+ AUTOMATION<\/p>/, 'official RR mark; AI + AUTOMATION label with a gold spark');
+  assert.match(css5 = await read('../assets/styles.css'), /\.h5-ai \{[^}]*width: 100%; max-width: 100%;[^}]*background: var\(--ink\)/, '24 Nov v8: brand dark-teal label that never sits wider than its panel');
   const steps = [...fig.matchAll(/<li class="h5-step">[\s\S]*?<span class="h5-t"><b>([^<]+)<\/b><\/span><\/li>/g)].map((m) => m[1]);
   assert.deepEqual(steps, ['Capture', 'Match', 'Check', 'Organise'], '24 Nov v7: step names only (descriptions removed after the Gemini review)');
   const after = [...fig.matchAll(/<li class="h5-row h5-a\d">[\s\S]*?<b>([^<]+)<\/b><span class="h5-out">([\s\S]*?)<\/span><\/span><span class="h5-st"><svg[\s\S]*?<\/svg>([^<]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]);

@@ -9,12 +9,11 @@ import { SITE } from '../site-config.js';
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 
-test('page: a third card in Demos & examples opens the demo in a pop-up panel, so the page stays short', async () => {
+test('page: Carla\'s enquiry screen opens the live enquiry demo in a pop-up panel, so the page stays short', async () => {
   const h = await read('../index.html');
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
-  const cards = sec.slice(sec.indexOf('<ul class="built-cards'), sec.indexOf('</ul>', sec.indexOf('<ul class="built-cards')));
-  assert.match(cards, /<h4>The enquiry tracker<\/h4>/);
-  assert.match(cards, /<p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send an enquiry/);
+  const s1 = sec.slice(sec.indexOf('data-cj-screen="0"'), sec.indexOf('data-cj-screen="1"'));
+  assert.match(s1, /<p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry/);
   const demo = sec.slice(sec.indexOf('<dialog class="cs eq-dlg" id="enquiry-demo"'), sec.indexOf('</dialog>'));
   assert.ok(demo.length > 100, 'demo lives in a dialog (closed by default)');
   assert.doesNotMatch(demo.slice(0, 80), /\bopen\b/);

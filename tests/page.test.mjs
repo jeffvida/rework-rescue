@@ -12,6 +12,9 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
   for (const [open, label] of [['<dialog class="cs eq-dlg rp-dlg"', /Replayed from a real test run with fictional data/], ['<dialog class="cs eq-dlg rp-dlg jp-dlg"', /Fictional business &middot; Test run/]]) {
     const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
   }
+  // 24 Nov: Carla's flagship demo shows fictional sample amounts, labelled as a fictional example
+  const c = h.indexOf('<div class="cj" id="carla"');
+  if (c >= 0) { const d = h.slice(c, h.indexOf('<div class="built-group cj-others"', c)); assert.match(d, /CoolFix Aircon &middot; Fictional example/); h = h.replace(d, ''); }
   return h;
 };
 
@@ -150,25 +153,18 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const html = await page();
   const sec = section(html, 'built', 'safety');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
-  assert.match(sec, /<p class="eyebrow">Demos &amp; examples<\/p>\s*<h2 id="built-h">See it working on this page\.<\/h2>/);
-  assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 5, 'booking, chat, (21 Nov) the enquiry tracker and the weekly report, (23 Nov) job done to paid');
-  for (const t of ['The booking calendar', 'The chat assistant', 'The enquiry tracker', 'The self-checking weekly report', 'From job done to invoice paid']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
-  // 23 Nov: two groups, the CoolFix story first (steps 1-3 in order, step 3 wide), then what runs this site
-  const story = sec.slice(sec.indexOf('id="story-h"'), sec.indexOf('id="site-h"'));
-  const site = sec.slice(sec.indexOf('id="site-h"'), sec.indexOf('<dialog'));
-  assert.match(sec, /<h3 class="built-group-h" id="story-h">Follow one CoolFix customer<\/h3>\s*<p class="built-group-sub">Carla&rsquo;s aircon is leaking\. Follow her from first email to paid, across three workflows\.<\/p>/);
-  // 24 Nov quick wins: CoolFix is an example; the demos work with Microsoft 365 too
-  assert.match(sec, /across three workflows\.<\/p>\s*<p class="built-group-note">Not an aircon business\? CoolFix is just an example\. The same approach can help service businesses manage enquiries, jobs, follow-ups and invoices\.<\/p>/);
-  assert.match(sec, /not client projects\.<\/p>\s*<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
-  assert.ok(story.indexOf('The enquiry tracker') < story.indexOf('The self-checking weekly report') && story.indexOf('The self-checking weekly report') < story.indexOf('From job done to invoice paid'));
-  assert.match(sec, /<h3 class="built-group-h" id="site-h">Running on this site<\/h3>/);
-  assert.ok(site.includes('The booking calendar') && site.includes('The chat assistant') && !site.includes('CoolFix'));
-  assert.match(sec, /<h2 id="built-h">See it working on this page\.<\/h2>\s*<p class="built-intro">Built and run by me\. Try them: they&rsquo;re real workflows, not client projects\.<\/p>/, '21 Nov: one honest line up top');
+  // 24 Nov: one flagship CoolFix story (Jeff + ChatGPT), then three smaller builds
+  assert.match(sec, /<p class="eyebrow">See how it works<\/p>\s*<h2 id="built-h">From customer enquiry to payment received\.<\/h2>\s*<p class="built-intro">A customer sends an enquiry\. A job gets missed\. An invoice is delayed\.<\/p>/);
+  assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 3, 'weekly report, booking, chat (the CoolFix steps live in Carla\'s story)');
+  for (const t of ['The booking calendar', 'The chat assistant', 'The self-checking weekly report']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
+  assert.ok(sec.indexOf('id="carla"') < sec.indexOf('id="site-h"'), 'Carla first');
+  assert.match(sec, /<h3 class="built-group-h" id="site-h">More I&rsquo;ve built<\/h3>/);
+  assert.match(sec, /<p class="eq-small cj-small">Illustrative fictional scenario\. Not an aircon business\? CoolFix is just an example\. The same approach can help service businesses manage enquiries, jobs, follow-ups and invoices\.<\/p>\s*<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
   assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');
-  assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 3, 'enquiry, report and job-to-paid are demos');
-  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per card, inside the steps fold (job to paid: added after the 30 Nov run)');
+  assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 1, 'the weekly report is a demo');
+  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per workflow, inside a fold');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
-  const lists = sec.slice(0, sec.indexOf('<dialog')).replace(/<ul class="built-gets">[\s\S]*?<\/ul>/g, '');
+  const lists = sec.slice(sec.indexOf('cj-others'), sec.indexOf('<dialog')).replace(/<ul class="built-gets">[\s\S]*?<\/ul>/g, '');
   assert.equal((lists.match(/<li class="built-card/g) || []).length, (lists.match(/<\/li>\s*(<li class="built-card|<\/ul>)/g) || []).length, 'every card is closed');
   // 23 Nov: the "Tools I work with" strip moved to About; each card's tool line sits inside its steps fold.
   const about = section(html, 'about', 'faq');
@@ -176,7 +172,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.doesNotMatch(about.match(/<p class="rr-tools[^"]*">[\s\S]*?<\/p>/)[0], /Excel|Power Query|Python|Power BI/, 'main strip stays AI and automation');
   assert.doesNotMatch(sec, /class="rr-tools"/);
   assert.doesNotMatch(sec, /<img[^>]+(logo|n8n|gemini)/i, 'tool names as text, no logos');
-  for (const card of sec.slice(0, sec.indexOf('rr-results-h')).split(/<li class="built-card/).slice(1)) {
+  for (const card of sec.slice(0, sec.indexOf('rr-results-h')).split(/<li class="built-card/).slice(1).filter((c) => c.slice(0, c.indexOf('</li>')).includes('<details'))) {
     const fold = card.slice(card.indexOf('<details'), card.indexOf('</details>'));
     assert.match(fold, /<p class="built-tools">/, 'tool line inside the fold');
   }

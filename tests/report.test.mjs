@@ -40,7 +40,7 @@ test('the email shows the money first and says the AI text is checked', () => {
 test('page: fourth card opens a dialog that opens on the result, with two tabs and no calls to n8n', async () => {
   const h = await read('../index.html');
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
-  assert.match(sec, /<ul class="built-cards built-cards-story">/, '23 Nov: in the CoolFix story group');
+  assert.match(sec, /<h3 class="built-group-h" id="site-h">More I&rsquo;ve built<\/h3>\s*<ul class="built-cards built-cards-3">\s*<li class="built-card built-card-ai built-card-mini" id="demo-report">/, '24 Nov: a supporting example after Carla\'s story');
   assert.match(sec, /<h4>The self-checking weekly report<\/h4>/);
   assert.match(sec, /<p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see what it found/);
   const d = sec.slice(sec.indexOf('<dialog class="cs eq-dlg rp-dlg" id="report-demo"'), sec.indexOf('</dialog>', sec.indexOf('id="report-demo"')));

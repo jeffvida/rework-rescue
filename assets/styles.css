@@ -5722,3 +5722,27 @@ main > section.hf.h5 { background:
 .cj-go .btn { gap: 0.4rem; }
 .cj > .built-tools { margin: 0; font-size: 0.82rem; }
 .cj-more .built-tools { margin: 0.3rem 0; }
+/* 24 Nov 2026 (preview, simplified Carla demo) */
+.cj-meet-h { font-size: clamp(1.1rem, 2.2vw, 1.3rem); margin: 0 0 1rem; }
+.cj-bar button { align-items: center; justify-content: center; text-align: center; }
+.cj-ba { margin: 0 0 0.9rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.cj-ba div { margin: 0; padding: 0.6rem 0.8rem; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); }
+.cj-ba div + div { background: var(--info-bg); border-color: var(--teal); }
+.cj-ba dt { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.cj-ba div + div dt { color: var(--teal-dark); }
+.cj-ba dd { margin: 0.15rem 0 0; font-weight: 600; }
+.cj-box { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 0.9rem 1rem; display: grid; gap: 0.7rem; }
+.cj-msg { margin: 0; font-size: 1.02rem; }
+.cj-msg span { color: var(--muted); }
+.cj-try { margin: 0; } .cj-try[hidden] { display: none; }
+.cj-res { margin: 0; line-height: 2; } .cj-res[hidden] { display: none; }
+.cj-big { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--teal-dark); margin-right: 0.4rem; }
+.cj-outcome { margin-top: 1rem; }
+.cj-end { font-size: 1.1rem; }
+.cj-bridge { margin: 1rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--line); font-size: 0.95rem; color: var(--muted); }
+.cj-bridge strong { color: var(--ink); }
+@media (max-width: 720px) { .cj-ba { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .cj-bar button { flex-wrap: nowrap; gap: 0.3rem; padding: 0.5rem 0.3rem; font-size: 0.92rem; white-space: nowrap; }
+  .cj-bar .is-done .cj-n::after { content: ""; }
+}

@@ -154,12 +154,12 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const sec = section(html, 'built', 'safety');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   // 24 Nov: one flagship CoolFix story (Jeff + ChatGPT), then three smaller builds
-  assert.match(sec, /<p class="eyebrow">See how it works<\/p>\s*<h2 id="built-h">From customer enquiry to payment received\.<\/h2>\s*<p class="built-intro">A customer sends an enquiry\. A job gets missed\. An invoice is delayed\.<\/p>/);
+  assert.match(sec, /<p class="eyebrow">See how it works<\/p>\s*<h2 id="built-h">From customer enquiry to payment received\.<\/h2>\s*<p class="built-intro">One customer, three steps\. Tap each step to see what happens\.<\/p>/);
   assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 3, 'weekly report, booking, chat (the CoolFix steps live in Carla\'s story)');
   for (const t of ['The booking calendar', 'The chat assistant', 'The self-checking weekly report']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
   assert.ok(sec.indexOf('id="carla"') < sec.indexOf('id="site-h"'), 'Carla first');
   assert.match(sec, /<h3 class="built-group-h" id="site-h">More I&rsquo;ve built<\/h3>/);
-  assert.match(sec, /<p class="eq-small cj-small">Illustrative fictional scenario\. Not an aircon business\? CoolFix is just an example\. The same approach can help service businesses manage enquiries, jobs, follow-ups and invoices\.<\/p>\s*<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
+  assert.match(sec, /<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
   assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');
   assert.equal((sec.match(/built-status">Demo &middot; fictional business</g) || []).length, 1, 'the weekly report is a demo');
   assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per workflow, inside a fold');

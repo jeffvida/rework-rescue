@@ -139,46 +139,26 @@
       <div class="container">
         <p class="eyebrow">See how it works</p>
         <h2 id="built-h">From customer enquiry to payment received.</h2>
-        <p class="built-intro">A customer sends an enquiry. A job gets missed. An invoice is delayed.</p>
-        <p class="built-lead">See how AI and automation help a service business capture enquiries, keep jobs on track and prepare accurate invoices &mdash; with checks and human approval along the way.</p>
-        <p class="cj-go"><a class="btn btn-primary" href="#carla" data-cj-start>Try it: follow Carla from enquiry to paid <span aria-hidden="true">&darr;</span></a></p>
-        <p class="cj-tagline"><em>One fictional service business. Three connected improvements. One clearer way to work.</em></p>
+        <p class="built-intro">One customer, three steps. Tap each step to see what happens.</p>
 
         <div class="cj" id="carla" aria-labelledby="carla-h">
-          <div class="cj-meet">
-            <p class="cj-label">CoolFix Aircon &middot; Fictional example</p>
-            <h3 class="cj-meet-h" id="carla-h">Meet Carla</h3>
-            <p>Carla contacts CoolFix because her aircon is leaking. The office books her, but the job is not properly created or followed through.</p>
-          </div>
+          <p class="cj-label">CoolFix Aircon &middot; Fictional example</p>
+          <h3 class="cj-meet-h" id="carla-h">Carla&rsquo;s aircon is leaking. She contacts CoolFix.</h3>
 
-          <ol class="cj-bar" aria-label="Three stages">
-            <li><button type="button" data-cj-tab="0"><span class="cj-n">01</span> <strong>Enquiry</strong> <small>Capture and assign.</small></button></li>
-            <li><button type="button" data-cj-tab="1"><span class="cj-n">02</span> <strong>Job</strong> <small>Identify and check.</small></button></li>
-            <li><button type="button" data-cj-tab="2"><span class="cj-n">03</span> <strong>Payment</strong> <small>Invoice and track.</small></button></li>
+          <ol class="cj-bar" aria-label="Three steps">
+            <li><button type="button" data-cj-tab="0"><span class="cj-n">1</span> <strong>Enquiry</strong></button></li>
+            <li><button type="button" data-cj-tab="1"><span class="cj-n">2</span> <strong>Job</strong></button></li>
+            <li><button type="button" data-cj-tab="2"><span class="cj-n">3</span> <strong>Payment</strong></button></li>
           </ol>
 
           <div class="cj-screen" role="group" data-cj-screen="0" aria-labelledby="cj-h1">
-            <p class="cj-k">01 &middot; Enquiry</p>
             <h4 class="cj-h" id="cj-h1">The enquiry is captured</h4>
-            <p class="cj-line">Carla sends an enquiry. AI reads it, records what she needs and assigns someone to respond.</p>
-            <div class="cj-mock cj-mock-2">
-              <div class="cj-mail">
-                <p class="cj-mail-top"><strong>Carla Lim</strong> <span>Wed 18 Nov, 9:03 am</span></p>
-                <p class="cj-mail-sub">Aircon leaking</p>
-                <p>Hi, my aircon isn&rsquo;t cooling and it&rsquo;s leaking water. Can someone come and look at it?</p>
-              </div>
-              <div class="cj-card">
-                <p class="cj-card-h">AI read it</p>
-                <dl class="cj-dl">
-                  <div><dt>Needs</dt><dd>Aircon not cooling and leaking</dd></div>
-                  <div><dt>Type</dt><dd>Booking</dd></div>
-                  <div><dt>Urgency</dt><dd>Normal</dd></div>
-                  <div><dt>Assigned to</dt><dd>Scheduling</dd></div>
-                </dl>
-                <p class="cj-chip"><span class="pill pill-ok">&#10003; Enquiry recorded</span></p>
-              </div>
+            <dl class="cj-ba"><div><dt>Before</dt><dd>Enquiries sit in the inbox.</dd></div><div><dt>After</dt><dd>Each one is logged and given an owner.</dd></div></dl>
+            <div class="cj-box">
+              <p class="cj-msg">&ldquo;My aircon isn&rsquo;t cooling and it&rsquo;s leaking.&rdquo; <span>&mdash; Carla</span></p>
+              <p class="cj-try" data-cj-js hidden><button type="button" class="btn btn-primary" data-cj-run="0">Try it: send Carla&rsquo;s enquiry</button></p>
+              <p class="cj-res" data-cj-res="0"><span class="pill pill-ok">&#10003; Logged</span> Repair request &middot; Assigned to <strong>Scheduling</strong></p>
             </div>
-            <p class="cj-result"><strong>Result</strong> Carla&rsquo;s enquiry is recorded, assigned and visible to the team.</p>
             <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
               <ol class="built-steps">
                 <li>Checks each enquiry before anything reaches the AI.</li>
@@ -189,96 +169,51 @@
               <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
               <figure class="built-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real workflow behind this demo, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
               <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
+              <p class="built-tools">Shown with Google Workspace. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup.</p>
               <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry <span aria-hidden="true">&rarr;</span></a></p>
             </details>
           </div>
 
           <div class="cj-screen" role="group" data-cj-screen="1" aria-labelledby="cj-h2">
-            <p class="cj-k">02 &middot; Job</p>
             <h4 class="cj-h" id="cj-h2">The missing job is caught</h4>
-            <p class="cj-line">The weekly check spots that Carla is booked but has no job record. The office creates J-512. The technician then completes the repair and submits the required details.</p>
-            <div class="cj-mock cj-mock-2">
-              <div class="cj-card">
-                <p class="cj-card-h">Monday check &middot; Mon 23 Nov, 7 am</p>
-                <p class="cj-row"><span><strong>E-1038 &middot; Carla Lim</strong><br>Booked, no job</span><span class="pill pill-amber">Create the job</span></p>
-                <p class="cj-row cj-row-done"><span><strong>Office created J-512</strong><br>Aircon repair &middot; quote $850 approved</span><span class="pill pill-ok">&#10003; Fixed</span></p>
-              </div>
-              <form class="wt-phone cj-phone" data-cj-form novalidate>
-                <p class="wt-job"><strong>J-512 &middot; Carla Lim &middot; Aircon repair</strong></p>
-                <p class="wt-check">&#9745; Carla confirms the work is completed</p>
-                <div class="wt-photos">
-                  <p class="wt-photo is-added">Before <span>&#10003;</span></p>
-                  <p class="wt-photo is-added" data-cj-after>After <span>&#10003;</span></p>
-                </div>
-                <p class="cj-extra">Extra: replaced capacitor &middot; $100 &middot; Carla&rsquo;s approval: <strong>not yet</strong></p>
-                <p class="wt-error" data-cj-error role="alert"></p>
-                <button type="submit" class="btn btn-primary wt-submit" data-cj-submit>Submit</button>
-                <p class="cj-chip" data-cj-ok hidden><span class="pill pill-ok">&#10003; Completion checked</span></p>
-              </form>
+            <dl class="cj-ba"><div><dt>Before</dt><dd>Carla is booked, but nobody creates the job.</dd></div><div><dt>After</dt><dd>A daily check spots it and tells the office.</dd></div></dl>
+            <div class="cj-box">
+              <p class="cj-msg">Carla &middot; Booked &middot; <strong>no job</strong></p>
+              <p class="cj-try" data-cj-js hidden><button type="button" class="btn btn-primary" data-cj-run="1">Try it: run the morning check</button></p>
+              <p class="cj-res" data-cj-res="1"><span class="pill pill-amber">Found</span> Booked, no job &rarr; <span class="pill pill-ok">&#10003; Job J-512 created</span></p>
             </div>
-            <p class="cj-alt" data-cj-js hidden><button type="button" class="link-button" data-cj-missing>What if the after photo is missing?</button></p>
-            <p class="cj-result"><strong>Result</strong> The missing job is identified, and completion information is checked.</p>
             <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
-              <p class="cj-more-h">The weekly check</p>
               <ol class="built-steps">
                 <li>Reads enquiries, jobs and invoices every weekday morning.</li>
-                <li>Checks them against each other: unbilled work, late payments, jobs with no owner, bookings with no job.</li>
-                <li>Updates the team&rsquo;s list and keeps what they&rsquo;ve marked done.</li>
-                <li>On Monday, AI writes a two-sentence overview, every number is checked, and the owner gets the email.</li>
-              </ol>
-              <p class="built-safe"><strong>If the figures can&rsquo;t be trusted:</strong> the email says so at the top, before any numbers.</p>
-              <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real workflow behind this demo, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
-              <p class="cj-more-h">The completion check</p>
-              <ol class="built-steps">
-                <li>Checks the technician&rsquo;s form: photos, sign-off and any extras.</li>
-                <li>Missing information is caught before the job moves forward.</li>
+                <li>Checks them against each other: unbilled work, late payments, bookings with no job.</li>
+                <li>Updates the team&rsquo;s list. On Monday the owner gets a short report.</li>
+                <li>When the job is done, the technician&rsquo;s form is checked: photos, sign-off and any extras.</li>
               </ol>
               <p class="built-safe"><strong>If something&rsquo;s missing:</strong> no invoice is prepared, and the right person is told.</p>
+              <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real workflow behind this demo, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
               <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see the full Monday report <span aria-hidden="true">&rarr;</span></a></p>
             </details>
           </div>
 
           <div class="cj-screen" role="group" data-cj-screen="2" aria-labelledby="cj-h3">
-            <p class="cj-k">03 &middot; Payment</p>
-            <h4 class="cj-h" id="cj-h3">The correct invoice is prepared</h4>
-            <p class="cj-line">The approved repair is $850. An additional $100 is awaiting customer approval, so it is not added to the invoice draft.</p>
-            <div class="cj-money">
-              <p><span>Approved work</span><strong>$850</strong></p>
-              <p class="cj-money-hold"><span>Unapproved extra</span><strong>$100</strong></p>
-              <p class="cj-money-total"><span>Invoice draft</span><strong>$850</strong></p>
+            <h4 class="cj-h" id="cj-h3">The right invoice is prepared</h4>
+            <dl class="cj-ba"><div><dt>Before</dt><dd>Extras get billed without approval.</dd></div><div><dt>After</dt><dd>Only approved work is invoiced. Payment is tracked.</dd></div></dl>
+            <div class="cj-box">
+              <p class="cj-msg">Repair $850 (approved) &middot; Extra $100 (not approved yet)</p>
+              <p class="cj-try" data-cj-js hidden><button type="button" class="btn btn-primary" data-cj-run="2">Try it: prepare the invoice</button></p>
+              <p class="cj-res" data-cj-res="2"><span class="cj-big">Invoice draft: $850</span> <span class="pill pill-amber">$100 held for approval</span><br>Office sends it &rarr; Carla pays &rarr; <span class="pill pill-ok">&#10003; Paid</span></p>
             </div>
-            <div class="cj-mock cj-mock-2">
-              <div class="wt-list"><p class="wt-list-h">Office&rsquo;s next action</p><p class="wt-item"><span>Review and send Carla&rsquo;s $850 invoice</span><span>Manager</span></p><p class="wt-item"><span>Ask Carla about the $100 extra</span><span>Manager</span></p></div>
-              <div class="wt-list"><p class="wt-list-h">Payment status</p><p class="wt-item"><span>J-512 &middot; Carla Lim &middot; $850</span><span class="pill pill-ok">Paid</span></p></div>
-            </div>
-            <p class="cj-line">The office reviews and sends the invoice. Carla&rsquo;s subsequent payment is recorded and visible in the report.</p>
-            <p class="cj-result"><strong>Result</strong> <span class="pill pill-ok">Invoice ready for review</span></p>
             <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
               <ol class="built-steps">
-                <li>Prepares a draft invoice in Xero, for approved work only.</li>
+                <li>Prepares a draft invoice in Xero, for approved work only. Your office checks it and sends it.</li>
                 <li>Puts unapproved extras on the team&rsquo;s list, and records who agreed to what.</li>
                 <li>Reads Xero every morning: payments, overdue invoices and the Monday report.</li>
               </ol>
               <p class="built-tools">n8n &middot; Xero &middot; Google Sheets &middot; Google Drive &middot; Gmail</p>
-              <p class="cj-more-h">Your setup may be different</p>
-              <ul class="built-steps">
-                <li><strong>Technicians invoice from the field</strong> (e.g. Jobber, ServiceTitan): I add the checks and the daily list, not the form.</li>
-                <li><strong>Xero and spreadsheets:</strong> close to this demo. QuickBooks is similar.</li>
-                <li><strong>Paper job sheets, email or WhatsApp:</strong> start with a simple completion form and the daily list. Connecting your accounting software is assessed against your setup first.</li>
-              </ul>
-              <p class="eq-small">In this demo the office creates jobs; the system checks completions, prepares drafts and tracks payments. Your office approves and sends every invoice.</p>
             </details>
-
             <div class="cj-outcome">
-              <h4 class="cj-outcome-h">The business outcome</h4>
-              <ul class="check-list">
-                <li>Enquiries don&rsquo;t get lost.</li>
-                <li>Missing jobs become visible.</li>
-                <li>Incorrect charges are held.</li>
-                <li>Invoice and payment status can be followed.</li>
-              </ul>
-              <p class="cj-end"><strong>This is what better operations can look like.</strong></p>
+              <p class="cj-end"><strong>Fewer lost enquiries. Missed jobs caught early. Only approved work billed.</strong></p>
               <p><a class="btn btn-primary" href="contact/#contact-form-area">Book a free process review</a></p>
             </div>
           </div>
@@ -289,8 +224,7 @@
             <button type="button" class="btn btn-primary" data-cj-next>Next &rarr;</button>
           </div>
 
-          <p class="eq-small cj-small">Illustrative fictional scenario. Not an aircon business? CoolFix is just an example. The same approach can help service businesses manage enquiries, jobs, follow-ups and invoices.</p>
-          <p class="built-tools">Shown with Google Workspace. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup.</p>
+          <p class="cj-bridge"><strong>Not an aircon business?</strong> Swap Carla for your own customer. A booking, an order or a support request works the same way: it comes in, the work gets done, you get paid.</p>
         </div>
 
         <div class="built-group cj-others" aria-labelledby="site-h">
@@ -464,7 +398,7 @@
                 <p class="sr-only" data-rp-status aria-live="polite"></p>
               </div>
               <p class="story-note">Carla&rsquo;s booking is on the team&rsquo;s list for Scheduling. Next, the office creates her job: J-512.</p>
-              <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="story-next-btn" data-cj-go="2">Next: the correct invoice <span aria-hidden="true">&rarr;</span></button></p>
+              <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="story-next-btn" data-cj-go="2">Next: the right invoice <span aria-hidden="true">&rarr;</span></button></p>
               <details class="fold eq-real">
                 <summary>How it checks</summary>
                 <ul>

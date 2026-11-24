@@ -9,10 +9,10 @@ import { SITE } from '../site-config.js';
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 
-test('page: Carla\'s enquiry screen opens the live enquiry demo in a pop-up panel, so the page stays short', async () => {
+test('page: the CoolFix fold opens the live enquiry demo in a pop-up panel, so the page stays short', async () => {
   const h = await read('../index.html');
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
-  const s1 = sec.slice(sec.indexOf('data-cj-screen="0"'), sec.indexOf('data-cj-screen="1"'));
+  const s1 = sec.slice(sec.indexOf('<details class="fold cj-more">'), sec.indexOf('</details>', sec.indexOf('<details class="fold cj-more">')));
   assert.match(s1, /<p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry/);
   const demo = sec.slice(sec.indexOf('<dialog class="cs eq-dlg" id="enquiry-demo"'), sec.indexOf('</dialog>'));
   assert.ok(demo.length > 100, 'demo lives in a dialog (closed by default)');

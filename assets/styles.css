@@ -5746,3 +5746,39 @@ main > section.hf.h5 { background:
   .cj-bar button { flex-wrap: nowrap; gap: 0.3rem; padding: 0.5rem 0.3rem; font-size: 0.92rem; white-space: nowrap; }
   .cj-bar .is-done .cj-n::after { content: ""; }
 }
+/* 24 Nov 2026 (preview, static Carla steps): before / after / what improved, with a drawn picture per step */
+.cs3 { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.4rem; }
+.cs3-step { margin: 0; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1.2rem 1.6rem; align-items: center; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+.cs3-step:first-child { padding-top: 0; border-top: 0; }
+.cs3-n { margin: 0 0 0.2rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal); }
+.cs3-h { margin: 0 0 0.7rem; font-size: clamp(1.2rem, 2.4vw, 1.45rem); }
+.cs3-ba { margin: 0; display: grid; gap: 0.5rem; }
+.cs3-ba div { margin: 0; padding: 0.55rem 0.8rem; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); }
+.cs3-ba dt { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.cs3-ba dd { margin: 0.1rem 0 0; }
+.cs3-after { background: var(--info-bg) !important; border-color: var(--teal) !important; }
+.cs3-after dt { color: var(--teal-dark); }
+.cs3-win { border: 0 !important; background: transparent !important; padding-left: 0.8rem !important; border-left: 4px solid var(--signal) !important; border-radius: 0 !important; }
+.cs3-win dd { font-weight: 700; color: var(--ink); }
+.cs3-pic { margin: 0; }
+.pic-win { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 28px rgba(18, 38, 43, 0.1); overflow: hidden; font-size: 0.92rem; }
+.pic-bar { margin: 0; padding: 0.5rem 0.8rem; background: var(--ink); color: #e9efef; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
+.pic-bar span { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: rgba(255, 255, 255, 0.35); }
+.pic-bar span:last-of-type { margin-right: 0.4rem; }
+.pic-body { padding: 0.9rem; display: grid; gap: 0.55rem; }
+.pic-body p { margin: 0; }
+.pic-row { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; }
+.pic-row small { color: var(--muted); }
+.pic-quote { font-style: italic; }
+.pic-note { color: #7a5410; font-weight: 700; font-size: 0.85rem; }
+.pic-draft { border: 1px dashed var(--teal); border-radius: 10px; padding: 0.7rem; background: var(--info-bg); display: grid; gap: 0.4rem; }
+.pic-k { font-size: 0.75rem; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.05em; }
+.pic-btn { justify-self: start; background: var(--teal); color: #fff; border-radius: 999px; padding: 0.25rem 0.8rem; font-weight: 700; font-size: 0.82rem; }
+.pic-arrow { text-align: center; color: var(--teal); font-weight: 800; }
+.pic-done { color: var(--teal-dark); }
+.pic-held { color: var(--muted); }
+.pic-total { border-top: 1px solid var(--line); padding-top: 0.5rem; font-size: 1.05rem; }
+.pic-total strong { font-size: 1.3rem; color: var(--teal-dark); }
+.cj > .cj-outcome { margin-top: 1.4rem; }
+.cj > .cj-more { margin-top: 0.6rem; }
+@media (max-width: 760px) { .cs3-step { grid-template-columns: 1fr; } }

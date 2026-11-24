@@ -139,92 +139,123 @@
       <div class="container">
         <p class="eyebrow">See how it works</p>
         <h2 id="built-h">From customer enquiry to payment received.</h2>
-        <p class="built-intro">One customer, three steps. Tap each step to see what happens.</p>
+        <p class="built-intro">One customer, three steps: what goes wrong, what changes, and what improves.</p>
 
         <div class="cj" id="carla" aria-labelledby="carla-h">
           <p class="cj-label">CoolFix Aircon &middot; Fictional example</p>
           <h3 class="cj-meet-h" id="carla-h">Carla&rsquo;s aircon is leaking. She contacts CoolFix.</h3>
 
-          <ol class="cj-bar" aria-label="Three steps">
-            <li><button type="button" data-cj-tab="0"><span class="cj-n">1</span> <strong>Enquiry</strong></button></li>
-            <li><button type="button" data-cj-tab="1"><span class="cj-n">2</span> <strong>Job</strong></button></li>
-            <li><button type="button" data-cj-tab="2"><span class="cj-n">3</span> <strong>Payment</strong></button></li>
+          <ol class="cs3">
+            <li class="cs3-step" id="cj-step1">
+              <div class="cs3-text">
+                <p class="cs3-n">Step 1 &middot; Enquiry</p>
+                <h4 class="cs3-h">The enquiry is captured</h4>
+                <dl class="cs3-ba">
+                  <div class="cs3-before"><dt>Before</dt><dd>Carla asks for a booking but gives no date or time. Someone has to notice, then write back.</dd></div>
+                  <div class="cs3-after"><dt>After</dt><dd>The enquiry is flagged &ldquo;Needs info&rdquo;. AI drafts a reply asking for her preferred date and time. The office checks it and sends it.</dd></div>
+                  <div class="cs3-win"><dt>What improved</dt><dd>No enquiry stalls because details are missing.</dd></div>
+                </dl>
+              </div>
+              <figure class="cs3-pic" aria-label="Picture: Carla's enquiry flagged as Needs info, with an AI draft reply waiting for approval">
+                <div class="pic-win">
+                  <p class="pic-bar"><span></span><span></span><span></span> Enquiries</p>
+                  <div class="pic-body">
+                    <p class="pic-row"><strong>Carla Lim</strong><span class="pill pill-amber">Needs info</span></p>
+                    <p class="pic-quote">&ldquo;Can someone come and fix my leaking aircon?&rdquo;</p>
+                    <p class="pic-note">Missing: date and time</p>
+                    <div class="pic-draft">
+                      <p class="pic-k">AI draft reply &middot; waiting for approval</p>
+                      <p>Hi Carla, thanks for getting in touch. What date and time would suit you for a visit?</p>
+                      <p class="pic-btn">Approve &amp; send</p>
+                    </div>
+                  </div>
+                </div>
+              </figure>
+            </li>
+
+            <li class="cs3-step" id="cj-step2">
+              <div class="cs3-text">
+                <p class="cs3-n">Step 2 &middot; Job</p>
+                <h4 class="cs3-h">The missing job is caught</h4>
+                <dl class="cs3-ba">
+                  <div class="cs3-before"><dt>Before</dt><dd>Carla is booked, but nobody creates the job. No one notices until she calls to ask.</dd></div>
+                  <div class="cs3-after"><dt>After</dt><dd>A morning check compares bookings with jobs and puts the gap on the office&rsquo;s list.</dd></div>
+                  <div class="cs3-win"><dt>What improved</dt><dd>Booked work doesn&rsquo;t slip through.</dd></div>
+                </dl>
+              </div>
+              <figure class="cs3-pic" aria-label="Picture: the morning check finds Carla booked with no job, and the office creates job J-512">
+                <div class="pic-win">
+                  <p class="pic-bar"><span></span><span></span><span></span> Office list &middot; Monday 7 am</p>
+                  <div class="pic-body">
+                    <p class="pic-row"><span><strong>Carla Lim</strong><br><small>Booked, no job</small></span><span class="pill pill-amber">Create the job</span></p>
+                    <p class="pic-arrow" aria-hidden="true">&darr;</p>
+                    <p class="pic-row pic-done"><span><strong>Job J-512 created</strong><br><small>Aircon repair &middot; technician booked</small></span><span class="pill pill-ok">&#10003; Done</span></p>
+                  </div>
+                </div>
+              </figure>
+            </li>
+
+            <li class="cs3-step" id="cj-step3">
+              <div class="cs3-text">
+                <p class="cs3-n">Step 3 &middot; Payment</p>
+                <h4 class="cs3-h">The right invoice is prepared</h4>
+                <dl class="cs3-ba">
+                  <div class="cs3-before"><dt>Before</dt><dd>Extras get billed without the customer&rsquo;s approval, or invoices go out late.</dd></div>
+                  <div class="cs3-after"><dt>After</dt><dd>A draft invoice is prepared for approved work only. The office checks it and sends it.</dd></div>
+                  <div class="cs3-win"><dt>What improved</dt><dd>Correct invoices, sent sooner, with payment tracked.</dd></div>
+                </dl>
+              </div>
+              <figure class="cs3-pic" aria-label="Picture: draft invoice for 850 dollars of approved work, a 100 dollar extra held for approval, then marked paid">
+                <div class="pic-win">
+                  <p class="pic-bar"><span></span><span></span><span></span> Invoice &middot; Carla Lim</p>
+                  <div class="pic-body">
+                    <p class="pic-row"><span>Aircon repair <small>(approved)</small></span><strong>$850</strong></p>
+                    <p class="pic-row pic-held"><span>Extra: capacitor <small>(not approved yet)</small></span><span class="pill pill-amber">Held &middot; $100</span></p>
+                    <p class="pic-row pic-total"><span>Draft total</span><strong>$850</strong></p>
+                    <p class="pic-row"><span>Payment</span><span class="pill pill-ok">&#10003; Paid</span></p>
+                  </div>
+                </div>
+              </figure>
+            </li>
           </ol>
 
-          <div class="cj-screen" role="group" data-cj-screen="0" aria-labelledby="cj-h1">
-            <h4 class="cj-h" id="cj-h1">The enquiry is captured</h4>
-            <dl class="cj-ba"><div><dt>Before</dt><dd>Enquiries sit in the inbox.</dd></div><div><dt>After</dt><dd>Each one is logged and given an owner.</dd></div></dl>
-            <div class="cj-box">
-              <p class="cj-msg">&ldquo;My aircon isn&rsquo;t cooling and it&rsquo;s leaking.&rdquo; <span>&mdash; Carla</span></p>
-              <p class="cj-try" data-cj-js hidden><button type="button" class="btn btn-primary" data-cj-run="0">Try it: send Carla&rsquo;s enquiry</button></p>
-              <p class="cj-res" data-cj-res="0"><span class="pill pill-ok">&#10003; Logged</span> Repair request &middot; Assigned to <strong>Scheduling</strong></p>
-            </div>
-            <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
-              <ol class="built-steps">
-                <li>Checks each enquiry before anything reaches the AI.</li>
-                <li>AI reads it: who it&rsquo;s from, what they need, how urgent.</li>
-                <li>A fixed rule picks who handles it, and it&rsquo;s logged in the tracker.</li>
-                <li>The owner gets an email. Anything unclear is marked for a person to check.</li>
-              </ol>
-              <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
-              <figure class="built-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real workflow behind this demo, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
-              <p class="built-tools">Shown with Google Workspace. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup.</p>
-              <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry <span aria-hidden="true">&rarr;</span></a></p>
-            </details>
-          </div>
-
-          <div class="cj-screen" role="group" data-cj-screen="1" aria-labelledby="cj-h2">
-            <h4 class="cj-h" id="cj-h2">The missing job is caught</h4>
-            <dl class="cj-ba"><div><dt>Before</dt><dd>Carla is booked, but nobody creates the job.</dd></div><div><dt>After</dt><dd>A daily check spots it and tells the office.</dd></div></dl>
-            <div class="cj-box">
-              <p class="cj-msg">Carla &middot; Booked &middot; <strong>no job</strong></p>
-              <p class="cj-try" data-cj-js hidden><button type="button" class="btn btn-primary" data-cj-run="1">Try it: run the morning check</button></p>
-              <p class="cj-res" data-cj-res="1"><span class="pill pill-amber">Found</span> Booked, no job &rarr; <span class="pill pill-ok">&#10003; Job J-512 created</span></p>
-            </div>
-            <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
-              <ol class="built-steps">
-                <li>Reads enquiries, jobs and invoices every weekday morning.</li>
-                <li>Checks them against each other: unbilled work, late payments, bookings with no job.</li>
-                <li>Updates the team&rsquo;s list. On Monday the owner gets a short report.</li>
-                <li>When the job is done, the technician&rsquo;s form is checked: photos, sign-off and any extras.</li>
-              </ol>
-              <p class="built-safe"><strong>If something&rsquo;s missing:</strong> no invoice is prepared, and the right person is told.</p>
-              <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real workflow behind this demo, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
-              <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see the full Monday report <span aria-hidden="true">&rarr;</span></a></p>
-            </details>
-          </div>
-
-          <div class="cj-screen" role="group" data-cj-screen="2" aria-labelledby="cj-h3">
-            <h4 class="cj-h" id="cj-h3">The right invoice is prepared</h4>
-            <dl class="cj-ba"><div><dt>Before</dt><dd>Extras get billed without approval.</dd></div><div><dt>After</dt><dd>Only approved work is invoiced. Payment is tracked.</dd></div></dl>
-            <div class="cj-box">
-              <p class="cj-msg">Repair $850 (approved) &middot; Extra $100 (not approved yet)</p>
-              <p class="cj-try" data-cj-js hidden><button type="button" class="btn btn-primary" data-cj-run="2">Try it: prepare the invoice</button></p>
-              <p class="cj-res" data-cj-res="2"><span class="cj-big">Invoice draft: $850</span> <span class="pill pill-amber">$100 held for approval</span><br>Office sends it &rarr; Carla pays &rarr; <span class="pill pill-ok">&#10003; Paid</span></p>
-            </div>
-            <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
-              <ol class="built-steps">
-                <li>Prepares a draft invoice in Xero, for approved work only. Your office checks it and sends it.</li>
-                <li>Puts unapproved extras on the team&rsquo;s list, and records who agreed to what.</li>
-                <li>Reads Xero every morning: payments, overdue invoices and the Monday report.</li>
-              </ol>
-              <p class="built-tools">n8n &middot; Xero &middot; Google Sheets &middot; Google Drive &middot; Gmail</p>
-            </details>
-            <div class="cj-outcome">
-              <p class="cj-end"><strong>Fewer lost enquiries. Missed jobs caught early. Only approved work billed.</strong></p>
-              <p><a class="btn btn-primary" href="contact/#contact-form-area">Book a free process review</a></p>
-            </div>
-          </div>
-
-          <div class="cj-nav" data-cj-nav hidden>
-            <button type="button" class="btn btn-secondary" data-cj-back>&larr; Back</button>
-            <p class="cj-count" data-cj-count aria-live="polite">1 of 3</p>
-            <button type="button" class="btn btn-primary" data-cj-next>Next &rarr;</button>
+          <div class="cj-outcome">
+            <p class="cj-end"><strong>Fewer lost enquiries. Missed jobs caught early. Only approved work billed.</strong></p>
+            <p><a class="btn btn-primary" href="contact/#contact-form-area">Book a free process review</a></p>
           </div>
 
           <p class="cj-bridge"><strong>Not an aircon business?</strong> Swap Carla for your own customer. A booking, an order or a support request works the same way: it comes in, the work gets done, you get paid.</p>
+          <p class="eq-small cj-small">Fictional example of what I can build. Each step is set up to fit your tools and process.</p>
+
+          <details class="fold cj-more"><summary>How it&rsquo;s built</summary>
+            <p class="cj-more-h">Step 1 &middot; Enquiry</p>
+            <ol class="built-steps">
+              <li>Checks each enquiry before anything reaches the AI.</li>
+              <li>AI reads it: who it&rsquo;s from, what they need, how urgent.</li>
+              <li>A fixed rule picks who handles it, and it&rsquo;s logged in the tracker.</li>
+              <li>The owner gets an email. Anything unclear is marked for a person to check.</li>
+            </ol>
+            <figure class="built-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real workflow behind my enquiry tracker, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+            <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
+            <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry <span aria-hidden="true">&rarr;</span></a></p>
+            <p class="cj-more-h">Step 2 &middot; Job</p>
+            <ol class="built-steps">
+              <li>Reads enquiries, jobs and invoices every weekday morning.</li>
+              <li>Checks them against each other: unbilled work, late payments, bookings with no job.</li>
+              <li>Updates the team&rsquo;s list. On Monday the owner gets a short report.</li>
+            </ol>
+            <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real workflow behind my weekly report, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+            <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
+            <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see the full Monday report <span aria-hidden="true">&rarr;</span></a></p>
+            <p class="cj-more-h">Step 3 &middot; Payment</p>
+            <ol class="built-steps">
+              <li>Prepares a draft invoice in Xero, for approved work only. Your office checks it and sends it.</li>
+              <li>Puts unapproved extras on the team&rsquo;s list, and records who agreed to what.</li>
+              <li>Reads Xero every morning: payments and overdue invoices.</li>
+            </ol>
+            <p class="built-tools">n8n &middot; Xero &middot; Google Sheets &middot; Google Drive &middot; Gmail</p>
+            <p class="built-tools">Shown with Google Workspace. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup.</p>
+          </details>
         </div>
 
         <div class="built-group cj-others" aria-labelledby="site-h">
@@ -335,7 +366,7 @@
             </div>
             <p class="story-note">Carla is booked. But nobody has created her job yet.</p>
           </div>
-          <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="story-next-btn" data-cj-go="1">Next: the missing job is caught <span aria-hidden="true">&rarr;</span></button></p>
+          <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a></p>
           <details class="fold eq-real">
             <summary>Want this for your own emails?</summary>
             <ul>
@@ -398,7 +429,7 @@
                 <p class="sr-only" data-rp-status aria-live="polite"></p>
               </div>
               <p class="story-note">Carla&rsquo;s booking is on the team&rsquo;s list for Scheduling. Next, the office creates her job: J-512.</p>
-              <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a><button type="button" class="story-next-btn" data-cj-go="2">Next: the right invoice <span aria-hidden="true">&rarr;</span></button></p>
+              <p class="story-next"><a class="story-book" href="contact/#contact-form-area">Book a free process review</a></p>
               <details class="fold eq-real">
                 <summary>How it checks</summary>
                 <ul>

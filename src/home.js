@@ -110,7 +110,4 @@ mountEnquiryDemo(document.getElementById('enquiry-demo'));
 // 21 Nov 2026 (build #2): the self-checking weekly report demo, a replay with fictional data (src/report-demo.js).
 import { mountReportDemo } from './report-demo.js';
 mountReportDemo(document.getElementById('report-demo'));
-// 24 Nov 2026 (preview): the flagship CoolFix demo, one customer across Enquiry → Job → Payment (src/carla-demo.js).
-// Replaces the three CoolFix cards and the "Job done to paid" pop-up.
-import { mountCarla } from './carla-demo.js';
-mountCarla(document.getElementById('carla'));
+// 24 Nov 2026 (preview): the CoolFix steps are now static (before / after / what improved, with pictures): no script needed.

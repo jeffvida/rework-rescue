@@ -154,7 +154,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const sec = section(html, 'built', 'safety');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   // 24 Nov: one flagship CoolFix story (Jeff + ChatGPT), then three smaller builds
-  assert.match(sec, /<p class="eyebrow">See how it works<\/p>\s*<h2 id="built-h">From customer enquiry to payment received\.<\/h2>\s*<p class="built-intro">One customer, three steps\. Tap each step to see what happens\.<\/p>/);
+  assert.match(sec, /<p class="eyebrow">See how it works<\/p>\s*<h2 id="built-h">From customer enquiry to payment received\.<\/h2>\s*<p class="built-intro">One customer, three steps: what goes wrong, what changes, and what improves\.<\/p>/);
   assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 3, 'weekly report, booking, chat (the CoolFix steps live in Carla\'s story)');
   for (const t of ['The booking calendar', 'The chat assistant', 'The self-checking weekly report']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
   assert.ok(sec.indexOf('id="carla"') < sec.indexOf('id="site-h"'), 'Carla first');

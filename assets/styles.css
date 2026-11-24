@@ -5468,7 +5468,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 }
 
 
-/* ===== Hero (24 Nov 2026, v11 dark): built from Jeff's reference image (12:40) as real, responsive components.
+/* ===== Hero (24 Nov 2026, v11 dark; v12 moving background): built from Jeff's reference image (12:40) as real, responsive components.
    Dark teal hero with the header on the same dark ground. Copy left; three glass panels right: Before · Scattered work
    (three sources) → AI + Automation (Capture, Match, Check, Organise) → After · Organised operations (five results).
    Trust strip below. Generic icons drawn for the site (no third-party logos, no photos). Motion: one pass on load,
@@ -5572,6 +5572,30 @@ main > section.hf.h5 { background:
 .hdr-dark .nav-list a:focus-visible, .hdr-dark .nav-toggle:focus-visible, .hdr-dark .brand:focus-visible { outline-color: #fff; }
 @media (max-width: 56rem) { .nav-ready .hdr-dark #site-nav .nav-list li, .hdr-dark.nav-ready #site-nav .nav-list li { border-top-color: rgba(255, 255, 255, 0.12); } }
 
+/* Moving background (24 Nov v12, from Jeff's animation): a dotted wave drifting at the bottom right, a few twinkling
+   lights, and a workflow network behind the picture (inputs → AI → Automation → results) that draws itself once, then
+   small lights keep travelling along the links. Decorative only (aria-hidden); still with reduced motion; paused off screen. */
+.h5-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.h5-wave { position: absolute; right: -6%; bottom: -1.5rem; width: min(72rem, 80%); height: 23rem; background: url("hero-wave.svg") right bottom / cover no-repeat; opacity: 1;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%); mask-image: linear-gradient(180deg, transparent 0%, #000 22%); }
+.h5-twk { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #a8f5d4; box-shadow: 0 0 10px 3px rgba(106, 217, 171, 0.55); opacity: 0.7; }
+.h5-twk1 { top: 14%; left: 47%; } .h5-twk2 { top: 70%; left: 58%; } .h5-twk3 { top: 8%; right: 9%; } .h5-twk4 { top: 86%; right: 22%; } .h5-twk5 { top: 58%; left: 6%; opacity: 0.4; } .h5-twk6 { top: 92%; left: 40%; opacity: 0.45; }
+.h5-visual { position: relative; isolation: isolate; }
+.h5-net { position: absolute; z-index: -1; top: -6.5rem; left: -2rem; width: calc(100% + 6rem); height: calc(100% + 12.5rem); overflow: visible; pointer-events: none; opacity: 0.8; }
+.h5-link { fill: none; stroke: rgba(106, 217, 171, 0.5); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.h5-node rect { fill: rgba(9, 50, 52, 0.9); stroke: rgba(106, 217, 171, 0.45); stroke-width: 1.2; }
+.h5-net .h5-ic { fill: none; stroke: #c4f1df; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.h5-node-ok .h5-ic { stroke: var(--h5-mint); stroke-width: 3.2; }
+.h5-node-ok rect { stroke: rgba(106, 217, 171, 0.8); }
+.h5-hub rect { fill: rgba(12, 70, 66, 0.92); stroke: var(--h5-mint); stroke-width: 1.6; filter: drop-shadow(0 0 8px rgba(106, 217, 171, 0.6)); }
+.h5-hub text { fill: #effff8; font-family: var(--display); font-weight: 700; }
+.h5-hub-ai text { font-size: 22px; } .h5-hub-auto text { font-size: 14px; letter-spacing: 0.04em; }
+.h5-pulse { fill: #b5f7da; filter: drop-shadow(0 0 4px #6ad9ab); }
+@media (max-width: 74rem) { .h5-net, .h5-twk1, .h5-twk2, .h5-twk5, .h5-twk6 { display: none; } } /* the network only where the picture sits beside the copy */
+@media (max-width: 58rem) { .h5-wave { width: 140%; height: 18rem; right: -30%; } }
+@media (prefers-reduced-motion: reduce) { .h5-pulses { display: none; } }
+.h5.h5-off .h5-bg *, .h5.h5-off .h5-net * { animation-play-state: paused !important; }
+
 /* Motion: one pass on load */
 @media (prefers-reduced-motion: no-preference) {
   .h5 h1 { animation: h5-rise 0.6s ease-out both; }
@@ -5584,6 +5608,17 @@ main > section.hf.h5 { background:
   .h5-a1 { animation-delay: 1.05s; } .h5-a2 { animation-delay: 1.15s; } .h5-a3 { animation-delay: 1.25s; } .h5-a4 { animation-delay: 1.35s; } .h5-a5 { animation-delay: 1.45s; }
   .h5-done svg { animation: h5-pop 0.4s ease-out 1.6s both; }
   .h5-book::after { animation: h5-shine 0.9s ease-in-out 2.1s both; }
+  .h5-wave { animation: h5-drift 16s ease-in-out infinite alternate; }
+  .h5-twk { animation: h5-twinkle 3.6s ease-in-out infinite alternate; }
+  .h5-twk2 { animation-delay: 1.1s; } .h5-twk3 { animation-delay: 2.2s; } .h5-twk4 { animation-delay: 0.6s; } .h5-twk5 { animation-delay: 1.7s; } .h5-twk6 { animation-delay: 2.8s; }
+  .h5-node, .h5-hub { animation: h5-fade 0.6s ease-out both; }
+  .h5-link { animation: h5-draw 0.9s ease-out both; }
+  .h5-net .h5-d3 { animation-delay: 0.3s; } .h5-net .h5-d5 { animation-delay: 0.5s; } .h5-net .h5-d7 { animation-delay: 0.7s; } .h5-net .h5-d9 { animation-delay: 0.9s; }
+  .h5-net .h5-d10 { animation-delay: 1s; } .h5-net .h5-d11 { animation-delay: 1.1s; } .h5-net .h5-d12 { animation-delay: 1.2s; } .h5-net .h5-d13 { animation-delay: 1.3s; }
+  .h5-net .h5-d17 { animation-delay: 1.7s; } .h5-net .h5-d22 { animation-delay: 2.2s; } .h5-net .h5-d27 { animation-delay: 2.7s; }
+  .h5-net .h5-d30 { animation-delay: 3s; } .h5-net .h5-d31 { animation-delay: 3.1s; } .h5-net .h5-d32 { animation-delay: 3.2s; }
+  .h5-net .h5-d34 { animation-delay: 3.4s; } .h5-net .h5-d36 { animation-delay: 3.6s; } .h5-net .h5-d38 { animation-delay: 3.8s; }
+  .h5-hub rect { animation: h5-breathe 3.2s ease-in-out 4s infinite alternate; }
 }
 @keyframes h5-shine { 0% { left: -40%; opacity: 0; } 15% { opacity: 1; } 100% { left: 120%; opacity: 0; } }
 @keyframes h5-glow { 0% { text-shadow: 0 0 0 rgba(106, 217, 171, 0); } 40% { text-shadow: 0 0 24px rgba(106, 217, 171, 0.85), 0 0 50px rgba(46, 160, 130, 0.45); } 100% { text-shadow: 0 0 22px rgba(106, 217, 171, 0.28); } }
@@ -5591,6 +5626,11 @@ main > section.hf.h5 { background:
 @keyframes h5-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes h5-pop { 0% { opacity: 0; transform: scale(0.6); } 70% { opacity: 1; transform: scale(1.08); } 100% { transform: scale(1); } }
 @keyframes h5-lit { from { opacity: 0.25; } to { opacity: 1; } }
+@keyframes h5-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-3.5rem, -0.8rem, 0); } }
+@keyframes h5-twinkle { from { opacity: 0.15; transform: scale(0.7); } to { opacity: 0.85; transform: scale(1.15); } }
+@keyframes h5-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes h5-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes h5-breathe { from { filter: drop-shadow(0 0 4px rgba(106, 217, 171, 0.35)); } to { filter: drop-shadow(0 0 14px rgba(106, 217, 171, 0.85)); } }
 
 /* 1185–1312 px: a little tighter */
 @media (min-width: 74.01rem) and (max-width: 82rem) {

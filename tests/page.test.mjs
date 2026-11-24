@@ -55,16 +55,24 @@ test('hero picture (24 Nov v11): Before · Scattered work (3) → AI + Automatio
   assert.equal((fig.match(/class="h5-arrow"/g) || []).length, 2);
   assert.doesNotMatch(txt(fig), /\$\d|%|\d+ (hours?|days?)|saved|Gmail|Outlook|Excel|Xero|QuickBooks/i, 'no figures, results or third-party product names');
   assert.equal((hero.match(/<img /g) || []).length, 0, 'no images: HTML and inline icons only');
+  // 24 Nov v12: moving background (decorative, hidden from screen readers)
+  assert.match(hero, /<section class="hero hf h5 h11" aria-labelledby="hero-title">\s*<div class="h5-bg" aria-hidden="true"><span class="h5-wave"><\/span>/);
+  assert.match(fig, /<\/figcaption>\s*<svg class="h5-net"[^>]*>/, 'network behind the picture');
+  assert.match(hero, /<svg class="h5-net"[^>]*>[\s\S]*AUTOMATION[\s\S]*<\/svg>/);
+  assert.match(hero.slice(0, hero.indexOf('<div class="container')), /aria-hidden="true"/, 'background is decorative');
+  const home0 = await read('../src/home.js');
+  assert.match(home0, /mountBackdrop\(\);/, 'background pauses off screen and stays still with reduced motion');
   assert.ok(hero.indexOf('</figure>') < hero.indexOf('h5-trust'), 'trust strip after the picture');
   const trust = hero.slice(hero.indexOf('<ul class="h5-trust">'));
   assert.deepEqual([...trust.matchAll(/<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Written scope and price before work starts.', 'You own everything I build.', '30 days of fixes within the agreed scope.']);
 
   const c = await read('../assets/styles.css');
-  const css = c.slice(c.indexOf('/* ===== Hero (24 Nov 2026, v11 dark)'));
-  assert.ok(css.length > 3000, 'hero block exists');
+  const css = c.slice(c.indexOf('/* ===== Hero (24 Nov 2026, v11 dark; v12 moving background)'));
+  assert.ok(c.includes('/* ===== Hero (24 Nov 2026, v11 dark; v12 moving background)') && css.length > 3000, 'hero block exists');
   assert.doesNotMatch(c, /Hero \(24 Nov 2026, v5 reference\)|\.h5-st \{|\.h5-logo \{/, 'the v5–v10 hero styles are gone');
   assert.doesNotMatch(c, /\.hz-flow|\.hz-promises|\.hz \{|\.hf-wires|\.hf-bit|\.hm-visual|\.ht-visual/, 'older hero styles are gone');
-  assert.doesNotMatch(css, /infinite/, 'motion runs once');
+  // 24 Nov v12: only the decorative background keeps moving (wave, twinkles, hub glow); everything else runs once
+  assert.deepEqual([...css.matchAll(/\.(h5-[a-z]+)[^{]*\{ animation: [^}]*infinite/g)].map((m) => m[1]), ['h5-wave', 'h5-twk', 'h5-hub'], 'loops only in the background');
   const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference) {'), css.indexOf('@keyframes h5-shine'));
   assert.match(motion, /h5-in/); assert.match(motion, /h5-pop/); assert.match(motion, /h5-lit/); assert.match(motion, /h5-glow/); assert.match(motion, /h5-shine/);
   assert.equal((css.match(/animation:/g) || []).length, (motion.match(/animation:/g) || []).length, 'every animation sits behind reduced-motion');

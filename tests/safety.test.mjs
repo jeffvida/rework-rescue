@@ -14,9 +14,9 @@ const page = () => read('../index.html');
 const between = (h, a, b) => h.slice(h.indexOf(a), h.indexOf(b, h.indexOf(a)));
 const text = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 
-test('hero: headline kept, benefit first, no failure talk up front; the checks link now sits with the step-by-step example', async () => {
+test('hero: 24 Nov headline, benefit first, no failure talk up front; the checks link now sits with the step-by-step example', async () => {
   const h = await page();
-  assert.match(h, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg[\s\S]*?<\/svg><\/span> business operations\./);
+  assert.match(h, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work under control\.<\/span><\/h1>/, '24 Nov headline');
   const top = text(h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero'))));
   assert.doesNotMatch(top, /fails?\b|failure|goes wrong|breaks?\b|retry/i, 'the hero sells confidence; failure handling is shown further down, as proof');
   assert.match(h, /<a href="#safety">See how the checks work/, '23 Nov: the Dana example (and its link) is gone; the FAQ still links to the checks');

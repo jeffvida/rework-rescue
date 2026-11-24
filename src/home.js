@@ -1,7 +1,6 @@
 // Homepage: the hero illustration, the phone-only booking bar, the booking pop-up and the calendar at the bottom.
 
 import { mountBooking } from './booking/popup.js';
-import { mountZones } from './hero-zones.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
 
@@ -61,8 +60,7 @@ const booking = mountBooking();
 mountAssistant();
 
 // 23 Nov: the Dana Cruz five-step example (src/demo/flow.js) was removed from How I help; it repeated demo ①.
-// Hero (19 Nov): the three-zone scene; light flows along its connections only while it is on screen.
-mountZones(document.getElementById('hero-story'));
+// Hero (24 Nov): the Before → After picture animates once on load in CSS; no script needed.
 
 // The calendar at the bottom of the page. Times are only fetched once the visitor gets close to it,
 // so a visit that never scrolls that far doesn't ask the booking service for anything.

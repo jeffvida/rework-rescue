@@ -18,89 +18,68 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 const page = () => read('../index.html');
 const section = (html, id, next) => html.slice(html.indexOf(`id="${id}"`), next ? html.indexOf(`id="${next}"`) : undefined);
+const txt = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 
-test('hero (19 Nov reference v2): approved copy word for word, one booking button, booking note, three promises', async () => {
-  const html = await page();
-  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('<div class="container hz-wrap">'));
-  assert.match(hero, /<p class="eyebrow hero-eyebrow">AI and automation for better operations<\/p>/);
-  assert.match(hero, /<h1 id="hero-title">Less manual work\. <span class="h1-accent"><span class="hz-mark">Smarter<svg class="hv-swoosh"[^>]*>[\s\S]*?<\/svg><\/span> business operations\.<\/span><\/h1>/);
-  assert.match(hero, /<p class="hero-sub">I organise information, connect your tools and automate routine work, so your team spends less time chasing details, updating records and preparing reports\.<\/p>/);
-  assert.match(hero, /href="contact\/#contact-form-area">[\s\S]*?Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
-  assert.match(hero, /<p class="hero-note">[\s\S]*?30 minutes &middot; No obligation<\/p>/);
-  assert.equal((hero.match(/<a /g) || []).length, 1, 'one call to action, nothing else');
-  assert.deepEqual([...hero.matchAll(/<li class="hz-pr-\d">[\s\S]*?<b>([^<]+)<\/b><span>([^<]+)<\/span><\/li>/g)].map((m) => [m[1], m[2]]), [
-    ['Understand the work.', 'See where time and effort are being wasted.'],
-    ['Agree the solution.', 'A clear scope, cost and expected delivery.'],
-    ['Deliver and hand over.', 'A tested solution, project files, a handover guide and 30 days of in-scope fixes.'],
-  ]);
-  assert.match(hero, /<p class="hz-pr-title" id="hz-pr-title">What you can expect from me<\/p>\s*<ul class="hz-pr-list" aria-labelledby="hz-pr-title">/);
-  assert.doesNotMatch(hero, /hv-chips|hv-written|cred-strip|rr-chip/, 'hero kept to the approved elements');
-  assert.doesNotMatch(html, /\bCapture\b|>Move<|>See<|Capture \/ Move|Fix the (tools|steps|numbers)/, 'no Capture / Move / See framework anywhere');
-});
-
-test('hero (19 Nov): three zones, full width; problem, solution, outcome; no slider, no mascot, no copy of the six tiles', async () => {
+test('hero (24 Nov five-second brief): approved copy word for word, one booking button, a quiet How I can help link, booking note', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
-  const txt = (h) => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-  assert.doesNotMatch(hero, /role="slider"|rx-runner|rx-reset|Replay|mark\.png/, 'the logo slider and Replay are gone');
-  assert.doesNotMatch(hero, /bot-|robot|mascot/i, 'no robot or mascot');
-  // benefits strip at the bottom of the hero, after the scene
-  assert.ok(hero.indexOf('id="hero-story"') < hero.indexOf('class="story-benefits"'));
-  assert.deepEqual([...hero.matchAll(/<li><svg[^>]*>[\s\S]*?<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Keep follow-ups on track.', 'Stop repeating data entry.', 'Know who&rsquo;s responsible and what&rsquo;s next.']);
-  const fig = hero.slice(hero.indexOf('id="hero-story"'), hero.indexOf('</figure>'));
-  const zones = [...fig.matchAll(/<p class="hz-tag">[\s\S]*?<\/svg>([^<]+)<\/p>[\s\S]*?<p class="hz-desc">([^<]+)<\/p>/g)].map((m) => [m[1], m[2]]);
-  assert.deepEqual(zones, [
-    ['Scattered work', 'Information from different places, repeated work and things that are easy to miss.'],
-    ['A better way of working', 'A process designed around your business, using the right mix of AI, automation and human review.'],
-    ['Organised operations', 'See what needs attention, who is responsible and what happens next.'],
-  ]);
-  assert.deepEqual([...fig.matchAll(/<ul class="hz-flags">[\s\S]*?<\/ul>/g)].flatMap((m) => [...m[0].matchAll(/<\/svg>([^<]+)<\/li>/g)].map((x) => x[1])), ['Duplicate?', 'Missing detail?', 'Who owns this?']);
-  assert.doesNotMatch(fig, /Phone missing|Phone: missing/, 'the universal "Missing detail", not a phone example');
-  // the three roles, each with its job, in the colour language order
-  assert.deepEqual([...fig.matchAll(/<li class="hz-(ai|auto|human)">[\s\S]*?<b>([^<]+)<\/b><small>([^<]+)<\/small><\/li>/g)].map((m) => [m[1], m[2], m[3]]), [
-    ['ai', 'AI', 'Reads and interprets details'],
-    ['auto', 'Automation', 'Updates records and moves work forward'],
-    ['human', 'Human review', 'Checks exceptions and approves important decisions'],
-  ]);
-  // the tracker: owners are team roles, never the automation or AI
-  const rows = [...fig.matchAll(/<tr><th scope="row">[\s\S]*?<\/svg>([^<]+)<\/th><td data-label="Owner">([^<]+)<\/td><td><span class="hz-st[^"]*">([^<]+)<\/span><\/td><td data-label="Next">([^<]+)<\/td><\/tr>/g)].map((m) => m.slice(1));
-  assert.deepEqual(rows, [
-    ['Customer request', 'Office team', 'In progress', 'Prepare response'],
-    ['Service task', 'Field team', 'Needs review', 'Confirm details'],
-    ['Follow-up', 'Office team', 'Scheduled', 'Send update'],
-    ['Record update', 'Operations team', 'Completed', 'No action needed'],
-  ]);
-  for (const [, owner] of rows) assert.match(owner, / team$/, 'owners are team roles');
-  assert.doesNotMatch(fig, /JM|AK|SR\b/, 'no arbitrary initials');
-  assert.match(fig, /<caption class="sr-only">Example tracker<\/caption>/);
-  const svc = html.slice(html.indexOf('id="services"'), html.indexOf('</section>', html.indexOf('id="services"')));
-  for (const tile of [...svc.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])) assert.ok(!txt(fig).includes(tile), `hero doesn't repeat the tile "${tile}"`);
-  assert.doesNotMatch(fig, /<img|background-image|\d+\s?%|hours? saved|Dana|Outlook|Excel|Teams|Power Automate|Zapier|n8n|Make\.com/i, 'no photos, figures or vendor names');
+  const copy = hero.slice(0, hero.indexOf('<figure'));
+  assert.match(copy, /<p class="hf-eyebrow">AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/);
+  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work under control\.<\/span><\/h1>/);
+  assert.match(copy, /<p class="hero-sub">I organise information, connect your tools and automate routine steps, so your team spends less time following up, updating records and preparing reports\.<\/p>/);
+  assert.match(copy, /<a class="btn btn-primary btn-large hf-book" href="contact\/#contact-form-area">Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
+  assert.match(copy, /<a class="hf-more" href="#services">How I can help<\/a>/, 'secondary is a text link to How I help');
+  assert.match(copy, /<p class="hero-note">[\s\S]*?30 minutes &middot; No obligation<\/p>/);
+  assert.equal((hero.match(/<a /g) || []).length, 2, 'two links only: book and How I can help');
+  assert.equal((hero.match(/class="btn/g) || []).length, 1, 'one button; the second action is a plain link');
+  // order: eyebrow, headline, paragraph, book, link, note
+  const at = (s) => copy.indexOf(s);
+  assert.ok(at('hf-eyebrow') < at('<h1') && at('<h1') < at('hero-sub') && at('hero-sub') < at('hf-book') && at('hf-book') < at('hf-more') && at('hf-more') < at('hero-note'));
+  assert.doesNotMatch(hero, /hz-|What you can expect|story-benefits|hero-for|rework review/, 'the 19 Nov promises panel, benefits strip and audience line are gone');
+});
+
+test('hero picture (24 Nov): Before → AI + AUTOMATION → After, four everyday pieces, four outcome rows, report strip; trust strip under it', async () => {
+  const html = await page();
+  const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
+  const fig = hero.slice(hero.indexOf('<figure'), hero.indexOf('</figure>'));
+  assert.match(fig, /<figure class="hf-visual" id="hero-story" aria-label="[^"]+">/, 'one labelled figure for screen readers');
+  const before = fig.slice(fig.indexOf('hf-before'), fig.indexOf('hf-link'));
+  assert.match(before, /<p class="hf-label">BEFORE<\/p>\s*<p class="hf-h">Information everywhere<\/p>/);
+  for (const cls of ['hf-mail', 'hf-sheet', 'hf-form', 'hf-note']) assert.match(before, new RegExp(`class="hf-bit ${cls}"`));
+  assert.match(before, /&ldquo;Can you send the latest figures\?&rdquo;/);
+  assert.match(before, /class="hf-gap"/, 'spreadsheet row with an empty cell');
+  assert.match(before, /<span class="hf-tagw">Not entered<\/span>/);
+  assert.match(before, /<div class="hf-bit hf-note">Follow up\?<\/div>/);
+  assert.match(fig, /<div class="hf-link" aria-hidden="true">[\s\S]*?<\/svg>AI \+ AUTOMATION<\/span>/);
+  const after = fig.slice(fig.indexOf('hf-after'));
+  assert.match(after, /<p class="hf-label">AFTER<\/p>\s*<p class="hf-h">Work under control<\/p>/);
+  const rows = [...after.matchAll(/<li><span class="hf-tick">[\s\S]*?<\/span><span class="hf-row-t">([^<]+)<\/span><span class="hf-who" aria-hidden="true">([A-Z]{2})<\/span><span class="hf-st [^"]+">([^<]+)<\/span><\/li>/g)];
+  assert.deepEqual(rows.map((m) => m[1]), ['Information organised', 'Important details checked', 'Clear owners and next steps', 'Reports ready to review']);
+  assert.match(after, /<\/span>Weekly report &middot; Ready to review<\/p>/);
+  assert.doesNotMatch(txt(fig), /\$|%|\d+ (hours?|days?)|saved/i, 'no figures, savings or results in the picture');
+  assert.doesNotMatch(hero, /robot|mascot|bot-|<img/i, 'no robot, no flattened image');
+  const trust = hero.slice(hero.indexOf('<ul class="hf-trust">'));
+  assert.ok(hero.indexOf('</figure>') < hero.indexOf('hf-trust'), 'trust strip after the picture');
+  assert.deepEqual([...trust.matchAll(/<\/svg>([^<]+)<\/li>/g)].map((m) => m[1]), ['Written price before work.', 'You own everything I build.', '30 days of fixes within the agreed scope.']);
 
   const c = await read('../assets/styles.css');
-  const css = c.slice(c.indexOf('/* ---- Hero (19 Nov 2026): three zones'), c.indexOf('/* the Dana Cruz flow'));
-  assert.ok(css.length > 2000, 'three-zone block exists');
-  assert.doesNotMatch(c, /\.rx-runner|\.rx-stage|@property --p\b/, 'slider styles removed');
-  assert.doesNotMatch(css, /infinite/, 'the flow plays a few cycles, then rests');
-  for (const m of css.matchAll(/animation: hz-[\w-]+ [\d.]+s [\w-]+ (\d+);/g)) assert.ok(Number(m[1]) <= 18, 'finite repeats');
-  const motionRule = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference)'));
-  assert.match(motionRule, /^@media \(prefers-reduced-motion: no-preference\) \{\n(  \.hz-flow\.is-live [^\n]+\n)+\}/, 'every animation is behind reduced-motion and .is-live');
-  assert.match(css, /\.hz-steps \.hz-ai \{[^}]*var\(--ai-tint\)/, 'AI violet');
-  assert.match(css, /\.hz-steps \.hz-human \{[^}]*var\(--human-tint\)/, 'human review amber');
-  assert.match(css, /\.hz-steps li \{[^}]*var\(--teal-tint\)/, 'automation teal');
-  assert.match(css, /@media \(max-width: 40rem\) \{[\s\S]*?\.hz-table tr \{ display: grid;[^}]*grid-template-areas: "item status" "owner owner" "next next";/, 'phones: the tracker becomes compact records');
-  assert.match(css, /td\[data-label\]::before \{ content: attr\(data-label\) ": "; \}|td\[data-label\]::before \{ content: attr\(data-label\) ": ";/);
-
-  const js = await read('../src/hero-zones.js');
-  assert.doesNotMatch(js, /\.style\.|setInterval|setTimeout|innerHTML/, 'CSP: classes only');
-  assert.match(js, /IntersectionObserver/); assert.match(js, /prefers-reduced-motion: reduce/);
-  const { shouldPlay, LIVE_CLASS } = await import('../src/hero-zones.js');
-  assert.equal(LIVE_CLASS, 'is-live');
-  assert.equal(shouldPlay(true, false), true); assert.equal(shouldPlay(false, false), false); assert.equal(shouldPlay(true, true), false);
+  const css = c.slice(c.indexOf('/* ===== Hero (24 Nov 2026)'));
+  assert.ok(css.length > 3000, 'hero block exists');
+  assert.doesNotMatch(c, /\.hz-flow|\.hz-promises|\.hz \{/, 'the 19 Nov three-zone styles are gone');
+  assert.match(css, /\.hf-visual \{[^}]*grid-template-columns: minmax\(0, 0\.72fr\) 4\.8rem minmax\(0, 1\.5fr\)/, 'After is the larger part');
+  assert.doesNotMatch(css, /infinite/, 'motion runs once');
+  const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference) {'), css.indexOf('@keyframes hf-run '));
+  assert.match(motion, /hf-run/); assert.match(motion, /hf-in/);
+  assert.equal((css.match(/animation:/g) || []).length, (motion.match(/animation:/g) || []).length, 'every animation sits behind reduced-motion');
   const home = await read('../src/home.js');
-  assert.match(home, /mountZones\(document\.getElementById\('hero-story'\)\)/);
-  assert.doesNotMatch(home, /hero-slider|mountSlider/);
+  assert.doesNotMatch(home, /mountZones|hero-zones/, 'no hero script; CSS only');
+  // closing Book section: the repeated price / ownership ticks are gone, everything else stays
+  const start = section(html, 'start');
+  assert.match(start, /<ul class="cta-facts"><li>Work directly with me<\/li><\/ul>/);
+  assert.doesNotMatch(start, /Written scope and price before any work|You own what I build/);
+  assert.match(start, /<h2 id="cta-h">Tell me what you&rsquo;d like to make easier\.<\/h2>/);
+  assert.match(start, /id="book-inline"/); assert.match(start, /Get a free written review/);
 });
 
 test('23 Nov page review: the Dana Cruz example is gone (it repeated demo ①); the hero has no Today / With panel', async () => {
@@ -224,7 +203,7 @@ test('section order, nav and removed content', async () => {
   assert.ok(html.indexOf('id="approach"') < html.indexOf('</section>', html.indexOf('id="services"')), 'approach panel sits inside How I help');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
   assert.deepEqual(nav, ['services:How I help', 'built:Demos &amp; examples', 'how:How it works', 'about:About', 'faq:FAQ']);
-  assert.doesNotMatch(html, /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/);
+  assert.doesNotMatch(html.replace(/<a class="hf-more" href="#services">How I can help<\/a>/, ''), /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/, '24 Nov: How I can help returns only as the hero link');
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
   assert.match(html, /<title>Rework Rescue \| Smarter Operations for Small and Medium-Sized Businesses<\/title>/);
   assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Operations for Small and Medium-Sized Businesses">'), 'og:title matches the page title');
@@ -318,7 +297,6 @@ test('middle simplified (20 Nov): after-30-days line visible, bridge line before
   assert.ok(how.indexOf('class="how-after"') < how.indexOf('<details class="fold how-30">'), 'outside the dropdown');
   for (const card of html.split('<li class="rr-result">').slice(1)) assert.ok(card.indexOf('class="exp-bridge"') < card.indexOf('class="rr-nums"'), 'In your business… comes first');
   const css = await read('../assets/styles.css');
-  assert.match(css, /\.hz \{ --hz-max: 70rem; --hz-pad: 1rem; \}/, 'hero uses the same width as the header and sections');
   for (const f of ['../index.html', '../contact/index.html', '../privacy/index.html', '../404.html', '../src/assistant/rules.js', '../n8n/rework-assistant.json', '../n8n/paste-2026-11-19/check-request.js']) {
     const t = await read(f); assert.doesNotMatch(t, /free rework (<\/span>)?review/i, f);
   }

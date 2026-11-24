@@ -48,10 +48,10 @@ test('hero picture (24 Nov v5): BEFORE Scattered work → Rework Rescue, AI + AU
   const before = [...fig.matchAll(/<li class="h5-row h5-b\d">[\s\S]*?<b>([^<]+)<\/b><span class="h5-issue">([^<]+)<\/span><\/span><svg class="h5-warn"/g)].map((m) => [m[1], m[2]]);
   assert.deepEqual(before, [['Enquiries', '3 awaiting replies'], ['Spreadsheets', 'Duplicate records'], ['Forms &amp; requests', 'Missing information'], ['Messages', 'Follow-up forgotten'], ['Invoices', 'Not yet prepared']]);
   assert.match(fig, /<span class="h5-logo"><img src="\.\/assets\/brand\/mark\.png"[^>]*alt=""><\/span>\s*<p class="h5-name">Rework Rescue<\/p>\s*<p class="h5-ai">AI \+ AUTOMATION<\/p>/, 'official RR mark');
-  const steps = [...fig.matchAll(/<li class="h5-step">[\s\S]*?<b>([^<]+)<\/b><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]);
-  assert.deepEqual(steps, [['Capture', 'Bring information in automatically'], ['Match', 'Find and remove duplicates'], ['Check', 'Validate key details'], ['Organise', 'Update records, create tasks and reports']]);
+  const steps = [...fig.matchAll(/<li class="h5-step">[\s\S]*?<span class="h5-t"><b>([^<]+)<\/b><\/span><\/li>/g)].map((m) => m[1]);
+  assert.deepEqual(steps, ['Capture', 'Match', 'Check', 'Organise'], '24 Nov v7: step names only (descriptions removed after the Gemini review)');
   const after = [...fig.matchAll(/<li class="h5-row h5-a\d">[\s\S]*?<b>([^<]+)<\/b><span class="h5-out">([\s\S]*?)<\/span><\/span><span class="h5-st"><svg[\s\S]*?<\/svg>([^<]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]);
-  assert.deepEqual(after, [['Enquiries', 'Instant acknowledgement sent<br> Response ready for approval', 'Automated'], ['Customer records', 'One clean, updated record', 'Clean'], ['Follow-ups', 'Scheduled with a clear owner', 'Set'], ['Invoices', 'Prepared and ready for review', 'Ready'], ['Weekly report', 'Built, checked and ready to review', 'Ready']]);
+  assert.deepEqual(after, [['Enquiries', 'Acknowledged &middot; reply ready for approval', 'Automated'], ['Customer records', 'One clean, updated record', 'Clean'], ['Follow-ups', 'Scheduled with a clear owner', 'Set'], ['Invoices', 'Prepared and ready for review', 'Ready'], ['Weekly report', 'Built, checked and ready to review', 'Ready']]);
   assert.equal((fig.match(/class="h5-arrow"/g) || []).length, 2);
   assert.doesNotMatch(txt(fig), /\$\d|%|\d+ (hours?|days?)|saved|Gmail|Outlook|Excel|Xero|QuickBooks/i, 'no figures, results or third-party product names');
   assert.equal((hero.match(/<img /g) || []).length, 1, 'one image: the RR mark; everything else is HTML and inline icons');

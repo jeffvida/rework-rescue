@@ -5499,8 +5499,8 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .h5 .hero-note { margin: 0 0 0 0.6rem; font-size: 0.98rem; color: var(--muted); }
 
 /* Picture: Before → arrow → Rework Rescue → arrow → After */
-.h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 0.7fr) 2rem minmax(0, 1.65fr); align-items: stretch; }
-.h5-panel { position: relative; border-radius: 22px; padding: 1rem 0.85rem 0.9rem; }
+.h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1.06fr) 1.7rem minmax(0, 0.6fr) 1.7rem minmax(0, 1.74fr); align-items: stretch; }
+.h5-panel { position: relative; border-radius: 22px; padding: 1.15rem 1rem 1.05rem; }
 .h5-before { background: linear-gradient(180deg, #fde9e0, #fff4ef 40%, #fff7f3); border: 1px solid #f8ddd2; box-shadow: 0 18px 40px -28px rgba(160, 60, 30, 0.5); }
 .h5-after { background: linear-gradient(180deg, #ddf3e4, #eef9f2 40%, #f3fbf6); border: 1px solid #cfead9; box-shadow: 0 18px 40px -28px rgba(20, 110, 60, 0.45); }
 .h5-mid { display: flex; flex-direction: column; align-items: center; padding: 1.1rem 0.75rem; background: linear-gradient(180deg, #fff, #f1faf5); border: 1px solid #d8ede1;
@@ -5515,7 +5515,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .h5-title { margin: 0 0 0.7rem; padding-left: 0.15rem; font-family: var(--display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: #10201f; }
 .h5-before .h5-title { font-size: 1.12rem; }
 .h5-after .h5-title { font-size: 1.55rem; }
-.h5-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.h5-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
 .h5-row { display: flex; align-items: center; gap: 0.75rem; min-height: 3.55rem; margin: 0; padding: 0.45rem 0.7rem; border-radius: 12px; background: #fff;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 4px 12px -8px rgba(40, 40, 40, 0.25); }
 .h5-t { display: grid; gap: 0.08rem; min-width: 0; flex: 1; line-height: 1.22; }
@@ -5549,12 +5549,12 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .h5-name { margin: 0 0 0.6rem; font-family: var(--display); font-size: 1.35rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; text-align: center; color: var(--ink); }
 .h5-ai { margin: 0 0 0.9rem; padding: 0.45rem 0.9rem; border-radius: 999px; background: linear-gradient(180deg, #24a160, #17804a); color: #fff; font-family: var(--display); font-size: 0.82rem; font-weight: 700;
   letter-spacing: 0.02em; white-space: nowrap; box-shadow: 0 8px 16px -10px rgba(20, 110, 60, 0.8); }
-.h5-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 0.7rem; width: 100%; flex: 1; }
-.h5-step { position: relative; display: flex; align-items: flex-start; gap: 0.6rem; margin: 0; }
-.h5-step .h5-i { width: 1.75rem; height: 1.75rem; margin-top: 0.1rem; }
-.h5-step .h5-t b { font-size: 0.95rem; }
+.h5-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; width: 100%; flex: 1; }
+.h5-step { position: relative; display: flex; align-items: center; gap: 0.4rem; margin: 0; padding: 0.45rem 0.45rem; border-radius: 10px; background: #fff; border: 1px solid #dcefe4; }
+.h5-step .h5-i { width: 1.3rem; height: 1.3rem; }
+.h5-step .h5-t b { font-size: 0.85rem; }
 .h5-step .h5-t span { font-size: 0.76rem; color: #3a4644; }
-.h5-step + .h5-step::before { content: ""; position: absolute; left: 0.86rem; top: -0.7rem; height: 0.6rem; border-left: 2px dotted #9fd2c3; }
+.h5-step + .h5-step::before { content: ""; position: absolute; left: 1.2rem; top: -0.72rem; height: 0.65rem; border-left: 2px dotted #9fd2c3; }
 
 /* Little "pop" marks over the panel corners */
 .h5-spark { position: absolute; top: -1.35rem; right: 1.4rem; width: 2.4rem; height: 1.6rem; pointer-events: none; }
@@ -5598,7 +5598,8 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .h5-grid { grid-template-columns: minmax(22.5rem, 0.85fr) minmax(0, 2.4fr); gap: 1.4rem; }
   .h5 h1 { font-size: 1.98rem; }
   .h5 .hero-sub { font-size: 1rem; }
-  .h5-panel { padding: 0.9rem 0.7rem 0.8rem; }
+  .h5-panel { padding: 1.05rem 0.85rem 0.95rem; }
+  .h5-mid { padding-inline: 0.6rem; }
   .h5-row { gap: 0.6rem; padding: 0.4rem 0.55rem; }
   .h5-i { width: 1.8rem; height: 1.8rem; }
   .h5-t b { font-size: 0.9rem; } .h5-issue { font-size: 0.8rem; } .h5-out { font-size: 0.75rem; }
@@ -5612,7 +5613,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (min-width: 74.01rem) and (max-width: 82rem) {
   .h5-grid { grid-template-columns: minmax(20.5rem, 0.8fr) minmax(0, 2.5fr); gap: 1.2rem; }
   .h5 h1 { font-size: 1.8rem; }
-  .h5-visual { grid-template-columns: minmax(0, 1fr) 1.6rem minmax(0, 0.66fr) 1.6rem minmax(0, 1.6fr); }
+  .h5-visual { grid-template-columns: minmax(0, 1.06fr) 1.5rem minmax(0, 0.56fr) 1.5rem minmax(0, 1.74fr); }
   .h5-arrow svg { width: 1.5rem; height: 1.5rem; }
   .h5-before .h5-kicker { font-size: 0.82rem; }
   .h5-st { width: 5.9rem; font-size: 0.68rem; padding-right: 0.35rem; }
@@ -5661,5 +5662,11 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .h5-trust li { justify-content: flex-start; padding: 0; font-size: 0.95rem; }
   .h5-trust li + li { border-left: 0; }
   .h5-trust svg { width: 1.9rem; height: 1.9rem; }
+}
+@media (max-width: 40rem) {
+  .h5-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
+  .h5-step { flex-direction: column; gap: 0.3rem; padding: 0.5rem 0.2rem; text-align: center; }
+  .h5-step .h5-t b { font-size: 0.78rem; }
+  .h5-step .h5-i { width: 1.4rem; height: 1.4rem; }
 }
 @media (forced-colors: active) { .h5-panel, .h5-row, .h5-st, .h5-ai, .h5-pill, .h5-trust { border: 1px solid CanvasText; } }

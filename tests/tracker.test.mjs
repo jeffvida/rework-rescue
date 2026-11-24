@@ -18,8 +18,8 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
     const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
   }
   // 24 Nov: Carla's flagship demo shows fictional sample amounts, labelled as a fictional example
-  const c = h.indexOf('<div class="cj" id="carla"');
-  if (c >= 0) { const d = h.slice(c, h.indexOf('<div class="built-group cj-others"', c)); assert.match(d, /CoolFix Aircon &middot; Fictional example/); h = h.replace(d, ''); }
+  const c = h.indexOf('<div class="sp" id="sample-projects"');
+  if (c >= 0) { const d = h.slice(c, h.indexOf('<div class="built-group cj-others"', c)); assert.match(d, /Sample project &middot; built and tested with fictional data/); h = h.replace(d, ''); }
   return h;
 };
 

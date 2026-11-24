@@ -5787,3 +5787,12 @@ main > section.hf.h5 { background:
 .pic-track li + li::before { content: "\2192\00a0"; color: var(--muted); }
 .pic-track .is-paid { background: #dcede9; color: #17564b; }
 .cs3-text .built-try { margin-top: 0.6rem; }
+/* 25 Nov 2026 (preview): sample projects (problem / solution / what improved + picture) replace the Carla story */
+.sp .cs3 { gap: 1.2rem; }
+.sp-card { background: var(--card); border: 1px solid var(--line) !important; border-radius: 16px; padding: 1.3rem !important; box-shadow: 0 8px 24px rgba(18, 38, 43, 0.06); }
+.sp-tag { margin: 0 0 0.3rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.sp .cs3-text .built-try { margin-top: 0.7rem; }
+.sp > .cj-outcome { margin-top: 1.4rem; }
+.sp > .cj-more { margin-top: 0.6rem; }
+@media (max-width: 760px) { .sp-card { padding: 1rem !important; } }
+.pic-total span strong { font-size: inherit; color: inherit; }

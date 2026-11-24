@@ -13,8 +13,8 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
     const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
   }
   // 24 Nov: Carla's flagship demo shows fictional sample amounts, labelled as a fictional example
-  const c = h.indexOf('<div class="cj" id="carla"');
-  if (c >= 0) { const d = h.slice(c, h.indexOf('<div class="built-group cj-others"', c)); assert.match(d, /CoolFix Aircon &middot; Fictional example/); h = h.replace(d, ''); }
+  const c = h.indexOf('<div class="sp" id="sample-projects"');
+  if (c >= 0) { const d = h.slice(c, h.indexOf('<div class="built-group cj-others"', c)); assert.match(d, /Sample project &middot; built and tested with fictional data/); h = h.replace(d, ''); }
   return h;
 };
 
@@ -154,10 +154,10 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const sec = section(html, 'built', 'safety');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   // 24 Nov: one flagship CoolFix story (Jeff + ChatGPT), then three smaller builds
-  assert.match(sec, /<p class="eyebrow">See how it works<\/p>\s*<h2 id="built-h">From customer enquiry to payment received\.<\/h2>\s*<p class="built-intro">One customer, four steps: what goes wrong, what changes, and what improves\.<\/p>/);
-  assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 2, 'booking and chat (the weekly report is step 4 of Carla\'s story)');
+  assert.match(sec, /<p class="eyebrow">Sample projects<\/p>\s*<h2 id="built-h">Three common problems, and what I built to fix them\.<\/h2>\s*<p class="built-intro">Built and tested with fictional data\. Each one can be set up for your own tools and process\.<\/p>/);
+  assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 2, 'booking and chat (the three sample projects come first)');
   for (const t of ['The booking calendar', 'The chat assistant']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
-  assert.ok(sec.indexOf('id="carla"') < sec.indexOf('id="site-h"'), 'Carla first');
+  assert.ok(sec.indexOf('id="sample-projects"') < sec.indexOf('id="site-h"'), 'sample projects first');
   assert.match(sec, /<h3 class="built-group-h" id="site-h">More I&rsquo;ve built<\/h3>/);
   assert.match(sec, /<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
   assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');

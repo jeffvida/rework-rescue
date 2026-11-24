@@ -12,9 +12,9 @@ const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
 test('page: the enquiry tracker sample project opens the live enquiry demo in a pop-up panel, so the page stays short', async () => {
   const h = await read('../index.html');
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
-  const s1 = sec.slice(sec.indexOf('id="sp-enquiry"'), sec.indexOf('</li>\n', sec.indexOf('id="sp-enquiry"')));
+  const s1 = sec.slice(sec.indexOf('id="sp-d-enquiry"'), sec.indexOf('</article>', sec.indexOf('id="sp-d-enquiry"')));
   assert.match(s1, /<p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry/);
-  const demo = sec.slice(sec.indexOf('<dialog class="cs eq-dlg" id="enquiry-demo"'), sec.indexOf('</dialog>'));
+  const demo = sec.slice(sec.indexOf('<dialog class="cs eq-dlg" id="enquiry-demo"'), sec.indexOf('</dialog>', sec.indexOf('id="enquiry-demo"')));
   assert.ok(demo.length > 100, 'demo lives in a dialog (closed by default)');
   assert.doesNotMatch(demo.slice(0, 80), /\bopen\b/);
   for (const l of ['Quote request', 'Urgent complaint', 'Unclear message']) assert.ok(demo.includes(`>${l}</button>`), l);
@@ -89,7 +89,7 @@ test('privacy: the demo is explained (Gemini free tier, demo sheet, nothing sent
 
 test('tracker: looks like the real sheet (all useful columns), with a summary of what is waiting', async () => {
   const h = await read('../index.html');
-  const demo = h.slice(h.indexOf('id="enquiry-demo"'), h.indexOf('</dialog>'));
+  const demo = h.slice(h.indexOf('id="enquiry-demo"'), h.indexOf('</dialog>', h.indexOf('id="enquiry-demo"')));
   for (const c of ['Received', 'Name', 'Company', 'Need', 'Category', 'Urgency', 'Owner', 'Status', 'Check reason']) assert.ok(demo.includes(`<th scope="col">${c}</th>`), c);
   assert.equal((demo.match(/<tr data-status="/g) || []).length, 4, 'four made-up rows to start: Contacted, Booked, Needs check, and (23 Nov) Carla Lim');
   // 23 Nov: Carla's row matches the Project 2 sheet's E-1038 (2026-11-18 09:03, Booking, Normal, Scheduling, Booked)

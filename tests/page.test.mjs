@@ -13,8 +13,8 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
     const a = h.indexOf(open); if (a < 0) continue; const d = h.slice(a, h.indexOf('</dialog>', a)); assert.match(d, label, 'sample amounts only inside the labelled demo'); h = h.replace(d, '');
   }
   // 24 Nov: Carla's flagship demo shows fictional sample amounts, labelled as a fictional example
-  const c = h.indexOf('<div class="sp" id="sample-projects"');
-  if (c >= 0) { const d = h.slice(c, h.indexOf('<div class="built-group cj-others"', c)); assert.match(d, /Sample project &middot; built and tested with fictional data/); h = h.replace(d, ''); }
+  const c = h.indexOf('<div class="sp-rail" id="sample-projects"');
+  if (c >= 0) { const d = h.slice(c, h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9); assert.match(d, /Sample project &middot; Built and tested with fictional data/); h = h.replace(d, ''); }
   return h;
 };
 
@@ -153,18 +153,16 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   const html = await page();
   const sec = section(html, 'built', 'safety');
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
-  // 24 Nov: one flagship CoolFix story (Jeff + ChatGPT), then three smaller builds
-  assert.match(sec, /<p class="eyebrow">Sample projects<\/p>\s*<h2 id="built-h">Three common problems, and what I built to fix them\.<\/h2>\s*<p class="built-intro">Built and tested with fictional data\. Each one can be set up for your own tools and process\.<\/p>/);
-  assert.equal((sec.match(/<li class="built-card[ "]/g) || []).length, 2, 'booking and chat (the three sample projects come first)');
-  for (const t of ['The booking calendar', 'The chat assistant']) assert.ok(sec.includes(`<h4>${t}</h4>`), t);
-  assert.ok(sec.indexOf('id="sample-projects"') < sec.indexOf('id="site-h"'), 'sample projects first');
-  assert.match(sec, /<h3 class="built-group-h" id="site-h">More I&rsquo;ve built<\/h3>/);
-  assert.match(sec, /<p class="built-tools">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
-  assert.equal((sec.match(/built-status built-status-live">Live on this site</g) || []).length, 2, 'booking and chat run the site');
-  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per workflow, inside a fold');
+  // 25 Nov: one sideways row of five projects (3 sample projects + booking + chat); each opens a pop-up
+  assert.match(sec, /<p class="eyebrow">Sample projects<\/p>\s*<h2 id="built-h">Common problems, and what I built to fix them\.<\/h2>/);
+  assert.equal((sec.match(/<a class="sp-tile[ "]/g) || []).length, 5);
+  assert.equal((sec.match(/<article class="sp-detail"/g) || []).length, 5);
+  assert.equal((sec.match(/<span class="sp-tile-tag">Live on this site<\/span>/g) || []).length, 2, 'booking and chat run the site');
+  assert.match(sec, /<p class="built-tools sp-ms">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
+  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per built n8n workflow with a diagram, inside a fold');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
-  const lists = sec.slice(sec.indexOf('cj-others'), sec.indexOf('<dialog')).replace(/<ul class="built-gets">[\s\S]*?<\/ul>/g, '');
-  assert.equal((lists.match(/<li class="built-card/g) || []).length, (lists.match(/<\/li>\s*(<li class="built-card|<\/ul>)/g) || []).length, 'every card is closed');
+  const rail = sec.slice(sec.indexOf('<ul class="sp-track"'), sec.indexOf('</ul>', sec.indexOf('<ul class="sp-track"')));
+  assert.equal((rail.match(/<li class="sp-item">/g) || []).length, (rail.match(/<\/a>\s*<\/li>/g) || []).length, 'every tile is closed');
   // 23 Nov: the "Tools I work with" strip moved to About; each card's tool line sits inside its steps fold.
   const about = section(html, 'about', 'faq');
   assert.match(about, /<p class="rr-tools about-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);

@@ -111,3 +111,6 @@ mountEnquiryDemo(document.getElementById('enquiry-demo'));
 import { mountReportDemo } from './report-demo.js';
 mountReportDemo(document.getElementById('report-demo'));
 // 24 Nov 2026 (preview): the CoolFix steps are now static (before / after / what improved, with pictures): no script needed.
+// 25 Nov 2026 (preview): sample projects in one sideways row; each opens a pop-up (src/sample-rail.js).
+import { mountSampleRail } from './sample-rail.js';
+mountSampleRail();

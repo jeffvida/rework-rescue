@@ -26,8 +26,9 @@ test('hero (24 Nov v5, from Jeff\'s reference image; v9 button): copy word for w
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
   const copy = hero.slice(0, hero.indexOf('<figure'));
   assert.match(copy, /<p class="h5-eyebrow">AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/);
-  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work <span class="h5-mark">under control\.<\/span><\/span><\/h1>/);
+  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2"><span class="h5-mark">Get work under control\.<\/span><\/span><\/h1>/);
   assert.match(copy, /<p class="hero-sub">I organise information, connect your tools and automate routine steps, so your team spends less time following up, updating records and preparing reports\.<\/p>/);
+  assert.match(copy, /reports\.<\/p>\s*<p class="h5-for">For small and medium-sized businesses\.<\/p>\s*<div class="h5-cta">/, '24 Nov v10: audience line, smaller, under the paragraph');
   assert.match(copy, /<div class="h5-cta">\s*<a class="btn btn-primary btn-large h5-book" href="contact\/#contact-form-area"><span class="h5-book-t">Book a free process review<\/span><span class="h5-go" aria-hidden="true"><svg[\s\S]*?<\/svg><\/span><\/a>/, '24 Nov v9: same words and link; arrow in a gold chip');
   assert.match(copy, /<p class="hero-note"><svg[\s\S]*?<\/svg>30 minutes &middot; No obligation<\/p>/);
   assert.doesNotMatch(hero, /How I can help|h5-more/, '24 Nov v9: the How I can help link is removed from the hero');

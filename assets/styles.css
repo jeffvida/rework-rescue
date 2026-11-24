@@ -5490,7 +5490,11 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .h5-mark { position: relative; white-space: nowrap; padding: 0 0.06em; background: linear-gradient(transparent 60%, rgba(120, 194, 164, 0.45) 60%, rgba(120, 194, 164, 0.45) 92%, transparent 92%) no-repeat 0 0 / 100% 100%;
   text-shadow: 0 0 18px rgba(120, 194, 164, 0.35); }
 .h5 h1 .hf-l1, .h5 h1 .hf-l2 { display: block; }
-.h5 .hero-sub { margin: 0 0 1.4rem; font-size: 1.06rem; line-height: 1.55; color: #26302f; max-width: 30rem; }
+.h5 .hero-sub { margin: 0 0 0.55rem; font-size: 1.06rem; line-height: 1.55; color: #26302f; max-width: 30rem; }
+/* Audience line (24 Nov v10): secondary, smaller, under the paragraph */
+.h5-for { margin: 0 0 1.35rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.01em; color: var(--muted); }
+.h5-for::before { content: ""; display: inline-block; width: 0.45rem; height: 0.45rem; margin: 0 0.5rem 0.1rem 0; border-radius: 50%; background: var(--mint, #78c2a4); vertical-align: middle; }
+
 /* Booking button (24 Nov v9): the one action. Brand teal with depth, a gold edge, the arrow in a gold chip. */
 .h5-cta { display: inline-flex; flex-direction: column; align-items: center; gap: 0.7rem; }
 .h5-book { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 0.85rem; min-height: 3.6rem; padding: 0.55rem 0.6rem 0.55rem 1.6rem; border: 0; border-radius: 999px;
@@ -5611,7 +5615,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 /* Desktop (above 1184 px): the hero is capped at 84rem, so one set of sizes keeps rows to two lines */
 @media (min-width: 74.01rem) {
   .h5-grid { grid-template-columns: minmax(22.5rem, 0.85fr) minmax(0, 2.4fr); gap: 1.4rem; }
-  .h5 h1 { font-size: 1.98rem; }
+  .h5 h1 { font-size: 1.9rem; } /* v10: "Get work under control." stays on one line */
   .h5 .hero-sub { font-size: 1rem; }
   .h5-panel { padding: 1.05rem 0.85rem 0.95rem; }
   .h5-mid { padding-inline: 0.5rem; }
@@ -5627,7 +5631,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 /* 1185–1312 px: a little more room for the panels */
 @media (min-width: 74.01rem) and (max-width: 82rem) {
   .h5-grid { grid-template-columns: minmax(20.5rem, 0.8fr) minmax(0, 2.5fr); gap: 1.2rem; }
-  .h5 h1 { font-size: 1.8rem; }
+  .h5 h1 { font-size: 1.74rem; }
   .h5-visual { grid-template-columns: minmax(0, 1.02fr) 1.4rem minmax(0, 0.66fr) 1.4rem minmax(0, 1.7fr); }
   .h5-arrow svg { width: 1.5rem; height: 1.5rem; }
   .h5-before .h5-kicker { font-size: 0.82rem; }
@@ -5658,7 +5662,7 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .h5 .hero-note { justify-content: center; }
   .h5 { padding: 1.5rem 0 1.2rem; }
   .h5-eyebrow { font-size: 0.7rem; margin-bottom: 0.9rem; }
-  .h5 h1 { font-size: clamp(1.8rem, 8vw, 2.1rem); }
+  .h5 h1 { font-size: clamp(1.5rem, 7.5vw, 2.1rem); }
   .h5 .hero-sub { font-size: 1rem; }
   .h5-panel { padding: 0.9rem 0.7rem 0.75rem; border-radius: 18px; }
   .h5-title { margin-bottom: 0.55rem; }

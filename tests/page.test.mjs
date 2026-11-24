@@ -21,52 +21,51 @@ const section = (html, id, next) => html.slice(html.indexOf(`id="${id}"`), next 
 const txt = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 const visibleText = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ');
 
-test('hero (24 Nov v4, copy kept from v3): approved headline and button word for word, process-first subhead, one booking button, a quiet How I can help link, face on the booking note', async () => {
+test('hero (24 Nov v5, from Jeff\'s reference image): copy word for word, one booking button, How I can help link, booking note', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
   const copy = hero.slice(0, hero.indexOf('<figure'));
-  assert.match(copy, /<p class="hf-eyebrow"><span class="ht-dot" aria-hidden="true"><\/span>AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/, 'eyebrow without the generic AI sparkle');
-  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work <span class="hf-mark">under control\.<\/span><\/span><\/h1>/);
-  assert.equal(txt(copy.slice(copy.indexOf('<h1'), copy.indexOf('</h1>'))).replace(/\s+/g, ' ').trim(), 'Stop chasing details. Get work under control.', 'headline words unchanged');
-  assert.match(copy, /<p class="hero-sub">I map where your work gets stuck, then use AI and automation to handle the follow-ups, re&#8209;typing and reports your team does by hand\.<\/p>/);
-  assert.equal((copy.match(/chasing/g) || []).length, 1, '"chasing" once');
-  assert.match(copy, /<a class="btn btn-primary btn-large hf-book" href="contact\/#contact-form-area">Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
-  assert.match(copy, /<a class="hf-more" href="#services">How I can help<\/a>/, 'secondary is a text link to How I help');
-  assert.match(copy, /<p class="hero-note"><img class="ht-me" src="\.\/assets\/photo\/jeff-avatar\.jpg" width="288" height="288" alt="Jeff Herson Vida">30 minutes with me &middot; No obligation<\/p>/);
+  assert.match(copy, /<p class="h5-eyebrow">AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/);
+  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work under control\.<\/span><\/h1>/);
+  assert.match(copy, /<p class="hero-sub">I organise information, connect your tools and automate routine steps, so your team spends less time following up, updating records and preparing reports\.<\/p>/);
+  assert.match(copy, /<a class="btn btn-primary btn-large h5-book" href="contact\/#contact-form-area">Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
+  assert.match(copy, /<a class="h5-more" href="#services">How I can help<\/a>/);
+  assert.match(copy, /<p class="hero-note">30 minutes &middot; No obligation<\/p>/);
   assert.equal((hero.match(/<a /g) || []).length, 2, 'two links only: book and How I can help');
-  assert.equal((hero.match(/class="btn/g) || []).length, 1, 'one button; the second action is a plain link');
-  const at = (s) => copy.indexOf(s);
-  assert.ok(at('hf-eyebrow') < at('<h1') && at('<h1') < at('hero-sub') && at('hero-sub') < at('hf-book') && at('hf-book') < at('hf-more') && at('hf-more') < at('hero-note'));
-  assert.doesNotMatch(hero, /hz-|What you can expect|story-benefits|hero-for|rework review|hx-/, 'old panels and the old hx- hero classes are gone');
+  assert.equal((hero.match(/class="btn/g) || []).length, 1, 'one button');
+  const at = (x) => copy.indexOf(x);
+  assert.ok(at('h5-eyebrow') < at('<h1') && at('<h1') < at('hero-sub') && at('hero-sub') < at('h5-book') && at('h5-book') < at('h5-more') && at('h5-more') < at('hero-note'));
+  assert.doesNotMatch(hero, /hz-|What you can expect|story-benefits|hero-for|rework review|hx-|hm-|ht-/, 'older heroes are gone');
 });
 
-test('hero picture (24 Nov v4, ChatGPT composition): BEFORE five tools with problems → REWORK RESCUE, AI + AUTOMATION, Read Match Check Route → AFTER connected workflow; trust strip under it', async () => {
+test('hero picture (24 Nov v5): BEFORE Scattered work → Rework Rescue, AI + AUTOMATION, Capture Match Check Organise → AFTER Connected workflow; trust panel', async () => {
   const html = await page();
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
   const fig = hero.slice(hero.indexOf('<figure'), hero.indexOf('</figure>'));
-  assert.match(fig, /<figure class="ht-visual" id="hero-story">\s*<figcaption class="sr-only">[^<]+<\/figcaption>/);
-  assert.match(fig, /<span class="hf-label">BEFORE<\/span> <span class="hf-h">Disconnected work<\/span>/);
-  assert.match(fig, /<span class="hf-label">AFTER<\/span> <span class="hf-h">Connected workflow<\/span>/);
-  const before = [...fig.matchAll(/<li class="ht-b ht-b\d">[\s\S]*?<b class="ht-tool">([^<]+)<\/b><span class="ht-issue">([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]);
-  assert.deepEqual(before, [['Gmail / Outlook', '3 enquiries &middot; No replies'], ['Excel / Sheets', 'Duplicate customers'], ['Manual entry', 'Same details again'], ['Messages', 'No callback confirmed'], ['Accounting app', 'Invoice not sent']]);
-  assert.match(fig, /<p class="ht-rr">REWORK RESCUE<\/p>\s*<p class="ht-ai">AI \+ AUTOMATION<\/p>/);
-  assert.deepEqual([...fig.matchAll(/<li><span>\d<\/span>([A-Z]+)<\/li>/g)].map((m) => m[1]), ['READ', 'MATCH', 'CHECK', 'ROUTE']);
-  const after = [...fig.matchAll(/<li class="ht-a ht-a\d">[\s\S]*?<b class="ht-tool">([^<]+)<\/b><span class="ht-out">([^<]+)<\/span><\/span><span class="ht-st [^"]+">([A-Z]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]);
-  assert.deepEqual(after, [['Gmail / Outlook', 'Replies ready to approve', 'REVIEW'], ['Customer tracker', 'One clean customer record', 'CLEAN'], ['Calendar', 'Follow-up scheduled &middot; Owner assigned', 'SET'], ['Accounting app', 'Invoice draft ready for review', 'READY'], ['Weekly report', 'Built, checked and ready to review', 'READY']]);
-  assert.match(fig, /<p class="ht-note">Examples only\. What gets connected depends on the tools you already use\.<\/p>/, 'not every tool in every project');
-  assert.doesNotMatch(txt(fig), /\$|%|\d+ (hours?|days?)|saved|Mark|Lopez|Reyes/i, 'no figures, savings, results or made-up names');
-  assert.equal((hero.match(/<img /g) || []).length, 2, 'only two images: Jeff and the RR mark (no third-party logos without permission)');
-  const trust = hero.slice(hero.indexOf('<ul class="hf-trust">'));
-  assert.ok(hero.indexOf('</figure>') < hero.indexOf('hf-trust'), 'trust strip after the picture');
-  assert.deepEqual([...trust.matchAll(/<\/svg>([^<]+)<\/li>/g)].map((m) => m[1]), ['Written price before work.', 'You own everything I build.', '30 days of fixes within the agreed scope.']);
+  assert.match(fig, /<figure class="h5-visual" id="hero-story">\s*<figcaption class="sr-only">[^<]+<\/figcaption>/);
+  assert.match(fig, /<span class="h5-pill">BEFORE<\/span> <span class="h5-kicker">Scattered work<\/span><\/p>\s*<p class="h5-title">Information everywhere<\/p>/);
+  assert.match(fig, /<span class="h5-pill">AFTER<\/span> <span class="h5-kicker">Connected workflow<\/span><\/p>\s*<p class="h5-title">Work under control<\/p>/);
+  const before = [...fig.matchAll(/<li class="h5-row h5-b\d">[\s\S]*?<b>([^<]+)<\/b><span class="h5-issue">([^<]+)<\/span><\/span><svg class="h5-warn"/g)].map((m) => [m[1], m[2]]);
+  assert.deepEqual(before, [['Enquiries', '3 awaiting replies'], ['Spreadsheets', 'Duplicate records'], ['Forms &amp; requests', 'Missing information'], ['Messages', 'Follow-up forgotten'], ['Invoices', 'Not yet prepared']]);
+  assert.match(fig, /<span class="h5-logo"><img src="\.\/assets\/brand\/mark\.png"[^>]*alt=""><\/span>\s*<p class="h5-name">Rework Rescue<\/p>\s*<p class="h5-ai">AI \+ AUTOMATION<\/p>/, 'official RR mark');
+  const steps = [...fig.matchAll(/<li class="h5-step">[\s\S]*?<b>([^<]+)<\/b><span>([^<]+)<\/span>/g)].map((m) => [m[1], m[2]]);
+  assert.deepEqual(steps, [['Capture', 'Bring information in automatically'], ['Match', 'Find and remove duplicates'], ['Check', 'Validate key details'], ['Organise', 'Update records, create tasks and reports']]);
+  const after = [...fig.matchAll(/<li class="h5-row h5-a\d">[\s\S]*?<b>([^<]+)<\/b><span class="h5-out">([\s\S]*?)<\/span><\/span><span class="h5-st"><svg[\s\S]*?<\/svg>([^<]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]);
+  assert.deepEqual(after, [['Enquiries', 'Instant acknowledgement sent<br> Response ready for approval', 'Automated'], ['Customer records', 'One clean, updated record', 'Clean'], ['Follow-ups', 'Scheduled with a clear owner', 'Set'], ['Invoices', 'Prepared and ready for review', 'Ready'], ['Weekly report', 'Built, checked and ready to review', 'Ready']]);
+  assert.equal((fig.match(/class="h5-arrow"/g) || []).length, 2);
+  assert.doesNotMatch(txt(fig), /\$\d|%|\d+ (hours?|days?)|saved|Gmail|Outlook|Excel|Xero|QuickBooks/i, 'no figures, results or third-party product names');
+  assert.equal((hero.match(/<img /g) || []).length, 1, 'one image: the RR mark; everything else is HTML and inline icons');
+  assert.ok(hero.indexOf('</figure>') < hero.indexOf('h5-trust'), 'trust panel after the picture');
+  const trust = hero.slice(hero.indexOf('<ul class="h5-trust">'));
+  assert.deepEqual([...trust.matchAll(/<\/svg><span>([^<]+)<\/span><\/li>/g)].map((m) => m[1]), ['Written scope and price before work starts', 'You own everything I build', '30 days of fixes within the agreed scope']);
 
   const c = await read('../assets/styles.css');
-  const css = c.slice(c.indexOf('/* ===== Hero (24 Nov 2026, v4 tools)'));
+  const css = c.slice(c.indexOf('/* ===== Hero (24 Nov 2026, v5 reference)'));
   assert.ok(css.length > 3000, 'hero block exists');
-  assert.doesNotMatch(c, /\.hz-flow|\.hz-promises|\.hz \{|\.hf-wires|\.hf-bit|\.hm-visual/, 'older hero styles are gone');
+  assert.doesNotMatch(c, /\.hz-flow|\.hz-promises|\.hz \{|\.hf-wires|\.hf-bit|\.hm-visual|\.ht-visual/, 'older hero styles are gone');
   assert.doesNotMatch(css, /infinite/, 'motion runs once');
-  const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference) {'), css.indexOf('@keyframes ht-settle'));
-  assert.match(motion, /ht-settle/); assert.match(motion, /ht-lit/); assert.match(motion, /ht-in/); assert.match(motion, /ht-run/);
+  const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference) {'), css.indexOf('@keyframes h5-in'));
+  assert.match(motion, /h5-in/); assert.match(motion, /h5-pop/); assert.match(motion, /h5-lit/);
   assert.equal((css.match(/animation:/g) || []).length, (motion.match(/animation:/g) || []).length, 'every animation sits behind reduced-motion');
   const home = await read('../src/home.js');
   assert.doesNotMatch(home, /mountZones|hero-zones/, 'no hero script; CSS only');
@@ -199,7 +198,7 @@ test('section order, nav and removed content', async () => {
   assert.ok(html.indexOf('id="approach"') < html.indexOf('</section>', html.indexOf('id="services"')), 'approach panel sits inside How I help');
   const nav = [...html.slice(0, html.indexOf('<main')).matchAll(/<li><a href="#(\w+)">([^<]+)</g)].map((m) => `${m[1]}:${m[2]}`);
   assert.deepEqual(nav, ['services:How I help', 'built:Demos &amp; examples', 'how:How it works', 'about:About', 'faq:FAQ']);
-  assert.doesNotMatch(html.replace(/<a class="hf-more" href="#services">How I can help<\/a>/, ''), /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/, '24 Nov: How I can help returns only as the hero link');
+  assert.doesNotMatch(html.replace(/<a class="h5-more" href="#services">How I can help<\/a>/, ''), /id="fit"|Sound familiar\?|svc-layer|svc-have|What you get|How I can help/, '24 Nov: How I can help returns only as the hero link');
   assert.doesNotMatch(html, /Can you build a website, booking system or CRM\?|No report to send\?|book-assess|Before Rework Rescue/);
   assert.match(html, /<title>Rework Rescue \| Smarter Operations for Small and Medium-Sized Businesses<\/title>/);
   assert.ok(html.includes('<meta property="og:title" content="Rework Rescue | Smarter Operations for Small and Medium-Sized Businesses">'), 'og:title matches the page title');

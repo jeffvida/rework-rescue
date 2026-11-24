@@ -5468,186 +5468,178 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 }
 
 
-/* ===== Hero (24 Nov 2026, v4 tools): five-second hero. Copy left, one picture right in three zones:
-   BEFORE disconnected work (five everyday tools, each with its problem, askew and overlapping) → REWORK RESCUE,
-   AI + AUTOMATION (Read, Match, Check, Route) → AFTER connected workflow (the same work, done, linked by one line).
-   Tool names are plain text with generic icons (Google and Microsoft product icons need permission). Motion: one pass
-   on load, never with reduced motion; the finished picture is the default state. ===== */
-.hf { --hf-warn: #c2501f; --hf-warn-tint: #fdf1ea; --hf-warn-line: #f2d2c0; --hf-mint: #eaf6f0; --hf-mint-line: #cbe6d8; --hf-green: #1f8a4c;
-  position: relative; padding: 2.6rem 0 1.4rem; border-bottom: 0; overflow-x: clip; }
-.hf .container { max-width: 78rem; }
-.hf svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.hf-grid { display: grid; grid-template-columns: minmax(0, 37fr) minmax(0, 63fr); gap: 2.4rem; align-items: center; }
-.hf .hero-copy { display: block; max-width: none; } /* older phone rules set display: contents and reorder the copy */
-/* soft mint light behind the After window */
-.hf::before { content: ""; position: absolute; z-index: 0; pointer-events: none; right: max(0rem, calc((100% - 78rem) / 2)); top: 2rem; width: min(36rem, 46%); height: 30rem;
-  background: radial-gradient(closest-side, rgba(120, 194, 164, 0.30), transparent); filter: blur(8px); }
-.hf > .container { position: relative; z-index: 1; }
+/* ===== Hero (24 Nov 2026, v5 reference): built from Jeff's reference image as real, responsive components.
+   Copy left; three panels right: BEFORE Scattered work (five problems, warning icons) → Rework Rescue, AI + AUTOMATION
+   (Capture, Match, Check, Organise) → AFTER Connected workflow (five results with status badges). Trust panel below.
+   Generic icons drawn for the site (no third-party logos); the middle uses the official RR mark. Motion: one pass on
+   load, never with reduced motion; the finished picture is the default state. ===== */
+.h5 { --h5-red: #d93a2b; --h5-red-tint: #fdeee9; --h5-red-line: #f6d3c8; --h5-green: #1f8f56; --h5-green-tint: #e8f6ee; --h5-green-line: #c9e9d6;
+  --h5-blue: #2f80ed; --h5-blue-l: #e3eefc; --h5-purple: #7b6cf0; --h5-amber: #e8a317; --h5-amber-l: #fff4dc; --h5-teal: #1f8a7a;
+  position: relative; padding: 2.2rem 0 1.6rem; border-bottom: 0; overflow-x: clip; }
+.h5 .container { max-width: 84rem; }
+.h5 > .container { position: relative; z-index: 1; }
+.h5::before { content: none; }
+.h5-grid { display: grid; grid-template-columns: minmax(23.5rem, 0.9fr) minmax(0, 2.25fr); gap: 1.8rem; align-items: center; }
+.h5 .hero-copy { display: block; max-width: none; }
 
-/* Left: message and action */
-.hf-eyebrow { display: inline-flex; align-items: center; gap: 0.55rem; margin: 0 0 1rem; padding: 0.4rem 0.9rem 0.4rem 0.75rem; border-radius: 999px; background: #e3f1ea; border: 1px solid #cfe5d8;
-  color: var(--teal-dark); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; }
-.ht-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3px rgba(46, 125, 114, 0.18); flex: none; }
-.hf h1 { margin: 0 0 1rem; font-size: clamp(2rem, 2.6vw, 2.3rem); line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
-.hf h1 .hf-l1, .hf h1 .hf-l2 { display: block; }
-.hf .hf-l2 { color: var(--teal); }
-.hf .hf-mark { white-space: nowrap; background: linear-gradient(transparent 62%, rgba(120, 194, 164, 0.45) 62%, rgba(120, 194, 164, 0.45) 92%, transparent 92%); padding: 0 0.06em; }
-.hf .hero-sub { max-width: 31rem; margin: 0 0 1.5rem; font-size: 1.05rem; line-height: 1.55; color: var(--ink); }
-.hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.1rem; margin: 0 0 1rem; }
-.hf-book { display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap; box-shadow: 0 12px 24px -12px rgba(15, 58, 58, 0.65), 0 2px 0 var(--signal); }
-.hf-book:hover { transform: translateY(-1px); }
-.hf-more { display: inline-block; padding: 0.6rem 0.1rem; font-weight: 600; color: var(--teal-dark); text-decoration: underline; text-decoration-color: rgba(46, 125, 114, 0.45); text-underline-offset: 0.25em; }
-.hf-more:hover { text-decoration-color: currentColor; }
-.hf .hero-note { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 0.95rem; color: var(--muted); }
-.ht-me { width: 2.1rem; height: 2.1rem; flex: none; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #cfe5d8; }
+/* Copy */
+.h5-eyebrow { margin: 0 0 1.1rem; padding-bottom: 0.75rem; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; color: var(--h5-teal); position: relative; }
+.h5-eyebrow::after { content: ""; position: absolute; left: 0; bottom: 0; width: 5.5rem; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--h5-teal), rgba(31, 138, 122, 0.15)); }
+.h5 h1 { margin: 0 0 1rem; font-size: clamp(2rem, 2.4vw, 2.2rem); line-height: 1.1; letter-spacing: -0.03em; color: #10201f; }
+.h5 h1 .hf-l1, .h5 h1 .hf-l2 { display: block; }
+.h5 .hero-sub { margin: 0 0 1.4rem; font-size: 1.06rem; line-height: 1.55; color: #26302f; max-width: 30rem; }
+.h5-book { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap; background: linear-gradient(180deg, #1f8a6b, var(--teal-dark)); border-color: transparent;
+  box-shadow: 0 12px 24px -12px rgba(15, 58, 58, 0.65); }
+.h5-book:hover { transform: translateY(-1px); }
+.h5-more { display: table; margin: 0.85rem 0 0.4rem 0.6rem; font-weight: 700; font-size: 1.05rem; color: var(--h5-teal); text-decoration: underline; text-underline-offset: 0.22em; text-decoration-thickness: 2px; }
+.h5-more:hover { color: var(--teal-dark); }
+.h5 .hero-note { margin: 0 0 0 0.6rem; font-size: 0.98rem; color: var(--muted); }
 
-/* Right: three zones in one grid. Rows: headers, then the two lists and the Rework Rescue column. */
-.hf-label { display: inline-block; padding: 0.15em 0.55em; border-radius: 6px; font-size: 0.72em; font-weight: 800; letter-spacing: 0.12em; vertical-align: 0.12em; }
-.hf-h { font-family: var(--display); font-weight: 700; color: var(--ink); }
-.ht-visual { --ht-row: 4.3rem; --ht-gap: 0.55rem; --ht-stub: 1.35rem;
-  margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) var(--ht-stub) 8.4rem var(--ht-stub) minmax(0, 1.22fr); grid-template-rows: auto auto; align-items: start; }
-.ht-before { grid-column: 1; grid-row: 1 / 3; display: grid; grid-template-rows: subgrid; }
-.ht-after { grid-column: 5; grid-row: 1 / 3; display: grid; grid-template-rows: subgrid; position: relative; border-radius: 16px; background: #fff; border: 1px solid var(--hf-mint-line);
-  box-shadow: 0 24px 48px -26px rgba(15, 58, 58, 0.45), 0 4px 12px -6px rgba(15, 58, 58, 0.12); }
-.ht-mid { grid-column: 3; grid-row: 2; }
-.ht-list { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-rows: var(--ht-row); gap: var(--ht-gap); }
-.ht-head { display: block; margin: 0; font-size: 0.98rem; line-height: 1.3; }
-.ht-before > .ht-head { align-self: end; padding: 0 0 0.75rem; }
-.ht-before .hf-label { background: var(--hf-warn-tint); color: var(--hf-warn); box-shadow: inset 0 0 0 1px var(--hf-warn-line); margin-right: 0.3em; }
-.ht-before .hf-h { color: #5a3b2e; }
-.ht-whead { margin: 0; align-self: end; }
-.ht-bar { display: flex; gap: 0.35rem; padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--hf-mint-line); background: var(--hf-mint); border-radius: 16px 16px 0 0; }
-.ht-bar i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #b9dccb; }
-.ht-bar i:first-child { background: var(--teal); }
-.ht-whead .ht-head { padding: 0.7rem 0.9rem 0.6rem; }
-.ht-after .hf-label { background: var(--teal-dark); color: #fff; margin-right: 0.3em; }
-.ht-after > .ht-list { padding: 0 0.8rem 0.8rem; position: relative; }
-.ht-ico { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: none; border-radius: 9px; }
-.ht-ico svg { width: 1.15rem; height: 1.15rem; }
-.ht-txt { display: grid; gap: 0.12rem; min-width: 0; }
-.ht-tool { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); line-height: 1.2; }
+/* Picture: Before → arrow → Rework Rescue → arrow → After */
+.h5-visual { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 0.7fr) 2rem minmax(0, 1.65fr); align-items: stretch; }
+.h5-panel { position: relative; border-radius: 22px; padding: 1rem 0.85rem 0.9rem; }
+.h5-before { background: linear-gradient(180deg, #fde9e0, #fff4ef 40%, #fff7f3); border: 1px solid #f8ddd2; box-shadow: 0 18px 40px -28px rgba(160, 60, 30, 0.5); }
+.h5-after { background: linear-gradient(180deg, #ddf3e4, #eef9f2 40%, #f3fbf6); border: 1px solid #cfead9; box-shadow: 0 18px 40px -28px rgba(20, 110, 60, 0.45); }
+.h5-mid { display: flex; flex-direction: column; align-items: center; padding: 1.1rem 0.75rem; background: linear-gradient(180deg, #fff, #f1faf5); border: 1px solid #d8ede1;
+  box-shadow: 0 18px 40px -28px rgba(15, 58, 58, 0.5); }
+.h5-tag { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.55rem; }
+.h5-pill { padding: 0.28rem 0.8rem; border-radius: 999px; font-family: var(--display); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.02em; color: #fff; }
+.h5-before .h5-pill { background: linear-gradient(180deg, #ef5a3c, #d93a2b); }
+.h5-after .h5-pill { background: linear-gradient(180deg, #24a160, #17804a); }
+.h5-kicker { font-size: 0.9rem; font-weight: 600; }
+.h5-before .h5-kicker { color: #b3321f; }
+.h5-after .h5-kicker { padding: 0.25rem 0.7rem; border-radius: 999px; background: rgba(255, 255, 255, 0.6); color: #17643c; }
+.h5-title { margin: 0 0 0.7rem; padding-left: 0.15rem; font-family: var(--display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: #10201f; }
+.h5-before .h5-title { font-size: 1.12rem; }
+.h5-after .h5-title { font-size: 1.55rem; }
+.h5-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.h5-row { display: flex; align-items: center; gap: 0.75rem; min-height: 3.55rem; margin: 0; padding: 0.45rem 0.7rem; border-radius: 12px; background: #fff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 4px 12px -8px rgba(40, 40, 40, 0.25); }
+.h5-t { display: grid; gap: 0.08rem; min-width: 0; flex: 1; line-height: 1.22; }
+.h5-t b { font-family: var(--display); font-size: 0.96rem; font-weight: 700; color: #10201f; }
+.h5-issue { font-size: 0.86rem; color: #b3321f; }
+.h5-out { font-size: 0.8rem; color: #3a4644; }
+.h5-warn { width: 1.45rem; height: 1.45rem; flex: none; fill: var(--h5-red); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+.h5-warn path:first-child { stroke: var(--h5-red); stroke-width: 2.4; }
+.h5-warn path + path { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+.h5-st { display: inline-flex; align-items: center; gap: 0.35rem; flex: none; padding: 0.3rem 0.65rem 0.3rem 0.4rem; border-radius: 999px; background: var(--h5-green-tint);
+  font-family: var(--display); font-size: 0.82rem; font-weight: 700; color: #135c36; }
+.h5-st svg { width: 1.15rem; height: 1.15rem; }
+.h5-st svg circle { fill: var(--h5-green); }
+.h5-st svg path { fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 
-/* BEFORE: real tools, each with its problem. Askew, overlapping, flagged. */
-.ht-b { position: relative; display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.7rem; border-radius: 12px; background: #fff; border: 1px solid #eadfd8;
-  box-shadow: 0 10px 22px -14px rgba(70, 35, 20, 0.55); transform: translateX(var(--x, 0)) rotate(var(--r, 0deg)); margin-block: -0.12rem; }
-.ht-b1 { --r: -2deg; --x: 0.35rem; z-index: 2; } .ht-b2 { --r: 1.4deg; --x: -0.25rem; z-index: 3; } .ht-b3 { --r: -1deg; --x: 0.6rem; z-index: 2; }
-.ht-b4 { --r: 1.8deg; --x: -0.1rem; z-index: 3; } .ht-b5 { --r: -1.3deg; --x: 0.3rem; z-index: 2; }
-.ht-b .ht-ico { background: #fbf4ee; color: #8a4a2a; }
-.ht-issue { font-size: 0.86rem; font-weight: 700; line-height: 1.2; color: var(--hf-warn); }
-.ht-snip { margin-left: auto; flex: none; }
-.ht-warn { position: absolute; top: -0.45rem; right: -0.45rem; display: grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--hf-warn); color: #fff;
-  font-size: 0.72rem; font-weight: 800; line-height: 1; box-shadow: 0 0 0 2px #fff; }
-.ht-count { display: grid; place-items: center; min-width: 1.45rem; height: 1.45rem; padding: 0 0.3rem; border-radius: 999px; background: #d93a2b; color: #fff; font-size: 0.75rem; font-weight: 800; }
-.ht-dup { display: grid; gap: 2px; width: 2.4rem; }
-.ht-dup i { display: block; height: 0.38rem; border-radius: 2px; background: #e6ece8; }
-.ht-dup .ht-x { background: #f6c9b4; box-shadow: inset 0 0 0 1px var(--hf-warn); }
-.ht-keys { display: flex; gap: 0.2rem; }
-.ht-keys kbd { font: 700 0.62rem/1 var(--sans); padding: 0.25rem 0.3rem; border-radius: 4px; background: #f3efe9; border: 1px solid #ddd3c8; border-bottom-width: 2px; color: #5a3b2e; }
-.ht-b4 .ht-snip { position: absolute; top: -1rem; right: 1.6rem; transform: rotate(3deg); }
-.ht-bubble { position: relative; display: block; white-space: nowrap; box-shadow: 0 6px 14px -8px rgba(44, 79, 138, 0.6); padding: 0.28rem 0.55rem; border-radius: 9px 9px 9px 2px; background: #e8f0fb; color: #2c4f8a; font-size: 0.62rem; font-weight: 600; line-height: 1.2; }
-.ht-stamp { padding: 0.1rem 0.35rem; border: 1.5px solid var(--hf-warn); border-radius: 4px; color: var(--hf-warn); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; transform: rotate(-8deg); }
-/* dashed lead from each problem into Rework Rescue */
-.ht-b::after { content: ""; position: absolute; z-index: -1; top: 50%; left: 100%; width: calc(var(--ht-stub) + 0.6rem - var(--x, 0px)); border-top: 2px dashed #e2a483; }
+/* Icons (drawn for the site; generic, no third-party logos) */
+.h5-i { width: 2.05rem; height: 2.05rem; flex: none; }
+.h5-i .f-blue { fill: var(--h5-blue); } .h5-i .f-blue-l { fill: var(--h5-blue-l); } .h5-i .f-green { fill: #22a35a; } .h5-i .f-purple { fill: var(--h5-purple); }
+.h5-i .f-amber-l { fill: var(--h5-amber-l); } .h5-i .f-orange { fill: #f08a1c; } .h5-i .f-white { fill: #fff; } .h5-i .f-teal { fill: #1f9a8a; } .h5-i .f-teal2 { fill: #63c3b3; }
+.h5-i .s-white, .h5-i .s-amber, .h5-i .s-blue, .h5-i .s-brand { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.h5-i .s-white { stroke: #fff; } .h5-i .s-thin { stroke-width: 1.6; } .h5-i .s-amber { stroke: var(--h5-amber); } .h5-i .s-blue { stroke: var(--h5-blue); } .h5-i .s-brand { stroke: var(--h5-teal); stroke-width: 2.2; }
+.h5-i .f-blue-l + .f-blue { fill: var(--h5-blue); }
 
-/* MIDDLE: Rework Rescue does the work */
-.ht-mid { position: relative; z-index: 4; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
-  padding: 0.9rem 0.6rem; border-radius: 16px; background: var(--ink); color: #fff; box-shadow: 0 22px 40px -22px rgba(15, 58, 58, 0.8); }
-.ht-core { display: grid; place-items: center; width: 3.8rem; height: 3.8rem; border-radius: 50%; background: #fff;
-  box-shadow: 0 0 0 0.35rem rgba(120, 194, 164, 0.28), 0 0 0 0.75rem rgba(120, 194, 164, 0.12); margin-bottom: 0.45rem; }
-.ht-core img { width: 70%; height: auto; display: block; }
-.ht-rr { margin: 0; font-family: var(--display); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; color: #fff; text-align: center; }
-.ht-ai { margin: 0 0 0.35rem; padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--signal); color: var(--ink); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; white-space: nowrap; }
-.ht-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; width: 100%; }
-.ht-steps li { display: flex; align-items: center; gap: 0.45rem; padding: 0.34rem 0.5rem; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(143, 211, 195, 0.25);
-  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: #e9f4ef; }
-.ht-steps span { display: grid; place-items: center; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: #8fd3c3; color: var(--ink); font-size: 0.62rem; letter-spacing: 0; }
+/* Arrows between panels */
+.h5-arrow { display: grid; place-items: center; }
+.h5-arrow svg { width: 1.9rem; height: 1.9rem; fill: #22a35a; filter: drop-shadow(0 4px 6px rgba(20, 110, 60, 0.25)); }
 
-/* AFTER: the same work, done and linked */
-.ht-a { position: relative; display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.65rem; border-radius: 10px; background: #fbfdfc; border: 1px solid #e2efe8; }
-.ht-a .ht-ico { position: relative; z-index: 1; background: var(--hf-mint); color: var(--teal-dark); box-shadow: 0 0 0 3px #fbfdfc; }
-.ht-out { font-size: 0.86rem; font-weight: 600; line-height: 1.22; color: var(--ink); }
-.ht-st { margin-left: auto; flex: none; padding: 0.14rem 0.45rem; border-radius: 6px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; }
-.ht-st-review { background: #fff3dc; color: #7a5b16; box-shadow: inset 0 0 0 1px #f0d9a6; }
-.ht-st-clean { background: var(--hf-mint); color: #17613b; box-shadow: inset 0 0 0 1px var(--hf-mint-line); }
-.ht-st-set { background: #e8effb; color: #2c4f8a; box-shadow: inset 0 0 0 1px #d2def3; }
-.ht-st-ready { background: var(--teal); color: #fff; }
-/* teal arrow from Rework Rescue into each result */
-.ht-a::before { content: ""; position: absolute; top: 50%; right: 100%; width: calc(var(--ht-stub) + 0.8rem); margin-right: 1px; border-top: 2px solid var(--teal); }
-.ht-a::after { content: ""; position: absolute; top: 50%; left: -0.55rem; margin-top: -0.33rem; border: 0.33rem solid transparent; border-left: 0.45rem solid var(--teal); }
-/* one line linking the five results: email → record → follow-up → invoice → report */
-.ht-after > .ht-list::before { content: ""; position: absolute; left: calc(0.8rem + 0.65rem + 1.05rem - 1px); top: calc(var(--ht-row) / 2); bottom: calc(0.8rem + var(--ht-row) / 2); width: 2px; background: #8fd3c3; }
-.ht-after > .ht-list::after { content: ""; position: absolute; left: calc(0.8rem + 0.65rem + 1.05rem - 4px); top: calc(var(--ht-row) / 2 - 3px); width: 8px; height: 8px; border-radius: 50%; background: var(--teal); opacity: 0; }
-.ht-note { grid-column: 1 / -1; margin: 0.9rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: right; }
+/* Middle: Rework Rescue */
+.h5-logo { display: block; width: 4.6rem; margin: 0.1rem 0 0.35rem; }
+.h5-logo img { display: block; width: 100%; height: auto; }
+.h5-name { margin: 0 0 0.6rem; font-family: var(--display); font-size: 1.35rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; text-align: center; color: var(--ink); }
+.h5-ai { margin: 0 0 0.9rem; padding: 0.45rem 0.9rem; border-radius: 999px; background: linear-gradient(180deg, #24a160, #17804a); color: #fff; font-family: var(--display); font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.02em; white-space: nowrap; box-shadow: 0 8px 16px -10px rgba(20, 110, 60, 0.8); }
+.h5-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 0.7rem; width: 100%; flex: 1; }
+.h5-step { position: relative; display: flex; align-items: flex-start; gap: 0.6rem; margin: 0; }
+.h5-step .h5-i { width: 1.75rem; height: 1.75rem; margin-top: 0.1rem; }
+.h5-step .h5-t b { font-size: 0.95rem; }
+.h5-step .h5-t span { font-size: 0.76rem; color: #3a4644; }
+.h5-step + .h5-step::before { content: ""; position: absolute; left: 0.86rem; top: -0.7rem; height: 0.6rem; border-left: 2px dotted #9fd2c3; }
 
-/* Trust strip: one quiet line under the hero */
-.hf-trust { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2.2rem; margin: 1.4rem 0 0; padding: 0.85rem 1rem; border-top: 1px solid #dfe7e1; }
-.hf-trust li { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--ink); }
-.hf-trust svg { width: 1.2rem; height: 1.2rem; flex: none; color: var(--hf-green); }
+/* Little "pop" marks over the panel corners */
+.h5-spark { position: absolute; top: -1.35rem; right: 1.4rem; width: 2.4rem; height: 1.6rem; pointer-events: none; }
+.h5-spark i { position: absolute; bottom: 0; width: 0.28rem; height: 1rem; border-radius: 3px; transform-origin: bottom center; }
+.h5-spark i:nth-child(1) { left: 0; transform: rotate(-12deg); height: 0.85rem; }
+.h5-spark i:nth-child(2) { left: 0.9rem; transform: rotate(28deg); }
+.h5-spark i:nth-child(3) { left: 1.8rem; transform: rotate(62deg); height: 0.85rem; }
+.h5-spark-warm i { background: #f07a2a; } .h5-spark-green i { background: #22a35a; }
 
-/* Motion: one pass on load. Problems drop in, the four steps light up in order, results tick in, a dot runs down the link once. */
+/* Trust panel */
+.h5-trust { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; margin: 1.6rem 0 0; padding: 1rem 1.5rem; border-radius: 20px;
+  background: linear-gradient(180deg, #f1f6f2, #eaf2ec); border: 1px solid #dde9e1; }
+.h5-trust li { display: flex; align-items: center; justify-content: center; gap: 0.85rem; margin: 0; padding: 0.2rem 1rem; font-family: var(--display); font-size: 1.05rem; font-weight: 700; line-height: 1.25; color: #10201f; }
+.h5-trust li + li { border-left: 1px solid #cfdcd3; }
+.h5-trust svg { width: 2.3rem; height: 2.3rem; flex: none; fill: none; stroke: var(--h5-green); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Motion: one pass on load */
 @media (prefers-reduced-motion: no-preference) {
-  .ht-b { animation: ht-settle 0.6s ease-out both; }
-  .ht-b2 { animation-delay: 0.07s; } .ht-b3 { animation-delay: 0.14s; } .ht-b4 { animation-delay: 0.21s; } .ht-b5 { animation-delay: 0.28s; }
-  .ht-steps li { animation: ht-lit 0.5s ease-out both; }
-  .ht-steps li:nth-child(1) { animation-delay: 0.55s; } .ht-steps li:nth-child(2) { animation-delay: 0.7s; } .ht-steps li:nth-child(3) { animation-delay: 0.85s; } .ht-steps li:nth-child(4) { animation-delay: 1s; }
-  .ht-a { animation: ht-in 0.45s ease-out both; }
-  .ht-a1 { animation-delay: 1.15s; } .ht-a2 { animation-delay: 1.27s; } .ht-a3 { animation-delay: 1.39s; } .ht-a4 { animation-delay: 1.51s; } .ht-a5 { animation-delay: 1.63s; }
-  .ht-after > .ht-list::after { animation: ht-run 1.3s ease-in-out 1.85s both; }
+  .h5-before .h5-row { animation: h5-in 0.45s ease-out both; }
+  .h5-b2 { animation-delay: 0.06s; } .h5-b3 { animation-delay: 0.12s; } .h5-b4 { animation-delay: 0.18s; } .h5-b5 { animation-delay: 0.24s; }
+  .h5-warn { animation: h5-pop 0.4s ease-out 0.45s both; }
+  .h5-step { animation: h5-lit 0.45s ease-out both; }
+  .h5-step:nth-child(1) { animation-delay: 0.55s; } .h5-step:nth-child(2) { animation-delay: 0.7s; } .h5-step:nth-child(3) { animation-delay: 0.85s; } .h5-step:nth-child(4) { animation-delay: 1s; }
+  .h5-after .h5-row { animation: h5-in 0.45s ease-out both; }
+  .h5-a1 { animation-delay: 1.15s; } .h5-a2 { animation-delay: 1.25s; } .h5-a3 { animation-delay: 1.35s; } .h5-a4 { animation-delay: 1.45s; } .h5-a5 { animation-delay: 1.55s; }
+  .h5-st { animation: h5-pop 0.4s ease-out 1.75s both; }
 }
-@keyframes ht-settle { from { opacity: 0; transform: translate(calc(var(--x, 0px) - 10px), -6px) rotate(calc(var(--r, 0deg) * 3)); } to { opacity: 1; transform: translateX(var(--x, 0)) rotate(var(--r, 0deg)); } }
-@keyframes ht-lit { 0% { opacity: 0.35; background: rgba(255, 255, 255, 0.04); } 50% { opacity: 1; background: rgba(143, 211, 195, 0.35); } 100% { opacity: 1; background: rgba(255, 255, 255, 0.08); } }
-@keyframes ht-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
-@keyframes ht-run { 0% { opacity: 0; transform: translateY(0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translateY(calc(4 * (var(--ht-row) + var(--ht-gap)))); } }
+@keyframes h5-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes h5-pop { 0% { opacity: 0; transform: scale(0.6); } 70% { opacity: 1; transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes h5-lit { from { opacity: 0.25; } to { opacity: 1; } }
 
-/* Tablets: copy above the picture */
-@media (max-width: 64rem) {
-  .hf-grid { grid-template-columns: minmax(0, 1fr); gap: 2.2rem; }
-  .hf .hero-sub { max-width: 40rem; }
-  .ht-visual { max-width: 50rem; }
-  .hf::before { top: auto; bottom: 4rem; width: 90%; }
+/* Desktop (above 1184 px): the hero is capped at 84rem, so one set of sizes keeps rows to two lines */
+@media (min-width: 74.01rem) {
+  .h5-grid { grid-template-columns: minmax(20.5rem, 0.85fr) minmax(0, 2.4fr); gap: 1.5rem; }
+  .h5 h1 { font-size: 2.05rem; }
+  .h5 .hero-sub { font-size: 1rem; }
+  .h5-panel { padding: 0.9rem 0.7rem 0.8rem; }
+  .h5-row { gap: 0.6rem; padding: 0.4rem 0.55rem; }
+  .h5-i { width: 1.8rem; height: 1.8rem; }
+  .h5-t b { font-size: 0.9rem; } .h5-issue { font-size: 0.8rem; } .h5-out { font-size: 0.75rem; }
+  .h5-before .h5-title { font-size: 1rem; } .h5-after .h5-title { font-size: 1.35rem; }
+  .h5-name { font-size: 1.15rem; } .h5-step .h5-t span { font-size: 0.72rem; }
+  .h5-st { font-size: 0.75rem; padding: 0.24rem 0.5rem 0.24rem 0.32rem; }
+  .h5-warn { width: 1.25rem; height: 1.25rem; }
 }
 
-/* Phones: stacked. Problems as a jumbled two-column pile → Rework Rescue as one band → the connected results. */
+/* Narrower desktops and tablets: copy above, the three panels in a row underneath */
+@media (max-width: 74rem) {
+  .h5-grid { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .h5 .hero-sub { max-width: 40rem; }
+}
+@media (max-width: 58rem) {
+  .h5-visual { display: flex; flex-direction: column; max-width: 36rem; width: 100%; margin-inline: auto; }
+  .h5-arrow { height: 2.4rem; }
+  .h5-arrow svg { transform: rotate(90deg); width: 1.6rem; height: 1.6rem; }
+  .h5-mid { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 0.8rem; padding: 0.9rem 1rem; }
+  .h5-logo { width: 3.4rem; grid-row: 1 / 3; margin: 0; }
+  .h5-name { margin: 0; text-align: left; font-size: 1.2rem; }
+  .h5-ai { justify-self: start; margin: 0.35rem 0 0.85rem; font-size: 0.76rem; padding: 0.32rem 0.75rem; }
+  .h5-steps { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.7rem 0.9rem; }
+  .h5-step + .h5-step::before { content: none; }
+}
+
+/* Phones: one column. Before → Rework Rescue → After, with arrows pointing down. */
 @media (max-width: 40rem) {
-  .hf { padding: 1.6rem 0 1.2rem; }
-  .hf-eyebrow { font-size: 0.68rem; letter-spacing: 0.05em; padding: 0.35rem 0.7rem 0.35rem 0.6rem; margin-bottom: 0.85rem; }
-  .hf h1 { font-size: clamp(1.75rem, 7.4vw, 2rem); }
-  .hf .hero-sub { font-size: 1rem; margin-bottom: 1.2rem; }
-  .hf-actions { flex-direction: column; align-items: stretch; gap: 0.25rem; margin-bottom: 0.5rem; }
-  .hf-book { justify-content: center; width: 100%; }
-  .hf-more { align-self: center; }
-  .hf .hero-note { justify-content: center; }
-  .hf-grid { gap: 1.8rem; }
-  .ht-visual { --ht-row: auto; display: flex; flex-direction: column; gap: 0; }
-  .ht-before, .ht-after { display: block; }
-  .ht-before > .ht-head { padding-bottom: 0.6rem; }
-  .ht-before .ht-list { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.55rem 0.5rem; }
-  .ht-b { flex-direction: column; align-items: flex-start; gap: 0.3rem; padding: 0.5rem 0.55rem; --x: 0 !important; }
-  .ht-b1 { --r: -1.5deg; } .ht-b2 { --r: 1.2deg; } .ht-b3 { --r: 1deg; } .ht-b4 { --r: -1.4deg; } .ht-b5 { --r: 0.8deg; grid-column: 1 / -1; justify-self: center; width: 60%; }
-  .ht-b .ht-ico { display: none; }
-  .ht-b::after { content: none; }
-  .ht-snip { display: none; }
-  .ht-issue { font-size: 0.8rem; }
-  .ht-tool { font-size: 0.7rem; }
-  .ht-mid { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.35rem 0.5rem; margin: 1.6rem 0 1.4rem; padding: 0.7rem 0.75rem; }
-  .ht-mid::before, .ht-mid::after { content: ""; position: absolute; left: 50%; height: 1.6rem; width: 0; }
-  .ht-mid::before { bottom: 100%; border-left: 2px dashed #e2a483; }
-  .ht-mid::after { top: 100%; height: 1.4rem; border-left: 2px solid var(--teal); }
-  .ht-core { width: 2.4rem; height: 2.4rem; margin: 0; box-shadow: 0 0 0 0.25rem rgba(120, 194, 164, 0.28); }
-  .ht-rr { font-size: 0.68rem; }
-  .ht-ai { margin: 0; }
-  .ht-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.25rem; }
-  .ht-steps li { justify-content: center; gap: 0.25rem; padding: 0.3rem 0.2rem; font-size: 0.58rem; letter-spacing: 0.04em; }
-  .ht-steps span { width: 0.95rem; height: 0.95rem; font-size: 0.55rem; }
-  .ht-after > .ht-list { gap: 0.4rem; padding: 0 0.55rem 0.55rem; }
-  .ht-a { padding: 0.45rem 0.55rem; gap: 0.5rem; }
-  .ht-a::before, .ht-a::after { content: none; }
-  .ht-a .ht-ico { width: 1.8rem; height: 1.8rem; } .ht-a .ht-ico svg { width: 1rem; height: 1rem; }
-  .ht-after > .ht-list::before { left: calc(0.55rem + 0.55rem + 0.9rem - 1px); top: 1.5rem; bottom: 2rem; }
-  .ht-after > .ht-list::after { content: none; }
-  .ht-out { font-size: 0.82rem; }
-  .ht-note { text-align: center; margin-top: 0.7rem; }
-  .hf-trust { flex-direction: column; align-items: flex-start; gap: 0.45rem; margin-top: 1.2rem; padding: 0.9rem 0.25rem 0; }
-  .hf-trust li { font-size: 0.92rem; }
+  .h5 { padding: 1.5rem 0 1.2rem; }
+  .h5-eyebrow { font-size: 0.7rem; margin-bottom: 0.9rem; }
+  .h5 h1 { font-size: clamp(1.8rem, 8vw, 2.1rem); }
+  .h5 .hero-sub { font-size: 1rem; }
+  .h5-book { display: flex; width: 100%; }
+  .h5-more { margin: 0.8rem auto 0.3rem; }
+  .h5 .hero-note { margin: 0; text-align: center; }
+  .h5-panel { padding: 0.9rem 0.7rem 0.75rem; border-radius: 18px; }
+  .h5-title { margin-bottom: 0.55rem; }
+  .h5-after .h5-title { font-size: 1.3rem; }
+  .h5-row { min-height: 3.1rem; gap: 0.6rem; padding: 0.4rem 0.6rem; }
+  .h5-i { width: 1.75rem; height: 1.75rem; }
+  .h5-t b { font-size: 0.9rem; }
+  .h5-st { padding: 0.22rem 0.5rem 0.22rem 0.3rem; font-size: 0.74rem; }
+  .h5-st svg { width: 1rem; height: 1rem; }
+  .h5-after .h5-row { position: relative; align-items: flex-start; }
+  .h5-after .h5-row .h5-i { margin-top: 0.15rem; }
+  .h5-after .h5-t b { padding-right: 6.4rem; min-height: 1.5rem; }
+  .h5-after .h5-st { position: absolute; top: 0.4rem; right: 0.5rem; }
+  .h5-spark { top: -1.1rem; transform: scale(0.85); }
+  .h5-trust { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; padding: 0.9rem 1rem; margin-top: 1.4rem; }
+  .h5-trust li { justify-content: flex-start; padding: 0; font-size: 0.95rem; }
+  .h5-trust li + li { border-left: 0; }
+  .h5-trust svg { width: 1.9rem; height: 1.9rem; }
 }
-@media (forced-colors: active) { .ht-after, .ht-b, .ht-a, .ht-mid, .ht-core, .ht-steps li { border: 1px solid CanvasText; } }
+@media (forced-colors: active) { .h5-panel, .h5-row, .h5-st, .h5-ai, .h5-pill, .h5-trust { border: 1px solid CanvasText; } }

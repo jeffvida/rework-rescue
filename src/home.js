@@ -45,20 +45,12 @@ export function mountMobileCta() {
 
 // ---- Start the homepage
 
-// ---- Hero moving background (24 Nov v12): pause the drifting wave and the travelling lights while the hero is off
-// screen, and keep the lights still for visitors who prefer reduced motion. Decorative only; without JavaScript it simply runs.
+// ---- Hero moving background (24 Nov v12; 13:05 only the dotted wave kept): pause the drifting wave while the hero
+// is off screen. Reduced motion is handled in CSS (no drift). Decorative only; without JavaScript it simply runs.
 export function mountBackdrop() {
   const hero = document.querySelector('.h5');
-  const net = hero && hero.querySelector('.h5-net');
-  if (!hero) return;
-  const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const setRunning = (on) => {
-    hero.classList.toggle('h5-off', !on);
-    if (net && typeof net.pauseAnimations === 'function') { if (on && !still) net.unpauseAnimations(); else net.pauseAnimations(); }
-  };
-  if (still) { setRunning(false); return; }
-  if (typeof IntersectionObserver !== 'function') return;
-  new IntersectionObserver((entries) => { entries.forEach((e) => setRunning(e.isIntersecting)); }).observe(hero);
+  if (!hero || typeof IntersectionObserver !== 'function') return;
+  new IntersectionObserver((entries) => { entries.forEach((e) => hero.classList.toggle('h5-off', !e.isIntersecting)); }).observe(hero);
 }
 
 mountMobileCta();

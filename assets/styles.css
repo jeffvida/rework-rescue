@@ -5468,16 +5468,16 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 }
 
 
-/* ===== Hero (24 Nov 2026, v3 expert round): five-second hero. Copy left, one Before → After picture right.
-   The picture mirrors four everyday problems against their fixed versions, row for row, through one Rework Rescue
-   node (AI + AUTOMATION). Real text, readable at a glance; messy Before cards sit slightly askew, the After rows sit
-   straight inside an app window. Motion: one pass on load, never with reduced motion; the finished picture is the
-   default state. ===== */
+/* ===== Hero (24 Nov 2026, v4 tools): five-second hero. Copy left, one picture right in three zones:
+   BEFORE disconnected work (five everyday tools, each with its problem, askew and overlapping) → REWORK RESCUE,
+   AI + AUTOMATION (Read, Match, Check, Route) → AFTER connected workflow (the same work, done, linked by one line).
+   Tool names are plain text with generic icons (Google and Microsoft product icons need permission). Motion: one pass
+   on load, never with reduced motion; the finished picture is the default state. ===== */
 .hf { --hf-warn: #c2501f; --hf-warn-tint: #fdf1ea; --hf-warn-line: #f2d2c0; --hf-mint: #eaf6f0; --hf-mint-line: #cbe6d8; --hf-green: #1f8a4c;
   position: relative; padding: 2.6rem 0 1.4rem; border-bottom: 0; overflow-x: clip; }
 .hf .container { max-width: 78rem; }
 .hf svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.hf-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: 3rem; align-items: center; }
+.hf-grid { display: grid; grid-template-columns: minmax(0, 37fr) minmax(0, 63fr); gap: 2.4rem; align-items: center; }
 .hf .hero-copy { display: block; max-width: none; } /* older phone rules set display: contents and reorder the copy */
 /* soft mint light behind the After window */
 .hf::before { content: ""; position: absolute; z-index: 0; pointer-events: none; right: max(0rem, calc((100% - 78rem) / 2)); top: 2rem; width: min(36rem, 46%); height: 30rem;
@@ -5487,115 +5487,127 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 /* Left: message and action */
 .hf-eyebrow { display: inline-flex; align-items: center; gap: 0.55rem; margin: 0 0 1rem; padding: 0.4rem 0.9rem 0.4rem 0.75rem; border-radius: 999px; background: #e3f1ea; border: 1px solid #cfe5d8;
   color: var(--teal-dark); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; }
-.hm-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3px rgba(46, 125, 114, 0.18); flex: none; }
-.hf h1 { margin: 0 0 1rem; font-size: clamp(2rem, 2.8vw, 2.55rem); line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
+.ht-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3px rgba(46, 125, 114, 0.18); flex: none; }
+.hf h1 { margin: 0 0 1rem; font-size: clamp(2rem, 2.6vw, 2.3rem); line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
 .hf h1 .hf-l1, .hf h1 .hf-l2 { display: block; }
 .hf .hf-l2 { color: var(--teal); }
 .hf .hf-mark { white-space: nowrap; background: linear-gradient(transparent 62%, rgba(120, 194, 164, 0.45) 62%, rgba(120, 194, 164, 0.45) 92%, transparent 92%); padding: 0 0.06em; }
-.hf .hero-sub { max-width: 31rem; margin: 0 0 1.5rem; font-size: 1.1rem; line-height: 1.55; color: var(--ink); }
-.hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin: 0 0 1rem; }
+.hf .hero-sub { max-width: 31rem; margin: 0 0 1.5rem; font-size: 1.05rem; line-height: 1.55; color: var(--ink); }
+.hf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.1rem; margin: 0 0 1rem; }
 .hf-book { display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap; box-shadow: 0 12px 24px -12px rgba(15, 58, 58, 0.65), 0 2px 0 var(--signal); }
 .hf-book:hover { transform: translateY(-1px); }
 .hf-more { display: inline-block; padding: 0.6rem 0.1rem; font-weight: 600; color: var(--teal-dark); text-decoration: underline; text-decoration-color: rgba(46, 125, 114, 0.45); text-underline-offset: 0.25em; }
 .hf-more:hover { text-decoration-color: currentColor; }
 .hf .hero-note { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 0.95rem; color: var(--muted); }
-.hm-me { width: 2.1rem; height: 2.1rem; flex: none; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #cfe5d8; }
+.ht-me { width: 2.1rem; height: 2.1rem; flex: none; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #cfe5d8; }
 
-/* Right: the Before → After mirror. One grid: Before column | rail with the node | After window. */
+/* Right: three zones in one grid. Rows: headers, then the two lists and the Rework Rescue column. */
 .hf-label { display: inline-block; padding: 0.15em 0.55em; border-radius: 6px; font-size: 0.72em; font-weight: 800; letter-spacing: 0.12em; vertical-align: 0.12em; }
 .hf-h { font-family: var(--display); font-weight: 700; color: var(--ink); }
-.hm-visual { margin: 0; position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem minmax(0, 1.12fr); grid-template-rows: auto repeat(4, minmax(3.9rem, auto)) auto; row-gap: 0.55rem; align-items: stretch; }
-.hm-pairs, .hm-p { display: contents; }
-.hm-p1 > * { grid-row: 2; } .hm-p2 > * { grid-row: 3; } .hm-p3 > * { grid-row: 4; } .hm-p4 > * { grid-row: 5; }
-.hm-b { grid-column: 1; } .hm-link { grid-column: 2; } .hm-a { grid-column: 3; }
+.ht-visual { --ht-row: 4.3rem; --ht-gap: 0.55rem; --ht-stub: 1.35rem;
+  margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) var(--ht-stub) 8.4rem var(--ht-stub) minmax(0, 1.22fr); grid-template-rows: auto auto; align-items: start; }
+.ht-before { grid-column: 1; grid-row: 1 / 3; display: grid; grid-template-rows: subgrid; }
+.ht-after { grid-column: 5; grid-row: 1 / 3; display: grid; grid-template-rows: subgrid; position: relative; border-radius: 16px; background: #fff; border: 1px solid var(--hf-mint-line);
+  box-shadow: 0 24px 48px -26px rgba(15, 58, 58, 0.45), 0 4px 12px -6px rgba(15, 58, 58, 0.12); }
+.ht-mid { grid-column: 3; grid-row: 2; }
+.ht-list { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-rows: var(--ht-row); gap: var(--ht-gap); }
+.ht-head { display: block; margin: 0; font-size: 0.98rem; line-height: 1.3; }
+.ht-before > .ht-head { align-self: end; padding: 0 0 0.75rem; }
+.ht-before .hf-label { background: var(--hf-warn-tint); color: var(--hf-warn); box-shadow: inset 0 0 0 1px var(--hf-warn-line); margin-right: 0.3em; }
+.ht-before .hf-h { color: #5a3b2e; }
+.ht-whead { margin: 0; align-self: end; }
+.ht-bar { display: flex; gap: 0.35rem; padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--hf-mint-line); background: var(--hf-mint); border-radius: 16px 16px 0 0; }
+.ht-bar i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #b9dccb; }
+.ht-bar i:first-child { background: var(--teal); }
+.ht-whead .ht-head { padding: 0.7rem 0.9rem 0.6rem; }
+.ht-after .hf-label { background: var(--teal-dark); color: #fff; margin-right: 0.3em; }
+.ht-after > .ht-list { padding: 0 0.8rem 0.8rem; position: relative; }
+.ht-ico { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: none; border-radius: 9px; }
+.ht-ico svg { width: 1.15rem; height: 1.15rem; }
+.ht-txt { display: grid; gap: 0.12rem; min-width: 0; }
+.ht-tool { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); line-height: 1.2; }
 
-/* Headers */
-.hm-bhead { grid-column: 1; grid-row: 1; align-self: end; margin: 0 0 0.2rem; font-size: 1rem; line-height: 1.3; }
-.hm-bhead .hf-label { background: var(--hf-warn-tint); color: var(--hf-warn); box-shadow: inset 0 0 0 1px var(--hf-warn-line); margin-right: 0.3em; }
-.hm-bhead .hf-h { color: #5a3b2e; }
-.hm-win { grid-column: 3; grid-row: 1 / -1; z-index: 0; border-radius: 16px; background: #fff; border: 1px solid var(--hf-mint-line);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 24px 48px -26px rgba(15, 58, 58, 0.45), 0 4px 12px -6px rgba(15, 58, 58, 0.12); }
-.hm-ahead { grid-column: 3; grid-row: 1; z-index: 1; margin: 0; font-size: 1rem; line-height: 1.3; }
-.hm-bar { display: flex; gap: 0.35rem; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--hf-mint-line); background: var(--hf-mint); border-radius: 16px 16px 0 0; }
-.hm-bar i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #b9dccb; }
-.hm-bar i:first-child { background: var(--teal); }
-.hm-ahead-t { display: block; padding: 0.75rem 1rem 0.2rem; }
-.hm-ahead .hf-label { background: var(--teal-dark); color: #fff; margin-right: 0.3em; }
+/* BEFORE: real tools, each with its problem. Askew, overlapping, flagged. */
+.ht-b { position: relative; display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.7rem; border-radius: 12px; background: #fff; border: 1px solid #eadfd8;
+  box-shadow: 0 10px 22px -14px rgba(70, 35, 20, 0.55); transform: translateX(var(--x, 0)) rotate(var(--r, 0deg)); margin-block: -0.12rem; }
+.ht-b1 { --r: -2deg; --x: 0.35rem; z-index: 2; } .ht-b2 { --r: 1.4deg; --x: -0.25rem; z-index: 3; } .ht-b3 { --r: -1deg; --x: 0.6rem; z-index: 2; }
+.ht-b4 { --r: 1.8deg; --x: -0.1rem; z-index: 3; } .ht-b5 { --r: -1.3deg; --x: 0.3rem; z-index: 2; }
+.ht-b .ht-ico { background: #fbf4ee; color: #8a4a2a; }
+.ht-issue { font-size: 0.86rem; font-weight: 700; line-height: 1.2; color: var(--hf-warn); }
+.ht-snip { margin-left: auto; flex: none; }
+.ht-warn { position: absolute; top: -0.45rem; right: -0.45rem; display: grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--hf-warn); color: #fff;
+  font-size: 0.72rem; font-weight: 800; line-height: 1; box-shadow: 0 0 0 2px #fff; }
+.ht-count { display: grid; place-items: center; min-width: 1.45rem; height: 1.45rem; padding: 0 0.3rem; border-radius: 999px; background: #d93a2b; color: #fff; font-size: 0.75rem; font-weight: 800; }
+.ht-dup { display: grid; gap: 2px; width: 2.4rem; }
+.ht-dup i { display: block; height: 0.38rem; border-radius: 2px; background: #e6ece8; }
+.ht-dup .ht-x { background: #f6c9b4; box-shadow: inset 0 0 0 1px var(--hf-warn); }
+.ht-keys { display: flex; gap: 0.2rem; }
+.ht-keys kbd { font: 700 0.62rem/1 var(--sans); padding: 0.25rem 0.3rem; border-radius: 4px; background: #f3efe9; border: 1px solid #ddd3c8; border-bottom-width: 2px; color: #5a3b2e; }
+.ht-b4 .ht-snip { position: absolute; top: -1rem; right: 1.6rem; transform: rotate(3deg); }
+.ht-bubble { position: relative; display: block; white-space: nowrap; box-shadow: 0 6px 14px -8px rgba(44, 79, 138, 0.6); padding: 0.28rem 0.55rem; border-radius: 9px 9px 9px 2px; background: #e8f0fb; color: #2c4f8a; font-size: 0.62rem; font-weight: 600; line-height: 1.2; }
+.ht-stamp { padding: 0.1rem 0.35rem; border: 1.5px solid var(--hf-warn); border-radius: 4px; color: var(--hf-warn); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; transform: rotate(-8deg); }
+/* dashed lead from each problem into Rework Rescue */
+.ht-b::after { content: ""; position: absolute; z-index: -1; top: 50%; left: 100%; width: calc(var(--ht-stub) + 0.6rem - var(--x, 0px)); border-top: 2px dashed #e2a483; }
 
-/* Before: real pieces of work, a little askew */
-.hm-b { position: relative; z-index: 1; display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 0.65rem; align-content: center;
-  padding: 0.55rem 0.75rem; border-radius: 12px; background: #fff; border: 1px solid #eadfd8; box-shadow: 0 10px 22px -16px rgba(70, 35, 20, 0.55);
-  margin-right: 0.4rem; transform: translateX(var(--x, 0)) rotate(var(--r, 0deg)); }
-.hm-p1 .hm-b { --r: -1.6deg; --x: 0.2rem; } .hm-p2 .hm-b { --r: 1.2deg; --x: -0.3rem; } .hm-p3 .hm-b { --r: -0.8deg; --x: -0.2rem; } .hm-p4 .hm-b { --r: 1.5deg; --x: -0.1rem; }
-.hm-ico { grid-row: 1 / 3; align-self: center; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 9px; background: #fbf4ee; color: #8a4a2a; }
-.hm-ico svg { width: 1.15rem; height: 1.15rem; }
-.hm-bt { font-size: 0.95rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
-.hm-tag { justify-self: start; margin-top: 0.25rem; padding: 0.08rem 0.5rem; border-radius: 999px; background: var(--hf-warn-tint); color: var(--hf-warn); box-shadow: inset 0 0 0 1px var(--hf-warn-line);
-  font-size: 0.75rem; font-weight: 700; line-height: 1.5; }
-/* one sticky note, so the column reads as a real desk, not a list */
-.hm-b-note { background: #fbe7a6; border-color: #f3d77d; box-shadow: 0 12px 18px -12px rgba(91, 58, 0, 0.6); border-radius: 4px; }
-.hm-b-note .hm-ico { background: rgba(255, 255, 255, 0.55); color: #5b3a00; }
-.hm-b-note .hm-bt { font-family: var(--display); color: #4d3200; }
-.hm-b-note .hm-tag { background: rgba(255, 255, 255, 0.6); }
+/* MIDDLE: Rework Rescue does the work */
+.ht-mid { position: relative; z-index: 4; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0.9rem 0.6rem; border-radius: 16px; background: var(--ink); color: #fff; box-shadow: 0 22px 40px -22px rgba(15, 58, 58, 0.8); }
+.ht-core { display: grid; place-items: center; width: 3.8rem; height: 3.8rem; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 0.35rem rgba(120, 194, 164, 0.28), 0 0 0 0.75rem rgba(120, 194, 164, 0.12); margin-bottom: 0.45rem; }
+.ht-core img { width: 70%; height: auto; display: block; }
+.ht-rr { margin: 0; font-family: var(--display); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; color: #fff; text-align: center; }
+.ht-ai { margin: 0 0 0.35rem; padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--signal); color: var(--ink); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; white-space: nowrap; }
+.ht-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; width: 100%; }
+.ht-steps li { display: flex; align-items: center; gap: 0.45rem; padding: 0.34rem 0.5rem; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(143, 211, 195, 0.25);
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: #e9f4ef; }
+.ht-steps span { display: grid; place-items: center; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: #8fd3c3; color: var(--ink); font-size: 0.62rem; letter-spacing: 0; }
 
-/* Rail: a dashed line in from each problem, a solid teal arrow out to its fix */
-.hm-link { position: relative; z-index: 0; }
-.hm-link::before, .hm-link::after { content: ""; position: absolute; top: 50%; height: 0; }
-.hm-link::before { left: 0; width: 50%; border-top: 2px dashed #e2a483; }
-.hm-link::after { right: 0; width: 50%; border-top: 2px solid var(--teal); transform-origin: left center; }
-.hm-a::before { content: ""; position: absolute; left: -1.05rem; top: 50%; margin-top: -0.38rem; border: 0.38rem solid transparent; border-left: 0.5rem solid var(--teal); }
-.hm-node { grid-column: 2; grid-row: 2 / 6; z-index: 2; align-self: center; justify-self: center; display: grid; justify-items: center; gap: 0.45rem; }
-.hm-core { display: grid; place-items: center; width: 4.4rem; height: 4.4rem; border-radius: 50%; background: #fff; border: 1px solid var(--hf-mint-line);
-  box-shadow: 0 0 0 0.4rem rgba(120, 194, 164, 0.22), 0 0 0 0.85rem rgba(120, 194, 164, 0.10), 0 16px 26px -12px rgba(15, 58, 58, 0.55); }
-.hm-core img { width: 68%; height: auto; display: block; }
-.hm-ai { padding: 0.3rem 0.55rem; border-radius: 8px; background: var(--ink); color: #fff; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; line-height: 1.25; text-align: center; }
-
-/* After: the same four things, done, inside the window */
-.hm-a { position: relative; z-index: 1; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; align-items: center; column-gap: 0.65rem; margin: 0 0.9rem;
-  padding: 0.5rem 0.75rem; border-radius: 10px; background: #fbfdfc; border: 1px solid #e2efe8; }
-.hm-tick { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--hf-green); color: #fff; }
-.hm-tick svg { width: 1rem; height: 1rem; stroke-width: 3; }
-.hm-at { font-size: 0.95rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
-.hm-st { padding: 0.12rem 0.55rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
-.hm-st-done { background: var(--hf-mint); color: #17613b; box-shadow: inset 0 0 0 1px var(--hf-mint-line); }
-.hm-st-go { background: #e8effb; color: #2c4f8a; box-shadow: inset 0 0 0 1px #d2def3; }
-.hm-st-ready { background: var(--teal); color: #fff; }
-.hm-foot { grid-column: 3; grid-row: 6; z-index: 1; display: flex; align-items: center; gap: 0.6rem; margin: 0.15rem 0.9rem 0.9rem; padding: 0.65rem 0.85rem; border-radius: 10px;
-  background: var(--ink); color: #fff; font-size: 0.9rem; font-weight: 600; }
-.hm-foot svg { width: 1.2rem; height: 1.2rem; flex: none; color: var(--signal); }
+/* AFTER: the same work, done and linked */
+.ht-a { position: relative; display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.65rem; border-radius: 10px; background: #fbfdfc; border: 1px solid #e2efe8; }
+.ht-a .ht-ico { position: relative; z-index: 1; background: var(--hf-mint); color: var(--teal-dark); box-shadow: 0 0 0 3px #fbfdfc; }
+.ht-out { font-size: 0.86rem; font-weight: 600; line-height: 1.22; color: var(--ink); }
+.ht-st { margin-left: auto; flex: none; padding: 0.14rem 0.45rem; border-radius: 6px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; }
+.ht-st-review { background: #fff3dc; color: #7a5b16; box-shadow: inset 0 0 0 1px #f0d9a6; }
+.ht-st-clean { background: var(--hf-mint); color: #17613b; box-shadow: inset 0 0 0 1px var(--hf-mint-line); }
+.ht-st-set { background: #e8effb; color: #2c4f8a; box-shadow: inset 0 0 0 1px #d2def3; }
+.ht-st-ready { background: var(--teal); color: #fff; }
+/* teal arrow from Rework Rescue into each result */
+.ht-a::before { content: ""; position: absolute; top: 50%; right: 100%; width: calc(var(--ht-stub) + 0.8rem); margin-right: 1px; border-top: 2px solid var(--teal); }
+.ht-a::after { content: ""; position: absolute; top: 50%; left: -0.55rem; margin-top: -0.33rem; border: 0.33rem solid transparent; border-left: 0.45rem solid var(--teal); }
+/* one line linking the five results: email → record → follow-up → invoice → report */
+.ht-after > .ht-list::before { content: ""; position: absolute; left: calc(0.8rem + 0.65rem + 1.05rem - 1px); top: calc(var(--ht-row) / 2); bottom: calc(0.8rem + var(--ht-row) / 2); width: 2px; background: #8fd3c3; }
+.ht-after > .ht-list::after { content: ""; position: absolute; left: calc(0.8rem + 0.65rem + 1.05rem - 4px); top: calc(var(--ht-row) / 2 - 3px); width: 8px; height: 8px; border-radius: 50%; background: var(--teal); opacity: 0; }
+.ht-note { grid-column: 1 / -1; margin: 0.9rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: right; }
 
 /* Trust strip: one quiet line under the hero */
-.hf-trust { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2.2rem; margin: 2rem 0 0; padding: 0.85rem 1rem; border-top: 1px solid #dfe7e1; }
+.hf-trust { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2.2rem; margin: 1.4rem 0 0; padding: 0.85rem 1rem; border-top: 1px solid #dfe7e1; }
 .hf-trust li { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--ink); }
 .hf-trust svg { width: 1.2rem; height: 1.2rem; flex: none; color: var(--hf-green); }
 
-/* Motion: one pass on load. Problems settle, each line draws to its fix, the fix ticks in. */
+/* Motion: one pass on load. Problems drop in, the four steps light up in order, results tick in, a dot runs down the link once. */
 @media (prefers-reduced-motion: no-preference) {
-  .hm-b { animation: hm-settle 0.6s ease-out both; }
-  .hm-p2 .hm-b { animation-delay: 0.08s; } .hm-p3 .hm-b { animation-delay: 0.16s; } .hm-p4 .hm-b { animation-delay: 0.24s; }
-  .hm-core { animation: hm-pulse 0.9s ease-out 0.45s both; }
-  .hm-link::after { animation: hm-draw 0.4s ease-out both; }
-  .hm-a { animation: hm-in 0.45s ease-out both; }
-  .hm-p1 .hm-link::after { animation-delay: 0.7s; } .hm-p1 .hm-a { animation-delay: 0.85s; }
-  .hm-p2 .hm-link::after { animation-delay: 0.95s; } .hm-p2 .hm-a { animation-delay: 1.1s; }
-  .hm-p3 .hm-link::after { animation-delay: 1.2s; } .hm-p3 .hm-a { animation-delay: 1.35s; }
-  .hm-p4 .hm-link::after { animation-delay: 1.45s; } .hm-p4 .hm-a { animation-delay: 1.6s; }
-  .hm-foot { animation: hm-in 0.45s ease-out 1.85s both; }
+  .ht-b { animation: ht-settle 0.6s ease-out both; }
+  .ht-b2 { animation-delay: 0.07s; } .ht-b3 { animation-delay: 0.14s; } .ht-b4 { animation-delay: 0.21s; } .ht-b5 { animation-delay: 0.28s; }
+  .ht-steps li { animation: ht-lit 0.5s ease-out both; }
+  .ht-steps li:nth-child(1) { animation-delay: 0.55s; } .ht-steps li:nth-child(2) { animation-delay: 0.7s; } .ht-steps li:nth-child(3) { animation-delay: 0.85s; } .ht-steps li:nth-child(4) { animation-delay: 1s; }
+  .ht-a { animation: ht-in 0.45s ease-out both; }
+  .ht-a1 { animation-delay: 1.15s; } .ht-a2 { animation-delay: 1.27s; } .ht-a3 { animation-delay: 1.39s; } .ht-a4 { animation-delay: 1.51s; } .ht-a5 { animation-delay: 1.63s; }
+  .ht-after > .ht-list::after { animation: ht-run 1.3s ease-in-out 1.85s both; }
 }
-@keyframes hm-settle { from { opacity: 0; transform: translate(calc(var(--x, 0px) - 8px), 6px) rotate(calc(var(--r, 0deg) * 2.5)); } to { opacity: 1; transform: translateX(var(--x, 0)) rotate(var(--r, 0deg)); } }
-@keyframes hm-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes hm-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
-@keyframes hm-pulse { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes ht-settle { from { opacity: 0; transform: translate(calc(var(--x, 0px) - 10px), -6px) rotate(calc(var(--r, 0deg) * 3)); } to { opacity: 1; transform: translateX(var(--x, 0)) rotate(var(--r, 0deg)); } }
+@keyframes ht-lit { 0% { opacity: 0.35; background: rgba(255, 255, 255, 0.04); } 50% { opacity: 1; background: rgba(143, 211, 195, 0.35); } 100% { opacity: 1; background: rgba(255, 255, 255, 0.08); } }
+@keyframes ht-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+@keyframes ht-run { 0% { opacity: 0; transform: translateY(0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translateY(calc(4 * (var(--ht-row) + var(--ht-gap)))); } }
 
 /* Tablets: copy above the picture */
 @media (max-width: 64rem) {
   .hf-grid { grid-template-columns: minmax(0, 1fr); gap: 2.2rem; }
   .hf .hero-sub { max-width: 40rem; }
-  .hm-visual { max-width: 46rem; }
+  .ht-visual { max-width: 50rem; }
   .hf::before { top: auto; bottom: 4rem; width: 90%; }
 }
 
-/* Phones: the same mirror, tighter. Rail narrows to the node alone; AI + AUTOMATION runs down the rail. */
+/* Phones: stacked. Problems as a jumbled two-column pile → Rework Rescue as one band → the connected results. */
 @media (max-width: 40rem) {
   .hf { padding: 1.6rem 0 1.2rem; }
   .hf-eyebrow { font-size: 0.68rem; letter-spacing: 0.05em; padding: 0.35rem 0.7rem 0.35rem 0.6rem; margin-bottom: 0.85rem; }
@@ -5606,29 +5618,36 @@ dialog.cs.rp-dlg, dialog.cs.rp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .hf-more { align-self: center; }
   .hf .hero-note { justify-content: center; }
   .hf-grid { gap: 1.8rem; }
-  .hm-visual { grid-template-columns: minmax(0, 1fr) 2.6rem minmax(0, 1.08fr); grid-template-rows: auto repeat(4, minmax(3.6rem, auto)) auto; row-gap: 0.45rem; }
-  .hm-bhead, .hm-ahead { font-size: 0.82rem; }
-  .hm-bhead { align-self: end; }
-  .hm-bhead .hf-h, .hm-ahead .hf-h { display: block; margin-top: 0.2rem; }
-  .hm-ahead-t { padding: 0.55rem 0.6rem 0.15rem; }
-  .hm-bar { padding: 0.45rem 0.6rem; }
-  .hm-b { grid-template-columns: minmax(0, 1fr); margin-right: 0.15rem; padding: 0.45rem 0.5rem; border-radius: 10px; --x: 0 !important; }
-  .hm-p1 .hm-b { --r: -1deg; } .hm-p2 .hm-b { --r: 0.8deg; } .hm-p3 .hm-b { --r: -0.6deg; } .hm-p4 .hm-b { --r: 1deg; }
-  .hm-win { grid-row: 1 / 6; }
-  .hm-ico { display: none; }
-  .hm-bt, .hm-at { font-size: 0.8rem; }
-  .hm-tag { font-size: 0.66rem; padding: 0.04rem 0.4rem; margin-top: 0.2rem; }
-  .hm-a { grid-template-columns: 1.15rem minmax(0, 1fr); column-gap: 0.4rem; margin: 0 0.45rem; padding: 0.45rem 0.45rem; }
-  .hm-tick { width: 1.15rem; height: 1.15rem; } .hm-tick svg { width: 0.75rem; height: 0.75rem; }
-  .hm-st { display: none; }
-  .hm-a::before { left: -0.62rem; margin-top: -0.28rem; border-width: 0.28rem; border-left-width: 0.36rem; }
-  .hm-node { gap: 0.35rem; }
-  .hm-core { width: 2.3rem; height: 2.3rem; box-shadow: 0 0 0 0.25rem rgba(120, 194, 164, 0.22), 0 10px 18px -10px rgba(15, 58, 58, 0.55); }
-  .hm-ai { writing-mode: vertical-rl; transform: rotate(180deg); padding: 0.45rem 0.22rem; font-size: 0.56rem; letter-spacing: 0.12em; }
-  .hm-ai br { display: none; }
-  .hm-foot { grid-column: 1 / -1; justify-content: center; margin: 0.5rem 0 0; padding: 0.6rem 0.8rem; font-size: 0.88rem; gap: 0.45rem; }
-  .hm-foot svg { width: 1rem; height: 1rem; }
-  .hf-trust { flex-direction: column; align-items: flex-start; gap: 0.45rem; margin-top: 1.4rem; padding: 0.9rem 0.25rem 0; }
+  .ht-visual { --ht-row: auto; display: flex; flex-direction: column; gap: 0; }
+  .ht-before, .ht-after { display: block; }
+  .ht-before > .ht-head { padding-bottom: 0.6rem; }
+  .ht-before .ht-list { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.55rem 0.5rem; }
+  .ht-b { flex-direction: column; align-items: flex-start; gap: 0.3rem; padding: 0.5rem 0.55rem; --x: 0 !important; }
+  .ht-b1 { --r: -1.5deg; } .ht-b2 { --r: 1.2deg; } .ht-b3 { --r: 1deg; } .ht-b4 { --r: -1.4deg; } .ht-b5 { --r: 0.8deg; grid-column: 1 / -1; justify-self: center; width: 60%; }
+  .ht-b .ht-ico { display: none; }
+  .ht-b::after { content: none; }
+  .ht-snip { display: none; }
+  .ht-issue { font-size: 0.8rem; }
+  .ht-tool { font-size: 0.7rem; }
+  .ht-mid { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.35rem 0.5rem; margin: 1.6rem 0 1.4rem; padding: 0.7rem 0.75rem; }
+  .ht-mid::before, .ht-mid::after { content: ""; position: absolute; left: 50%; height: 1.6rem; width: 0; }
+  .ht-mid::before { bottom: 100%; border-left: 2px dashed #e2a483; }
+  .ht-mid::after { top: 100%; height: 1.4rem; border-left: 2px solid var(--teal); }
+  .ht-core { width: 2.4rem; height: 2.4rem; margin: 0; box-shadow: 0 0 0 0.25rem rgba(120, 194, 164, 0.28); }
+  .ht-rr { font-size: 0.68rem; }
+  .ht-ai { margin: 0; }
+  .ht-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.25rem; }
+  .ht-steps li { justify-content: center; gap: 0.25rem; padding: 0.3rem 0.2rem; font-size: 0.58rem; letter-spacing: 0.04em; }
+  .ht-steps span { width: 0.95rem; height: 0.95rem; font-size: 0.55rem; }
+  .ht-after > .ht-list { gap: 0.4rem; padding: 0 0.55rem 0.55rem; }
+  .ht-a { padding: 0.45rem 0.55rem; gap: 0.5rem; }
+  .ht-a::before, .ht-a::after { content: none; }
+  .ht-a .ht-ico { width: 1.8rem; height: 1.8rem; } .ht-a .ht-ico svg { width: 1rem; height: 1rem; }
+  .ht-after > .ht-list::before { left: calc(0.55rem + 0.55rem + 0.9rem - 1px); top: 1.5rem; bottom: 2rem; }
+  .ht-after > .ht-list::after { content: none; }
+  .ht-out { font-size: 0.82rem; }
+  .ht-note { text-align: center; margin-top: 0.7rem; }
+  .hf-trust { flex-direction: column; align-items: flex-start; gap: 0.45rem; margin-top: 1.2rem; padding: 0.9rem 0.25rem 0; }
   .hf-trust li { font-size: 0.92rem; }
 }
-@media (forced-colors: active) { .hm-win, .hm-b, .hm-a, .hm-core, .hm-ai, .hm-foot { border: 1px solid CanvasText; } }
+@media (forced-colors: active) { .ht-after, .ht-b, .ht-a, .ht-mid, .ht-core, .ht-steps li { border: 1px solid CanvasText; } }

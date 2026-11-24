@@ -26,7 +26,7 @@ test('hero (24 Nov v5, from Jeff\'s reference image): copy word for word, one bo
   const hero = html.slice(html.indexOf('<section class="hero'), html.indexOf('</section>', html.indexOf('<section class="hero')));
   const copy = hero.slice(0, hero.indexOf('<figure'));
   assert.match(copy, /<p class="h5-eyebrow">AI &amp; AUTOMATION FOR BUSINESS OPERATIONS<\/p>/);
-  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work under control\.<\/span><\/h1>/);
+  assert.match(copy, /<h1 id="hero-title"><span class="hf-l1">Stop chasing details\.<\/span> <span class="hf-l2">Get work <span class="h5-mark">under control\.<\/span><\/span><\/h1>/);
   assert.match(copy, /<p class="hero-sub">I organise information, connect your tools and automate routine steps, so your team spends less time following up, updating records and preparing reports\.<\/p>/);
   assert.match(copy, /<a class="btn btn-primary btn-large h5-book" href="contact\/#contact-form-area">Book a free process review <span aria-hidden="true">&rarr;<\/span><\/a>/);
   assert.match(copy, /<a class="h5-more" href="#services">How I can help<\/a>/);
@@ -66,6 +66,10 @@ test('hero picture (24 Nov v5): BEFORE Scattered work → Rework Rescue, AI + AU
   assert.doesNotMatch(css, /infinite/, 'motion runs once');
   const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference) {'), css.indexOf('@keyframes h5-in'));
   assert.match(motion, /h5-in/); assert.match(motion, /h5-pop/); assert.match(motion, /h5-lit/);
+  assert.match(motion, /\.h5-mark \{ animation: h5-sweep[^}]*h5-glow/, '24 Nov v6: highlight sweeps in and glows once on open');
+  assert.match(css, /\.h5 h1 \.hf-l2 \{ color: var\(--teal\); \}/, 'two-tone headline like the logo');
+  assert.match(css, /\.h5 \.container \{ max-width: none; padding-left: max\(1rem, calc\(\(100% - 70rem\) \/ 2 \+ 1rem\)\)/, 'hero lines up with the header logo');
+  assert.match(css, /\.h5-st \{[^}]*width: 7\.1rem/, 'status badges share one width so the ticks line up');
   assert.equal((css.match(/animation:/g) || []).length, (motion.match(/animation:/g) || []).length, 'every animation sits behind reduced-motion');
   const home = await read('../src/home.js');
   assert.doesNotMatch(home, /mountZones|hero-zones/, 'no hero script; CSS only');

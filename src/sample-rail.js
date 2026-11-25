@@ -9,7 +9,7 @@ export function mountSampleRail(doc = document) {
   const details = doc.querySelector('[data-sp-details]');
   const dlg = doc.getElementById('sp-dialog');
   if (!track || !details) return;
-  const tiles = [...doc.querySelectorAll('#sample-projects [data-sp-open]')];
+  const tiles = [...doc.querySelectorAll('[data-sp-open]')]; // solution tiles (sample) and the experience link (exp)
 
   // --- the pop-up ---
   if (!dlg || typeof dlg.showModal !== 'function') return; // no dialog support: links scroll to the details
@@ -23,7 +23,7 @@ export function mountSampleRail(doc = document) {
     cur = (i + ids.length) % ids.length;
     const art = details.querySelector(`[data-sp-detail="${ids[cur]}"]`);
     body.replaceChildren(art);
-    kicker.textContent = `${art.querySelector('.sp-tag').textContent} · ${cur + 1} of ${ids.length}`;
+    kicker.textContent = ids.length > 1 ? `${art.querySelector('.sp-tag').textContent} · ${cur + 1} of ${ids.length}` : art.querySelector('.sp-tag').textContent;
     dlg.setAttribute('aria-labelledby', `sp-h-${ids[cur]}`);
     body.scrollTop = 0;
     body.focus({ preventScroll: true });

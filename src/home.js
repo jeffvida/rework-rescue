@@ -93,24 +93,9 @@ if (location.hash === '#example-1' || location.hash === '#example-2') {
   requestAnimationFrame(() => document.getElementById('samples')?.scrollIntoView({ block: 'start' }));
 }
 
-// 17 Nov (Jeff + ChatGPT): the six tiles open into short example workflows, and the safety-net section plays its
-// failure drill once when it comes on screen (src/tiles.js, src/demo/drill.js).
-import { mountTiles } from './tiles.js';
-import { mountDrill } from './demo/drill.js';
-mountTiles(document.querySelector('#services .rr-tiles'));
-mountDrill(document.getElementById('sn-drill'));
-
-// 20 Nov (Jeff approved option A): previous-role examples open as a slide-in, three-step mini presentation.
-import { mountCaseStudies } from './casestudy.js';
-mountCaseStudies(document.querySelector('#built .rr-results'));
-
-// 21 Nov 2026 (build #1): the enquiry tracker demo in Demos & examples (src/enquiry-demo.js).
-import { mountEnquiryDemo } from './enquiry-demo.js';
-mountEnquiryDemo(document.getElementById('enquiry-demo'));
-// 21 Nov 2026 (build #2): the self-checking weekly report demo, a replay with fictional data (src/report-demo.js).
-import { mountReportDemo } from './report-demo.js';
-mountReportDemo(document.getElementById('report-demo'));
+// 25 Nov 2026 (six-section page): the six tiles, failure drill, previous-role slide-ins and the enquiry and
+// weekly-report demo pop-ups were removed from the page. Their scripts stay in src/ but are no longer loaded.
 // 24 Nov 2026 (preview): the CoolFix steps are now static (before / after / what improved, with pictures): no script needed.
-// 25 Nov 2026 (preview): sample projects in one sideways row; each opens a pop-up (src/sample-rail.js).
+// 25 Nov 2026: the three solution tiles and the experience link open the shared pop-up (src/sample-rail.js).
 import { mountSampleRail } from './sample-rail.js';
 mountSampleRail();

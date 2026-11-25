@@ -5923,3 +5923,73 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .sp-built .built-safe { margin: 0 0 0.6rem; }
 .sp-built .sp-shot { max-width: none; margin-bottom: 0.5rem; }
 .sp-built .sp-tools { margin: 0; }
+
+/* ===== 25 Nov 2026: six-section page (Jeff + ChatGPT final structure). Solution tiles, live tools, proof, safeguards. */
+.v6-lede { max-width: 46rem; }
+.v6-tiles { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.v6-tile { display: flex; flex-direction: column; gap: 0.85rem; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.4rem 1.35rem 1.25rem; box-shadow: 0 1px 2px rgba(15, 58, 58, 0.05), 0 10px 24px -18px rgba(15, 58, 58, 0.35); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+.v6-tile:hover { transform: translateY(-3px); border-color: #b9d3cd; box-shadow: 0 2px 4px rgba(15, 58, 58, 0.06), 0 18px 34px -20px rgba(15, 58, 58, 0.45); }
+.v6-tag { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.05rem; line-height: 1.3; color: var(--ink); }
+.v6-part p { margin: 0; }
+.v6-k { margin: 0 0 0.2rem !important; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
+.v6-pain .v6-k { color: #9a4b1c; }
+.v6-pain p:last-child { font-weight: 600; color: var(--ink); }
+.v6-out { margin-top: auto; padding: 0.7rem 0.8rem; border-radius: 10px; background: #eef6f3; }
+.v6-out p:last-child { font-weight: 600; color: var(--ink); }
+.v6-go { align-self: flex-start; display: inline-flex; gap: 0.35rem; align-items: center; min-height: 44px; font-weight: 700; color: var(--teal); text-decoration: none; }
+.v6-go:hover, .v6-go:focus-visible { text-decoration: underline; text-underline-offset: 0.18em; }
+.v6-live { margin-top: 2.4rem; }
+.v6-live-h { margin: 0 0 0.3rem; font-size: 1.2rem; }
+.v6-live-intro { margin: 0 0 1rem; color: var(--muted); }
+.v6-live-grid { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v6-live-card { background: #f6f9f8; border: 1px dashed #b9d3cd; border-radius: 12px; padding: 1.1rem 1.2rem; }
+.v6-live-card h4 { margin: 0 0 0.35rem; font-size: 1.02rem; }
+.v6-live-card > p { margin: 0 0 0.7rem; font-size: 0.95rem; }
+.v6-live-go { margin: 0.6rem 0 0 !important; }
+.v6-ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.3rem; }
+.v6-ticks li { position: relative; padding-left: 1.4rem; font-size: 0.95rem; }
+.v6-ticks li::before { content: "\2713"; position: absolute; left: 0; top: 0; color: var(--teal); font-weight: 800; }
+.v6-close { margin: 2rem 0 0; padding-left: 1rem; border-left: 3px solid var(--signal); font-weight: 600; max-width: 46rem; }
+.v6-flow { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.v6-flow li { padding: 0.35rem 0.7rem; border-radius: 999px; background: #eef6f3; border: 1px solid #cfe3de; font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+.v6-flow li + li::before { content: "\2192"; margin-right: 0.45rem; color: var(--teal); }
+.v6-flow li + li { display: inline-flex; align-items: center; }
+.v6-foot { margin: 1.1rem 0 0; font-size: 0.85rem; color: var(--muted); font-style: italic; }
+.v6-dlg-cta { margin: 1rem 0 0; }
+.v6-results { list-style: none; padding: 0; margin: 1.8rem 0 0; display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 16rem)); }
+.v6-result { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem 1.2rem; }
+.v6-result p { margin: 0; }
+.v6-num { font-family: var(--display); font-weight: 800; font-size: 2.2rem; line-height: 1; color: var(--teal); }
+.v6-num-k { font-weight: 700; margin: 0.35rem 0 0.25rem !important; color: var(--ink); }
+.v6-result p:last-child { font-size: 0.92rem; color: var(--muted); }
+.v6-proof-line { margin: 1.5rem 0 0; max-width: 46rem; font-weight: 600; }
+.v6-proof-note { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.v6-proof-more { margin: 0.8rem 0 0; }
+.v6-proof-more a { font-weight: 700; color: var(--teal); }
+.v6-steps { margin-top: 2rem; }
+@media (min-width: 52.01rem) { .steps-row.v6-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.3rem; } }
+.v6-safe { margin-top: 2.6rem; }
+.v6-safe-h { margin: 0 0 1rem; font-size: 1.3rem; }
+.v6-safe-list h4 { margin: 0 0 0.2rem; font-size: 1rem; }
+.v6-handover { margin-top: 2.2rem; padding: 1.3rem 1.4rem; border-radius: 14px; background: #eef6f3; border: 1px solid #cfe3de; max-width: 52rem; }
+.v6-handover h3 { margin: 0 0 0.5rem; font-size: 1.2rem; }
+.v6-handover > p { margin: 0 0 0.7rem; }
+.v6-hand-points li { font-weight: 600; }
+.v6-about-close { font-weight: 600; color: var(--ink); border-left: 3px solid var(--signal); padding-left: 0.9rem; }
+.v6-cta .book-main { max-width: 44rem; text-align: center; }
+.v6-cta .lede { margin-left: auto; margin-right: auto; }
+.v6-cta-btn { margin: 1.4rem 0 0.4rem; }
+.v6-cta-note { margin: 0; font-size: 0.92rem; color: rgba(255, 255, 255, 0.85); }
+.v6-cta .book-alt { margin: 1rem auto 0; }
+@media (max-width: 62rem) { .v6-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) {
+  .v6-tiles, .v6-live-grid, .v6-results { grid-template-columns: minmax(0, 1fr); }
+  .v6-tiles { margin-top: 1.4rem; gap: 1rem; }
+  .v6-tile { padding: 1.15rem 1.1rem 1rem; }
+  .v6-live { margin-top: 1.8rem; }
+  .v6-live-go .btn { width: 100%; }
+  .v6-cta-btn .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .v6-tile, .v6-tile:hover { transition: none; transform: none; } }
+/* 25 Nov: the longer second headline line ("Smarter business operations.") may wrap instead of running under the picture. */
+.h5 h1 .hf-l2 { white-space: normal; }

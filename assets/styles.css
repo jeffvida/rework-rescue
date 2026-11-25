@@ -5871,3 +5871,34 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (max-width: 960px) { .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .sp-grid { grid-template-columns: 1fr; } .sp-grid .sp-tile { min-height: 0; } }
 .sp-hover { z-index: 3; background: #0f3a3a; }
+/* 25 Nov 2026 (preview): ChatGPT recommendation — problem-first tiles, two groups, hover = cue only, simpler pop-up */
+.sp-group-h { margin: 0 0 0.8rem; font-size: 1.1rem; }
+.sp-group-h span { font-weight: 500; color: var(--muted); font-size: 0.98rem; }
+.sp-grid + .sp-group-h { margin-top: 0.6rem; }
+.sp-grid .sp-tile { min-height: 0; }
+.sp-grid .sp-tile-tag { color: var(--teal-dark); }
+.sp-grid .sp-tile-h { font-size: 1.28rem; }
+.sp-out { align-self: flex-start; margin-top: 0.2rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #dcede9; color: #17564b; font-weight: 700; font-size: 0.88rem; }
+.sp-out-live { background: #fbefd5; color: #7a5410; }
+.sp-tile-go span { display: inline-block; transition: transform 0.18s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .sp-grid .sp-tile:hover, .sp-grid .sp-tile:focus-visible { transform: translateY(-3px); border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal), 0 16px 32px rgba(18, 38, 43, 0.14); background: #fbfdfc; }
+  .sp-tile:hover .sp-tile-go span, .sp-tile:focus-visible .sp-tile-go span { transform: translateX(5px); }
+}
+.sp-grid-live { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: calc(66.66% + 0.4rem); }
+.sp-grid-live .sp-tile-h { font-size: 1.12rem; }
+.sp-intro { margin: -0.3rem 0 1rem; color: #3d4a4d; }
+.sp-block { margin: 0 0 1rem; }
+.sp-block .sp-sub { margin: 0 0 0.35rem; }
+.sp-block p { margin: 0 0 0.25rem; }
+.sp-problem { padding: 0.7rem 0.9rem; border-radius: 10px; background: #fff; border: 1px solid var(--line); }
+.sp-does { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.25rem; }
+.sp-result { padding: 0.7rem 0.9rem; border-radius: 10px; background: var(--info-bg); border-left: 4px solid var(--teal); }
+.sp-result p { font-weight: 700; font-size: 1.05rem; }
+.sp-block .sp-flow { margin-bottom: 0.7rem; }
+.sp-block .sp-shot { max-width: 30rem; }
+.sp-safe { padding: 0.7rem 0.9rem; border-radius: 10px; border: 1px dashed var(--teal); }
+.sp-label { margin: 0.8rem 0 0; font-size: 0.8rem; color: var(--muted); font-style: italic; }
+@media (max-width: 960px) { .sp-grid-live { max-width: none; } }
+@media (max-width: 600px) { .sp-grid-live { grid-template-columns: 1fr; } }
+.sp-dlg-body .sp-tag { display: none; }

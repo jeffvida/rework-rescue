@@ -5847,3 +5847,27 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .sp-flow li + li { margin-left: 0; margin-top: 0.9rem; }
   .sp-flow li + li::after { content: "\2193"; left: 1rem; top: -0.95rem; transform: none; }
 }
+/* 25 Nov 2026 (preview): sample projects as big tiles, 3 per row, hover shows the short version */
+.sp-grid { list-style: none; margin: 0 0 1.4rem; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
+.sp-grid .sp-item { flex: none; display: flex; }
+.sp-grid .sp-tile { position: relative; overflow: hidden; padding: 1rem; min-height: 25rem; }
+.sp-grid .sp-tile-pic { font-size: 0.82rem; }
+.sp-grid .sp-tile-pic .pic-body { min-height: 10rem; }
+.sp-grid .sp-tile-h { font-size: 1.22rem; }
+.sp-hover { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 0.55rem; padding: 1.1rem; background: var(--ink); color: #eef4f3; opacity: 0; transform: translateY(8px); transition: opacity 0.2s ease, transform 0.2s ease; pointer-events: none; overflow: hidden; }
+.sp-hover-h { font-family: var(--display); font-weight: 800; font-size: 1.15rem; color: #fff; }
+.sp-hover-row { font-size: 0.92rem; line-height: 1.45; }
+.sp-hover-row b { display: block; font-size: 0.7rem; letter-spacing: 0.07em; text-transform: uppercase; color: #8fd3c3; }
+.sp-hover-win { padding-left: 0.6rem; border-left: 3px solid var(--signal); font-weight: 600; color: #fff; }
+.sp-hover-go { margin-top: auto; font-weight: 700; color: #8fd3c3; }
+@media (hover: hover) and (pointer: fine) {
+  .sp-tile:hover .sp-hover, .sp-tile:focus-visible .sp-hover { opacity: 1; transform: none; }
+  .sp-grid .sp-tile:hover, .sp-grid .sp-tile:focus-visible { transform: translateY(-3px); }
+}
+.sp-shot { margin: 0; }
+.sp-shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.sp-shot figcaption { margin-top: 0.35rem; font-size: 0.82rem; color: var(--muted); }
+.sp-tools { margin: 0; font-weight: 600; }
+@media (max-width: 960px) { .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .sp-grid { grid-template-columns: 1fr; } .sp-grid .sp-tile { min-height: 0; } }
+.sp-hover { z-index: 3; background: #0f3a3a; }

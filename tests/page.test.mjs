@@ -159,7 +159,7 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.equal((sec.match(/<article class="sp-detail"/g) || []).length, 5);
   assert.equal((sec.match(/<span class="sp-tile-tag">Live on this site<\/span>/g) || []).length, 2, 'booking and chat run the site');
   assert.match(sec, /<p class="built-tools sp-ms">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
-  assert.equal((sec.match(/<figure class="built-shot">/g) || []).length, 4, 'one workflow screenshot per built n8n workflow with a diagram, inside a fold');
+  assert.equal((sec.match(/<figure class="sp-shot">/g) || []).length, 4, 'one workflow screenshot per built n8n workflow with a diagram, shown in its pop-up');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
   const rail = sec.slice(sec.indexOf('<ul class="sp-track"'), sec.indexOf('</ul>', sec.indexOf('<ul class="sp-track"')));
   assert.equal((rail.match(/<li class="sp-item">/g) || []).length, (rail.match(/<\/a>\s*<\/li>/g) || []).length, 'every tile is closed');

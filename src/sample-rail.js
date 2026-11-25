@@ -1,6 +1,6 @@
-// 25 Nov 2026 (preview): sample projects as one sideways-scrolling row with floating arrows.
-// Tapping a project opens a pop-up with Problem / Solution / What improved, a simple
-// "How it works" flow, a picture and the technical side. Without JavaScript the tiles are
+// 25 Nov 2026 (preview): sample projects as big tiles, three per row. Hovering a tile shows the short
+// version (CSS only); clicking opens a pop-up with Problem / Solution / What improved, How it works,
+// the workflow image and the tools used. Without JavaScript the tiles are
 // links to the same details, which then show in full below the row.
 
 export function mountSampleRail(doc = document) {
@@ -8,26 +8,7 @@ export function mountSampleRail(doc = document) {
   const details = doc.querySelector('[data-sp-details]');
   const dlg = doc.getElementById('sp-dialog');
   if (!track || !details) return;
-  const prev = doc.querySelector('[data-sp-prev]');
-  const next = doc.querySelector('[data-sp-next]');
-  const dots = doc.querySelector('[data-sp-dots]');
   const tiles = [...track.querySelectorAll('[data-sp-open]')];
-
-  // --- the row: arrows and dots ---
-  const step = () => (track.querySelector('.sp-item')?.getBoundingClientRect().width || 280) + 16;
-  const sync = () => {
-    const max = track.scrollWidth - track.clientWidth - 2;
-    prev.hidden = track.scrollLeft <= 2;
-    next.hidden = track.scrollLeft >= max;
-    const at = Math.round(track.scrollLeft / step());
-    dots?.querySelectorAll('span').forEach((d, i) => d.classList.toggle('is-on', i === Math.min(at, tiles.length - 1)));
-  };
-  prev?.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
-  next?.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
-  if (dots) { dots.innerHTML = tiles.map(() => '<span></span>').join(''); dots.hidden = false; }
-  track.addEventListener('scroll', () => requestAnimationFrame(sync), { passive: true });
-  addEventListener('resize', sync);
-  sync();
 
   // --- the pop-up ---
   if (!dlg || typeof dlg.showModal !== 'function') return; // no dialog support: links scroll to the details

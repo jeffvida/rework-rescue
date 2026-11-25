@@ -139,11 +139,10 @@
       <div class="container">
         <p class="eyebrow">Sample projects</p>
         <h2 id="built-h">Common problems, and what I built to fix them.</h2>
-        <p class="built-intro">Swipe or use the arrows. Tap a project to see the problem, the solution and how it works.</p>
+        <p class="built-intro">Point at a project for the short version. Click it to see how it works.</p>
 
         <div class="sp-rail" id="sample-projects">
-          <button type="button" class="sp-arrow sp-prev" data-sp-prev aria-label="Previous projects" hidden>&larr;</button>
-          <ul class="sp-track" data-sp-track aria-label="Sample projects">
+          <ul class="sp-grid" data-sp-track aria-label="Sample projects">
             <li class="sp-item">
               <a class="sp-tile" href="#sp-d-enquiry" data-sp-open="enquiry" aria-haspopup="dialog">
                 <span class="sp-tile-pic" aria-hidden="true"><span class="pic-win">
@@ -158,6 +157,13 @@
                 <span class="sp-tile-h">Enquiry tracker</span>
                 <span class="sp-tile-one">Enquiries sit unanswered, and nobody is sure who&rsquo;s handling them.</span>
                 <span class="sp-tile-go">See how it works <span aria-hidden="true">&rarr;</span></span>
+                <span class="sp-hover" aria-hidden="true">
+                  <span class="sp-hover-h">Enquiry tracker</span>
+                  <span class="sp-hover-row"><b>Problem</b> Enquiries arrive by email and web form. Some sit unanswered, and nobody is sure who&rsquo;s handling them.</span>
+                  <span class="sp-hover-row"><b>Solution</b> AI reads each enquiry, logs it in one tracker and gives it an owner, who gets an email straight away. Unclear ones are marked for a person to check.</span>
+                  <span class="sp-hover-row sp-hover-win"><b>What improved</b> Every enquiry has an owner and a status, so none get lost in the inbox.</span>
+                  <span class="sp-hover-go">Click to see how it works <span aria-hidden="true">&rarr;</span></span>
+                </span>
               </a>
             </li>
             <li class="sp-item">
@@ -175,6 +181,13 @@
                 <span class="sp-tile-h">Morning check and Monday report</span>
                 <span class="sp-tile-one">Booked customers with no job, and work never invoiced, go unnoticed.</span>
                 <span class="sp-tile-go">See how it works <span aria-hidden="true">&rarr;</span></span>
+                <span class="sp-hover" aria-hidden="true">
+                  <span class="sp-hover-h">Morning check and Monday report</span>
+                  <span class="sp-hover-row"><b>Problem</b> Enquiries, jobs and invoices sit in separate sheets. A booked customer with no job, or work never invoiced, goes unnoticed.</span>
+                  <span class="sp-hover-row"><b>Solution</b> Every weekday morning the sheets are checked against each other, and gaps go on the team&rsquo;s list. On Monday the owner gets one short email.</span>
+                  <span class="sp-hover-row sp-hover-win"><b>What improved</b> Missed jobs and unbilled work are caught within a day, and the owner sees the week without opening a spreadsheet.</span>
+                  <span class="sp-hover-go">Click to see how it works <span aria-hidden="true">&rarr;</span></span>
+                </span>
               </a>
             </li>
             <li class="sp-item">
@@ -192,6 +205,13 @@
                 <span class="sp-tile-h">Job done to invoice paid</span>
                 <span class="sp-tile-one">Invoices go out late, or include extras the customer never agreed to.</span>
                 <span class="sp-tile-go">See how it works <span aria-hidden="true">&rarr;</span></span>
+                <span class="sp-hover" aria-hidden="true">
+                  <span class="sp-hover-h">Job done to invoice paid</span>
+                  <span class="sp-hover-row"><b>Problem</b> Jobs get finished, but invoices go out late, or include extras the customer never agreed to.</span>
+                  <span class="sp-hover-row"><b>Solution</b> The technician&rsquo;s completion form is checked for photos and sign-off. A draft invoice is prepared for approved work only. The office reviews and sends it.</span>
+                  <span class="sp-hover-row sp-hover-win"><b>What improved</b> Invoices go out sooner, unapproved extras wait for the customer&rsquo;s OK, and payment is tracked.</span>
+                  <span class="sp-hover-go">Click to see how it works <span aria-hidden="true">&rarr;</span></span>
+                </span>
               </a>
             </li>
             <li class="sp-item">
@@ -209,6 +229,13 @@
                 <span class="sp-tile-h">Booking calendar</span>
                 <span class="sp-tile-one">Emails back and forth to find a time, and calls that get forgotten.</span>
                 <span class="sp-tile-go">See how it works <span aria-hidden="true">&rarr;</span></span>
+                <span class="sp-hover" aria-hidden="true">
+                  <span class="sp-hover-h">Booking calendar</span>
+                  <span class="sp-hover-row"><b>Problem</b> Emails back and forth to find a time, and calls that get forgotten.</span>
+                  <span class="sp-hover-row"><b>Solution</b> Clients pick a free time. The invite, video link and reminders go out by themselves.</span>
+                  <span class="sp-hover-row sp-hover-win"><b>What improved</b> Booked calls with no admin, and a reminder before every one.</span>
+                  <span class="sp-hover-go">Click to see how it works <span aria-hidden="true">&rarr;</span></span>
+                </span>
               </a>
             </li>
             <li class="sp-item">
@@ -224,12 +251,17 @@
                 <span class="sp-tile-h">Chat assistant</span>
                 <span class="sp-tile-one">Visitors have questions when nobody&rsquo;s there to answer.</span>
                 <span class="sp-tile-go">See how it works <span aria-hidden="true">&rarr;</span></span>
+                <span class="sp-hover" aria-hidden="true">
+                  <span class="sp-hover-h">Chat assistant</span>
+                  <span class="sp-hover-row"><b>Problem</b> Visitors have questions when nobody&rsquo;s there to answer.</span>
+                  <span class="sp-hover-row"><b>Solution</b> An AI assistant answers within limits I set and suggests a next step.</span>
+                  <span class="sp-hover-row sp-hover-win"><b>What improved</b> Questions answered any time, with no prices or promises made for you.</span>
+                  <span class="sp-hover-go">Click to see how it works <span aria-hidden="true">&rarr;</span></span>
+                </span>
               </a>
             </li>
           </ul>
-          <button type="button" class="sp-arrow sp-next" data-sp-next aria-label="More projects" hidden>&rarr;</button>
         </div>
-        <p class="sp-dots" data-sp-dots aria-hidden="true" hidden></p>
 
         <div class="cj-outcome sp-cta">
           <p class="cj-end"><strong>Recognise one of these problems in your business?</strong></p>
@@ -247,23 +279,11 @@
             </dl>
             <h4 class="sp-sub">How it works</h4>
             <ol class="sp-flow"><li>Enquiry arrives</li><li>AI reads it</li><li>Logged and assigned</li><li>Owner gets an email</li></ol>
-            <h4 class="sp-sub">What it looks like</h4>
-            <figure class="cs3-pic" aria-label="Picture: the enquiry tracker, with each enquiry logged, given an owner and a status">
-              <div class="pic-win">
-                  <p class="pic-bar"><span></span><span></span><span></span> Enquiry tracker</p>
-                  <div class="pic-body">
-                    <p class="pic-row"><span><strong>Carla Lim</strong><br><small>Aircon repair &middot; Scheduling</small></span><span class="pill pill-ok">Booked</span></p>
-                    <p class="pic-row"><span><strong>Ng Motors</strong><br><small>Quote request &middot; Sales</small></span><span class="pill">New</span></p>
-                    <p class="pic-row"><span><strong>Unclear message</strong><br><small>No details given &middot; Manager</small></span><span class="pill pill-amber">Needs check</span></p>
-                  </div>
-              </div>
-            </figure>
+            <h4 class="sp-sub">The workflow</h4>
+            <figure class="sp-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+            <h4 class="sp-sub">Tools used</h4>
+            <p class="sp-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
             <p class="built-try" data-eq-only hidden><a href="#enquiry-demo" data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry <span aria-hidden="true">&rarr;</span></a></p>
-            <details class="fold cj-more"><summary>The technical side</summary>
-              <p class="built-safe"><strong>If the AI isn&rsquo;t sure, or can&rsquo;t read it:</strong> it&rsquo;s still logged and marked for a person to check.</p>
-              <figure class="built-shot"><a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener"><img src="assets/workflows/enquiry-tracker.webp" alt="Workflow diagram for the enquiry tracker" width="1262" height="312" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/enquiry-tracker.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets &middot; Gmail</p>
-            </details>
           </article>
           <article class="sp-detail" id="sp-d-report" data-sp-detail="report" aria-labelledby="sp-h-report">
             <p class="sp-tag">Sample project &middot; Built and tested with fictional data</p>
@@ -275,24 +295,11 @@
             </dl>
             <h4 class="sp-sub">How it works</h4>
             <ol class="sp-flow"><li>Every weekday, 7 am</li><li>Sheets checked against each other</li><li>Gaps go on the team&rsquo;s list</li><li>Monday email to the owner</li></ol>
-            <h4 class="sp-sub">What it looks like</h4>
-            <figure class="cs3-pic" aria-label="Picture: the owner's Monday report with work not invoiced, overdue payments and one item for the team">
-              <div class="pic-win">
-                  <p class="pic-bar"><span></span><span></span><span></span> Monday report</p>
-                  <div class="pic-body">
-                    <p class="pic-row"><span>Work done, not invoiced</span><strong>$640</strong></p>
-                    <p class="pic-row"><span>Payments overdue</span><span class="pill pill-amber">$420</span></p>
-                    <p class="pic-row"><span>Total to follow up</span><strong>$1,060</strong></p>
-                    <p class="pic-row pic-total"><span><strong>Carla Lim</strong><br><small>Booked, no job</small></span><span class="pill pill-amber">Create the job</span></p>
-                  </div>
-              </div>
-            </figure>
+            <h4 class="sp-sub">The workflow</h4>
+            <figure class="sp-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+            <h4 class="sp-sub">Tools used</h4>
+            <p class="sp-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
             <p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see the full Monday report <span aria-hidden="true">&rarr;</span></a></p>
-            <details class="fold cj-more"><summary>The technical side</summary>
-              <p class="built-safe"><strong>If the figures can&rsquo;t be trusted:</strong> the email says so at the top, before any numbers.</p>
-              <figure class="built-shot"><a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener"><img src="assets/workflows/weekly-report.webp" alt="Workflow diagram for the weekly report" width="1286" height="692" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/weekly-report.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Sheets &middot; Google Gemini &middot; Gmail</p>
-            </details>
           </article>
           <article class="sp-detail" id="sp-d-invoice" data-sp-detail="invoice" aria-labelledby="sp-h-invoice">
             <p class="sp-tag">Sample project &middot; Built and tested with fictional data</p>
@@ -316,11 +323,9 @@
                   </div>
               </div>
             </figure>
+            <h4 class="sp-sub">Tools used</h4>
+            <p class="sp-tools">n8n &middot; Xero &middot; Google Sheets &middot; Google Drive &middot; Gmail</p>
             
-            <details class="fold cj-more"><summary>The technical side</summary>
-              <p class="built-safe"><strong>If something&rsquo;s missing:</strong> no invoice is prepared, and the right person is told.</p>
-              <p class="built-tools">n8n &middot; Xero &middot; Google Sheets &middot; Google Drive &middot; Gmail</p>
-            </details>
           </article>
           <article class="sp-detail" id="sp-d-booking" data-sp-detail="booking" aria-labelledby="sp-h-booking">
             <p class="sp-tag">Live on this site &middot; Running for real</p>
@@ -332,24 +337,11 @@
             </dl>
             <h4 class="sp-sub">How it works</h4>
             <ol class="sp-flow"><li>Client picks a time</li><li>Time checked again</li><li>Invite and video link sent</li><li>Reminders a day and an hour before</li></ol>
-            <h4 class="sp-sub">What it looks like</h4>
-            <figure class="cs3-pic" aria-label="Picture: a booking calendar with a time selected and the invite sent">
-              <div class="pic-win">
-                  <p class="pic-bar"><span></span><span></span><span></span> Book a call</p>
-                  <div class="pic-body">
-                    <p class="pic-row"><span>Tue 10:00 am</span><span class="pill">Free</span></p>
-                    <p class="pic-row"><span><strong>Tue 2:00 pm</strong></span><span class="pill pill-ok">Selected</span></p>
-                    <p class="pic-row"><span>Wed 9:30 am</span><span class="pill">Free</span></p>
-                    <p class="pic-row pic-total"><span>Invite and video link</span><span class="pill pill-ok">&#10003; Sent</span></p>
-                  </div>
-              </div>
-            </figure>
+            <h4 class="sp-sub">The workflow</h4>
+            <figure class="sp-shot"><a href="assets/workflows/booking-calendar.webp" target="_blank" rel="noopener"><img src="assets/workflows/booking-calendar.webp" alt="Workflow diagram for the booking calendar" width="1600" height="524" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/booking-calendar.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+            <h4 class="sp-sub">Tools used</h4>
+            <p class="sp-tools">n8n &middot; Google Calendar &middot; Gmail &middot; Google Sheets</p>
             <p class="built-try"><a href="contact/#contact-form-area" data-sp-leave>Try it: pick a time <span aria-hidden="true">&rarr;</span></a></p>
-            <details class="fold cj-more"><summary>The technical side</summary>
-              <p class="built-safe"><strong>If it can&rsquo;t book:</strong> it tells you nothing was booked and offers email instead.</p>
-              <figure class="built-shot"><a href="assets/workflows/booking-calendar.webp" target="_blank" rel="noopener"><img src="assets/workflows/booking-calendar.webp" alt="Workflow diagram for the booking calendar" width="1600" height="524" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/booking-calendar.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Calendar &middot; Gmail &middot; Google Sheets</p>
-            </details>
           </article>
           <article class="sp-detail" id="sp-d-chat" data-sp-detail="chat" aria-labelledby="sp-h-chat">
             <p class="sp-tag">Live on this site &middot; Running for real</p>
@@ -361,22 +353,11 @@
             </dl>
             <h4 class="sp-sub">How it works</h4>
             <ol class="sp-flow"><li>Visitor asks</li><li>Message checked</li><li>AI answers from my brief</li><li>Reply checked before it&rsquo;s shown</li></ol>
-            <h4 class="sp-sub">What it looks like</h4>
-            <figure class="cs3-pic" aria-label="Picture: the chat assistant answering a visitor question and suggesting a next step">
-              <div class="pic-win">
-                  <p class="pic-bar"><span></span><span></span><span></span> Ask</p>
-                  <div class="pic-body">
-                    <p class="pic-bubble pic-q">Can you help with our invoicing?</p>
-                    <p class="pic-bubble">Yes. Jeff can check how invoices are prepared today and suggest a simpler way. Want to book a free process review?</p>
-                  </div>
-              </div>
-            </figure>
+            <h4 class="sp-sub">The workflow</h4>
+            <figure class="sp-shot"><a href="assets/workflows/chat-assistant.webp" target="_blank" rel="noopener"><img src="assets/workflows/chat-assistant.webp" alt="Workflow diagram for the chat assistant" width="1432" height="281" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/chat-assistant.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
+            <h4 class="sp-sub">Tools used</h4>
+            <p class="sp-tools">n8n &middot; Google Gemini &middot; Google Sheets</p>
             <p class="built-try" data-assistant-only hidden><a href="#built" data-assistant-open data-sp-leave>Try it: ask the assistant <span aria-hidden="true">&rarr;</span></a></p>
-            <details class="fold cj-more"><summary>The technical side</summary>
-              <p class="built-safe"><strong>If a reply breaks a rule:</strong> it&rsquo;s blocked and you get a plain message instead.</p>
-              <figure class="built-shot"><a href="assets/workflows/chat-assistant.webp" target="_blank" rel="noopener"><img src="assets/workflows/chat-assistant.webp" alt="Workflow diagram for the chat assistant" width="1432" height="281" loading="lazy" decoding="async"></a><figcaption>The real workflow, from a test run. <a href="assets/workflows/chat-assistant.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
-              <p class="built-tools">n8n &middot; Google Gemini &middot; Google Sheets</p>
-            </details>
           </article>
           <p class="built-tools sp-ms">Shown with Google Workspace. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup.</p>
         </div>

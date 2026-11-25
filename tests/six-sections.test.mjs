@@ -17,7 +17,7 @@ test('six sections in order, and the nav matches', async () => {
   assert.deepEqual(ids, ['hero-title', 'services', 'experience', 'how', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
   assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#about About', '#faq FAQ']);
-  for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'id="book-inline"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
+  for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
 });
 
 test('hero: spec copy, one booking button, trust strip', async () => {
@@ -76,4 +76,26 @@ test('guard rails: no prices or testimonials, one booking wording, no inline sty
   for (const m of h.matchAll(/<a class="btn btn-primary[^"]*" href="contact\/#contact-form-area">([^<]+)<\/a>/g)) assert.ok(['Book a free process review', 'Discuss a similar improvement'].includes(m[1]), m[1]);
   assert.doesNotMatch(h, /\sstyle="/, 'CSP: no inline styles');
   assert.doesNotMatch(h, /<p[^>]*>[^<]*<p[\s>]/, 'no unclosed paragraph');
+});
+
+test('26 Nov: restored the bottom calendar, real workflow screenshots + tools lines, and the About lines', async () => {
+  const h = await page();
+  assert.ok(h.slice(h.indexOf('id="start"')).includes('id="book-inline"'));
+  for (const [id, shot] of [['enquiry', 'enquiry-tracker'], ['report', 'weekly-report'], ['booking', 'booking-calendar'], ['chat', 'chat-assistant']]) {
+    const a = h.slice(h.indexOf(`id="sp-d-${id}"`), h.indexOf('</article>', h.indexOf(`id="sp-d-${id}"`)));
+    assert.ok(a.includes(`assets/workflows/${shot}.webp`) && a.includes('Tools used:'), id);
+  }
+  assert.match(h.slice(h.indexOf('id="sp-d-invoice"')), /Tools used:<\/strong> n8n/);
+  const about = h.slice(h.indexOf('id="about"'), h.indexOf('id="faq"'));
+  for (const t of ['Tools I work with', 'call times that fit', 'linkedin.com/in/jeffhersonvida']) assert.ok(about.includes(t), t);
+});
+
+test('26 Nov: experience pop-ups follow the sample layout (problem, what happened, example, what improved)', async () => {
+  const h = await page();
+  for (const id of ['exp-meter', 'exp-report']) {
+    const a = h.slice(h.indexOf(`id="sp-d-${id}"`), h.indexOf('</article>', h.indexOf(`id="sp-d-${id}"`)));
+    const order = ['The problem', 'What happened', 'synthetic data', 'What improved', 'Tools used'].map((k) => a.indexOf(k));
+    assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), id);
+    assert.ok(!a.includes('flow2') && !a.includes('<details'), id);
+  }
 });

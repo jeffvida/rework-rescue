@@ -5993,3 +5993,18 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (prefers-reduced-motion: reduce) { .v6-tile, .v6-tile:hover { transition: none; transform: none; } }
 /* 25 Nov: the longer second headline line ("Smarter business operations.") may wrap instead of running under the picture. */
 .h5 h1 .hf-l2 { white-space: normal; }
+/* 26 Nov: experience cards + live "See how it's built" links + bottom calendar back */
+.v6-live-how { margin: 0.5rem 0 0 !important; }
+.v6-live-how a { font-weight: 700; color: var(--teal); font-size: 0.92rem; }
+.v6-exp { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v6-exp .v6-result { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.3rem 1.3rem 1.1rem; }
+.v6-exp .v6-tag { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); font-family: inherit; }
+.v6-exp-h { margin: 0; font-size: 1.1rem; line-height: 1.3; }
+.v6-nums { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; margin: 0 !important; }
+.v6-nums span { font-size: 0.9rem; color: var(--muted); }
+.v6-nums strong { display: block; font-family: var(--display); font-size: 1.7rem; line-height: 1.1; color: var(--teal); }
+.v6-bridge { font-size: 0.95rem !important; color: var(--ink) !important; }
+.v6-exp .v6-go { margin-top: auto; }
+.v6-cta .book-inline { margin: 1.2rem auto 0; text-align: left; }
+@media (max-width: 40rem) { .v6-exp { grid-template-columns: minmax(0, 1fr); } }
+.v6-nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }

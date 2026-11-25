@@ -44,16 +44,17 @@ test('live website features: own group, picture, straight to the real thing, Try
   assert.equal((s.match(/<span class="sp-out sp-out-live">Live on this site<\/span>/g) || []).length, 2);
 });
 
-test('pop-up: problem → what happens → example result (fictional data) → what improves; diagram behind the fold', async () => {
+test('pop-up: How it\'s built first (open, not a fold) → problem → what happens → example result → what improves', async () => {
   const s = sec(await read('../index.html'));
   for (const [id] of CARDS) {
     const d = detail(s, id);
     assert.match(d, /<p class="sp-kind">Sample project<\/p>/, id);
-    const order = ['The problem', 'What happens', 'Example result &mdash; fictional data', 'What improves'].map((x) => d.indexOf(`<h4 class="sp-sub">${x}</h4>`));
+    const order = ['How it&rsquo;s built', 'The problem', 'What happens', 'Example result &mdash; fictional data', 'What improves'].map((x) => d.indexOf(`<h4 class="sp-sub">${x}</h4>`));
     assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `${id}: ${order}`);
     assert.equal((d.match(/<ol class="sp-does">(<li>[^<]+<\/li>){4}<\/ol>/g) || []).length, 1, `${id}: four steps`);
-    const face = d.slice(0, d.indexOf('<details'));
-    assert.doesNotMatch(face, /<img|n8n|Gemini|Xero|Google Sheets|Gmail|client (work|project)|\d+%|hours saved/i, `${id}: no diagram or tool names before the fold`);
+    assert.doesNotMatch(d, /<details/, `${id}: nothing collapsible (Jeff 25 Nov 09:21)`);
+    assert.match(d, /<div class="sp-block sp-built"><h4 class="sp-sub">How it&rsquo;s built<\/h4>[\s\S]*?<p class="sp-tools"><strong>Tools used:<\/strong>/, id);
+    assert.doesNotMatch(d, /client (work|project)|\d+%|hours saved/i, id);
   }
   const inv = detail(s, 'invoice');
   assert.match(inv, /<h3 class="sp-detail-h" id="sp-h-invoice">Make sure the invoice reflects approved work\.<\/h3>/);

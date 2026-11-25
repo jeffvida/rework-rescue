@@ -5919,3 +5919,7 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .sp-money-total { background: var(--info-bg) !important; border-color: var(--teal) !important; }
 .sp-money-total strong { font-size: 1.9rem; color: var(--teal-dark); }
 @media (max-width: 600px) { .sp-money { grid-template-columns: 1fr 1fr; } .sp-money-total { grid-column: 1 / -1; } }
+.sp-built { padding: 0.8rem 0.9rem; border-radius: 12px; background: #fff; border: 1px solid var(--line); }
+.sp-built .built-safe { margin: 0 0 0.6rem; }
+.sp-built .sp-shot { max-width: none; margin-bottom: 0.5rem; }
+.sp-built .sp-tools { margin: 0; }

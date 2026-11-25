@@ -1,8 +1,7 @@
-// 25 Nov 2026 (preview): ChatGPT's recommendation applied to the sample projects (Jeff: "apply chat gpt
-// recommendation to all"). Tiles lead with the business problem, a short solution and a visible outcome;
-// sample projects and live website features are separate groups; hover is only a visual cue; the pop-up
-// runs business problem → improved process → result → workflow → checks and human involvement.
-// Rules: fictional data labelled; never presented as client work; no invented results; only built features.
+// 25 Nov 2026 (preview): ChatGPT round 2 applied (Jeff pasted it). Numbered problem-first cards, a
+// fictional-data note under the heading, live website features as their own group linking to the real
+// thing, and a simpler pop-up: problem → what happens → example result (fictional data) → what improves,
+// with the workflow diagram and tools behind "How it's built". Never presented as client work.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,57 +9,59 @@ import { readFile } from 'node:fs/promises';
 import { RP_FIGURES } from '../src/report-demo.js';
 
 const read = (f) => readFile(new URL(f, import.meta.url), 'utf8');
-const sec = (h) => h.slice(h.indexOf('<div class="sp-rail" id="sample-projects"'), h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9);
+const sec = (h) => h.slice(h.indexOf('<p class="eyebrow">Sample projects</p>'), h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9);
 const detail = (s, id) => s.slice(s.indexOf(`id="sp-d-${id}"`), s.indexOf('</article>', s.indexOf(`id="sp-d-${id}"`)));
 const tile = (s, id) => s.slice(s.indexOf(`data-sp-open="${id}"`), s.indexOf('</a>', s.indexOf(`data-sp-open="${id}"`)));
-const SAMPLES = [['enquiry', 'Enquiry tracker', 'Enquiries get missed or forgotten.', 'Every enquiry has an owner'],
-  ['report', 'Morning operations check', 'Completed work goes unbilled.', 'Problems surfaced earlier'],
-  ['invoice', 'Job-to-invoice checks', 'Invoices contain unapproved extras.', 'Only approved work proceeds']];
+const re = (t) => new RegExp(t.replace(/[.?]/g, '\\$&'));
+const CARDS = [['enquiry', '01 &mdash; Enquiry tracker', 'Enquiries get missed or forgotten.', 'AI reads incoming enquiries, records the details and assigns an owner.', 'Every enquiry has an owner'],
+  ['report', '02 &mdash; Morning operations check', 'Missed jobs and unbilled work go unnoticed.', 'Automated checks identify missing job records, unbilled work and overdue payments.', 'Know what needs attention'],
+  ['invoice', '03 &mdash; Job-to-invoice checks', 'Unapproved extras reach invoices.', 'Completion details and approval rules are checked before an invoice is prepared.', 'Only approved work proceeds']];
 
-test('header and two groups: sample projects, then live website features', async () => {
-  const h = await read('../index.html');
-  assert.match(h, /<h2 id="built-h">Common business problems\. Practical improvements\.<\/h2>\s*<p class="built-intro">See how I use AI, automation and reporting to make everyday operations easier\.<\/p>/);
-  const s = sec(h);
-  assert.ok(s.indexOf('Sample projects <span>&mdash; See how I improve business operations</span>') < s.indexOf('Live website features <span>&mdash; Try the experience</span>'));
-  assert.deepEqual([...s.matchAll(/data-sp-open="(\w+)" data-sp-group="(\w+)"/g)].map((m) => m[1] + ':' + m[2]),
-    ['enquiry:sample', 'report:sample', 'invoice:sample', 'booking:live', 'chat:live']);
-});
-
-test('tiles lead with the problem, a short solution and a visible outcome; no hover-only content', async () => {
+test('heading, fictional-data note, numbered problem-first cards (ChatGPT wording)', async () => {
   const s = sec(await read('../index.html'));
-  for (const [id, name, problem, outcome] of SAMPLES) {
+  assert.match(s, /<h2 id="built-h">Common business problems\. Practical improvements\.<\/h2>/);
+  assert.match(s, /<p class="sp-note">Illustrative examples using fictional business data\. Actual workflows are tailored to each business\.<\/p>/);
+  for (const [id, tag, h, one, out] of CARDS) {
     const t = tile(s, id);
-    assert.match(t, new RegExp(`<span class="sp-tile-tag">${name}</span>\\s*<span class="sp-tile-h">${problem.replace('.', '\\.')}</span>`), id);
-    assert.match(t, new RegExp(`<span class="sp-out">&#10003; ${outcome}</span>`), id);
-    assert.match(t, /<span class="sp-tile-go">Explore example/, id);
+    assert.match(t, re(`<span class="sp-tile-tag">${tag}</span>`), id);
+    assert.match(t, re(`<span class="sp-tile-h">${h}</span>`), id);
+    assert.match(t, re(`<span class="sp-tile-one">${one}</span>`), id);
+    assert.match(t, re(`<span class="sp-out">&#10003; ${out}</span>`), id);
   }
-  for (const id of ['booking', 'chat']) assert.match(tile(s, id), /<span class="sp-out sp-out-live">Live on this site<\/span>/);
-  assert.doesNotMatch(s, /sp-hover/, 'hover adds a cue, never essential information');
-  assert.match(await read('../assets/styles.css'), /\.sp-tile:hover \.sp-tile-go span, \.sp-tile:focus-visible \.sp-tile-go span \{ transform: translateX\(5px\); \}/);
+  assert.match(s, /<strong>Have a similar problem\? Let&rsquo;s look at your process\.<\/strong>/);
+  assert.doesNotMatch(s, /sp-hover/);
 });
 
-test('pop-up order: problem → improved process → result → workflow → checks; tools behind a fold', async () => {
+test('live website features: own group, picture, straight to the real thing, Try it: buttons', async () => {
   const s = sec(await read('../index.html'));
-  for (const id of ['enquiry', 'report', 'invoice', 'booking', 'chat']) {
+  assert.ok(s.indexOf('Sample projects <span>') < s.indexOf('Live website features <span>&mdash; Try the experience</span>'));
+  assert.match(s, /<span class="sp-tile-tag">Booking calendar<\/span>\s*<span class="sp-tile-h">Make booking easier\.<\/span>/);
+  assert.match(s, /<span class="sp-tile-tag">AI chat assistant<\/span>\s*<span class="sp-tile-h">Answer questions when you&rsquo;re busy\.<\/span>\s*<span class="sp-tile-one">An AI assistant answers within defined limits and suggests the next step\.<\/span>/);
+  assert.match(s, /href="contact\/#contact-form-area">Try it: book a time/);
+  assert.match(s, /data-assistant-open>Try it: ask the assistant/);
+  assert.equal((s.match(/<span class="sp-out sp-out-live">Live on this site<\/span>/g) || []).length, 2);
+});
+
+test('pop-up: problem → what happens → example result (fictional data) → what improves; diagram behind the fold', async () => {
+  const s = sec(await read('../index.html'));
+  for (const [id] of CARDS) {
     const d = detail(s, id);
-    const order = ['The business problem', 'What the improved process does', 'The result', 'See the workflow', 'Checks and human involvement'].map((x) => d.indexOf(`<h4 class="sp-sub">${x}</h4>`));
+    assert.match(d, /<p class="sp-kind">Sample project<\/p>/, id);
+    const order = ['The problem', 'What happens', 'Example result &mdash; fictional data', 'What improves'].map((x) => d.indexOf(`<h4 class="sp-sub">${x}</h4>`));
     assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `${id}: ${order}`);
-    assert.match(d, /<details class="fold cj-more"><summary>How it&rsquo;s built<\/summary>\s*<p class="sp-tools"><strong>Tools used:<\/strong>/, id);
-    assert.doesNotMatch(d.slice(0, d.indexOf('<details')), /n8n|Gemini|Xero|Google Sheets|Gmail|client (work|project)|\d+%|hours saved/i, `${id}: plain words before the fold`);
+    assert.equal((d.match(/<ol class="sp-does">(<li>[^<]+<\/li>){4}<\/ol>/g) || []).length, 1, `${id}: four steps`);
+    const face = d.slice(0, d.indexOf('<details'));
+    assert.doesNotMatch(face, /<img|n8n|Gemini|Xero|Google Sheets|Gmail|client (work|project)|\d+%|hours saved/i, `${id}: no diagram or tool names before the fold`);
   }
-  for (const [id] of SAMPLES) assert.match(detail(s, id), /<p class="sp-label">Fictional example data<\/p>/);
-  assert.match(detail(s, 'enquiry'), /<h3 class="sp-detail-h" id="sp-h-enquiry">Never lose track of an enquiry\.<\/h3>/);
-  const js = await read('../src/sample-rail.js');
-  assert.match(js, /x\.dataset\.spGroup === t\.dataset\.spGroup/, 'Next/Previous stay within the group');
-  assert.match(js, /details\.append\(body\.firstElementChild\)/);
-});
-
-test('figures match the demos; only built features', async () => {
-  const s = sec(await read('../index.html'));
+  const inv = detail(s, 'invoice');
+  assert.match(inv, /<h3 class="sp-detail-h" id="sp-h-invoice">Make sure the invoice reflects approved work\.<\/h3>/);
+  assert.match(inv, /<span>Approved repair<\/span><strong>\$850<\/strong>[\s\S]*<span>Extra charge awaiting approval<\/span><strong>\$100<\/strong>[\s\S]*<span>Invoice draft<\/span><strong>\$850<\/strong>/);
+  assert.match(inv, /The office reviews and sends the invoice\. The additional \$100 is not included without approval\./);
+  assert.match(inv, /<li>An invoice draft is prepared for office approval\.<\/li>/, 'prepared for review, never sent automatically');
   const m = (n) => '\\$' + n.toLocaleString('en-US');
-  assert.match(tile(s, 'report'), new RegExp(`Work done, not invoiced</span><strong>${m(RP_FIGURES.notInvoiced)}</strong>`));
-  assert.match(detail(s, 'invoice'), /Invoice total<\/span><strong>\$850<\/strong>/);
-  assert.doesNotMatch(s, /AI draft reply|Needs info/);
+  assert.match(detail(s, 'report'), new RegExp(`Total to follow up</span><strong>${m(RP_FIGURES.toFollowUp)}</strong>`));
   assert.match(detail(s, 'enquiry'), /data-eq-open aria-haspopup="dialog">Try it: send your own test enquiry/);
   assert.match(detail(s, 'report'), /data-rp-open aria-haspopup="dialog">Try it: see the full Monday report/);
+  assert.doesNotMatch(s, /AI draft reply|Needs info/);
+  assert.match(await read('../src/sample-rail.js'), /x\.dataset\.spGroup === t\.dataset\.spGroup/);
 });

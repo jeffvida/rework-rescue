@@ -5902,3 +5902,20 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (max-width: 960px) { .sp-grid-live { max-width: none; } }
 @media (max-width: 600px) { .sp-grid-live { grid-template-columns: 1fr; } }
 .sp-dlg-body .sp-tag { display: none; }
+/* 25 Nov 2026 (preview): ChatGPT round 2 — numbered cards, fictional-data note, live features with pictures, simpler pop-up */
+.sp-note { margin: -0.6rem 0 1.4rem; font-size: 0.88rem; color: var(--muted); font-style: italic; }
+.sp-tile-live .sp-tile-go { text-decoration: none; }
+.sp-tile-live .sp-tile-pic .pic-body { min-height: 0; }
+.sp-grid-live .sp-tile-pic { font-size: 0.76rem; }
+.sp-kind { margin: 0 0 0.2rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--teal); }
+.sp-example .cs3-pic { max-width: 28rem; }
+.sp-example-note { margin: 0.7rem 0 0 !important; font-size: 0.95rem; }
+.sp-money { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+.sp-money p { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.1rem; }
+.sp-money span { font-size: 0.82rem; color: var(--muted); }
+.sp-money strong { font-family: var(--display); font-size: 1.45rem; }
+.sp-money-hold { border-style: dashed !important; }
+.sp-money-hold strong { color: #7a5410; }
+.sp-money-total { background: var(--info-bg) !important; border-color: var(--teal) !important; }
+.sp-money-total strong { font-size: 1.9rem; color: var(--teal-dark); }
+@media (max-width: 600px) { .sp-money { grid-template-columns: 1fr 1fr; } .sp-money-total { grid-column: 1 / -1; } }

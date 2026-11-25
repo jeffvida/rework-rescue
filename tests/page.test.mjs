@@ -14,7 +14,7 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
   }
   // 24 Nov: Carla's flagship demo shows fictional sample amounts, labelled as a fictional example
   const c = h.indexOf('<div class="sp-rail" id="sample-projects"');
-  if (c >= 0) { const d = h.slice(c, h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9); assert.match(d, /<p class="sp-label">Fictional example data<\/p>/); h = h.replace(d, ''); }
+  if (c >= 0) { const d = h.slice(c, h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9); assert.match(d, /Example result &mdash; fictional data/); h = h.replace(d, ''); }
   return h;
 };
 
@@ -155,14 +155,15 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   // 25 Nov: one sideways row of five projects (3 sample projects + booking + chat); each opens a pop-up
   assert.match(sec, /<p class="eyebrow">Sample projects<\/p>\s*<h2 id="built-h">Common business problems\. Practical improvements\.<\/h2>/);
-  assert.equal((sec.match(/<a class="sp-tile[ "]/g) || []).length, 5);
-  assert.equal((sec.match(/<article class="sp-detail"/g) || []).length, 5);
+  assert.equal((sec.match(/<a class="sp-tile[ "]/g) || []).length, 3, 'three sample projects open a pop-up');
+  assert.equal((sec.match(/<div class="sp-tile sp-tile-live"/g) || []).length, 2, 'two live features link straight to the real thing');
+  assert.equal((sec.match(/<article class="sp-detail"/g) || []).length, 3);
   assert.equal((sec.match(/<span class="sp-out sp-out-live">Live on this site<\/span>/g) || []).length, 2, 'booking and chat run the site, in their own group');
   assert.match(sec, /<p class="built-tools sp-ms">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
-  assert.equal((sec.match(/<figure class="sp-shot">/g) || []).length, 4, 'one workflow screenshot per built n8n workflow with a diagram, shown in its pop-up');
+  assert.equal((sec.match(/<figure class="sp-shot">/g) || []).length, 2, 'workflow diagrams sit behind "How it\'s built" (enquiry, report)');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
-  const rail = sec.slice(sec.indexOf('<ul class="sp-track"'), sec.indexOf('</ul>', sec.indexOf('<ul class="sp-track"')));
-  assert.equal((rail.match(/<li class="sp-item">/g) || []).length, (rail.match(/<\/a>\s*<\/li>/g) || []).length, 'every tile is closed');
+  const rail = sec.slice(sec.indexOf('<ul class="sp-grid"'), sec.indexOf('<div class="cj-outcome sp-cta">'));
+  assert.equal((rail.match(/<li class="sp-item">/g) || []).length, (rail.match(/<\/(a|div)>\s*<\/li>/g) || []).length, 'every tile is closed');
   // 23 Nov: the "Tools I work with" strip moved to About; each card's tool line sits inside its steps fold.
   const about = section(html, 'about', 'faq');
   assert.match(about, /<p class="rr-tools about-tools"><span>Tools I work with<\/span> n8n &middot; Google Apps Script &middot; Power Automate &middot; Gemini &middot; Google Workspace &middot; Microsoft 365<\/p>/);
@@ -271,7 +272,7 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
   assert.doesNotMatch(contact, /Email me a sample report|screenshot of your roster|Written%20report%20review/);
   assert.match(contact, /The first step is a free review\. Bring one task or process your team repeats or that takes too much time\. In 30 minutes, I&rsquo;ll look at how it works, where work gets stuck and what could be simplified or automated\. If it&rsquo;s worth improving, I&rsquo;ll email you a written scope, price and timeline you can share with whoever signs off\. You&rsquo;ll leave with practical recommendations, even if you decide not to work with me\./);
   assert.match(await read('../src/booking/popup.js'), /Just bring one task or process that takes more time than it should\. No preparation needed\. I&rsquo;ll help you understand where the work gets stuck and identify a practical next step\./);
-  assert.match(html, /<span class="sp-tile-h">Booking takes too many messages\.<\/span>\s*<span class="sp-tile-one">Visitors select an available time and receive booking confirmation\.<\/span>/, 'booking tile: problem and solution (25 Nov, ChatGPT wording)');
+  assert.match(html, /<span class="sp-tile-h">Make booking easier\.<\/span>\s*<span class="sp-tile-one">Visitors choose an available time and receive booking confirmation\.<\/span>/, 'booking tile (25 Nov, ChatGPT wording)');
   for (const f of ['../index.html', '../404.html', '../assessment/index.html', '../contact/index.html', '../privacy/index.html']) assert.match(await read(f), /Jeff Herson Vida, AI and Automation Specialist/, f);
   assert.ok(start.indexOf('class="book-data"') < start.indexOf('id="book-inline"'));
 });

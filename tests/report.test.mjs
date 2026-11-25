@@ -41,7 +41,7 @@ test('page: fourth card opens a dialog that opens on the result, with two tabs a
   const h = await read('../index.html');
   const sec = h.slice(h.indexOf('id="built"'), h.indexOf('id="how"'));
   const s4 = sec.slice(sec.indexOf('id="sp-d-report"'), sec.indexOf('</article>', sec.indexOf('id="sp-d-report"')));
-  assert.match(s4, /<h3 class="sp-detail-h" id="sp-h-report">Catch missed work before it costs you\.<\/h3>/, '25 Nov: sample project 2 (Morning operations check)');
+  assert.match(s4, /<h3 class="sp-detail-h" id="sp-h-report">Know what needs attention every morning\.<\/h3>/, '25 Nov: sample project 2 (Morning operations check)');
   assert.match(s4, /<p class="built-try" data-rp-only hidden><a href="#report-demo" data-rp-open aria-haspopup="dialog">Try it: see the full Monday report/);
   const d = sec.slice(sec.indexOf('<dialog class="cs eq-dlg rp-dlg" id="report-demo"'), sec.indexOf('</dialog>', sec.indexOf('id="report-demo"')));
   assert.ok(d.length > 100);

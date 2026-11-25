@@ -19,7 +19,7 @@ const noDemo = (h) => { // 23 Nov: the weekly report and the job-to-paid replays
   }
   // 24 Nov: Carla's flagship demo shows fictional sample amounts, labelled as a fictional example
   const c = h.indexOf('<div class="sp-rail" id="sample-projects"');
-  if (c >= 0) { const d = h.slice(c, h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9); assert.match(d, /<p class="sp-label">Fictional example data<\/p>/); h = h.replace(d, ''); }
+  if (c >= 0) { const d = h.slice(c, h.indexOf('</dialog>', h.indexOf('id="sp-dialog"')) + 9); assert.match(d, /Example result &mdash; fictional data/); h = h.replace(d, ''); }
   return h;
 };
 

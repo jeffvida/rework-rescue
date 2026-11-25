@@ -155,12 +155,12 @@ test('proof: own builds first, plain-text tools line, then two short previous-ro
   assert.match(sec, /<span class="anchor" id="samples"><\/span>/, 'old #samples links land here');
   // 25 Nov: one sideways row of five projects (3 sample projects + booking + chat); each opens a pop-up
   assert.match(sec, /<p class="eyebrow">Sample projects<\/p>\s*<h2 id="built-h">Common business problems\. Practical improvements\.<\/h2>/);
-  assert.equal((sec.match(/<a class="sp-tile[ "]/g) || []).length, 3, 'three sample projects open a pop-up');
-  assert.equal((sec.match(/<div class="sp-tile sp-tile-live"/g) || []).length, 2, 'two live features link straight to the real thing');
-  assert.equal((sec.match(/<article class="sp-detail"/g) || []).length, 3);
+  assert.equal((sec.match(/<a class="sp-tile[ "]/g) || []).length, 5, 'all five tiles open a pop-up (live features too, 25 Nov 09:29)');
+  assert.equal((sec.match(/<a class="sp-tile sp-tile-live"[^>]*data-sp-group="live"/g) || []).length, 2);
+  assert.equal((sec.match(/<article class="sp-detail"/g) || []).length, 5);
   assert.equal((sec.match(/<span class="sp-out sp-out-live">Live on this site<\/span>/g) || []).length, 2, 'booking and chat run the site, in their own group');
   assert.match(sec, /<p class="built-tools sp-ms">Shown with Google Workspace\. The same workflows can also be built using Microsoft 365 tools such as Outlook, Excel and Power Automate, depending on your setup\.<\/p>/);
-  assert.equal((sec.match(/<figure class="sp-shot">/g) || []).length, 2, 'workflow diagrams sit behind "How it\'s built" (enquiry, report)');
+  assert.equal((sec.match(/<figure class="sp-shot">/g) || []).length, 4, 'workflow diagrams in "How it\'s built" (enquiry, report, booking, chat)');
   for (const m of sec.matchAll(/<img src="(assets\/workflows\/[a-z-]+\.webp)"[^>]*>/g)) { assert.match(m[0], /loading="lazy"/); assert.match(m[0], /alt="Workflow diagram for /); }
   const rail = sec.slice(sec.indexOf('<ul class="sp-grid"'), sec.indexOf('<div class="cj-outcome sp-cta">'));
   assert.equal((rail.match(/<li class="sp-item">/g) || []).length, (rail.match(/<\/(a|div)>\s*<\/li>/g) || []).length, 'every tile is closed');

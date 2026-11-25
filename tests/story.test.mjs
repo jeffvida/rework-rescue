@@ -34,14 +34,22 @@ test('heading, fictional-data note, numbered problem-first cards (ChatGPT wordin
   for (const m of s.matchAll(/<span class="sp-tile-(tag|h)">([^<]+)<\/span>/g)) assert.doesNotMatch(m[2], /aircon|air-con|technician|trade|field|CoolFix|repair/i, `industry-neutral: ${m[2]}`);
 });
 
-test('live website features: own group, picture, straight to the real thing, Try it: buttons', async () => {
+test('live website features: own group, picture, same pop-up as the others, Try it: links inside', async () => {
   const s = sec(await read('../index.html'));
   assert.ok(s.indexOf('Sample projects <span>') < s.indexOf('Live website features <span>&mdash; Try the experience</span>'));
   assert.match(s, /<span class="sp-tile-tag">04 &mdash; Online bookings &amp; scheduling<\/span>\s*<span class="sp-tile-h">Arranging appointments takes too much time\.<\/span>/);
   assert.match(s, /<span class="sp-tile-tag">05 &mdash; AI customer assistance<\/span>\s*<span class="sp-tile-h">Customers need answers when your team is busy\.<\/span>\s*<span class="sp-tile-one">An AI assistant answers within defined limits and suggests the next step\.<\/span>/);
-  assert.match(s, /href="contact\/#contact-form-area">Try it: book a time/);
-  assert.match(s, /data-assistant-open>Try it: ask the assistant/);
+  assert.match(s, /href="contact\/#contact-form-area" data-sp-leave>Try it: book a time/);
+  assert.match(s, /data-assistant-open data-sp-leave>Try it: ask the assistant/);
   assert.equal((s.match(/<span class="sp-out sp-out-live">Live on this site<\/span>/g) || []).length, 2);
+  for (const id of ['booking', 'chat']) {
+    const d = detail(s, id);
+    assert.match(d, /<p class="sp-kind">Live on this site<\/p>/, id);
+    const order = ['How it&rsquo;s built', 'The problem', 'What happens', 'What visitors see', 'What improves'].map((x) => d.indexOf(`<h4 class="sp-sub">${x}</h4>`));
+    assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `${id}: ${order}`);
+    assert.match(d, /data-sp-leave>Try it: /, `${id}: the Try-it link closes the pop-up first`);
+    assert.doesNotMatch(d, /<details/);
+  }
 });
 
 test('pop-up: How it\'s built first (open, not a fold) → problem → what happens → example result → what improves', async () => {

@@ -6008,3 +6008,30 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-cta .book-inline { margin: 1.2rem auto 0; text-align: left; }
 @media (max-width: 40rem) { .v6-exp { grid-template-columns: minmax(0, 1fr); } }
 .v6-nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* 26 Nov: safeguards as one connected flow (left to right on desktop, top to bottom on phones) */
+.v6-sflow { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; position: relative; }
+.v6-snode { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem; }
+.v6-snode::after { content: ""; position: absolute; top: 31px; left: calc(50% + 34px); width: calc(100% - 68px + 1rem); height: 3px; border-radius: 3px; background: linear-gradient(90deg, #2e7d72, #78c2a4); }
+.v6-snode::before { content: ""; position: absolute; top: 26px; left: calc(150% + 1rem - 40px); width: 0; height: 0; border-top: 6.5px solid transparent; border-bottom: 6.5px solid transparent; border-left: 9px solid #78c2a4; z-index: 1; }
+.v6-snode:last-child::after, .v6-snode:last-child::before { display: none; }
+.v6-sico { position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: #fff; border: 2px solid #2e7d72; color: #0f3a3a; box-shadow: 0 0 0 6px #eef6f3, 0 10px 22px -14px rgba(15, 58, 58, 0.6); }
+.v6-sico svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.v6-sn { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #0f3a3a; color: #fff; font-size: 0.72rem; font-weight: 800; }
+.v6-snode-human .v6-sico { background: #fff8e8; border-color: #e6c078; box-shadow: 0 0 0 6px #fbf1d9, 0 10px 22px -14px rgba(15, 58, 58, 0.6); }
+.v6-stxt { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 0.85rem 0.9rem; width: 100%; flex: 1; }
+.v6-snode-human .v6-stxt { border-color: #ead7a6; }
+.v6-stxt h4 { margin: 0 0 0.3rem; font-size: 0.98rem; line-height: 1.3; }
+.v6-stxt p { margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
+@media (prefers-reduced-motion: no-preference) {
+  .v6-sflow.is-in .v6-snode::after, .v6-sflow .v6-snode::after { background-size: 200% 100%; background-image: linear-gradient(90deg, #2e7d72 0%, #78c2a4 40%, #e6c078 50%, #78c2a4 60%, #2e7d72 100%); animation: v6-flow 3.2s linear infinite; }
+  @keyframes v6-flow { from { background-position: 200% 0; } to { background-position: 0 0; } }
+}
+@media (max-width: 52rem) {
+  .v6-sflow { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+  .v6-snode { flex-direction: row; align-items: flex-start; text-align: left; gap: 0.9rem; }
+  .v6-sico { width: 52px; height: 52px; box-shadow: 0 0 0 5px #eef6f3; }
+  .v6-snode-human .v6-sico { box-shadow: 0 0 0 5px #fbf1d9; }
+  .v6-snode::after { top: 58px; left: 24.5px; width: 3px; height: calc(100% - 52px + 1.1rem - 12px); background: linear-gradient(180deg, #2e7d72, #78c2a4); }
+  .v6-snode::before { top: auto; bottom: -1.1rem; left: 19.5px; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-top: 9px solid #78c2a4; border-bottom: 0; }
+  @media (prefers-reduced-motion: no-preference) { .v6-sflow .v6-snode::after { background-size: 100% 200%; background-image: linear-gradient(180deg, #2e7d72 0%, #78c2a4 40%, #e6c078 50%, #78c2a4 60%, #2e7d72 100%); animation-name: v6-flow-v; } @keyframes v6-flow-v { from { background-position: 0 200%; } to { background-position: 0 0; } } }
+}

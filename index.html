@@ -144,7 +144,7 @@
               <p class="v6-k">What it demonstrates</p>
               <ul class="v6-ticks"><li>Online appointment selection.</li><li>Available time-slot presentation.</li><li>Booking submission.</li><li>Calendar-connected booking workflow.</li></ul>
               <p class="v6-live-go"><a class="btn btn-secondary" href="contact/#contact-form-area">Try it: the booking system <span aria-hidden="true">&rarr;</span></a></p>
-              <p class="v6-live-how"><a href="#sp-d-booking" data-sp-open="booking" data-sp-group="live" aria-haspopup="dialog">See how it&rsquo;s built <span aria-hidden="true">&rarr;</span></a></p>
+              <p class="v6-live-how"><a href="#sp-d-booking" data-sp-open="booking" data-sp-group="live" aria-haspopup="dialog">Explore example <span aria-hidden="true">&rarr;</span></a></p>
             </li>
             <li class="v6-live-card">
               <h4>AI website assistant</h4>
@@ -152,7 +152,7 @@
               <p class="v6-k">What it demonstrates</p>
               <ul class="v6-ticks"><li>AI-assisted customer conversations.</li><li>Answers based on business information.</li><li>Guided questions and service discovery.</li><li>Assistance in directing visitors towards the right next step.</li></ul>
               <p class="v6-live-go" data-assistant-only hidden><button type="button" class="btn btn-secondary" data-assistant-open>Try it: the AI assistant <span aria-hidden="true">&rarr;</span></button></p>
-              <p class="v6-live-how"><a href="#sp-d-chat" data-sp-open="chat" data-sp-group="live" aria-haspopup="dialog">See how it&rsquo;s built <span aria-hidden="true">&rarr;</span></a></p>
+              <p class="v6-live-how"><a href="#sp-d-chat" data-sp-open="chat" data-sp-group="live" aria-haspopup="dialog">Explore example <span aria-hidden="true">&rarr;</span></a></p>
             </li>
           </ul>
         </div>
@@ -208,24 +208,58 @@
             <p class="v6-dlg-cta"><a class="btn btn-primary" href="contact/#contact-form-area" data-sp-leave>Discuss a similar improvement</a></p>
           </article>
           <article class="sp-detail" id="sp-d-booking" data-sp-detail="booking" aria-labelledby="sp-h-booking">
-            <p class="sp-tag">Live on this site</p>
-            <h3 class="sp-detail-h" id="sp-h-booking">Online booking system</h3>
+            <p class="sp-tag">Example: Online bookings &amp; scheduling</p>
+            <p class="sp-kind">Live on this site</p>
+            <h3 class="sp-detail-h" id="sp-h-booking">Book a call without the back-and-forth.</h3>
             <p class="sp-intro">This runs on this site: it&rsquo;s how visitors book a free process review with me.</p>
             <div class="sp-block sp-built"><h4 class="sp-sub">How it&rsquo;s built</h4>
               <figure class="sp-shot"><a href="assets/workflows/booking-calendar.webp" target="_blank" rel="noopener"><img src="assets/workflows/booking-calendar.webp" alt="Workflow diagram for the booking calendar" width="1600" height="524" loading="lazy" decoding="async"></a><figcaption>The real workflow running this site. <a href="assets/workflows/booking-calendar.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
               <p class="sp-tools"><strong>Tools used:</strong> n8n &middot; Google Calendar &middot; Gmail &middot; Google Sheets</p>
               <p class="built-safe"><strong>If it can&rsquo;t book:</strong> it tells you nothing was booked and offers email instead.</p>
             </div>
+            <div class="sp-block sp-problem"><h4 class="sp-sub">The problem</h4><p>Arranging a time takes several messages, and booked calls get forgotten.</p></div>
+            <div class="sp-block"><h4 class="sp-sub">What happens</h4><ol class="sp-does"><li>The visitor picks a free time, shown in their own time zone.</li><li>The time is checked again before it&rsquo;s booked.</li><li>The invite and video link are sent automatically.</li><li>Reminders go out a day and an hour before the call.</li></ol></div>
+            <div class="sp-block sp-example"><h4 class="sp-sub">What visitors see</h4>
+              <figure class="cs3-pic" aria-label="Picture: a booking calendar with a time selected and the invite sent">
+                <div class="pic-win">
+                  <p class="pic-bar"><span></span><span></span><span></span> Book a call</p>
+                  <div class="pic-body">
+                    <p class="pic-row"><span>Tue 10:00 am</span><span class="pill">Free</span></p>
+                    <p class="pic-row"><span><strong>Tue 2:00 pm</strong></span><span class="pill pill-ok">Selected</span></p>
+                    <p class="pic-row"><span>Wed 9:30 am</span><span class="pill">Free</span></p>
+                    <p class="pic-row pic-total"><span>Invite and video link</span><span class="pill pill-ok">&#10003; Sent</span></p>
+                  </div>
+                </div>
+              </figure>
+            </div>
+            <div class="sp-block sp-result"><h4 class="sp-sub">What improves</h4><p>Calls are booked without admin, with a reminder before each one.</p></div>
+            <p class="built-try"><a href="contact/#contact-form-area" data-sp-leave>Try it: book a time <span aria-hidden="true">&rarr;</span></a></p>
           </article>
           <article class="sp-detail" id="sp-d-chat" data-sp-detail="chat" aria-labelledby="sp-h-chat">
-            <p class="sp-tag">Live on this site</p>
-            <h3 class="sp-detail-h" id="sp-h-chat">AI website assistant</h3>
+            <p class="sp-tag">Example: AI customer assistance</p>
+            <p class="sp-kind">Live on this site</p>
+            <h3 class="sp-detail-h" id="sp-h-chat">Give customers answers when your team is busy.</h3>
             <p class="sp-intro">This runs on this site: the &ldquo;Ask&rdquo; button in the corner.</p>
             <div class="sp-block sp-built"><h4 class="sp-sub">How it&rsquo;s built</h4>
               <figure class="sp-shot"><a href="assets/workflows/chat-assistant.webp" target="_blank" rel="noopener"><img src="assets/workflows/chat-assistant.webp" alt="Workflow diagram for the chat assistant" width="1432" height="281" loading="lazy" decoding="async"></a><figcaption>The real workflow running this site. <a href="assets/workflows/chat-assistant.webp" target="_blank" rel="noopener">Open full size</a></figcaption></figure>
               <p class="sp-tools"><strong>Tools used:</strong> n8n &middot; Google Gemini &middot; Google Sheets</p>
               <p class="built-safe"><strong>If a reply breaks a rule:</strong> it&rsquo;s blocked and you get a plain message instead.</p>
             </div>
+            <div class="sp-block sp-problem"><h4 class="sp-sub">The problem</h4><p>Customers ask the same questions, and enquiries wait until someone is free to reply.</p></div>
+            <div class="sp-block"><h4 class="sp-sub">What happens</h4><ol class="sp-does"><li>Each message is checked before it reaches the AI.</li><li>The AI answers from a brief I wrote, and is told not to guess.</li><li>Every reply is checked before it&rsquo;s shown: no prices, no promises.</li><li>It suggests a next step, and never books or emails for the visitor.</li></ol></div>
+            <div class="sp-block sp-example"><h4 class="sp-sub">What visitors see</h4>
+              <figure class="cs3-pic" aria-label="Picture: the chat assistant answering a visitor question and suggesting a next step">
+                <div class="pic-win">
+                  <p class="pic-bar"><span></span><span></span><span></span> Ask</p>
+                  <div class="pic-body">
+                    <p class="pic-bubble pic-q">Can you help with our invoicing?</p>
+                    <p class="pic-bubble">Yes. Jeff can check how invoices are prepared today and suggest a simpler way. Want to book a free process review?</p>
+                  </div>
+                </div>
+              </figure>
+            </div>
+            <div class="sp-block sp-result"><h4 class="sp-sub">What improves</h4><p>Questions are answered at any time, within limits I set.</p></div>
+            <p class="built-try" data-assistant-only hidden><a href="#built" data-assistant-open data-sp-leave>Try it: ask the assistant <span aria-hidden="true">&rarr;</span></a></p>
           </article>
           <article class="sp-detail" id="sp-d-exp-meter" data-sp-detail="exp-meter" aria-labelledby="sp-h-exp-meter">
             <p class="sp-tag">Previous professional experience</p>

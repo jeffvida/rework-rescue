@@ -13,9 +13,10 @@ const sec = (h) => h.slice(h.indexOf('<p class="eyebrow">Sample projects</p>'), 
 const detail = (s, id) => s.slice(s.indexOf(`id="sp-d-${id}"`), s.indexOf('</article>', s.indexOf(`id="sp-d-${id}"`)));
 const tile = (s, id) => s.slice(s.indexOf(`data-sp-open="${id}"`), s.indexOf('</a>', s.indexOf(`data-sp-open="${id}"`)));
 const re = (t) => new RegExp(t.replace(/[.?]/g, '\\$&'));
-const CARDS = [['enquiry', '01 &mdash; Enquiry tracker', 'Enquiries get missed or forgotten.', 'AI reads incoming enquiries, records the details and assigns an owner.', 'Every enquiry has an owner'],
-  ['report', '02 &mdash; Morning operations check', 'Missed jobs and unbilled work go unnoticed.', 'Automated checks identify missing job records, unbilled work and overdue payments.', 'Know what needs attention'],
-  ['invoice', '03 &mdash; Job-to-invoice checks', 'Unapproved extras reach invoices.', 'Completion details and approval rules are checked before an invoice is prepared.', 'Only approved work proceeds']];
+// 25 Nov 08:59: industry-neutral titles (Jeff + ChatGPT); the CoolFix examples, figures and demos stay underneath.
+const CARDS = [['enquiry', '01 &mdash; Customer enquiries &amp; follow-ups', 'Enquiries get missed or forgotten.', 'AI reads incoming enquiries, records the details and assigns an owner.', 'Every enquiry has an owner'],
+  ['report', '02 &mdash; Business operations &amp; reporting', 'Important work and information go unnoticed.', 'Automated checks identify missing records, outstanding work and overdue payments.', 'Know what needs attention'],
+  ['invoice', '03 &mdash; Work, records &amp; payments', 'Errors and unapproved charges affect payments.', 'Completion details and approval rules are checked before an invoice is prepared.', 'Only approved work proceeds']];
 
 test('heading, fictional-data note, numbered problem-first cards (ChatGPT wording)', async () => {
   const s = sec(await read('../index.html'));
@@ -30,13 +31,14 @@ test('heading, fictional-data note, numbered problem-first cards (ChatGPT wordin
   }
   assert.match(s, /<strong>Have a similar problem\? Let&rsquo;s look at your process\.<\/strong>/);
   assert.doesNotMatch(s, /sp-hover/);
+  for (const m of s.matchAll(/<span class="sp-tile-(tag|h)">([^<]+)<\/span>/g)) assert.doesNotMatch(m[2], /aircon|air-con|technician|trade|field|CoolFix|repair/i, `industry-neutral: ${m[2]}`);
 });
 
 test('live website features: own group, picture, straight to the real thing, Try it: buttons', async () => {
   const s = sec(await read('../index.html'));
   assert.ok(s.indexOf('Sample projects <span>') < s.indexOf('Live website features <span>&mdash; Try the experience</span>'));
-  assert.match(s, /<span class="sp-tile-tag">Booking calendar<\/span>\s*<span class="sp-tile-h">Make booking easier\.<\/span>/);
-  assert.match(s, /<span class="sp-tile-tag">AI chat assistant<\/span>\s*<span class="sp-tile-h">Answer questions when you&rsquo;re busy\.<\/span>\s*<span class="sp-tile-one">An AI assistant answers within defined limits and suggests the next step\.<\/span>/);
+  assert.match(s, /<span class="sp-tile-tag">04 &mdash; Online bookings &amp; scheduling<\/span>\s*<span class="sp-tile-h">Arranging appointments takes too much time\.<\/span>/);
+  assert.match(s, /<span class="sp-tile-tag">05 &mdash; AI customer assistance<\/span>\s*<span class="sp-tile-h">Customers need answers when your team is busy\.<\/span>\s*<span class="sp-tile-one">An AI assistant answers within defined limits and suggests the next step\.<\/span>/);
   assert.match(s, /href="contact\/#contact-form-area">Try it: book a time/);
   assert.match(s, /data-assistant-open>Try it: ask the assistant/);
   assert.equal((s.match(/<span class="sp-out sp-out-live">Live on this site<\/span>/g) || []).length, 2);

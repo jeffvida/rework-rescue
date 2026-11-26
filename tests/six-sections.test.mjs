@@ -20,14 +20,19 @@ test('six sections in order, and the nav matches', async () => {
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
 });
 
-test('hero: spec copy, one booking button, trust strip', async () => {
+test('hero (26 Nov v13): short copy, problems → AI & Automation → result, one booking button, trust strip moved to the final CTA', async () => {
   const h = await page();
   const hero = h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero')));
-  assert.match(hero, /<span class="hf-l1">Less manual work\.<\/span> <span class="hf-l2"><span class="h5-mark">Smarter business operations\.<\/span><\/span>/);
-  assert.match(hero, /I help small and medium-sized businesses find where work is being repeated, delayed or lost &mdash; then improve it/);
-  assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area']);
+  assert.match(hero, /AI &amp; AUTOMATION, BUILT ON 8\+ YEARS IN OPERATIONS/);
+  assert.match(hero, /<span class="hf-l1">Less manual work\.<\/span> <span class="hf-l2"><span class="h5-mark">More time for your business\.<\/span><\/span>/);
+  assert.match(hero, /I find where work gets stuck, then set up AI and automation with the right checks to keep things moving\./);
+  assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area'], 'one action only: the problem cards are not clickable');
+  assert.match(hero, /Book a free process review/);
   assert.match(hero, /30 minutes &middot; No obligation/);
-  for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(hero.includes(`<span>${t}</span>`), t);
+  for (const t of ['Enquiries left waiting', 'Reports built by hand', 'Details getting lost', 'Capture', 'Check', 'Organise', 'Built around your business rules', 'Work that keeps moving']) assert.ok(hero.includes(`${t}</`), t);
+  for (const gone of ['h5-panel', 'h5-wave', 'h5-chip', 'h5-trust']) assert.ok(!hero.includes(gone), gone);
+  const cta = h.slice(h.indexOf('id="start"'), h.indexOf('</section>', h.indexOf('id="start"')));
+  for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(cta.includes(`<span>${t}</span>`), t);
 });
 
 test('How I help: three tiles show problem, improvement and outcome without opening a pop-up', async () => {

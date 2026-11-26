@@ -5648,6 +5648,98 @@ main > section.hf.h5 { background:
 @media (forced-colors: active) { .h5-panel, .h5-row, .h5-step, .h5-pill, .h5-book { border: 1px solid CanvasText; } }
 @media print { main > section.hf.h5 { background: #fff !important; color: #000; } .h5 h1, .h5-title, .h5-name, .h5-t, .h5-done li, .h5-trust li, .h5-eyebrow, .h5-for, .h5 .hero-sub, .h5 .hero-note { color: #000 !important; } }
 
+/* ===== Hero v13 (26 Nov 2026, preview): simpler hero. Jeff + ChatGPT + Claude. Same dark teal ground and booking
+   button; the three tall panels, chip, arrows and moving wave are gone. One compact picture, read left to right:
+   The problems (three cards, not clickable) → AI & Automation (Capture · Check · Organise, gold accent on Check,
+   "Built around your business rules") → Work that keeps moving. One light runs along the lines on load and on
+   hover, never looping, never with reduced motion. Trust strip moved to the final CTA. ===== */
+.h13 { padding-bottom: 3.4rem; }
+main > section.hf.h5.h13 { background:
+  radial-gradient(40rem 26rem at 76% 40%, rgba(52, 160, 140, 0.21) 0%, transparent 65%),
+  radial-gradient(36rem 26rem at 8% 95%, rgba(20, 90, 85, 0.40) 0%, transparent 70%),
+  linear-gradient(160deg, #0a3436 0%, #072a2c 45%, #05201f 100%); }
+.h13 .h5-grid { grid-template-columns: 33rem minmax(0, 1fr); gap: 2.6rem; }
+.h13 h1 { font-size: 2.3rem; }
+@media (min-width: 74.01rem) { .h5.h13 h1 .hf-l2 { white-space: nowrap; } }
+.h13 .hero-sub { max-width: 31rem; }
+.h13-visual { --h13-gold: #e6c078; margin: 0; display: grid; grid-template-columns: minmax(0, 1.18fr) 2rem minmax(0, 0.95fr) 1.4rem minmax(0, 0.8fr); align-items: center; }
+.h13-k { margin: 0 0 0.6rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(215, 229, 226, 0.72); }
+.h13-k-ai { color: var(--h5-mint); text-align: center; }
+.h13-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+.h13-card { --c: #6ad9ab; display: flex; align-items: center; gap: 0.65rem; margin: 0; padding: 0.68rem 0.75rem; border-radius: 12px; background: var(--h5-glass); border: 1px solid var(--h5-edge); border-left: 3px solid var(--c);
+  font-size: 0.92rem; font-weight: 600; line-height: 1.25; color: #f2f7f6; white-space: nowrap; transition: transform 0.18s ease, background 0.18s ease; }
+.h13-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.08); }
+.h13-c1 { --c: #5cc8b8; } .h13-c2 { --c: #7fd49b; } .h13-c3 { --c: #e6c078; }
+.h13-card svg, .h13-step svg { width: 1.35rem; height: 1.35rem; flex: none; fill: none; stroke: var(--c, #eef5f3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.h13-join { display: block; align-self: stretch; padding-top: 1.3rem; }
+.h13-join svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.h13-line { fill: none; stroke: rgba(106, 217, 171, 0.45); stroke-width: 1.5; vector-effect: non-scaling-stroke; stroke-dasharray: 2 0; }
+.h13-ai { padding: 0.95rem 0.9rem 0.85rem; border-radius: 16px; background: linear-gradient(180deg, rgba(40, 140, 120, 0.2), rgba(14, 70, 66, 0.28));
+  border: 1px solid rgba(106, 217, 171, 0.5); box-shadow: 0 0 20px rgba(106, 217, 171, 0.18), 0 20px 44px -30px rgba(0, 0, 0, 0.8); }
+.h13-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.h13-step { display: flex; align-items: center; gap: 0.6rem; margin: 0; padding: 0.5rem 0.7rem; border-radius: 10px; background: rgba(6, 40, 40, 0.55); border: 1px solid rgba(106, 217, 171, 0.16);
+  font-family: var(--display); font-size: 0.98rem; font-weight: 600; color: #fff; }
+.h13-check { border-color: rgba(230, 192, 120, 0.55); --c: var(--h13-gold); }
+.h13-rules { display: block; margin: 0.6rem 0 0; font-size: 0.8rem; line-height: 1.3; color: #e9e1cc; text-align: center; }
+.h13-dot { display: inline-block; vertical-align: 0.08em; margin-right: 0.4rem; width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--h13-gold); }
+.h13-out { padding-top: 1.3rem; }
+.h13-result { display: flex; align-items: center; gap: 0.55rem; margin: 0; padding: 0.8rem 0.75rem; border-radius: 14px; background: rgba(47, 158, 102, 0.16); border: 1px solid rgba(63, 193, 138, 0.5);
+  font-family: var(--display); font-size: 1.02rem; font-weight: 700; line-height: 1.25; color: #fff; }
+.h13-result svg { width: 1.6rem; height: 1.6rem; flex: none; }
+.h13-result svg circle { fill: #3fc18a; }
+.h13-result svg path { fill: none; stroke: var(--h5-ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* One light along the lines: on load, and again on hover. Never loops. */
+@media (prefers-reduced-motion: no-preference) {
+  .h13 .h5-row, .h13 .h5-step, .h13 .h5-done li { animation: none; }
+  .h13-card { animation: h5-in 0.4s ease-out both; }
+  .h13-c2 { animation-delay: 0.08s; } .h13-c3 { animation-delay: 0.16s; }
+  .h13-line { stroke-dasharray: 14 200; stroke-dashoffset: 214; animation: h13-run 1.1s ease-in-out 0.45s 1 both; }
+  .h13-join-out .h13-line { animation-delay: 1.35s; }
+  .h13-step { animation: h5-lit 0.4s ease-out both; }
+  .h13-step:nth-child(1) { animation-delay: 0.9s; } .h13-step:nth-child(2) { animation-delay: 1.05s; } .h13-step:nth-child(3) { animation-delay: 1.2s; }
+  .h13-result { animation: h5-in 0.45s ease-out 1.75s both; }
+  .h13-visual:hover .h13-line { animation: h13-run2 1.1s ease-in-out 1 both; }
+  .h13-visual:hover .h13-join-out .h13-line { animation-delay: 0.5s; }
+}
+@keyframes h13-run { 0% { stroke-dashoffset: 214; stroke: rgba(134, 232, 192, 0.95); } 90% { stroke-dashoffset: 0; } 100% { stroke-dasharray: 2 0; stroke: rgba(106, 217, 171, 0.45); } }
+@keyframes h13-run2 { 0% { stroke-dasharray: 14 200; stroke-dashoffset: 214; stroke: rgba(134, 232, 192, 0.95); } 90% { stroke-dashoffset: 0; } 100% { stroke-dasharray: 2 0; stroke: rgba(106, 217, 171, 0.45); } }
+
+/* Trust strip, now in the final call to action (dark ground) */
+.cta-trust { margin: 1.6rem 0 0.4rem; padding: 1.2rem 0; border-bottom: 1px solid rgba(106, 217, 171, 0.2); text-align: left; }
+.cta-trust li { font-size: 0.92rem; gap: 0.6rem; padding-inline: 0.8rem; justify-content: flex-start; }
+.cta-trust svg { width: 1.8rem; height: 1.8rem; stroke: #6ad9ab; }
+
+@media (min-width: 74.01rem) and (max-width: 82rem) {
+  .h13 .h5-grid { grid-template-columns: minmax(27rem, 0.85fr) minmax(0, 1.25fr); gap: 1.6rem; }
+  .h13 h1 { font-size: 2.05rem; }
+  .h13-card { font-size: 0.85rem; padding-inline: 0.6rem; gap: 0.5rem; }
+  .h13-step { font-size: 0.92rem; }
+  .h13-result { font-size: 0.95rem; }
+}
+@media (max-width: 74rem) {
+  .h13 .h5-grid { grid-template-columns: minmax(0, 1fr); gap: 2.2rem; }
+  .h13-visual { max-width: 50rem; }
+}
+/* Phones and small tablets: problems → AI & Automation → result, top to bottom, close to the button */
+@media (max-width: 44rem) {
+  .h13 { padding-bottom: 2.4rem; }
+  .h13 .h5-grid { gap: 1.7rem; }
+  .h13-visual { display: flex; flex-direction: column; align-items: stretch; max-width: 30rem; }
+  .h13-join { height: 1.4rem; padding: 0; }
+  .h13-join svg { display: none; }
+  .h13-join::before { content: ""; display: block; width: 1.5px; height: 100%; margin: 0 auto; background: rgba(106, 217, 171, 0.45); }
+  .h13-out { padding-top: 0; }
+  .h13-cards { gap: 0.45rem; }
+  .h13-card { padding: 0.55rem 0.75rem; font-size: 0.92rem; }
+  .h13-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .h13-step { flex-direction: column; gap: 0.3rem; padding: 0.5rem 0.3rem; font-size: 0.88rem; text-align: center; }
+  .h13-result { justify-content: center; }
+  .cta-trust li { padding-inline: 0; }
+}
+@media (forced-colors: active) { .h13-card, .h13-step, .h13-ai, .h13-result { border: 1px solid CanvasText; } }
+@media print { .h13-card, .h13-step, .h13-k, .h13-rules, .h13-result { color: #000 !important; } }
+
 /* 24 Nov 2026 (preview): flagship CoolFix demo "From customer enquiry to payment received." (src/carla-demo.js) */
 .built-lead { margin: -0.8rem 0 1.2rem; max-width: 44rem; font-size: 1.05rem; color: var(--ink); }
 .cj-go { margin: 0 0 0.5rem; }

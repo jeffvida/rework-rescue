@@ -69,7 +69,7 @@ test('Built into this website (26 Nov): compact, not numbered; links start with 
   const h = await page();
   const s = h.slice(h.indexOf('id="built-in"'), h.indexOf('id="experience"'));
   assert.match(s, /Built into this website<\/h2>/);
-  assert.match(s, /This website also demonstrates how I put these tools into practice\./);
+  assert.match(s, /Two tools running on this site right now\. Try them for yourself\./);
   for (const t of ['Online booking', 'AI website assistant']) assert.ok(s.includes(`<h3>${t}</h3>`), t);
   assert.match(s, /href="contact\/#contact-form-area">Try it: booking system/);
   assert.match(s, /data-assistant-only hidden><button type="button" class="v6-sel-try" data-assistant-open>Try it: AI assistant/);

@@ -17,6 +17,8 @@ export function mountSampleRail(doc = document) {
   const body = dlg.querySelector('[data-sp-body]');
   const kicker = dlg.querySelector('#sp-dlg-h');
   let ids = []; let cur = -1; let opener = null;
+  const sheet = dlg.querySelector('.cs-sheet');
+  const toTop = () => { [body, sheet, dlg].forEach((el) => { if (el) el.scrollTop = 0; }); };
 
   const put = (i) => {
     if (cur >= 0) details.append(body.firstElementChild); // move the open article back (keeps its listeners)
@@ -25,7 +27,7 @@ export function mountSampleRail(doc = document) {
     body.replaceChildren(art);
     kicker.textContent = ids.length > 1 ? `${art.querySelector('.sp-tag').textContent} · ${cur + 1} of ${ids.length}` : art.querySelector('.sp-tag').textContent;
     dlg.setAttribute('aria-labelledby', `sp-h-${ids[cur]}`);
-    body.scrollTop = 0;
+    toTop();
     body.focus({ preventScroll: true });
   };
   tiles.forEach((t) => t.addEventListener('click', (e) => {
@@ -34,6 +36,7 @@ export function mountSampleRail(doc = document) {
     put(ids.indexOf(t.dataset.spOpen));
     doc.documentElement.classList.add('cs-lock');
     dlg.showModal();
+    toTop(); // 26 Nov: reset after opening; a scroll reset while the pop-up is hidden is ignored by browsers
   }));
   dlg.querySelectorAll('[data-sp-step]').forEach((b) => b.addEventListener('click', () => put(cur + Number(b.dataset.spStep))));
   dlg.querySelector('[data-sp-close]').addEventListener('click', () => dlg.close());

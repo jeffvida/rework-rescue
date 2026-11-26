@@ -6292,4 +6292,3 @@ main > section#safety .sn-limits { color: var(--muted); }
 /* 26 Nov: trust + reliability copy */
 .h5 .hero-note-alt { margin-top: 0.35rem; font-size: 0.95rem; }
 .h5 .hero-note-alt a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-.v6-proof-line { max-width: 46rem; margin: 1.25rem auto 0.5rem; text-align: center; font-weight: 600; }

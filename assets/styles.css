@@ -5670,7 +5670,7 @@ main > section.hf.h5.h13 { background:
 /* 1. Problems: quiet, slightly dim pills with an amber "stuck" dot */
 .rrh-probs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
 .rrh-prob { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; margin: 0; padding: 0.8rem 0.85rem 0.85rem; border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.2); color: rgba(242, 247, 246, 0.86); transition: border-color 0.2s ease, background 0.2s ease; }
+  background: rgba(12, 48, 49, 0.92); border: 1px dashed rgba(255, 255, 255, 0.2); color: rgba(242, 247, 246, 0.86); transition: border-color 0.2s ease, background 0.2s ease; }
 .rrh-prob::after { content: ""; position: absolute; top: 0.85rem; right: 0.85rem; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(240, 166, 75, 0.18); }
 .rrh-pic { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 9px; background: rgba(255, 255, 255, 0.07); }
 .rrh-pic svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: #d5e3df; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
@@ -5682,7 +5682,7 @@ main > section.hf.h5.h13 { background:
 
 /* 3. Engine: one panel, three connected nodes */
 .rrh-engine { position: relative; padding: 0.9rem 1.2rem 0.85rem; border-radius: 18px; text-align: center;
-  background: linear-gradient(180deg, rgba(40, 140, 120, 0.24), rgba(14, 70, 66, 0.34)); border: 1px solid rgba(106, 217, 171, 0.55);
+  background: linear-gradient(180deg, rgba(18, 74, 67, 0.97), rgba(10, 52, 50, 0.97)); border: 1px solid rgba(106, 217, 171, 0.55);
   box-shadow: 0 0 0 4px rgba(106, 217, 171, 0.06), 0 0 30px rgba(106, 217, 171, 0.16), 0 24px 50px -30px rgba(0, 0, 0, 0.85); }
 .rrh-k { margin: 0 0 0.75rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--h5-mint); }
 .rrh-steps { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -5695,14 +5695,14 @@ main > section.hf.h5.h13 { background:
 .rrh-check .rrh-node svg { stroke: var(--gold); }
 .rrh-st { font-family: var(--display); font-size: 0.98rem; font-weight: 600; color: #fff; }
 .rrh-check .rrh-st { margin-top: -0.2rem; }
-.rrh-rules { display: inline-flex; align-items: center; gap: 0.45rem; margin: 0.75rem 0 0; padding: 0.3rem 0.75rem; border-radius: 999px; background: rgba(230, 192, 120, 0.1);
+.rrh-rules { display: inline-flex; align-items: center; gap: 0.45rem; margin: 0.75rem 0 0; padding: 0.3rem 0.75rem; border-radius: 999px; background: #233f33;
   border: 1px solid rgba(230, 192, 120, 0.3); font-size: 0.78rem; line-height: 1.2; color: #f1e6c8; }
 .rrh-dot { width: 0.4rem; height: 0.4rem; flex: none; border-radius: 50%; background: var(--gold); }
 
 /* 4. Result: the brightest thing in the card */
 .rrh-stem { display: block; width: 2px; height: 1.4rem; margin: 0 auto; background: linear-gradient(180deg, rgba(106, 217, 171, 0.55), rgba(63, 193, 138, 0.8)); }
 .rrh-result { align-self: center; display: inline-flex; align-items: center; gap: 0.6rem; margin: 0; padding: 0.75rem 1.4rem; border-radius: 999px;
-  background: rgba(63, 193, 138, 0.16); border: 1.5px solid rgba(73, 207, 149, 0.75); color: #fff; font-family: var(--display); font-size: 1.05rem; font-weight: 700; line-height: 1.2;
+  background: #0e4434; border: 1.5px solid rgba(73, 207, 149, 0.75); color: #fff; font-family: var(--display); font-size: 1.05rem; font-weight: 700; line-height: 1.2;
   box-shadow: 0 0 0 5px rgba(63, 193, 138, 0.08), 0 0 26px rgba(63, 193, 138, 0.3); }
 .rrh-result svg { width: 1.45rem; height: 1.45rem; flex: none; }
 .rrh-result svg circle { fill: var(--ok); }

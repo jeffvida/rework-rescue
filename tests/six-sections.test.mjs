@@ -14,7 +14,7 @@ const visible = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/
 test('six sections in order, and the nav matches', async () => {
   const h = main(await page());
   const ids = [...h.matchAll(/<section class="[^"]*" (?:id="([^"]+)" )?aria-labelledby="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'about', 'faq', 'start']);
+  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'safety', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
   assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#about About', '#faq FAQ']);
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
@@ -89,11 +89,17 @@ test('Built into this website (26 Nov): compact, not numbered; links start with 
   assert.ok(!h.includes('class="v6-live"') && !h.includes('05 &middot; Live'), 'old 04/05 cards gone');
 });
 
-test('26 Nov: safeguards keep the live connected flow, all five and the human step; no company "we" lines left', async () => {
+test('26 Nov 14:32: How it works has 4 steps; Reliability is its own section with 4 checks, the key line and the handover list', async () => {
   const h = await page();
-  const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('class="v6-handover"'));
-  assert.equal([...safe.matchAll(/<li class="v6-snode/g)].length, 5, 'live connected-flow visual restored (Jeff, 26 Nov 13:42)');
-  assert.match(safe, /v6-snode-human"[\s\S]*?Human approval where needed/);
+  const how = h.slice(h.indexOf('id="how"'), h.indexOf('id="safety"'));
+  assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3>/g)].map((m) => m[1]), ['Understand &amp; identify', 'Agree on the plan', 'Build &amp; test', 'Hand over']);
+  const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('id="about"'));
+  assert.match(safe, /It doesn&rsquo;t just run\. It checks when something goes wrong\./);
+  assert.match(safe, /If something goes wrong, the workflow can identify it and notify the right person\./);
+  assert.equal([...safe.matchAll(/<li class="v6-snode/g)].length, 4);
+  assert.match(safe, /v6-snode-human"[\s\S]*?People stay in control/);
+  assert.equal([...safe.slice(safe.indexOf('v6-handover')).matchAll(/<li><strong>/g)].length, 4);
+  assert.ok(h.indexOf('id="how"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="about"'));
   assert.doesNotMatch(visible(main(h)), /\bWe(&rsquo;|’|')ll\b|\bWe review\b/);
 });
 

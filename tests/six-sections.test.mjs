@@ -36,7 +36,7 @@ test('hero (26 Nov v13): short copy, problems → AI & Automation → result, on
   for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(cta.includes(`<span>${t}</span>`), t);
 });
 
-test('How I help (26 Nov 13:34): one section, three cards — problem, solution, project, outcome, "View project"', async () => {
+test('How I help (26 Nov 14:23): three green cards — problem, what I improve, project name as the link', async () => {
   const h = await page();
   const sec = h.slice(h.indexOf('id="services"'), h.indexOf('id="built-in"'));
   assert.match(sec, /Where work gets stuck &mdash; and how I improve it\./);
@@ -46,12 +46,21 @@ test('How I help (26 Nov 13:34): one section, three cards — problem, solution,
   assert.equal(tiles.length, 3);
   [['Enquiries left waiting', 'Enquiry Management Workflow'], ['Reports built by hand', 'Reporting &amp; Data Workflow'], ['Details getting lost', 'Job &amp; Invoice Workflow']].forEach(([prob, proj], i) => {
     const t = tiles[i];
-    assert.ok(t.includes(`<h3 class="v6-tag">${prob}</h3>`) && t.includes(`<p>${proj}</p>`), prob);
-    const order = ['The problem', 'The solution', 'The project', 'The outcome', 'View project'].map((k) => t.indexOf(k));
+    assert.ok(t.includes(`<h3 class="v6-tag">${prob}</h3>`) && t.includes(`<span>${proj}</span>`), prob);
+    assert.ok(!t.includes('The project') && !t.includes('The outcome') && !t.includes('View project'), `card ${i + 1} trimmed labels`);
+    const order = ['The problem', 'What I improve', proj].map((k) => t.indexOf(k));
     assert.ok(order.every((x, j) => x > 0 && (j === 0 || x > order[j - 1])), `card ${i + 1} order`);
     assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog">/);
   });
   assert.ok(!h.includes('id="projects"'), 'no separate Selected projects section');
+});
+
+test('Live demos (26 Nov 14:23): full section heading; invoice pop-up shows both workflow screenshots', async () => {
+  const h = await page();
+  const b = h.slice(h.indexOf('id="built-in"'), h.indexOf('id="experience"'));
+  assert.match(b, /<p class="eyebrow">Live demos<\/p>\s*<h2 id="built-in-h">Built into this website<\/h2>/);
+  const inv = h.slice(h.indexOf('id="sp-d-invoice"'), h.indexOf('</article>', h.indexOf('id="sp-d-invoice"')));
+  assert.ok(inv.includes('assets/workflows/job-completion.webp') && inv.includes('assets/workflows/xero-draft.webp'));
 });
 
 test('pop-ups: labelled illustrative, problem first, and a booking CTA that closes the pop-up', async () => {

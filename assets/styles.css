@@ -6257,3 +6257,14 @@ main > section.section#faq { padding-top: var(--section-pad); padding-bottom: va
 .v6-live-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #3aa676; box-shadow: 0 0 0 3px rgba(58, 166, 118, 0.18); }
 .v6-sel-txt .v6-sel-links { margin-top: 0.3rem; }
 @media (max-width: 40rem) { .v6-sel-card { grid-template-columns: minmax(0, 1fr); } .v6-mini { max-width: 15rem; } }
+/* 26 Nov 14:23 cleanup pass (ChatGPT): Live demos as a full section; all three cards green; labels trimmed;
+   one beige (--tint) alternating with white; hero and final CTA stay dark. */
+.v6-tile-pay { --v6c: #2e7d72; --v6bg: #e6f2ef; }
+.v6-tile .v6-go { margin-top: auto; }
+main > section#services, main > section#built-in, main > section#how, main > section#faq { background: var(--tint); }
+main > section#how { background-image: none; }
+main > section#experience, main > section#about { background: #fff; }
+main > section#built-in { padding-top: 1.5rem; }
+.v6-builtin .v6-sel-intro { margin: 0 0 1.4rem; }
+.v6-sel-card { background: #fff; border-color: var(--line); }
+@media (max-width: 40rem) { main > section#built-in { padding-top: 1rem; } }

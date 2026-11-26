@@ -14,7 +14,7 @@ const visible = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/
 test('six sections in order, and the nav matches', async () => {
   const h = main(await page());
   const ids = [...h.matchAll(/<section class="[^"]*" (?:id="([^"]+)" )?aria-labelledby="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(ids, ['hero-title', 'services', 'experience', 'how', 'about', 'faq', 'start']);
+  assert.deepEqual(ids, ['hero-title', 'services', 'projects', 'built-in', 'experience', 'how', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
   assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#about About', '#faq FAQ']);
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
@@ -60,17 +60,24 @@ test('pop-ups: labelled illustrative, problem first, and a booking CTA that clos
   }
 });
 
-test('Selected projects (26 Nov): quiet section, not tiles 4 and 5; links start with "Try it:" and open the same booking page / chat / pop-ups', async () => {
+test('Selected projects (26 Nov): three independent portfolio builds open their pop-ups; labelled not client work', async () => {
   const h = await page();
-  const sel = h.slice(h.indexOf('id="selected-projects"'), h.indexOf('class="v6-close"'));
-  assert.match(sel, /<h3 class="v6-sel-h">Selected projects<\/h3>/);
-  assert.match(sel, /A few examples of workflows and tools I&rsquo;ve built\./);
-  for (const t of ['Online Booking System', 'AI Website Assistant']) assert.ok(sel.includes(`<h4>${t}</h4>`), t);
-  assert.match(sel, /href="contact\/#contact-form-area">Try it: booking system/);
-  assert.match(sel, /data-assistant-only hidden><button type="button" class="v6-sel-try" data-assistant-open>Try it: AI assistant/);
-  for (const m of sel.matchAll(/class="v6-sel-try"[^>]*>([^<]+)/g)) assert.match(m[1], /^Try it: /);
-  assert.match(sel, /data-sp-open="booking" data-sp-group="live"/);
-  assert.match(sel, /data-sp-open="chat" data-sp-group="live"/);
+  const s = h.slice(h.indexOf('id="projects"'), h.indexOf('id="built-in"'));
+  assert.match(s, /<h2 id="projects-h">Selected projects<\/h2>/);
+  assert.match(s, /Independent projects demonstrating practical solutions to common operational problems\./);
+  assert.deepEqual([...s.matchAll(/data-sp-open="([a-z]+)" data-sp-group="project"/g)].map((m) => m[1]), ['enquiry', 'report', 'invoice']);
+  assert.match(s, /Not client work\./);
+});
+
+test('Built into this website (26 Nov): compact, not numbered; links start with "Try it:" and open the booking page / chat', async () => {
+  const h = await page();
+  const s = h.slice(h.indexOf('id="built-in"'), h.indexOf('id="experience"'));
+  assert.match(s, /Built into this website<\/h2>/);
+  assert.match(s, /This website also demonstrates how I put these tools into practice\./);
+  for (const t of ['Online booking', 'AI website assistant']) assert.ok(s.includes(`<h3>${t}</h3>`), t);
+  assert.match(s, /href="contact\/#contact-form-area">Try it: booking system/);
+  assert.match(s, /data-assistant-only hidden><button type="button" class="v6-sel-try" data-assistant-open>Try it: AI assistant/);
+  for (const m of s.matchAll(/class="v6-sel-try"[^>]*>([^<]+)/g)) assert.match(m[1], /^Try it: /);
   assert.ok(!h.includes('class="v6-live"') && !h.includes('05 &middot; Live'), 'old 04/05 cards gone');
 });
 

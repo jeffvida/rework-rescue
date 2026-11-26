@@ -6214,3 +6214,24 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-safe-h { font-size: 1.15rem; margin-bottom: 0.6rem; }
 .v6-safe .sn-limits { margin-top: 0.7rem; font-size: 0.85rem; color: var(--muted); }
 @media (max-width: 40rem) { .v6-sel-grid { grid-template-columns: minmax(0, 1fr); } }
+/* 26 Nov: Selected projects (portfolio, own section) + Built into this website (compact) */
+.v6-proj-grid { list-style: none; padding: 0; margin: 1.8rem 0 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.v6-proj { position: relative; cursor: pointer; display: flex; flex-direction: column; gap: 0.7rem; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--v6c); border-radius: 14px; padding: 1.3rem 1.3rem 1.15rem; box-shadow: 0 1px 2px rgba(15, 58, 58, 0.05), 0 10px 24px -18px rgba(15, 58, 58, 0.35); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.v6-proj:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(15, 58, 58, 0.06), 0 18px 34px -20px rgba(15, 58, 58, 0.45); }
+.v6-proj-tag { margin: 0; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--v6c); }
+.v6-proj-h { margin: 0; font-size: 1.1rem; line-height: 1.3; }
+.v6-proj-row { margin: 0; font-size: 0.94rem; }
+.v6-proj-row .v6-k { display: block; }
+.v6-proj-res { padding: 0.6rem 0.75rem; border-radius: 10px; background: #eef6f3; font-weight: 600; color: var(--ink); }
+.v6-proj-tools { margin: 0; font-size: 0.84rem; color: var(--muted); }
+.v6-proj .v6-go { margin-top: auto; }
+.v6-proj .v6-go::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+.v6-proj:hover .v6-go, .v6-proj .v6-go:focus-visible { background: var(--v6c); color: #fff; }
+.v6-proj:hover .v6-go-arr { transform: translateX(4px); }
+.v6-proj:focus-within { outline: 3px solid var(--v6c); outline-offset: 3px; }
+.v6-builtin { padding-top: 2.6rem; padding-bottom: 2.6rem; }
+.v6-builtin .v6-sel-h { font-size: 1.25rem; }
+.v6-sel-card h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+@media (max-width: 62rem) { .v6-proj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) { .v6-proj-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .v6-proj, .v6-proj:hover { transition: none; transform: none; } }

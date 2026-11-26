@@ -30,7 +30,8 @@ test('hero (26 Nov v13): short copy, problems → AI & Automation → result, on
   assert.match(hero, /Book a free process review/);
   assert.match(hero, /30 minutes &middot; No obligation/);
   for (const t of ['Enquiries left waiting', 'Reports built by hand', 'Details getting lost', 'Capture', 'Check', 'Organise', 'Built around your business rules', 'Work that keeps moving']) assert.ok(hero.includes(`${t}</`), t);
-  for (const gone of ['h5-panel', 'h5-wave', 'h5-chip', 'h5-trust']) assert.ok(!hero.includes(gone), gone);
+  assert.ok(hero.includes('h5-wave'), 'dotted wave background kept (Jeff, 26 Nov 12:49)');
+  for (const gone of ['h5-panel', 'h5-chip', 'h5-trust']) assert.ok(!hero.includes(gone), gone);
   const cta = h.slice(h.indexOf('id="start"'), h.indexOf('</section>', h.indexOf('id="start"')));
   for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(cta.includes(`<span>${t}</span>`), t);
 });

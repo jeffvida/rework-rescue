@@ -6058,3 +6058,21 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-tile:focus-within { outline: 3px solid var(--v6c); outline-offset: 3px; }
 .v6-go:focus-visible { outline: none; }
 @media (prefers-reduced-motion: reduce) { .v6-ico, .v6-go-arr { transition: none; } .v6-tile:hover .v6-ico, .v6-tile:hover .v6-go-arr { transform: none; } }
+/* 26 Nov: live tool cards match the solution tiles (icon header, colour strip, whole card opens the pop-up; Try it stays its own button) */
+.v6-live-card { position: relative; cursor: pointer; display: flex; flex-direction: column; gap: 0.2rem; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--v6c); border-radius: 14px; padding: 1.3rem 1.3rem 1.15rem; box-shadow: 0 1px 2px rgba(15, 58, 58, 0.05), 0 10px 24px -18px rgba(15, 58, 58, 0.35); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.v6-live-book { --v6c: #2e7d72; --v6bg: #e6f2ef; }
+.v6-live-chat { --v6c: #2f7552; --v6bg: #e9f5ee; }
+.v6-live-card .v6-head { margin-bottom: 0.5rem; }
+.v6-live-card h4.v6-tag { margin: 0; font-size: 1.05rem; }
+.v6-live-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(15, 58, 58, 0.06), 0 18px 34px -20px rgba(15, 58, 58, 0.45); }
+.v6-live-card:hover .v6-ico { transform: scale(1.06); }
+.v6-live-card .v6-go::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+.v6-live-card:hover .v6-go { background: var(--v6c); color: #fff; }
+.v6-live-card:hover .v6-go-arr { transform: translateX(4px); }
+.v6-live-card:focus-within { outline: 3px solid var(--v6c); outline-offset: 3px; }
+.v6-live-card .v6-live-go { position: relative; z-index: 2; margin-top: auto !important; padding-top: 0.6rem; }
+.v6-live-card .v6-live-how { margin: 0.6rem 0 0 !important; }
+.v6-live-card .v6-live-how a { font-size: 1rem; color: var(--v6c); }
+.v6-live-card .v6-live-how a:hover { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .v6-live-card, .v6-live-card:hover { transition: none; transform: none; } }
+.v6-live-card .v6-live-how .v6-go { display: flex; width: 100%; box-sizing: border-box; }

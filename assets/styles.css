@@ -6038,7 +6038,7 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 /* 26 Nov: solution tiles easier to recognise and click: icon header, colour per tile, whole tile opens the pop-up */
 .v6-tile { position: relative; cursor: pointer; border-top: 4px solid var(--v6c, #2e7d72); }
 .v6-tile-enq { --v6c: #2e7d72; --v6bg: #e6f2ef; }
-.v6-tile-rep { --v6c: #3f8f6b; --v6bg: #e9f5ee; }
+.v6-tile-rep { --v6c: #2f7552; --v6bg: #e9f5ee; }
 .v6-tile-pay { --v6c: #8a6516; --v6bg: #fbf1d9; }
 .v6-head { display: flex; align-items: center; gap: 0.75rem; }
 .v6-ico { flex: none; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--v6bg); color: var(--v6c); transition: transform 0.25s ease; }

@@ -6035,3 +6035,26 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
   .v6-snode::before { top: auto; bottom: -1.1rem; left: 19.5px; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-top: 9px solid #78c2a4; border-bottom: 0; }
   @media (prefers-reduced-motion: no-preference) { .v6-sflow .v6-snode::after { background-size: 100% 200%; background-image: linear-gradient(180deg, #2e7d72 0%, #78c2a4 40%, #e6c078 50%, #78c2a4 60%, #2e7d72 100%); animation-name: v6-flow-v; } @keyframes v6-flow-v { from { background-position: 0 200%; } to { background-position: 0 0; } } }
 }
+/* 26 Nov: solution tiles easier to recognise and click: icon header, colour per tile, whole tile opens the pop-up */
+.v6-tile { position: relative; cursor: pointer; border-top: 4px solid var(--v6c, #2e7d72); }
+.v6-tile-enq { --v6c: #2e7d72; --v6bg: #e6f2ef; }
+.v6-tile-rep { --v6c: #3f8f6b; --v6bg: #e9f5ee; }
+.v6-tile-pay { --v6c: #8a6516; --v6bg: #fbf1d9; }
+.v6-head { display: flex; align-items: center; gap: 0.75rem; }
+.v6-ico { flex: none; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--v6bg); color: var(--v6c); transition: transform 0.25s ease; }
+.v6-ico svg { fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.v6-tag .v6-num-s { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; color: var(--v6c); }
+.v6-go { align-self: stretch; justify-content: space-between; padding: 0.65rem 0.95rem; border-radius: 10px; border: 1.5px solid var(--v6c); color: var(--v6c); background: #fff; text-decoration: none !important; transition: background 0.2s ease, color 0.2s ease; }
+.v6-go-arr { transition: transform 0.2s ease; }
+.v6-tile .v6-go::after, .v6-exp .v6-go::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+.v6-exp .v6-result { position: relative; cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.v6-exp .v6-result:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -20px rgba(15, 58, 58, 0.45); }
+.v6-exp .v6-result:hover .v6-go { background: #2e7d72; color: #fff; }
+.v6-exp .v6-result:focus-within { outline: 3px solid #2e7d72; outline-offset: 3px; }
+.v6-tile:hover .v6-go, .v6-go:focus-visible { background: var(--v6c); color: #fff; }
+.v6-tile:hover .v6-go-arr, .v6-go:focus-visible .v6-go-arr { transform: translateX(4px); }
+.v6-tile:hover .v6-ico { transform: scale(1.06); }
+.v6-tile:hover { border-color: var(--line); border-top-color: var(--v6c); }
+.v6-tile:focus-within { outline: 3px solid var(--v6c); outline-offset: 3px; }
+.v6-go:focus-visible { outline: none; }
+@media (prefers-reduced-motion: reduce) { .v6-ico, .v6-go-arr { transition: none; } .v6-tile:hover .v6-ico, .v6-tile:hover .v6-go-arr { transform: none; } }

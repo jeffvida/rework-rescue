@@ -32,12 +32,12 @@ test('hero: spec copy, one booking button, trust strip', async () => {
 
 test('How I help: three tiles show problem, improvement and outcome without opening a pop-up', async () => {
   const h = await page();
-  const tiles = [...h.matchAll(/<li class="v6-tile">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
+  const tiles = [...h.matchAll(/<li class="v6-tile v6-tile-[a-z]+">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
   assert.equal(tiles.length, 3);
   tiles.forEach((t, i) => {
     const order = ['Customer problem', 'What I improve', 'Outcome'].map((k) => t.indexOf(`<p class="v6-k">${k}</p>`));
     assert.ok(order.every((x, j) => x > 0 && (j === 0 || x > order[j - 1])), `tile ${i + 1} order`);
-    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog">See project example/);
+    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog"><span>See project example<\/span>/);
   });
 });
 

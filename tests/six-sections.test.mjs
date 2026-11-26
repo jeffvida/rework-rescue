@@ -26,7 +26,7 @@ test('hero (26 Nov v13): short copy, problems → AI & Automation → result, on
   assert.match(hero, /AI &amp; AUTOMATION, BUILT ON 8\+ YEARS IN OPERATIONS/);
   assert.match(hero, /<span class="hf-l1">Less manual work\.<\/span> <span class="hf-l2"><span class="h5-mark">More time for your business\.<\/span><\/span>/);
   assert.match(hero, /I find where work gets stuck, then set up AI and automation with the right checks to keep things moving\./);
-  assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area'], 'one action only: the problem cards are not clickable');
+  assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area', 'contact/#written-review'], 'booking button + written-review link only: the problem cards are not clickable');
   assert.match(hero, /Book a free process review/);
   assert.match(hero, /30 minutes &middot; No obligation/);
   for (const t of ['Enquiries left waiting', 'Reports built by hand', 'Details getting lost', 'Capture', 'Check', 'Organise', 'Built around your business rules', 'Work that keeps moving']) assert.ok(hero.includes(`${t}</`), t);
@@ -40,11 +40,11 @@ test('How I help (26 Nov 14:23): three green cards — problem, what I improve, 
   const h = await page();
   const sec = h.slice(h.indexOf('id="services"'), h.indexOf('id="built-in"'));
   assert.match(sec, /Where work gets stuck &mdash; and how I improve it\./);
-  assert.match(sec, /Independent projects demonstrating practical solutions to common operational problems\./);
-  assert.match(sec, /Not client work\./);
+  assert.match(sec, /Three working examples I&rsquo;ve built and tested end to end, so you can see how each solution works before we talk\./);
+  assert.match(sec, /tested with sample data, not client projects\./);
   const tiles = [...h.matchAll(/<li class="v6-tile v6-tile-[a-z]+">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
   assert.equal(tiles.length, 3);
-  [['Enquiries left waiting', 'Enquiry Management Workflow'], ['Reports built by hand', 'Reporting &amp; Data Workflow'], ['Details getting lost', 'Job &amp; Invoice Workflow']].forEach(([prob, proj], i) => {
+  [['Enquiries left waiting', 'Enquiry Workflow'], ['Reports built by hand', 'Reporting Workflow'], ['Details getting lost', 'Job &amp; Invoice Workflow']].forEach(([prob, proj], i) => {
     const t = tiles[i];
     assert.ok(t.includes(`<h3 class="v6-tag">${prob}</h3>`) && t.includes(`<span>${proj}</span>`), prob);
     assert.ok(!t.includes('The project') && !t.includes('The outcome') && !t.includes('View project'), `card ${i + 1} trimmed labels`);
@@ -95,7 +95,7 @@ test('26 Nov 14:32: How it works has 4 steps; Reliability is its own section wit
   assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3>/g)].map((m) => m[1]), ['Understand &amp; identify', 'Agree on the plan', 'Build &amp; test', 'Hand over']);
   const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('id="about"'));
   assert.match(safe, /It doesn&rsquo;t just run\. It checks when something goes wrong\./);
-  assert.match(safe, /If something goes wrong, the workflow can identify it and notify the right person\./);
+  assert.match(safe, /If something goes wrong, the workflow catches it and tells the right person\./);
   assert.equal([...safe.matchAll(/<li class="v6-snode/g)].length, 4);
   assert.match(safe, /v6-snode-human"[\s\S]*?People stay in control/);
   assert.equal([...safe.slice(safe.indexOf('v6-handover')).matchAll(/<li><strong>/g)].length, 4);

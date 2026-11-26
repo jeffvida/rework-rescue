@@ -36,14 +36,16 @@ test('hero (26 Nov v13): short copy, problems → AI & Automation → result, on
   for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(cta.includes(`<span>${t}</span>`), t);
 });
 
-test('How I help: three tiles show problem, improvement and outcome without opening a pop-up', async () => {
+test('How I help (26 Nov): three short tiles named after the hero problems; problem, improvement, result; "See how it works"', async () => {
   const h = await page();
   const tiles = [...h.matchAll(/<li class="v6-tile v6-tile-[a-z]+">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
   assert.equal(tiles.length, 3);
-  tiles.forEach((t, i) => {
-    const order = ['Customer problem', 'What I improve', 'Outcome'].map((k) => t.indexOf(`<p class="v6-k">${k}</p>`));
+  ['Enquiries left waiting', 'Reports built by hand', 'Details getting lost'].forEach((name, i) => {
+    const t = tiles[i];
+    assert.ok(t.includes(`</span> ${name}</p>`), name);
+    const order = ['v6-pain', 'What I improve', 'The result'].map((k) => t.indexOf(k));
     assert.ok(order.every((x, j) => x > 0 && (j === 0 || x > order[j - 1])), `tile ${i + 1} order`);
-    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog"><span>See project example<\/span>/);
+    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog"><span>See how it works<\/span>/);
   });
 });
 
@@ -58,12 +60,26 @@ test('pop-ups: labelled illustrative, problem first, and a booking CTA that clos
   }
 });
 
-test('live tools: booking opens the existing pop-up, the assistant opens the existing chat; buttons start with "Try it:"', async () => {
+test('Selected projects (26 Nov): quiet section, not tiles 4 and 5; links start with "Try it:" and open the same booking page / chat / pop-ups', async () => {
   const h = await page();
-  const live = h.slice(h.indexOf('class="v6-live"'), h.indexOf('class="v6-close"'));
-  assert.match(live, /<a class="btn btn-secondary" href="contact\/#contact-form-area">Try it: the booking system/);
-  assert.match(live, /data-assistant-only hidden><button type="button" class="btn btn-secondary" data-assistant-open>Try it: the AI assistant/);
-  for (const m of live.matchAll(/class="btn[^"]*"[^>]*>([^<]+)/g)) assert.match(m[1], /^Try it: /);
+  const sel = h.slice(h.indexOf('id="selected-projects"'), h.indexOf('class="v6-close"'));
+  assert.match(sel, /<h3 class="v6-sel-h">Selected projects<\/h3>/);
+  assert.match(sel, /A few examples of workflows and tools I&rsquo;ve built\./);
+  for (const t of ['Online Booking System', 'AI Website Assistant']) assert.ok(sel.includes(`<h4>${t}</h4>`), t);
+  assert.match(sel, /href="contact\/#contact-form-area">Try it: booking system/);
+  assert.match(sel, /data-assistant-only hidden><button type="button" class="v6-sel-try" data-assistant-open>Try it: AI assistant/);
+  for (const m of sel.matchAll(/class="v6-sel-try"[^>]*>([^<]+)/g)) assert.match(m[1], /^Try it: /);
+  assert.match(sel, /data-sp-open="booking" data-sp-group="live"/);
+  assert.match(sel, /data-sp-open="chat" data-sp-group="live"/);
+  assert.ok(!h.includes('class="v6-live"') && !h.includes('05 &middot; Live'), 'old 04/05 cards gone');
+});
+
+test('26 Nov: compact safeguards keep all five and the human step; no company "we" lines left', async () => {
+  const h = await page();
+  const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('class="v6-handover"'));
+  assert.equal([...safe.matchAll(/<li class="v6-schip/g)].length, 5);
+  assert.match(safe, /v6-schip-human"><span class="v6-schip-n" aria-hidden="true">3<\/span>Human approval where needed/);
+  assert.doesNotMatch(visible(main(h)), /\bWe(&rsquo;|’|')ll\b|\bWe review\b/);
 });
 
 test('proof: previous-role results are labelled as not client work; details open in the pop-up', async () => {

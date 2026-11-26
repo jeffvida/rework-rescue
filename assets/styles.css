@@ -6190,3 +6190,27 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-live-card .v6-live-how a:hover { color: #fff; }
 @media (prefers-reduced-motion: reduce) { .v6-live-card, .v6-live-card:hover { transition: none; transform: none; } }
 .v6-live-card .v6-live-how .v6-go { display: flex; width: 100%; box-sizing: border-box; }
+/* 26 Nov: shorter tiles, quiet "Selected projects" (not service tiles 4 and 5), compact safeguards (Jeff + ChatGPT) */
+.v6-pain p { font-size: 1.02rem; line-height: 1.4; }
+.v6-sel { margin-top: 2.6rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+.v6-sel-h { margin: 0 0 0.25rem; font-size: 1.1rem; }
+.v6-sel-intro { margin: 0 0 1rem; color: var(--muted); font-size: 0.95rem; }
+.v6-sel-grid { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v6-sel-card { background: #f6f9f8; border: 1px solid #dbe8e4; border-radius: 12px; padding: 1rem 1.15rem; }
+.v6-sel-card h4 { margin: 0 0 0.3rem; font-size: 1rem; }
+.v6-sel-card > p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+.v6-sel-card .v6-sel-links { margin-top: 0.7rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; }
+.v6-sel-links [data-assistant-only]:not([hidden]) { display: contents; }
+.v6-sel-try { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 44px; padding: 0; border: 0; background: none; font: inherit; font-weight: 700; font-size: 0.95rem; color: var(--teal); text-decoration: none; cursor: pointer; }
+.v6-sel-try:hover, .v6-sel-try:focus-visible { text-decoration: underline; text-underline-offset: 0.18em; }
+.v6-sel-more { font-size: 0.88rem; color: var(--muted); text-decoration: underline; text-underline-offset: 0.18em; }
+.v6-sel-more:hover { color: var(--ink); }
+.v6-schips { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.v6-schip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem 0.35rem 0.4rem; border-radius: 999px; background: #fff; border: 1px solid #cfe3de; font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+.v6-schip-n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #0f3a3a; color: #fff; font-size: 0.72rem; font-weight: 800; }
+.v6-schip-human { background: #fff8e8; border-color: #e6c078; }
+.v6-schip-human .v6-schip-n { background: #8a6516; }
+.v6-safe { margin-top: 2rem; }
+.v6-safe-h { font-size: 1.15rem; margin-bottom: 0.6rem; }
+.v6-safe .sn-limits { margin-top: 0.7rem; font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 40rem) { .v6-sel-grid { grid-template-columns: minmax(0, 1fr); } }

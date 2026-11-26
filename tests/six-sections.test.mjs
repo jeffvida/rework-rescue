@@ -14,7 +14,7 @@ const visible = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/
 test('six sections in order, and the nav matches', async () => {
   const h = main(await page());
   const ids = [...h.matchAll(/<section class="[^"]*" (?:id="([^"]+)" )?aria-labelledby="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(ids, ['hero-title', 'services', 'projects', 'built-in', 'experience', 'how', 'about', 'faq', 'start']);
+  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
   assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#about About', '#faq FAQ']);
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
@@ -36,17 +36,22 @@ test('hero (26 Nov v13): short copy, problems → AI & Automation → result, on
   for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(cta.includes(`<span>${t}</span>`), t);
 });
 
-test('How I help (26 Nov): three short tiles named after the hero problems; problem, improvement, result; "See how it works"', async () => {
+test('How I help (26 Nov 13:34): one section, three cards — problem, solution, project, outcome, "View project"', async () => {
   const h = await page();
+  const sec = h.slice(h.indexOf('id="services"'), h.indexOf('id="built-in"'));
+  assert.match(sec, /Where work gets stuck &mdash; and how I improve it\./);
+  assert.match(sec, /Independent projects demonstrating practical solutions to common operational problems\./);
+  assert.match(sec, /Not client work\./);
   const tiles = [...h.matchAll(/<li class="v6-tile v6-tile-[a-z]+">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
   assert.equal(tiles.length, 3);
-  ['Enquiries left waiting', 'Reports built by hand', 'Details getting lost'].forEach((name, i) => {
+  [['Enquiries left waiting', 'Enquiry Management Workflow'], ['Reports built by hand', 'Reporting &amp; Data Workflow'], ['Details getting lost', 'Job &amp; Invoice Workflow']].forEach(([prob, proj], i) => {
     const t = tiles[i];
-    assert.ok(t.includes(`</span> ${name}</p>`), name);
-    const order = ['v6-pain', 'What I improve', 'The result'].map((k) => t.indexOf(k));
-    assert.ok(order.every((x, j) => x > 0 && (j === 0 || x > order[j - 1])), `tile ${i + 1} order`);
-    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog"><span>See how it works<\/span>/);
+    assert.ok(t.includes(`<h3 class="v6-tag">${prob}</h3>`) && t.includes(`<p>${proj}</p>`), prob);
+    const order = ['The problem', 'The solution', 'The project', 'The outcome', 'View project'].map((k) => t.indexOf(k));
+    assert.ok(order.every((x, j) => x > 0 && (j === 0 || x > order[j - 1])), `card ${i + 1} order`);
+    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog">/);
   });
+  assert.ok(!h.includes('id="projects"'), 'no separate Selected projects section');
 });
 
 test('pop-ups: labelled illustrative, problem first, and a booking CTA that closes the pop-up', async () => {
@@ -58,15 +63,6 @@ test('pop-ups: labelled illustrative, problem first, and a booking CTA that clos
     assert.match(a, /<p class="v6-foot">Illustrative/, id);
     assert.match(a, /href="contact\/#contact-form-area" data-sp-leave>Discuss a similar improvement</, id);
   }
-});
-
-test('Selected projects (26 Nov): three independent portfolio builds open their pop-ups; labelled not client work', async () => {
-  const h = await page();
-  const s = h.slice(h.indexOf('id="projects"'), h.indexOf('id="built-in"'));
-  assert.match(s, /<h2 id="projects-h">Selected projects<\/h2>/);
-  assert.match(s, /Independent projects demonstrating practical solutions to common operational problems\./);
-  assert.deepEqual([...s.matchAll(/data-sp-open="([a-z]+)" data-sp-group="project"/g)].map((m) => m[1]), ['enquiry', 'report', 'invoice']);
-  assert.match(s, /Not client work\./);
 });
 
 test('Built into this website (26 Nov): compact, not numbered; links start with "Try it:" and open the booking page / chat', async () => {

@@ -19,7 +19,7 @@ const REVEAL = [
 const STAGGER = [
   ['.rr-tiles', 70],
   ['.v6-tiles', 80],
-  ['.v6-proj-grid', 80], ['.v6-sel-grid', 80],
+  ['.v6-sel-grid', 80],
   ['.v6-results', 90],
   ['.sn-list', 80],
   ['.rr-results', 90],

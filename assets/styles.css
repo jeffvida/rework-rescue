@@ -6235,3 +6235,10 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 @media (max-width: 62rem) { .v6-proj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 40rem) { .v6-proj-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .v6-proj, .v6-proj:hover { transition: none; transform: none; } }
+/* 26 Nov 13:34: one section — problem, solution, project, outcome per card (ChatGPT) */
+.v6-prob .v6-k { color: #9a4b1c; margin-bottom: 0.1rem !important; }
+.v6-prob h3.v6-tag { font-size: 1.15rem; }
+.v6-proj-name p:last-child { font-weight: 700; color: var(--v6c); }
+.v6-help .v6-proof-note { margin-top: 0.9rem; }
+.v6-builtin { padding-top: 0; }
+.v6-builtin .container { border-top: 1px solid var(--line); padding-top: 2rem; }

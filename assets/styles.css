@@ -6210,9 +6210,6 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-schip-n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #0f3a3a; color: #fff; font-size: 0.72rem; font-weight: 800; }
 .v6-schip-human { background: #fff8e8; border-color: #e6c078; }
 .v6-schip-human .v6-schip-n { background: #8a6516; }
-.v6-safe { margin-top: 2rem; }
-.v6-safe-h { font-size: 1.15rem; margin-bottom: 0.6rem; }
-.v6-safe .sn-limits { margin-top: 0.7rem; font-size: 0.85rem; color: var(--muted); }
 @media (max-width: 40rem) { .v6-sel-grid { grid-template-columns: minmax(0, 1fr); } }
 /* 26 Nov: Selected projects (portfolio, own section) + Built into this website (compact) */
 .v6-proj-grid { list-style: none; padding: 0; margin: 1.8rem 0 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -6229,7 +6226,6 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-proj:hover .v6-go, .v6-proj .v6-go:focus-visible { background: var(--v6c); color: #fff; }
 .v6-proj:hover .v6-go-arr { transform: translateX(4px); }
 .v6-proj:focus-within { outline: 3px solid var(--v6c); outline-offset: 3px; }
-.v6-builtin { padding-top: 2.6rem; padding-bottom: 2.6rem; }
 .v6-builtin .v6-sel-h { font-size: 1.25rem; }
 .v6-sel-card h3 { margin: 0 0 0.3rem; font-size: 1rem; }
 @media (max-width: 62rem) { .v6-proj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -6240,5 +6236,9 @@ dialog.cs.sp-dlg, dialog.cs.sp-dlg:not([open]) { width: min(46rem, calc(100vw - 
 .v6-prob h3.v6-tag { font-size: 1.15rem; }
 .v6-proj-name p:last-child { font-weight: 700; color: var(--v6c); }
 .v6-help .v6-proof-note { margin-top: 0.9rem; }
-.v6-builtin { padding-top: 0; }
-.v6-builtin .container { border-top: 1px solid var(--line); padding-top: 2rem; }
+/* 26 Nov 13:42 spacing review: Built into this website continues the How I help band (same white, small gap);
+   FAQ uses the same section padding as the rest of the page. */
+main > section#services { padding-bottom: 2.5rem; }
+main > section#built-in { background: #fff; padding-top: 0; }
+main > section.section#faq { padding-top: var(--section-pad); padding-bottom: var(--section-pad); }
+@media (max-width: 40rem) { main > section#services { padding-bottom: 2rem; } main > section#built-in { padding-top: 0; } main > section.section#faq { padding-top: 2.5rem; padding-bottom: 2.75rem; } }

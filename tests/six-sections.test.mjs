@@ -77,11 +77,11 @@ test('Built into this website (26 Nov): compact, not numbered; links start with 
   assert.ok(!h.includes('class="v6-live"') && !h.includes('05 &middot; Live'), 'old 04/05 cards gone');
 });
 
-test('26 Nov: compact safeguards keep all five and the human step; no company "we" lines left', async () => {
+test('26 Nov: safeguards keep the live connected flow, all five and the human step; no company "we" lines left', async () => {
   const h = await page();
   const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('class="v6-handover"'));
-  assert.equal([...safe.matchAll(/<li class="v6-schip/g)].length, 5);
-  assert.match(safe, /v6-schip-human"><span class="v6-schip-n" aria-hidden="true">3<\/span>Human approval where needed/);
+  assert.equal([...safe.matchAll(/<li class="v6-snode/g)].length, 5, 'live connected-flow visual restored (Jeff, 26 Nov 13:42)');
+  assert.match(safe, /v6-snode-human"[\s\S]*?Human approval where needed/);
   assert.doesNotMatch(visible(main(h)), /\bWe(&rsquo;|’|')ll\b|\bWe review\b/);
 });
 

@@ -6315,3 +6315,11 @@ main > section#pricing { background: #fff; }
 .cur-toggle button[aria-pressed="true"] { background: var(--teal); color: #fff; }
 .cur-toggle button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 @media (max-width: 40rem) { .v6-price-card { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; padding: 1.2rem 1.15rem; } }
+/* 27 Nov 09:31 (Jeff): compact Handover — less section padding, tighter cards */
+main > section#handover { padding: 2.6rem 0; }
+main > section#handover h2 { margin-bottom: 0; }
+#handover .v6-hand-grid { margin-top: 1rem; gap: 0.75rem; }
+#handover .v6-hand-grid li { gap: 0.15rem; padding: 0.8rem 0.95rem 0.85rem 2.3rem; border-radius: 12px; }
+#handover .v6-hand-grid li::before { left: 0.9rem; top: 0.8rem; }
+#handover .v6-hand-grid span { font-size: 0.9rem; line-height: 1.4; }
+@media (max-width: 40rem) { main > section#handover { padding: 2rem 0; } #handover .v6-hand-grid { gap: 0.5rem; } #handover .v6-hand-grid li { padding: 0.7rem 0.85rem 0.75rem 2.2rem; } #handover .v6-hand-grid li::before { top: 0.7rem; } }

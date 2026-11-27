@@ -14,7 +14,7 @@ const visible = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/
 test('six sections in order, and the nav matches', async () => {
   const h = main(await page());
   const ids = [...h.matchAll(/<section class="[^"]*" (?:id="([^"]+)" )?aria-labelledby="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'safety', 'handover', 'pricing', 'about', 'faq', 'start']);
+  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'safety', 'pricing', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
   assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#pricing Pricing', '#about About', '#faq FAQ']);
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
@@ -99,7 +99,8 @@ test('26 Nov 14:32: How it works has 4 steps; Reliability is its own section wit
   assert.equal([...safe.matchAll(/<li class="v6-snode/g)].length, 4);
   assert.match(safe, /v6-snode-human"[\s\S]*?People stay in control/);
   const hand = h.slice(h.indexOf('id="handover"'), h.indexOf('id="pricing"'));
-  assert.equal([...hand.matchAll(/<li><strong>/g)].length, 4, '27 Nov: handover list is its own section');
+  assert.ok(h.indexOf('id="safety"') < h.indexOf('id="handover"') && h.indexOf('id="handover"') < h.indexOf('id="pricing"'), '27 Nov 09:33: handover sits inside Reliability');
+  assert.equal([...hand.matchAll(/<li><strong>/g)].length, 4);
   assert.ok(!safe.includes('v6-handover'));
   assert.ok(h.indexOf('id="how"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="about"'));
   assert.doesNotMatch(visible(main(h)), /\bWe(&rsquo;|’|')ll\b|\bWe review\b/);

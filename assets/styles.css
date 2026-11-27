@@ -6295,7 +6295,6 @@ main > section#safety .sn-limits { color: var(--muted); }
 
 /* 27 Nov: Handover and Pricing as their own sections. Backgrounds keep the one-beige/white rhythm:
    How beige → Reliability white → Handover beige → Pricing white → About beige → FAQ white. */
-main > section#handover { background: var(--tint); }
 main > section#pricing { background: #fff; }
 .v6-hand-grid { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
 .v6-hand-grid li { position: relative; display: grid; align-content: start; gap: 0.3rem; padding: 1.1rem 1.15rem 1.15rem 2.6rem; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
@@ -6303,7 +6302,7 @@ main > section#pricing { background: #fff; }
 .v6-hand-grid strong { font-size: 1rem; color: var(--ink); }
 .v6-hand-grid span { font-size: 0.95rem; color: var(--muted); }
 @media (max-width: 60rem) { .v6-hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 40rem) { .v6-hand-grid { grid-template-columns: minmax(0, 1fr); gap: 0.7rem; } main > section#handover, main > section#pricing { padding: 2.75rem 0; } }
+@media (max-width: 40rem) { .v6-hand-grid { grid-template-columns: minmax(0, 1fr); gap: 0.7rem; } main > section#pricing { padding: 2.75rem 0; } }
 .v6-price-card { margin-top: 1.4rem; max-width: 52rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem 2.5rem; align-items: center; padding: 1.5rem 1.6rem; border-radius: 14px; background: #eef6f3; border: 1px solid #cfe3de; }
 .v6-price-from { margin: 0.9rem 0 0.1rem; font-size: 0.95rem; color: var(--muted); }
 .v6-price-amt { margin: 0; font-family: var(--display); font-size: clamp(1.9rem, 4vw, 2.4rem); line-height: 1.1; font-weight: 700; color: var(--ink); }
@@ -6315,11 +6314,16 @@ main > section#pricing { background: #fff; }
 .cur-toggle button[aria-pressed="true"] { background: var(--teal); color: #fff; }
 .cur-toggle button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 @media (max-width: 40rem) { .v6-price-card { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; padding: 1.2rem 1.15rem; } }
-/* 27 Nov 09:31 (Jeff): compact Handover — less section padding, tighter cards */
-main > section#handover { padding: 2.6rem 0; }
-main > section#handover h2 { margin-bottom: 0; }
-#handover .v6-hand-grid { margin-top: 1rem; gap: 0.75rem; }
-#handover .v6-hand-grid li { gap: 0.15rem; padding: 0.8rem 0.95rem 0.85rem 2.3rem; border-radius: 12px; }
-#handover .v6-hand-grid li::before { left: 0.9rem; top: 0.8rem; }
-#handover .v6-hand-grid span { font-size: 0.9rem; line-height: 1.4; }
-@media (max-width: 40rem) { main > section#handover { padding: 2rem 0; } #handover .v6-hand-grid { gap: 0.5rem; } #handover .v6-hand-grid li { padding: 0.7rem 0.85rem 0.75rem 2.2rem; } #handover .v6-hand-grid li::before { top: 0.7rem; } }
+/* 27 Nov 09:33 (Jeff): Handover folded into Reliability & safeguards as a compact block.
+   Backgrounds re-alternated below it: Reliability white → Pricing beige → About white → FAQ beige. */
+main > section#pricing { background: var(--tint); }
+main > section#about { background: #fff; }
+main > section#faq { background: var(--tint); }
+.v6-handbox { margin-top: 2rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+.v6-handbox h3 { margin: 0; font-size: 1.2rem; }
+.v6-handbox .v6-hand-grid { margin-top: 0.9rem; gap: 0.75rem; }
+.v6-handbox .v6-hand-grid li { gap: 0.15rem; padding: 0.8rem 0.95rem 0.85rem 2.3rem; border-radius: 12px; }
+.v6-handbox .v6-hand-grid li::before { left: 0.9rem; top: 0.8rem; }
+.v6-handbox .v6-hand-grid span { font-size: 0.9rem; line-height: 1.4; }
+.v6-pricing .v6-price-card { background: #fff; }
+@media (max-width: 40rem) { .v6-handbox { margin-top: 1.6rem; padding-top: 1.3rem; } .v6-handbox .v6-hand-grid { gap: 0.5rem; } .v6-handbox .v6-hand-grid li { padding: 0.7rem 0.85rem 0.75rem 2.2rem; } .v6-handbox .v6-hand-grid li::before { top: 0.7rem; } }

@@ -1,15 +1,23 @@
 // 27 Nov 2026: USD | AUD toggle for the Pricing section. Fixed display prices, not live conversion.
-// Every element with [data-price] (Pricing section, FAQ cost answer) shows the starting price in the chosen currency.
+// Every element with [data-price] shows its price in the chosen currency:
+//   data-price (empty)  → starting price (Pricing section, FAQ cost answer)
+//   data-price="maint"  → ongoing maintenance (FAQ "Can I request support after the 30 days?")
 // USD is the default and what shows without JavaScript; the toggle itself only appears when this script runs.
-const PRICES = { USD: 'USD $500', AUD: 'AUD $750' };
+const PRICES = {
+  start: { USD: 'USD $500', AUD: 'AUD $750' },
+  maint: { USD: 'US$165/month', AUD: 'A$250/month' },
+};
 const KEY = 'rr-currency';
 
 export function mountCurrency(doc = document) {
   const toggles = [...doc.querySelectorAll('[data-cur-toggle]')];
   if (!toggles.length) return;
   const set = (cur, save) => {
-    if (!PRICES[cur]) cur = 'USD';
-    doc.querySelectorAll('[data-price]').forEach((el) => { el.textContent = PRICES[cur]; });
+    if (!PRICES.start[cur]) cur = 'USD';
+    doc.querySelectorAll('[data-price]').forEach((el) => {
+      const kind = (el.dataset && el.dataset.price) || 'start';
+      if (PRICES[kind]) el.textContent = PRICES[kind][cur];
+    });
     doc.querySelectorAll('[data-cur]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cur === cur)));
     if (save) { try { localStorage.setItem(KEY, cur); } catch (e) { /* storage unavailable: choice lasts for this visit */ } }
   };

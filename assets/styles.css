@@ -6327,3 +6327,8 @@ main > section#faq { background: var(--tint); }
 .v6-handbox .v6-hand-grid span { font-size: 0.9rem; line-height: 1.4; }
 .v6-pricing .v6-price-card { background: #fff; }
 @media (max-width: 40rem) { .v6-handbox { margin-top: 1.6rem; padding-top: 1.3rem; } .v6-handbox .v6-hand-grid { gap: 0.5rem; } .v6-handbox .v6-hand-grid li { padding: 0.7rem 0.85rem 0.75rem 2.2rem; } .v6-handbox .v6-hand-grid li::before { top: 0.7rem; } }
+/* 27 Nov 09:42 (Jeff copy): handover block = intro + 3 cards + closing line */
+.v6-handbox .v6-hand-intro { margin: 0.4rem 0 0; max-width: 46rem; color: var(--muted); }
+.v6-handbox .v6-hand-grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.v6-handbox .v6-hand-more { margin: 0.9rem 0 0; font-size: 0.95rem; color: var(--ink); }
+@media (max-width: 52rem) { .v6-handbox .v6-hand-grid3 { grid-template-columns: minmax(0, 1fr); } }

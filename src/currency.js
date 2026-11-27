@@ -1,11 +1,11 @@
-// 27 Nov 2026: USD | AUD toggle (US$ / AU$ format, Jeff 11:45) for the Pricing section. Fixed display prices, not live conversion.
+// 27 Nov 2026: USD | AUD toggle (USD $ / AUD $ format, Jeff 11:50) for the Pricing section. Fixed display prices, not live conversion.
 // Every element with [data-price] shows its price in the chosen currency:
 //   data-price (empty)  → starting price (Pricing section, FAQ cost answer)
 //   data-price="maint"  → ongoing maintenance (FAQ "Can I request support after the 30 days?")
 // USD is the default and what shows without JavaScript; the toggle itself only appears when this script runs.
 const PRICES = {
-  start: { USD: 'US$500', AUD: 'AU$750' },
-  maint: { USD: 'US$165/month', AUD: 'AU$250/month' },
+  start: { USD: 'USD $500', AUD: 'AUD $750' },
+  maint: { USD: 'USD $165/month', AUD: 'AUD $250/month' },
 };
 const KEY = 'rr-currency';
 

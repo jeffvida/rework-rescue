@@ -6385,3 +6385,37 @@ main > section.section#services { padding-top: var(--section-pad); padding-botto
 .pj-try { width: 100%; justify-content: space-between; }
 .pj-links { gap: 0.1rem 1rem; }
 .pj-links .pj-sub { padding-block: 0.45rem 0; }
+
+/* ===== 27 Nov 2026: hero right side "Imagine your [word] running smoothly." (replaces the rrh card) =====
+   Secondary to the left headline: smaller, softer white, only the changing word in mint. No card, no glow.
+   A thin divider separates it from the left column on desktop. */
+.rri { margin: 0; justify-self: end; width: 100%; max-width: 25rem; padding: 1.6rem 1.7rem 1.4rem; border-radius: 20px; background: rgba(6, 36, 38, 0.86); }
+.rri-h { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.5rem; line-height: 1.3; letter-spacing: -0.01em; color: rgba(236, 244, 242, 0.72); }
+.rri-a, .rri-b, .rri-ws { display: block; }
+.rri-ws { display: grid; color: var(--h5-mint); }
+.rri-w { grid-area: 1 / 1; opacity: 0; transition: opacity 0.4s ease; white-space: nowrap; }
+.rri-w.is-on { opacity: 1; }
+.rri-icons { list-style: none; margin: 1.6rem 0 0; padding: 1.2rem 0 0; border-top: 1px solid rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+.rri-icons li { display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; margin: 0; font-size: 0.875rem; line-height: 1.3; color: rgba(215, 229, 226, 0.8); }
+.rri-ic svg { display: block; width: 1.3rem; height: 1.3rem; fill: none; stroke: var(--h5-mint); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
+@media (prefers-reduced-motion: reduce) { .rri-w { transition: none; } }
+/* Small desktops and tablets keep two columns (the right side is small now); one column from 52rem down */
+@media (min-width: 52.01rem) and (max-width: 74rem) {
+  .h13 .h5-grid { grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 1fr); gap: 2rem; }
+  .h13 h1 .hf-l2 { white-space: normal; }
+  .rri { padding: 1.3rem 1.3rem 1.2rem; }
+  .rri-h { font-size: 1.3rem; }
+}
+/* Desktop and tablet: the three outcomes as a quiet list (they read as short sentences, no wrapping) */
+@media (min-width: 52.01rem) {
+  .rri-icons { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
+  .rri-icons li { flex-direction: row; align-items: center; gap: 0.65rem; font-size: 0.92rem; }
+}
+@media (max-width: 52rem) { .rri { justify-self: stretch; max-width: none; } }
+@media (max-width: 40rem) {
+  .rri { padding: 1.1rem 1.1rem 1rem; border-radius: 16px; }
+  .rri-h { font-size: 1.2rem; }
+  .rri-icons { margin-top: 1rem; padding-top: 0.9rem; gap: 0.6rem; }
+  .rri-icons li { font-size: 0.8rem; gap: 0.35rem; }
+}
+@media print { .rri-h, .rri-icons li { color: #000 !important; } .rri-w:not(.is-on) { display: none; } }

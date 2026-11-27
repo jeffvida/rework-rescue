@@ -6451,3 +6451,51 @@ main > section.section#services { padding-top: var(--section-pad); padding-botto
 }
 @media (max-width: 52rem) { .hcb { justify-self: center; max-width: 24rem; } }
 @media (max-width: 40rem) { .hcb { max-width: 21rem; } .hcb-cap { font-size: 0.7rem; } }
+
+/* ===== 27 Nov 2026 (night): hero right side "Your week" — the customer's own week, each problem flipping to fixed.
+   Ops-manager view: people recognise their own symptoms in their own words faster than icons or concepts.
+   Each row: what it is → the problem (struck through) → what happens instead. Pain stays visible after the flip. */
+.hos { --bad: #f0a64b; --ok: #49cf95; margin: 0; justify-self: end; width: 100%; max-width: 31rem; padding: 1.1rem 1.2rem 1rem; border-radius: 20px;
+  background: rgba(7, 38, 40, 0.92); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 30px 60px -34px rgba(0, 0, 0, 0.9); }
+.hos-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 0.5rem; padding: 0 0.15rem; }
+.hos-title { font-family: var(--display); font-size: 1rem; font-weight: 700; color: #fff; }
+.hos-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(215, 229, 226, 0.55); }
+.hos-list { list-style: none; margin: 0; padding: 0; }
+.hos-row { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; margin: 0; padding: 0.7rem 0.15rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.hos-ic { display: grid; place-items: center; width: 2.3rem; height: 2.3rem; border-radius: 10px; background: rgba(255, 255, 255, 0.06); }
+.hos-ic svg { width: 1.15rem; height: 1.15rem; fill: none; stroke: #d5e3df; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.hos-what { font-size: 0.95rem; font-weight: 600; line-height: 1.3; color: #f2f7f6; }
+.hos-st { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; text-align: right; }
+.hos-old { position: relative; font-size: 0.84rem; font-weight: 500; line-height: 1.25; color: #f3b46a; white-space: nowrap; }
+.hos-old::after { content: ""; position: absolute; left: -2px; right: -2px; top: 54%; height: 1px; background: rgba(243, 180, 106, 0.75); transform-origin: left; }
+.hos-new { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.22rem 0.6rem; border-radius: 999px; background: rgba(73, 207, 149, 0.14);
+  border: 1px solid rgba(73, 207, 149, 0.45); font-size: 0.82rem; font-weight: 600; line-height: 1.2; color: #bff3da; white-space: nowrap; }
+.hos-new svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: var(--ok); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.hos-foot { display: flex; align-items: center; gap: 0.6rem; margin: 0.35rem 0 0; padding: 0.75rem 0.15rem 0; border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.8rem; line-height: 1.35; color: rgba(215, 229, 226, 0.75); }
+.hos-foot img { flex: none; width: 2.1rem; height: 2.1rem; object-fit: contain; padding: 0.3rem; border-radius: 50%; background: #f8f7ed; box-shadow: 0 0 0 2px rgba(230, 192, 120, 0.55); }
+/* Motion: each problem shows first (bright, not struck), then is struck through and the fix appears. One pass. */
+@media (prefers-reduced-motion: no-preference) {
+  .hos-row { animation: h5-in 0.4s ease-out both; }
+  .hos-old { animation: hos-dim 0.4s ease-out both; }
+  .hos-old::after { animation: hos-strike 0.35s ease-out both; }
+  .hos-new { animation: hos-pop 0.4s ease-out both; }
+  .hos-r2 { animation-delay: 0.08s; } .hos-r3 { animation-delay: 0.16s; } .hos-r4 { animation-delay: 0.24s; }
+  .hos-r1 .hos-old, .hos-r1 .hos-old::after, .hos-r1 .hos-new { animation-delay: 1s; }
+  .hos-r2 .hos-old, .hos-r2 .hos-old::after, .hos-r2 .hos-new { animation-delay: 1.5s; }
+  .hos-r3 .hos-old, .hos-r3 .hos-old::after, .hos-r3 .hos-new { animation-delay: 2s; }
+  .hos-r4 .hos-old, .hos-r4 .hos-old::after, .hos-r4 .hos-new { animation-delay: 2.5s; }
+  .hos-foot { animation: h5-in 0.45s ease-out 3s both; }
+}
+@keyframes hos-dim { from { color: #ffc98a; } to { color: #f3b46a; } }
+@keyframes hos-strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hos-pop { from { opacity: 0; transform: translateY(4px) scale(0.96); } to { opacity: 1; transform: none; } }
+@media (max-width: 52rem) { .hos { justify-self: stretch; max-width: none; } }
+@media (max-width: 40rem) {
+  .hos { padding: 0.9rem 0.9rem 0.85rem; border-radius: 16px; }
+  .hos-row { grid-template-columns: 2rem minmax(0, 1fr); gap: 0.2rem 0.65rem; padding: 0.6rem 0.1rem; }
+  .hos-ic { width: 2rem; height: 2rem; grid-row: span 2; align-self: start; }
+  .hos-what { font-size: 0.9rem; }
+  .hos-st { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 0.35rem 0.6rem; text-align: left; }
+  .hos-new { font-size: 0.78rem; }
+}

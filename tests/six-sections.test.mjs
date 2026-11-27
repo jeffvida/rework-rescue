@@ -20,7 +20,7 @@ test('six sections in order, and the nav matches', async () => {
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
 });
 
-test('hero (27 Nov evening): left copy kept (subhead ends "checks built in"); right side = connected business operations visual', async () => {
+test('hero (27 Nov evening): left copy kept (subhead ends "checks built in"); right side = "Your week": four everyday problems, each struck through and fixed', async () => {
   const h = await page();
   const hero = h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero')));
   assert.match(hero, /AI &amp; AUTOMATION, BUILT ON 8\+ YEARS IN OPERATIONS/);
@@ -29,12 +29,17 @@ test('hero (27 Nov evening): left copy kept (subhead ends "checks built in"); ri
   assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area', 'contact/#written-review'], 'booking button + written-review link only');
   assert.match(hero, /Book a free process review/);
   assert.match(hero, /30 minutes &middot; No obligation/);
-  assert.match(hero, /<figure class="hcb" id="hero-story">/);
-  assert.deepEqual([...hero.matchAll(/<text [^>]*>([^<]+)<\/text>/g)].map((m) => m[1]), ['Enquiries', 'Jobs &amp; follow-ups', 'Reporting']);
-  assert.equal((hero.match(/class="hcb-art /g) || []).length, 4, 'four faint everyday items (email, calendar, job list, report)');
-  assert.match(hero, /<figcaption class="hcb-cap">Connected business operations<\/figcaption>/);
-  assert.match(hero, /href="assets\/brand\/mark\.png"/, 'Rework Rescue mark only');
-  for (const gone of ['rrh-', 'rri-', 'Imagine your', 'running smoothly', 'Work that keeps moving']) assert.ok(!hero.includes(gone), gone);
+  assert.match(hero, /<figure class="hos" id="hero-story">/);
+  assert.match(hero, /<span class="hos-title">Your week<\/span><span class="hos-tag">Example<\/span>/);
+  const rows = [...hero.matchAll(/<span class="hos-what">([^<]+)<\/span><span class="hos-st"><span class="hos-old"><span class="sr-only">Before: <\/span>([^<]+)<\/span><span class="hos-new"><span class="sr-only">After: <\/span><svg[^>]*>.*?<\/svg>([^<]+)<\/span>/g)].map((m) => [m[1], m[2], m[3]]);
+  assert.deepEqual(rows, [
+    ['New customer enquiry', '2 days, no reply', 'Logged, reply drafted'],
+    ['Customer details', 'Typed into 3 places', 'Entered once, synced'],
+    ['Follow-up on a request', 'Nobody assigned', 'Owner set, reminder sent'],
+    ['Weekly report', '3 hours by hand', 'Built and checked'],
+  ]);
+  assert.match(hero, /Set up and checked by me\. You approve anything important\./);
+  for (const gone of ['rrh-', 'rri-', 'hcb-', 'Imagine your', 'invoice', 'Invoice']) assert.ok(!hero.includes(gone), gone);
   assert.ok(hero.includes('h5-wave'), 'dotted wave background kept (Jeff, 26 Nov 12:49)');
   const cta = h.slice(h.indexOf('id="start"'), h.indexOf('</section>', h.indexOf('id="start"')));
   assert.match(cta, /<h2 id="cta-h">Let&rsquo;s look at one process together\.<\/h2>/);

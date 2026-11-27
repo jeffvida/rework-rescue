@@ -6332,3 +6332,12 @@ main > section#faq { background: var(--tint); }
 .v6-handbox .v6-hand-grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .v6-handbox .v6-hand-more { margin: 0.9rem 0 0; font-size: 0.95rem; color: var(--ink); }
 @media (max-width: 52rem) { .v6-handbox .v6-hand-grid3 { grid-template-columns: minmax(0, 1fr); } }
+/* 27 Nov 11:45 (Jeff copy): Pricing = price card + two small boxes (software costs, support) */
+.v6-price-extra { margin-top: 1rem; max-width: 52rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.v6-price-box { padding: 1.1rem 1.2rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.v6-price-box h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+.v6-price-box p { margin: 0; font-size: 0.95rem; color: var(--muted); }
+.v6-price-box .v6-maint { margin-top: 0.8rem; padding-top: 0.75rem; border-top: 1px solid var(--line); display: grid; gap: 0.15rem; }
+.v6-price-box .v6-maint strong { color: var(--ink); font-size: 1rem; }
+.v6-price-box .v6-maint span:not([data-price]) { font-size: 0.88rem; }
+@media (max-width: 40rem) { .v6-price-extra { grid-template-columns: minmax(0, 1fr); gap: 0.7rem; } .v6-price-box { padding: 1rem; } }

@@ -118,7 +118,7 @@ test('guard rails: no prices or testimonials, one booking wording, no inline sty
   const h = await page();
   const v = visible(h);
   // 27 Nov: the only prices allowed are the approved ones (starting price per currency, maintenance from AUD $250).
-  assert.doesNotMatch(v.replace(/(USD \$500|AUD \$750|US\$165\/month)/g, ''), /[$₱€£]\s?\d|per hour|testimonial|what (my )?clients say|100% accurate|all errors detected/i);
+  assert.doesNotMatch(v.replace(/(US\$500|AU\$750|US\$165\/month)/g, ''), /[$₱€£]\s?\d|per hour|testimonial|what (my )?clients say|100% accurate|all errors detected/i);
   assert.doesNotMatch(v, /(report|rework) review/i);
   for (const m of h.matchAll(/<a class="btn btn-primary[^"]*" href="contact\/#contact-form-area">([^<]+)<\/a>/g)) assert.ok(['Book a free process review', 'Discuss a similar improvement'].includes(m[1]), m[1]);
   assert.doesNotMatch(h, /\sstyle="/, 'CSP: no inline styles');
@@ -151,15 +151,14 @@ test('27 Nov: Pricing after Handover with a USD | AUD toggle (USD default); FAQ 
   const h = await page();
   const pr = h.slice(h.indexOf('id="pricing"'), h.indexOf('id="about"'));
   assert.match(pr, /Practical improvements, priced upfront\./);
-  assert.match(pr, /Projects start from<\/p>\s*<p class="v6-price-amt"[^>]*><span data-price>USD \$500<\/span>/);
+  assert.match(pr, /Projects start from<\/p>\s*<p class="v6-price-amt"[^>]*><span data-price>US\$500<\/span>/);
   assert.match(pr, /data-cur-toggle hidden>[\s\S]*?data-cur="USD" aria-pressed="true">USD<\/button><button type="button" data-cur="AUD" aria-pressed="false">AUD/);
   assert.ok(!/<select/.test(pr), 'no dropdown');
-  ['A clear scope of work.', 'Agreed deliverables.', 'A written price.', 'An expected timeframe.', 'No surprises. No commitment until you agree.'].forEach((t) => assert.ok(pr.includes(t), t));
-  assert.ok(!pr.includes('165'), 'maintenance price lives in the FAQ, not the Pricing section');
+  ['Project pricing', 'Before work starts, you&rsquo;ll receive:', 'A clear scope of work.', 'Agreed deliverables.', 'A written price.', 'An expected timeframe.', 'Software and subscription costs', 'Support when you need it', 'Ongoing maintenance from <span data-price="maint">US$165/month</span>', 'Optional. Agreed separately based on your requirements.'].forEach((t) => assert.ok(pr.includes(t), t));
   const faq = h.slice(h.indexOf('id="faq"'), h.indexOf('id="start"'));
   const qs = [...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]);
   ['Who do you work with?', 'Can you work with larger businesses or teams?', 'Do you use AI for everything?', 'Will this replace anyone on my team?', 'Can you work with confidential or sensitive information?', 'How much does a project cost?', 'How long does a project take?', 'What happens after handover?', 'Are software subscriptions and API costs included?', 'Can I request support after the 30 days?'].forEach((q) => assert.ok(qs.includes(q), q));
-  assert.match(faq, /Projects start from <span data-price>USD \$500<\/span>/);
+  assert.match(faq, /Projects start from <span data-price>US\$500<\/span>/);
   assert.match(faq, /1&ndash;3 weeks/);
   assert.match(faq, /<span data-price="maint">US\$165\/month<\/span>/);
   assert.match(faq, /Solo operators, small teams/);
@@ -170,17 +169,17 @@ test('27 Nov: Pricing after Handover with a USD | AUD toggle (USD default); FAQ 
 test('27 Nov: currency toggle switches every [data-price] and remembers the choice', async () => {
   const { mountCurrency } = await import('../src/currency.js');
   const store = {}; globalThis.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => { store[k] = v; } };
-  const prices = [{ textContent: 'USD $500', dataset: { price: '' } }, { textContent: 'USD $500', dataset: { price: '' } }, { textContent: 'US$165/month', dataset: { price: 'maint' } }];
+  const prices = [{ textContent: 'US$500', dataset: { price: '' } }, { textContent: 'US$500', dataset: { price: '' } }, { textContent: 'US$165/month', dataset: { price: 'maint' } }];
   const mk = (cur) => { const b = { dataset: { cur }, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; } }; b.closest = () => b; return b; };
   const btns = [mk('USD'), mk('AUD')]; let handler;
   const toggle = { hidden: true, addEventListener: (t, f) => { handler = f; } };
   const doc = { querySelectorAll: (sel) => (sel === '[data-cur-toggle]' ? [toggle] : sel === '[data-price]' ? prices : btns) };
   mountCurrency(doc);
   assert.equal(toggle.hidden, false);
-  assert.deepEqual(prices.map((p) => p.textContent), ['USD $500', 'USD $500', 'US$165/month']);
+  assert.deepEqual(prices.map((p) => p.textContent), ['US$500', 'US$500', 'US$165/month']);
   assert.equal(btns[0].attrs['aria-pressed'], 'true');
   handler({ target: btns[1] });
-  assert.deepEqual(prices.map((p) => p.textContent), ['AUD $750', 'AUD $750', 'A$250/month']);
+  assert.deepEqual(prices.map((p) => p.textContent), ['AU$750', 'AU$750', 'AU$250/month']);
   assert.equal(btns[1].attrs['aria-pressed'], 'true');
   assert.equal(store['rr-currency'], 'AUD');
   delete globalThis.localStorage;

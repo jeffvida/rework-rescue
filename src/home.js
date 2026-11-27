@@ -99,3 +99,7 @@ if (location.hash === '#example-1' || location.hash === '#example-2') {
 // 25 Nov 2026: the three solution tiles and the experience link open the shared pop-up (src/sample-rail.js).
 import { mountSampleRail } from './sample-rail.js';
 mountSampleRail();
+
+// 27 Nov 2026: USD | AUD toggle in the Pricing section (src/currency.js).
+import { mountCurrency } from './currency.js';
+mountCurrency();

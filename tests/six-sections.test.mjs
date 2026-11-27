@@ -14,9 +14,9 @@ const visible = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/
 test('six sections in order, and the nav matches', async () => {
   const h = main(await page());
   const ids = [...h.matchAll(/<section class="[^"]*" (?:id="([^"]+)" )?aria-labelledby="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'safety', 'about', 'faq', 'start']);
+  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'safety', 'handover', 'pricing', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
-  assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#about About', '#faq FAQ']);
+  assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#pricing Pricing', '#about About', '#faq FAQ']);
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
 });
 
@@ -93,12 +93,14 @@ test('26 Nov 14:32: How it works has 4 steps; Reliability is its own section wit
   const h = await page();
   const how = h.slice(h.indexOf('id="how"'), h.indexOf('id="safety"'));
   assert.deepEqual([...how.matchAll(/<li><h3>([^<]+)<\/h3>/g)].map((m) => m[1]), ['Understand &amp; identify', 'Agree on the plan', 'Build &amp; test', 'Hand over']);
-  const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('id="about"'));
+  const safe = h.slice(h.indexOf('id="safety"'), h.indexOf('id="handover"'));
   assert.match(safe, /It doesn&rsquo;t just run\. It checks when something goes wrong\./);
   assert.match(safe, /If something goes wrong, the workflow catches it and tells the right person\./);
   assert.equal([...safe.matchAll(/<li class="v6-snode/g)].length, 4);
   assert.match(safe, /v6-snode-human"[\s\S]*?People stay in control/);
-  assert.equal([...safe.slice(safe.indexOf('v6-handover')).matchAll(/<li><strong>/g)].length, 4);
+  const hand = h.slice(h.indexOf('id="handover"'), h.indexOf('id="pricing"'));
+  assert.equal([...hand.matchAll(/<li><strong>/g)].length, 4, '27 Nov: handover list is its own section');
+  assert.ok(!safe.includes('v6-handover'));
   assert.ok(h.indexOf('id="how"') < h.indexOf('id="safety"') && h.indexOf('id="safety"') < h.indexOf('id="about"'));
   assert.doesNotMatch(visible(main(h)), /\bWe(&rsquo;|’|')ll\b|\bWe review\b/);
 });
@@ -114,7 +116,8 @@ test('proof: previous-role results are labelled as not client work; details open
 test('guard rails: no prices or testimonials, one booking wording, no inline styles', async () => {
   const h = await page();
   const v = visible(h);
-  assert.doesNotMatch(v, /[$₱€£]\s?\d|per hour|testimonial|what (my )?clients say|100% accurate|all errors detected/i);
+  // 27 Nov: the only prices allowed are the approved ones (starting price per currency, maintenance from AUD $250).
+  assert.doesNotMatch(v.replace(/(USD \$500|AUD \$750|AUD \$250 a month)/g, ''), /[$₱€£]\s?\d|per hour|testimonial|what (my )?clients say|100% accurate|all errors detected/i);
   assert.doesNotMatch(v, /(report|rework) review/i);
   for (const m of h.matchAll(/<a class="btn btn-primary[^"]*" href="contact\/#contact-form-area">([^<]+)<\/a>/g)) assert.ok(['Book a free process review', 'Discuss a similar improvement'].includes(m[1]), m[1]);
   assert.doesNotMatch(h, /\sstyle="/, 'CSP: no inline styles');
@@ -141,4 +144,43 @@ test('26 Nov: experience pop-ups follow the sample layout (problem, what happene
     assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), id);
     assert.ok(!a.includes('flow2') && !a.includes('<details'), id);
   }
+});
+
+test('27 Nov: Pricing after Handover with a USD | AUD toggle (USD default); FAQ covers cost, time and after-handover', async () => {
+  const h = await page();
+  const pr = h.slice(h.indexOf('id="pricing"'), h.indexOf('id="about"'));
+  assert.match(pr, /Practical improvements, priced upfront\./);
+  assert.match(pr, /Projects start from<\/p>\s*<p class="v6-price-amt"[^>]*><span data-price>USD \$500<\/span>/);
+  assert.match(pr, /data-cur-toggle hidden>[\s\S]*?data-cur="USD" aria-pressed="true">USD<\/button><button type="button" data-cur="AUD" aria-pressed="false">AUD/);
+  assert.ok(!/<select/.test(pr), 'no dropdown');
+  ['A clear scope of work.', 'Agreed deliverables.', 'A written price.', 'An expected timeframe.', 'No surprises. No commitment until you agree.'].forEach((t) => assert.ok(pr.includes(t), t));
+  assert.ok(!pr.includes('$250'), 'maintenance price lives in the FAQ, not the Pricing section');
+  const faq = h.slice(h.indexOf('id="faq"'), h.indexOf('id="start"'));
+  const qs = [...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]);
+  ['Who do you work with?', 'Can you work with larger businesses or teams?', 'Do you use AI for everything?', 'Will this replace anyone on my team?', 'Can you work with confidential or sensitive information?', 'How much does a project cost?', 'How long does a project take?', 'Who manages the solution after handover?', 'What happens after the 30 days?'].forEach((q) => assert.ok(qs.includes(q), q));
+  assert.match(faq, /Projects start from <span data-price>USD \$500<\/span>/);
+  assert.match(faq, /1&ndash;3 weeks/);
+  assert.match(faq, /AUD \$250 a month/);
+  assert.match(faq, /Solo operators, small teams/);
+  assert.match(faq, /Active monitoring by me isn&rsquo;t included unless/);
+  assert.ok(!/pilot|enterprise/i.test(faq), 'no pilot or enterprise offer');
+});
+
+test('27 Nov: currency toggle switches every [data-price] and remembers the choice', async () => {
+  const { mountCurrency } = await import('../src/currency.js');
+  const store = {}; globalThis.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => { store[k] = v; } };
+  const prices = [{ textContent: 'USD $500' }, { textContent: 'USD $500' }];
+  const mk = (cur) => { const b = { dataset: { cur }, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; } }; b.closest = () => b; return b; };
+  const btns = [mk('USD'), mk('AUD')]; let handler;
+  const toggle = { hidden: true, addEventListener: (t, f) => { handler = f; } };
+  const doc = { querySelectorAll: (sel) => (sel === '[data-cur-toggle]' ? [toggle] : sel === '[data-price]' ? prices : btns) };
+  mountCurrency(doc);
+  assert.equal(toggle.hidden, false);
+  assert.deepEqual(prices.map((p) => p.textContent), ['USD $500', 'USD $500']);
+  assert.equal(btns[0].attrs['aria-pressed'], 'true');
+  handler({ target: btns[1] });
+  assert.deepEqual(prices.map((p) => p.textContent), ['AUD $750', 'AUD $750']);
+  assert.equal(btns[1].attrs['aria-pressed'], 'true');
+  assert.equal(store['rr-currency'], 'AUD');
+  delete globalThis.localStorage;
 });

@@ -280,7 +280,8 @@ test('How it works, About, FAQ and Book keep the retained lines', async () => {
 test('guard rails: no prices, testimonials or invented results; first person; one button wording ("Book a free process review" on every booking button, 19 Nov); only confirmed tools', async () => {
   const html = await page();
   const visible = visibleText(noDemo(html)); // the weekly report demo shows fictional sample amounts, not prices
-  assert.doesNotMatch(visible, /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
+  // 27 Nov: approved prices only (USD $500 / AUD $750 starting price with its USD | AUD toggle, maintenance from AUD $250 a month).
+  assert.doesNotMatch(visible.replace(/USD \$500|AUD \$750|AUD \$250 a month|\bUSD\s*AUD\b/g, ''), /[$₱€£]\s?\d|\bPHP\s?\d|\bUSD\b|per hour|\/hr\b|testimonial|what (my )?clients say/i);
   assert.doesNotMatch(visible, /100% accurate|detect(s)? every|all errors detected|fully automate everything|finds every problem/i);
   assert.doesNotMatch(visible, /years (of experience )?in AI|AI (automation )?agency|AI expert|Zapier|GoHighLevel|\bGHL\b|Make\.com/i);
   // 24 Nov: Jeff approved "Small Businesses" in the page title (and its social copy) only

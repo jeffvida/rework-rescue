@@ -6419,3 +6419,35 @@ main > section.section#services { padding-top: var(--section-pad); padding-botto
   .rri-icons li { font-size: 0.8rem; gap: 0.35rem; }
 }
 @media print { .rri-h, .rri-icons li { color: #000 !important; } .rri-w:not(.is-on) { display: none; } }
+
+/* ===== 27 Nov 2026 (evening): hero right side "Connected business operations" (ChatGPT concept 1 + light before/after)
+   Faint, tilted everyday items (email, calendar, job list, report) → three connected areas → the RR mark.
+   Rework Rescue logo only; no third-party logos, no second headline, no rotating words. One quiet pass of motion. */
+.hcb { --gold: #e6c078; margin: 0; justify-self: end; width: 100%; max-width: 27rem; text-align: center; }
+.hcb-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hcb-art rect { fill: rgba(255, 255, 255, 0.04); stroke: rgba(255, 255, 255, 0.24); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.hcb-ai, .hcb-ni { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.hcb-ai { stroke: rgba(215, 229, 226, 0.78); }
+.hcb-in path { fill: none; stroke: rgba(255, 255, 255, 0.2); stroke-width: 1.3; stroke-dasharray: 3 5; }
+.hcb-out path { fill: none; stroke: rgba(106, 217, 171, 0.55); stroke-width: 1.6; }
+.hcb-node circle { fill: #0b3a37; stroke: rgba(134, 232, 192, 0.6); stroke-width: 1.5; }
+.hcb-ni { stroke: #9cefcb; }
+.hcb-node text { fill: #f2f7f6; font-family: var(--display); font-size: 16px; font-weight: 600; }
+.hcb-hub { fill: #f8f7ed; stroke: var(--gold); stroke-width: 2; }
+.hcb-ring { fill: none; stroke: rgba(230, 192, 120, 0.28); stroke-width: 1.2; }
+.hcb-cap { margin: 0.35rem 0 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); opacity: 0.9; }
+@media (prefers-reduced-motion: no-preference) {
+  .hcb-art { animation: h5-in 0.5s ease-out both; }
+  .hcb-a2 { animation-delay: 0.08s; } .hcb-a3 { animation-delay: 0.16s; } .hcb-a4 { animation-delay: 0.24s; }
+  .hcb-node { animation: h5-in 0.45s ease-out both; }
+  .hcb-n1 { animation-delay: 0.55s; } .hcb-n2 { animation-delay: 0.7s; } .hcb-n3 { animation-delay: 0.85s; }
+  .hcb-out path { stroke-dasharray: 200; stroke-dashoffset: 200; animation: hcb-draw 0.9s ease-in-out 1.05s forwards; }
+  .hcb-hub, .hcb-ring, .hcb image, .hcb-cap { animation: h5-in 0.5s ease-out 1.6s both; }
+}
+@keyframes hcb-draw { to { stroke-dashoffset: 0; } }
+@media (min-width: 52.01rem) and (max-width: 74rem) {
+  .h13 .h5-grid { grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 1fr); gap: 2rem; }
+  .h13 h1 .hf-l2 { white-space: normal; }
+}
+@media (max-width: 52rem) { .hcb { justify-self: center; max-width: 24rem; } }
+@media (max-width: 40rem) { .hcb { max-width: 21rem; } .hcb-cap { font-size: 0.7rem; } }

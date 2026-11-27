@@ -3,7 +3,6 @@
 import { mountBooking } from './booking/popup.js';
 import { mountAssistant } from './assistant/widget.js';
 import { mountMotion } from './motion.js';
-import { mountImagineRotate } from './imagine-rotate.js';
 
 // ---- Phone booking bar
 // Phone-only bar with "Book a free process review" and, when the assistant is on, "Ask" (CSS shows it on narrow screens only).
@@ -56,7 +55,6 @@ export function mountBackdrop() {
 
 mountMobileCta();
 mountMotion();
-mountImagineRotate();
 mountBackdrop();
 const booking = mountBooking();
 // 20 Nov 2026: the private change/cancel link from the invite and reminders (…/#booking=KEY). The key is taken out

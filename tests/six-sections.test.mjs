@@ -20,7 +20,7 @@ test('six sections in order, and the nav matches', async () => {
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
 });
 
-test('hero (27 Nov): left copy kept (subhead ends "checks built in"); right side "Imagine your [word] running smoothly." + three outcomes', async () => {
+test('hero (27 Nov evening): left copy kept (subhead ends "checks built in"); right side = connected business operations visual', async () => {
   const h = await page();
   const hero = h.slice(h.indexOf('<section class="hero'), h.indexOf('</section>', h.indexOf('<section class="hero')));
   assert.match(hero, /AI &amp; AUTOMATION, BUILT ON 8\+ YEARS IN OPERATIONS/);
@@ -29,12 +29,12 @@ test('hero (27 Nov): left copy kept (subhead ends "checks built in"); right side
   assert.deepEqual([...hero.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1]), ['contact/#contact-form-area', 'contact/#written-review'], 'booking button + written-review link only');
   assert.match(hero, /Book a free process review/);
   assert.match(hero, /30 minutes &middot; No obligation/);
-  assert.match(hero, /<span class="rri-a">Imagine your<\/span><span class="rri-ws" data-rri-rotate>/);
-  assert.match(hero, /<span class="rri-b">running smoothly\.<\/span>/);
-  assert.deepEqual([...hero.matchAll(/<span class="rri-w[^"]*">([^<]+)<\/span>/g)].map((m) => m[1]), ['enquiries', 'follow-ups', 'reporting', 'bookings', 'daily admin']);
-  assert.match(hero, /<span class="rri-w is-on">enquiries<\/span>/, 'first word shown without JavaScript / with reduced motion');
-  for (const t of ['Enquiries answered', 'Reports ready', 'Follow-ups done']) assert.ok(hero.includes(`${t}</li>`), t);
-  for (const gone of ['rrh-', 'Capture', 'Organise', 'Work that keeps moving', 'job tracking', 'onboarding']) assert.ok(!hero.toLowerCase().includes(gone.toLowerCase()), gone);
+  assert.match(hero, /<figure class="hcb" id="hero-story">/);
+  assert.deepEqual([...hero.matchAll(/<text [^>]*>([^<]+)<\/text>/g)].map((m) => m[1]), ['Enquiries', 'Jobs &amp; follow-ups', 'Reporting']);
+  assert.equal((hero.match(/class="hcb-art /g) || []).length, 4, 'four faint everyday items (email, calendar, job list, report)');
+  assert.match(hero, /<figcaption class="hcb-cap">Connected business operations<\/figcaption>/);
+  assert.match(hero, /href="assets\/brand\/mark\.png"/, 'Rework Rescue mark only');
+  for (const gone of ['rrh-', 'rri-', 'Imagine your', 'running smoothly', 'Work that keeps moving']) assert.ok(!hero.includes(gone), gone);
   assert.ok(hero.includes('h5-wave'), 'dotted wave background kept (Jeff, 26 Nov 12:49)');
   const cta = h.slice(h.indexOf('id="start"'), h.indexOf('</section>', h.indexOf('id="start"')));
   assert.match(cta, /<h2 id="cta-h">Let&rsquo;s look at one process together\.<\/h2>/);

@@ -6341,3 +6341,47 @@ main > section#faq { background: var(--tint); }
 .v6-price-box .v6-maint strong { color: var(--ink); font-size: 1rem; }
 .v6-price-box .v6-maint span:not([data-price]) { font-size: 0.88rem; }
 @media (max-width: 40rem) { .v6-price-extra { grid-template-columns: minmax(0, 1fr); gap: 0.7rem; } .v6-price-box { padding: 1rem; } }
+
+/* ===== 27 Nov 2026: Projects grid (option B) — replaces the three problem cards and "Built into this website" ===== */
+.pj-grid { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pj-card { display: flex; flex-direction: column; gap: 0.6rem; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--teal); border-radius: 14px; padding: 1.3rem 1.3rem 1.15rem; box-shadow: 0 1px 2px rgba(15, 58, 58, 0.05), 0 10px 24px -18px rgba(15, 58, 58, 0.35); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.pj-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(15, 58, 58, 0.06), 0 18px 34px -20px rgba(15, 58, 58, 0.45); }
+.pj-top { display: flex; align-items: center; gap: 0.75rem; }
+.pj-ico { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 10px; background: #e6f2ef; color: var(--teal); flex: none; }
+.pj-ico svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pj-tag { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
+.pj-tag-live { display: inline-flex; align-items: center; gap: 0.4rem; color: #2f7552; }
+.pj-tag-live::before { content: ""; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #3fae7a; box-shadow: 0 0 0 3px rgba(63, 174, 122, 0.18); }
+.pj-tag-ind { color: #8a6516; }
+.pj-h { margin: 0.2rem 0 0; font-size: 1.15rem; line-height: 1.25; }
+.pj-out { margin: 0; color: #2b3b3f; font-size: 0.98rem; line-height: 1.55; }
+.pj-tools { list-style: none; padding: 0; margin: 0.15rem 0 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.pj-tools li { font-size: 0.75rem; font-weight: 600; color: var(--muted); background: #f3f1ea; border: 1px solid #e4e0d4; border-radius: 999px; padding: 0.18rem 0.55rem; }
+.pj-links { margin: auto 0 0; padding-top: 0.6rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.1rem; }
+.pj-links [data-assistant-only]:not([hidden]) { display: contents; }
+.pj-more { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 46px; padding: 0 1rem; border: 1.5px solid var(--teal); border-radius: 10px; color: var(--teal); font-weight: 700; text-decoration: none; transition: background 0.2s ease, color 0.2s ease; }
+.pj-more:hover, .pj-more:focus-visible { background: var(--teal); color: #fff; }
+.pj-arr { transition: transform 0.2s ease; }
+.pj-more:hover .pj-arr, .pj-try:hover span { transform: translateX(3px); }
+.pj-try { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 46px; padding: 0 1rem; border: 0; border-radius: 10px; background: var(--teal); color: #fff; font: inherit; font-weight: 700; font-size: 0.95rem; text-decoration: none; cursor: pointer; }
+.pj-try span { transition: transform 0.2s ease; }
+.pj-try:hover, .pj-try:focus-visible { background: #24665d; }
+.pj-sub { font-size: 0.9rem; color: var(--muted); text-decoration: underline; text-underline-offset: 0.18em; padding-block: 0.6rem; }
+.pj-sub:hover { color: var(--ink); }
+.v6-help .pj-grid + .v6-proof-note { margin-top: 1.2rem; }
+@media (max-width: 62rem) { .pj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) { .pj-grid { grid-template-columns: minmax(0, 1fr); margin-top: 1.4rem; gap: 1rem; } .pj-card { padding: 1.15rem 1.1rem 1rem; } }
+@media (prefers-reduced-motion: reduce) { .pj-card, .pj-card:hover, .pj-arr, .pj-try span { transition: none; transform: none; } }
+
+/* 27 Nov spacing fixes: Projects gets the same top/bottom space as every other section; How it works intro
+   matches the other section intros; prices never break between currency and amount. */
+main > section.section#services { padding-top: var(--section-pad); padding-bottom: var(--section-pad); }
+@media (max-width: 40rem) { main > section.section#services { padding-top: 2.5rem; padding-bottom: 2.75rem; } }
+.how-section h2 { margin-bottom: 1.26rem; }
+.how-section .steps-h { margin: 0; font-size: 1.2rem; max-width: 40rem; }
+@media (max-width: 40rem) { .how-section .steps-h { font-size: 1.125rem; } }
+.nowrap { white-space: nowrap; }
+/* Live cards: "Try it" button full width like "See how it's built", "How it's built" link underneath (same on every width) */
+.pj-try { width: 100%; justify-content: space-between; }
+.pj-links { gap: 0.1rem 1rem; }
+.pj-links .pj-sub { padding-block: 0.45rem 0; }

@@ -14,9 +14,9 @@ const visible = (h) => h.replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/
 test('six sections in order, and the nav matches', async () => {
   const h = main(await page());
   const ids = [...h.matchAll(/<section class="[^"]*" (?:id="([^"]+)" )?aria-labelledby="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  assert.deepEqual(ids, ['hero-title', 'services', 'built-in', 'experience', 'how', 'safety', 'pricing', 'about', 'faq', 'start']);
+  assert.deepEqual(ids, ['hero-title', 'services', 'experience', 'how', 'safety', 'pricing', 'about', 'faq', 'start']);
   const nav = (await page()).match(/<ul class="nav-list">([\s\S]*?)<\/ul>/)[1];
-  assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services How I help', '#how How it works', '#pricing Pricing', '#about About', '#faq FAQ']);
+  assert.deepEqual([...nav.matchAll(/<li><a href="(#[a-z]+)">([^<]+)<\/a><\/li>/g)].map((m) => `${m[1]} ${m[2]}`), ['#services Projects', '#how How it works', '#pricing Pricing', '#about About', '#faq FAQ']);
   for (const gone of ['id="sn-drill"', 'id="enquiry-demo"', 'id="report-demo"', 'class="rr-tiles"', 'Demos &amp; examples']) assert.ok(!h.includes(gone), gone);
 });
 
@@ -36,29 +36,28 @@ test('hero (26 Nov v13): short copy, problems → AI & Automation → result, on
   for (const t of ['Written scope and price before work begins.', 'You own what I build.', '30 days of fixes within the agreed scope.']) assert.ok(cta.includes(`<span>${t}</span>`), t);
 });
 
-test('How I help (26 Nov 14:23): three green cards — problem, what I improve, project name as the link', async () => {
+test('Projects (27 Nov, option B): one grid — three sample workflows + two live tools; no repeat of the hero problems', async () => {
   const h = await page();
-  const sec = h.slice(h.indexOf('id="services"'), h.indexOf('id="built-in"'));
-  assert.match(sec, /Where work gets stuck &mdash; and how I improve it\./);
-  assert.match(sec, /Three working examples I&rsquo;ve built and tested end to end, so you can see how each solution works before we talk\./);
+  const sec = h.slice(h.indexOf('id="services"'), h.indexOf('id="experience"'));
+  assert.match(sec, /<p class="eyebrow">Projects<\/p>\s*<h2 id="services-h">Projects I&rsquo;ve built and tested\.<\/h2>/);
   assert.match(sec, /tested with sample data, not client projects\./);
-  const tiles = [...h.matchAll(/<li class="v6-tile v6-tile-[a-z]+">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
-  assert.equal(tiles.length, 3);
-  [['Enquiries left waiting', 'Enquiry Workflow'], ['Reports built by hand', 'Reporting Workflow'], ['Details getting lost', 'Job &amp; Invoice Workflow']].forEach(([prob, proj], i) => {
-    const t = tiles[i];
-    assert.ok(t.includes(`<h3 class="v6-tag">${prob}</h3>`) && t.includes(`<span>${proj}</span>`), prob);
-    assert.ok(!t.includes('The project') && !t.includes('The outcome') && !t.includes('View project'), `card ${i + 1} trimmed labels`);
-    const order = ['The problem', 'What I improve', proj].map((k) => t.indexOf(k));
-    assert.ok(order.every((x, j) => x > 0 && (j === 0 || x > order[j - 1])), `card ${i + 1} order`);
-    assert.match(t, /data-sp-open="(enquiry|report|invoice)" data-sp-group="sample" aria-haspopup="dialog">/);
-  });
-  assert.ok(!h.includes('id="projects"'), 'no separate Selected projects section');
+  const cards = [...sec.matchAll(/<li class="pj-card [^"]+">([\s\S]*?)<\/p>\s*<\/li>/g)].map((m) => m[1]);
+  assert.equal(cards.length, 5);
+  const names = cards.map((c) => c.match(/<h3 class="pj-h">([^<]+)<\/h3>/)[1]);
+  assert.deepEqual(names, ['Enquiry tracker', 'Self-checking weekly report', 'Job-to-invoice check', 'Online booking', 'AI website assistant']);
+  cards.slice(0, 3).forEach((c) => assert.match(c, /<p class="pj-tag">Sample workflow<\/p>/));
+  cards.slice(3).forEach((c) => assert.match(c, /<p class="pj-tag pj-tag-live">Live on this site<\/p>/));
+  ['enquiry', 'report', 'invoice', 'booking', 'chat'].forEach((id, i) => assert.ok(cards[i].includes(`data-sp-open="${id}" data-sp-group="project"`), id));
+  cards.forEach((c) => assert.match(c, /<ul class="pj-tools" aria-label="Tools used">/));
+  for (const m of sec.matchAll(/class="pj-try"[^>]*>([^<]+)/g)) assert.match(m[1], /^Try it: /);
+  const grid = sec.slice(0, sec.indexOf('data-sp-details'));
+  for (const p of ['Enquiries left waiting', 'Reports built by hand', 'Details getting lost', 'The problem', 'Where work gets stuck']) assert.ok(!grid.includes(p), `no hero repeat: ${p}`);
+  assert.ok(!h.includes('id="built-in-h"'), 'separate Live demos section folded in');
+  assert.ok(sec.includes('<span class="anchor" id="built-in"></span>'), 'old #built-in links still land here');
 });
 
-test('Live demos (26 Nov 14:23): full section heading; invoice pop-up shows both workflow screenshots', async () => {
+test('invoice pop-up shows both workflow screenshots', async () => {
   const h = await page();
-  const b = h.slice(h.indexOf('id="built-in"'), h.indexOf('id="experience"'));
-  assert.match(b, /<p class="eyebrow">Live demos<\/p>\s*<h2 id="built-in-h">Built into this website<\/h2>/);
   const inv = h.slice(h.indexOf('id="sp-d-invoice"'), h.indexOf('</article>', h.indexOf('id="sp-d-invoice"')));
   assert.ok(inv.includes('assets/workflows/job-completion.webp') && inv.includes('assets/workflows/xero-draft.webp'));
 });
@@ -72,21 +71,6 @@ test('pop-ups: labelled illustrative, problem first, and a booking CTA that clos
     assert.match(a, /<p class="v6-foot">Illustrative/, id);
     assert.match(a, /href="contact\/#contact-form-area" data-sp-leave>Discuss a similar improvement</, id);
   }
-});
-
-test('Built into this website (26 Nov): compact, not numbered; links start with "Try it:" and open the booking page / chat', async () => {
-  const h = await page();
-  const s = h.slice(h.indexOf('id="built-in"'), h.indexOf('id="experience"'));
-  assert.match(s, /Built into this website<\/h2>/);
-  assert.match(s, /Two tools running on this site right now\. Try them for yourself\./);
-  for (const t of ['Online booking', 'AI website assistant']) assert.ok(s.includes(`<h3>${t}</h3>`), t);
-  assert.equal([...s.matchAll(/<p class="v6-live-dot">Live on this site<\/p>/g)].length, 2);
-  assert.match(s, /Choose a time and book a meeting without the usual back-and-forth\./);
-  assert.match(s, /Ask a question and see how the website assistant responds\./);
-  assert.match(s, /href="contact\/#contact-form-area">Try it: booking system/);
-  assert.match(s, /data-assistant-only hidden><button type="button" class="v6-sel-try" data-assistant-open>Try it: AI assistant/);
-  for (const m of s.matchAll(/class="v6-sel-try"[^>]*>([^<]+)/g)) assert.match(m[1], /^Try it: /);
-  assert.ok(!h.includes('class="v6-live"') && !h.includes('05 &middot; Live'), 'old 04/05 cards gone');
 });
 
 test('26 Nov 14:32: How it works has 4 steps; Reliability is its own section with 4 checks, the key line and the handover list', async () => {
@@ -154,7 +138,7 @@ test('27 Nov: Pricing after Handover with a USD | AUD toggle (USD default); FAQ 
   assert.match(pr, /Projects start from<\/p>\s*<p class="v6-price-amt"[^>]*><span data-price>USD \$500<\/span>/);
   assert.match(pr, /data-cur-toggle hidden>[\s\S]*?data-cur="USD" aria-pressed="true">USD<\/button><button type="button" data-cur="AUD" aria-pressed="false">AUD/);
   assert.ok(!/<select/.test(pr), 'no dropdown');
-  ['Project pricing', 'Before work starts, you&rsquo;ll receive:', 'A clear scope of work.', 'Agreed deliverables.', 'A written price.', 'An expected timeframe.', 'Software and subscription costs', 'Support when you need it', 'Ongoing maintenance from <span data-price="maint">USD $165/month</span>', 'Optional. Agreed separately based on your requirements.', 'No surprises. No commitment until you agree.'].forEach((t) => assert.ok(pr.includes(t), t));
+  ['Project pricing', 'Before work starts, you&rsquo;ll receive:', 'A clear scope of work.', 'Agreed deliverables.', 'A written price.', 'An expected timeframe.', 'Software and subscription costs', 'Support when you need it', 'Ongoing maintenance from <span class="nowrap" data-price="maint">USD $165/month</span>', 'Optional. Agreed separately based on your requirements.', 'No surprises. No commitment until you agree.'].forEach((t) => assert.ok(pr.includes(t), t));
   const faq = h.slice(h.indexOf('id="faq"'), h.indexOf('id="start"'));
   const qs = [...faq.matchAll(/<summary>([^<]+)<\/summary>/g)].map((m) => m[1]);
   ['Who do you work with?', 'Can you work with larger businesses or teams?', 'Do you use AI for everything?', 'Will this replace anyone on my team?', 'Can you work with confidential or sensitive information?', 'How much does a project cost?', 'How long does a project take?', 'What happens after handover?', 'Are software subscriptions and API costs included?', 'Can I request support after the 30 days?'].forEach((q) => assert.ok(qs.includes(q), q));
